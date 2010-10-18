@@ -11,8 +11,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'sqlite3',
-        'NAME': '/home/newebe/Newebe/newebe.db', 
+        'ENGINE': '',
+        'NAME': '', 
         'USER': '',   
         'PASSWORD': '', 
         'HOST': '',    
