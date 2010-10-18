@@ -1,0 +1,22 @@
+<ftml>
+<body>
+<p>Relax</p>
+<form action="/couchdb/" method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+{% if tweet %}
+<p>You posted : </p>
+<p>{{ tweet.content }}</p>
+{% endif %}
+
+{% for tweet in tweets %}
+<p>{{ tweet.author }}</p>
+<p>{{ tweet.content }}</p>
+<p>{{ tweet.date }}</p>
+{% endfor %}
+
+</body>
+</html>
