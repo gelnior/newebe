@@ -1,0 +1,49 @@
+<html>
+<head>
+    <link href="/platform/css/common/" rel="stylesheet" 
+          type="text/css" media="screen" />
+    <link href="/platform/css/news/" rel="stylesheet" 
+          type="text/css" media="screen" />
+    <link type="text/css" href="/platform/css/jquery-ui-black-tie/" 
+          rel="Stylesheet" />          
+    <script type="text/javascript" src="/platform/js/jquery/"></script>
+    <script type="text/javascript" src="/platform/js/news/"></script>
+    <script type="text/javascript" src="/platform/js/jqueryui/"></script>
+    <script type="text/javascript" src="/platform/js/date/"></script>
+    <title>Getlnior's newebe</title>
+</head>
+    <body>
+
+        <div id="content">
+            
+            <!-- Posting form -->
+            <form id="news-form" action="/news/wall/" method="post">
+            <div>
+                <textarea class="news-area" 
+                          name="content" id="id_content"></textarea></div>
+                <input id="news-post-button" 
+                       class="button post-button" type="submit" value="Post" />
+            </form>
+            <!-- End posting form -->
+
+            <!-- Tool bar -->
+            <div id="news-toolbar">
+                <a id="news-my-button" href="#">mine</a>
+                <a id="news-all-button" href="#">theirs</a>
+                <span>
+                    from: <input id="news-from-datepicker" type="text"></input>
+                </span>
+            </div>
+            <div class="spacer"></div>
+            <!-- End tool bar -->
+
+            <!-- News Listing -->
+            <div id="newss" class="news-newss">
+            </div>
+            <!-- End news Listing -->
+
+            <a id="news-more">more...</a>
+        </div>
+
+    </body>
+</html>

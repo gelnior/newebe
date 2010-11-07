@@ -1,0 +1,15 @@
+/** News app themes */
+
+/** News form */
+input.button { font-weight : bold; }
+input.post-button  { float : right; font-size : 18px; margin-left: 3px;}
+textarea.news-area { width : 958px; font-size : 18px; padding: 5px; }
+
+/** News object styling */
+div.news-newss { margin-top: 40px; margin-left: 2px; }
+div.news-news { padding-bottom : 20px; }
+p.news-news-content { padding-bottom : 5px; }
+p.news-news-content span { font-weight : bold; }
+p.news-news-date { font-size : 10px; color #AAA; }
+a.news-delete { float : right; }
+
