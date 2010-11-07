@@ -6,16 +6,12 @@ TEMPLATE_DEBUG = DEBUG
 SITE_ID = 1
 SECRET_KEY = '*=$m*%d4u8gi$ry8#_ez&**3s#8wtv8x^a3_tdrk$snhd-uw_a'
 
-ADMINS = (
-     ('newebe', 'gelnior@free.fr'),
-)
-MANAGERS = ADMINS
-
-# Db config empty because of Couchdb usage.
+# Db config is set to sqlite3 because django does not accept synchronize 
+# command if nothing is set.
 DATABASES = {
     'default': {
-        'ENGINE': '',
-        'NAME': '', 
+        'ENGINE': 'sqlite3',
+        'NAME': 'newebe', 
         'USER': '',   
         'PASSWORD': '', 
         'HOST': '',    
@@ -25,7 +21,7 @@ DATABASES = {
 
 # Couchdb configuration
 COUCHDB_DATABASES = (
-    ('newebe.main', 'http://127.0.0.1:5984/newebe'),
+    ('newebe.news', 'http://127.0.0.1:5984/newebe'),
 )
 
 # Locale configuration
@@ -34,17 +30,18 @@ LANGUAGE_CODE = 'fr-fr'
 USE_I18N = True
 USE_L10N = True
 
-# Media configuration
-MEDIA_ROOT = '/home/Newebe/media/'
-MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = '/media/'
+# Media configuration : path for CSS, JS and image files.
+MEDIA_ROOT = '/home/gelnior/projets/newebe/newebe/media/'
+MEDIA_ROOT_JS = '%sjs/' % MEDIA_ROOT
+MEDIA_ROOT_CSS = '%scss/' % MEDIA_ROOT
+MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
 
-ROOT_URLCONF = 'newebe.urls'
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
@@ -56,10 +53,15 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
-TEMPLATE_DIRS = (
-    '/home/newebe/Newebe/templates/'
+# Root URLs module.
+ROOT_URLCONF = 'newebe.urls'
+
+# Path to the django templates.
+TEMPLATE_DIRS= (
+    '/home/gelnior/projets/newebe/newebe/templates/'
 )
 
+# App installed in newebe
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,10 +71,18 @@ INSTALLED_APPS = (
 
     'django.contrib.admin',
     'couchdbkit.ext.django',
-    'newebe.main',
+    'newebe.platform',
+    'newebe.news',
 )
 
 # Fast-cgi need this line for working with Lighttpd.
 FORCE_SCRIPT_NAME=""
 
 
+import logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '%(asctime)s %(levelname)s %(message)s',
+    filename = 'myapp.log',
+    filemode = 'w'
+)
