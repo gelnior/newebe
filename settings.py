@@ -10,7 +10,7 @@ SECRET_KEY = '*=$m*%d4u8gi$ry8#_ez&**3s#8wtv8x^a3_tdrk$snhd-uw_a'
 # command if nothing is set.
 DATABASES = {
     'default': {
-        'ENGINE': 'sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'newebe', 
         'USER': '',   
         'PASSWORD': '', 
@@ -25,7 +25,7 @@ COUCHDB_DATABASES = (
 )
 
 # Locale configuration
-TIME_ZONE = 'France/Paris'
+TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'fr-fr'
 USE_I18N = True
 USE_L10N = True
@@ -37,7 +37,9 @@ MEDIA_ROOT_CSS = '%scss/' % MEDIA_ROOT
 MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
 
 
-
+# Django middleware. CSRF is disabled, because it causes me trouble to post
+# data but it should be enabled when security features will be added to the
+# project.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -70,6 +72,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 
     'django.contrib.admin',
+   # 'django.contrib.staticfiles',
+
     'couchdbkit.ext.django',
     'newebe.platform',
     'newebe.news',
@@ -78,7 +82,7 @@ INSTALLED_APPS = (
 # Fast-cgi need this line for working with Lighttpd.
 FORCE_SCRIPT_NAME=""
 
-
+# Logging stuff for debugging
 import logging
 logging.basicConfig(
     level = logging.DEBUG,
@@ -86,3 +90,7 @@ logging.basicConfig(
     filename = 'myapp.log',
     filemode = 'w'
 )
+
+# Static files URLs
+STATIC_ROOT = "/home/gelnior/projets/newebe/newebe/media/js/"
+STATIC_URL = "/static/"

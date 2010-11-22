@@ -1,6 +1,11 @@
 from django.utils import simplejson as json
 
 def getJsonFromDocList(docs):
+    '''
+    Converts a whole list of db documents to their JSON format, assuming the
+    fact that they have toDict() method to convert them as dict object for
+    easy JSON serializing.
+    '''
     response_dict = {}
     response_dict['total_rows'] = len(docs)
 

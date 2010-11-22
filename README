@@ -1,25 +1,19 @@
-Work in progress
-
-
-### Set up development Environment (Ubuntu)
+### How to set up the development environment (on Ubuntu 10.4)
 
 1. Install following packages :
 python python-django python-couchdbkit couchdb git
 
-1. bis 
-If needed install simplejson
-
-2. Create a couchdb database called newebe via Futon 
+2. Create a couchdb database called Newebe via Futon 
 (http://localhost:5984/_utils).
 
-3. Retrieve newebe project :
+3. Retrieve Newebe project :
 git clone git@github.com:gelnior/newebe.git
 
 4. Change following constants in settings.py :
 MEDIA_ROOT (path to your media directory).
 TEMPLATE_DIRS (path to your template directory).
 
-5. In newebe run :
+5. In Newebe directory run :
 python manage.py runserver
 
 6. In your browser, connect to http://localhost:8000/ and check if everything

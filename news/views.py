@@ -8,13 +8,14 @@ from django.http import HttpResponse
 
 from couchdbkit.ext.django.forms import document_to_dict
 
-from newebe.news.models import News
+from newebe.news.models import News, NewsManager
 from newebe.news.forms import NewsForm, News
 from newebe.news import news_settings
 
 from newebe.lib.rest import *
 from newebe.lib.date_util import *
 from newebe.lib import json_util
+
 
 class WallResource(RestResource):
     '''
@@ -56,21 +57,21 @@ class NewsItemResource(RestResource):
 
         if startKey:
             dateString = getDbDateFromUrlDate(startKey)
-            newss = News.view("news/all", 
-                              startkey = dateString, 
-                              descending=True, 
-                              limit=news_settings.NEWS_LIMIT+1, 
-                              skip=1)
+            newss = NewsManager.getList(dateString)
 
         else:
-            newss = News.view("news/all", 
-                              descending=True, 
-                              limit=news_settings.NEWS_LIMIT)
+            newss = NewsManager.getList()
             
         return JsonResponse(json_util.getJsonFromDocList(newss))
 
         
     def POST(self, request):
+        '''
+        When post request is recieved, news content is expected inside
+        a json object under member *content*. It is extracted from it
+        then stored inside a new News object. News author is automatically
+        set with current user (TODO) and current date is set as date.
+        '''
         data = request.raw_post_data
 
         if data:
@@ -84,21 +85,26 @@ class NewsItemResource(RestResource):
             return CreationResponse(news.toJson())
     
         else: 
-            return ErrorResponse("News item has not been created. ")
+            return ErrorResponse("News item has not been created.")
 
 
     def DELETE(self, request, startKey):
+        '''
+        Delete extract start key date from URL. Start key is the datetime 
+        corresponding at news entry. It retrieves post which have the same
+        datetime and delete it if it exists.
+        '''
+
         if startKey:
             dateString = getDbDateFromUrlDate(startKey)
-            newss = News.view("news/all",
-                              key=dateString)
+            news = NewsManager.getFirst(dateString)
 
-            if newss:  
-                for news in newss:
-                    news.delete()
-
-            return SuccessResponse("Delete succeeds.")
+            if news:  
+                news.delete()
+                return SuccessResponse("Delete succeeds.")
+            else:
+                return ErrorResponse("No micro post for this date.")
     
         else:
-            return ErrorResponse("No item for this date.")
+            return ErrorResponse("No date given, no micro post deleted.")
         

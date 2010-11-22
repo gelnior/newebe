@@ -1,8 +1,8 @@
 from django import http
-from django.conf import settings
-from django.core import urlresolvers
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.encoding import force_unicode
+#from django.conf import settings
+#from django.core import urlresolvers
+#from django.shortcuts import get_object_or_404, redirect
+#from django.utils.encoding import force_unicode
 from django.http import HttpResponse
 
 
@@ -28,26 +28,43 @@ class RestResource(object):
 
 
 class JsonResponse(HttpResponse):
+    '''
+    Http response configured to return JSON data.
+    '''
 
     def __init__(self, json):
         HttpResponse.__init__(self, json, status=200, mimetype=JSON_MIMETYPE)
 
 
 class  CreationResponse(HttpResponse):
+    '''
+    Http response configured to return JSON date, with a Creation Success code
+    (201)
+    '''
 
     def __init__(self, json):
         HttpResponse.__init__(self, json, status=201, mimetype=JSON_MIMETYPE)
 
 
 class  ErrorResponse(HttpResponse):
+    '''
+    Http response to return an error message encapsuled in a JSON object with
+    one entry of which *error* is the key and given text the value. Server
+    error code (500) is set.
+    '''
 
     def __init__(self, errorText):
-        json = '{ "errror": "%s" }' % errortText 
+        json = '{ "errror": "%s" }' % errorText 
         HttpResponse.__init__(self, json, status=500, mimetype=JSON_MIMETYPE)
 
 
-class  SuccessResponse(HttpResponse):
+class  SuccessResponse(JsonResponse):
+    '''
+    Http response to return a success message encapsuled in a JSON object with
+    one entry of which *success* is the key and given text the value. Server
+    success code (200) is set.
+    '''
 
     def __init__(self, successText):
         json = '{ "success": "%s" }' % successText
-        HttpResponse.__init__(self, json, mimetype=JSON_MIMETYPE)
+        JsonResponse.__init__(self, json)

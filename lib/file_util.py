@@ -6,7 +6,7 @@ from django.shortcuts import Http404
 from django.http import HttpResponse
 
 
-def static_file_response(path):
+def staticFileResponse(path):
     '''
     Return in an HTTP response the file located at *path*.
 
