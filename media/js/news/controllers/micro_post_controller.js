@@ -46,8 +46,8 @@ $.Controller.extend('News.Controllers.MicroPost',
   ready: function() {
     News.Controllers.MicroPost.docController = this;
     this.initWidgets();
-    this.clearAndFocusTextArea();
     News.Models.MicroPost.getLast({}, this.callback('list'));
+    this.clearAndFocusTextArea();
   },
  
   /**
@@ -112,6 +112,7 @@ $.Controller.extend('News.Controllers.MicroPost',
     $("#news-from-datepicker").val(null);
     this.clearMicroPosts();
     News.Models.MicroPost.getLast({}, this.callback('list'));
+    this.clearAndFocusTextArea();
   },
 
   /**
@@ -167,7 +168,7 @@ $.Controller.extend('News.Controllers.MicroPost',
     if (ev.keyCode == '17') this.isCtrl=true; 
     if (ev.keyCode == '13' && this.isCtrl == true) {
        this.isCtrl = false;
-       this.postNews();
+       this.postMicroPost();
     } 
   },
  
@@ -202,6 +203,7 @@ $.Controller.extend('News.Controllers.MicroPost',
   loadNewsSince: function(sinceDate) {
     News.Models.MicroPost.getSince(sinceDate + "-23-59-00", {}, 
                                    this.callback('list'));
+    this.clearAndFocusTextArea();
   },
 
   /**
@@ -211,6 +213,7 @@ $.Controller.extend('News.Controllers.MicroPost',
   postMicroPost: function() {
     jsonString = '{"content": "' +  $("#id_content").val() + '"}';
     News.Models.MicroPost.create(jsonString , this.callback('createMicroPost'));
+    this.clearAndFocusTextArea();
   },
 
   /** 
