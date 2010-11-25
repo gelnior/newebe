@@ -17,6 +17,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     font-family: inherit;
     vertical-align: baseline;
 }
+
 /* remember to define focus styles! */
 :focus {
     outline: 0;
@@ -49,6 +50,7 @@ blockquote, q {
 
 
 /** General */
+
 body { font-family : sans-serif ; } 
 
 #content { width : 960px; margin : 10 0 0 10; background : white; }

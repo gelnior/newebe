@@ -1,8 +1,4 @@
 from django import http
-#from django.conf import settings
-#from django.core import urlresolvers
-#from django.shortcuts import get_object_or_404, redirect
-#from django.utils.encoding import force_unicode
 from django.http import HttpResponse
 
 
@@ -10,9 +6,12 @@ JSON_MIMETYPE = "application/json"
 
 class RestResource(object):
     """
-    Base class to build a REST resource, it redirects call to resource
-    to python method which has the same name as the HTTP method of received
+    Base class to build a REST resource, it redirects call made to resource
+    to the python method which has the same name as the HTTP method of received
     request.
+
+    Ex: When a GET request is recieved, the *self.GET(request)* method handles 
+    it.
     """
 
     # Possible methods; subclasses could override this.

@@ -1,8 +1,9 @@
+import datetime
+
 from django.utils import simplejson as json
 from django.db import models
-from couchdbkit.ext.django.schema import *
 
-import datetime
+from couchdbkit.ext.django.schema import *
 
 from newebe.lib import date_util
 from newebe.news import news_settings
@@ -69,6 +70,7 @@ class News(Document):
          '''
          Return news as a dict object for easy json serializing.
          '''
+
          data = {}
          data['author'] = self.author
          data['content'] = self.content

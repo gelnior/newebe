@@ -2,7 +2,7 @@
 
 /**
  * @tag controllers, home
- * Displays a table of micro_posts.	 Lets the user 
+ * Displays a the list of last published micro_posts. Lets the user 
  * ["News.Controllers.MicroPost.prototype.form submit" create], 
  * ["News.Controllers.MicroPost.prototype.&#46;edit click" edit],
  * or ["News.Controllers.MicroPost.prototype.&#46;destroy click" destroy] micro_posts.
@@ -17,16 +17,11 @@ $.Controller.extend('News.Controllers.MicroPost',
 
 /* @Prototype */
 {
- /**
- * When the page loads, gets all micro_posts to be displayed.
- */
-
-
   /* Members */
 
   /** 
    * Store date of last micro post displayed. It is needed when user 
-   *  requests for more. Backend need a date and not a page number. 
+   *  requests for more. Backend need a date and not a page number for paging. 
    */
   lastRowDate : "",
   /** 
@@ -41,7 +36,7 @@ $.Controller.extend('News.Controllers.MicroPost',
   /**
    * When page is initialized, it makes all jquery ui widgets then it
    * focus on post text area. 
-   * Finally it retrieves last posts.
+   * Finally it retrieves last published posts.
    */
   ready: function() {
     News.Controllers.MicroPost.docController = this;
@@ -69,19 +64,19 @@ $.Controller.extend('News.Controllers.MicroPost',
 
   /* Utils functions */
 
-  /** Cleat post text area and focus it. */
+  /** Clears post text area and focus it. */
   clearAndFocusTextArea: function() {
     $("#id_content").val(null);
     $("#id_content").focus();
   },
   
-  /** Remove all displayed posts. */
+  /** Removes all displayed posts. */
   clearMicroPosts: function() {
     $("#newss").empty();
     $("#news-more").show();
   },
 
-  /** Configure delete buttons and hide them. */
+  /** Configures delete buttons and hide them. */
   setDeleteButtons: function() {
     $("a.news-delete").button();
     $("a.news-delete").hide();
@@ -116,7 +111,8 @@ $.Controller.extend('News.Controllers.MicroPost',
   },
 
   /**
-   * When more button is clicked it retrieves last 10 micro posts.
+   * When more button is clicked it retrieves last 10 micro posts that follows
+   * the posts actually displayed.
    */
   '#news-more click': function() {
     News.Models.MicroPost.getSince(this.lastRowDate, {}, 
@@ -134,7 +130,7 @@ $.Controller.extend('News.Controllers.MicroPost',
 
   /**
    * When delete micro post button is clicked, a confirm dialog box is 
-   * displayed, then it sends a delete request to backend and remove it from
+   * displayed, then it sends a delete request to backend and removes it from
    * micro post list.
    *
    * @param {Element} el The clicked delete button.

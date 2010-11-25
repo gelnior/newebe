@@ -14,8 +14,11 @@ MEDIA_ROOT (path to your media directory).
 TEMPLATE_DIRS (path to your template directory).
 
 5. In Newebe directory run :
+python manage.py syncdb
+
+6. Then, still in Newebe directory run :
 python manage.py runserver
 
-6. In your browser, connect to http://localhost:8000/ and check if everything
+7. In your browser, connect to http://localhost:8000/ and check if everything
 is fine.
 

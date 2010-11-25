@@ -37,10 +37,11 @@ $.Model.extend('News.Models.MicroPost',
   },
 
   /**
-   * Retrieves micro_posts data from your services since startDate. 
+   * Retrieves micro_posts data from services backend since startDate. 
    * startDate format is : YYYY-mm-dd-HH-MM-SS.
+   *
    * @param {String} startDate Date since which micro post will be retrieved.
-   * @param {Function} success a callback function that returns wrapped 
+   * @param {Function} success a callback function that returns retrieved
    * micro_post objects.
    * @param {Function} error a callback function for an error in the ajax 
    * request.
@@ -79,13 +80,13 @@ $.Model.extend('News.Models.MicroPost',
   },
 
   /**
-   * Creates a micro_post in services.
+   * Send a micro_post creation request to services backend.
    *
    * @param {String} jsonObject JSON Object needed for creation (data). 
    * jsonObject should only have a content field with micro_post. User and 
    * date are set by server.
    * @param {Function} success a callback function that indicates a 
-   * successful create.  
+   * successful creation.  
    * @param {Function} error a callback that should be called with an object
    * of errors.
    */
