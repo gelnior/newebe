@@ -15,6 +15,7 @@ class DateUtilTest(TestCase):
 class FileUtilTest(TestCase):
      def testStaticFileResponse(self):
          pass
+         # These utils are no more used now.
 
 
 class JsonUtilTest(TestCase):

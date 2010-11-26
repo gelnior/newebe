@@ -1,12 +1,12 @@
 import datetime
-from django.utils import simplejson as json
+
+from couchdbkit.ext.django.forms import document_to_dict
 from django.views.decorators.csrf import csrf_protect
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponse
-
-from couchdbkit.ext.django.forms import document_to_dict
+from django.utils import simplejson as json
 
 from newebe.news.models import News, NewsManager
 from newebe.news.forms import NewsForm, News
@@ -71,10 +71,16 @@ class NewsItemResource(RestResource):
         a json object under member *content*. It is extracted from it
         then stored inside a new News object. News author is automatically
         set with current user (TODO) and current date is set as date.
+
+        It converts carriage return to a <br /> HTML tag.
         '''
         data = request.raw_post_data
 
         if data:
+            print data
+            data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
+            data = data.replace('\n', '<br />').replace('\r', '<br />')
+            print data
             postedNews = json.loads(data)
             news = News()
             news.author = "Gelnior"
