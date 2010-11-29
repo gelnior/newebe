@@ -14,7 +14,7 @@ class NewsManager():
     Methods to easily retrive news from database.
     '''
     @staticmethod
-    def getList(startKey=None):
+    def getList(startKey=None, skip=0):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
@@ -32,7 +32,7 @@ class NewsManager():
                              startkey = startKey, 
                              descending=True, 
                              limit=news_settings.NEWS_LIMIT+1, 
-                             skip=1)
+                             skip=0)
         else:
             return News.view("news/all", 
                              descending=True, 

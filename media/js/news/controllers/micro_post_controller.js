@@ -116,7 +116,7 @@ $.Controller.extend('News.Controllers.MicroPost',
    */
   '#news-more click': function() {
     News.Models.MicroPost.getSince(this.lastRowDate, {}, 
-                                   this.callback('list'));
+                                   this.callback('moreList'));
   },
 
   /**
@@ -216,7 +216,7 @@ $.Controller.extend('News.Controllers.MicroPost',
    * From post object, generates a micro post div, set up buttons, then
    * clear post text area and focus it.
    *
-   * @param {Object} post Micro post returned by backend after creation.
+        * @param {Object} post Micro post returned by backend after creation.
    */
   createMicroPost: function(post) { 
     $('#newss').prepend(this.getHtmlFromMicroPost(post));
@@ -255,14 +255,39 @@ $.Controller.extend('News.Controllers.MicroPost',
   },
 
 
- /**
- * Displays a list of micro_posts and the submit form.
- * @param {Array} micro_posts An array of News.Models.MicroPost objects.
- */
- list: function(micro_posts) { 
-    total_rows = micro_posts.total_rows;
-    rows = micro_posts.rows;
+  /**
+   * Displays a list of micro_posts.
+   *
+   * @param {Array} micro_posts data returned by by backend.
+   */
+  list: function(micro_posts) { 
+     var total_rows = micro_posts.total_rows;
+     this.appendRows(micro_posts.rows);
+  },    
+ 
+  /**
+   * Displays a list of micro_posts but ignore first row. It is useful for
+   * data retrieving with the more button.
+   *
+   * @param {Array} micro_posts data returned by backend.
+   */
+  moreList: function(micro_posts) { 
+    var total_rows = micro_posts.total_rows;
+    var micro_posts = micro_posts.rows;
 
+    micro_posts = micro_posts.reverse();
+    micro_posts.pop();
+    micro_posts = micro_posts.reverse();
+    this.appendRows(micro_posts);
+  },
+
+  /**
+   * Displays a list of micro_posts but ignore first row. It is useful for
+   * data retrieving with the more button.
+   *
+   * @param {Array} micro_posts data returned by backend.
+   */
+  appendRows: function(rows) {
     for (var rowIdx in rows) {
       row = rows[rowIdx];
       $('#newss').append(this.getHtmlFromMicroPost(row));
