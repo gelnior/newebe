@@ -31,16 +31,19 @@ python manage.py runserver
 7. In your browser, connect to http://localhost:8000/ and check if everything
 is fine.
 
+8. run test suite 
+python manage.py test platform news
 
 ### How to set up a production environment (on Ubuntu 10.4)
 
-1. Follow steps 1 to 6 of development environment installation
+1. Follow steps 1 to 8 of development environment installation then stop 
+django server.
 
 2. Install Lighttpd server (make sure it does not conflict with other 
 server installation like Apache).
 apt-get install lighttpd
 
-3. Add these line at the end of your configuration file by changing
+3. Add these lines to the end of your configuration file by changing
 "/home/newebe/newebe" with you Newebe directory installation:
 
 server.document-root = "/home/newebe/newebe"
@@ -57,6 +60,7 @@ sh start_newebe.sh
 
 6. In your browser, connect to http://localhost/ and check if everything
 is fine.
+
 
 ### Static file handling 
 
