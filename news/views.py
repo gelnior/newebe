@@ -23,8 +23,9 @@ class WallResource(RestResource):
     all widgets. List of news is empty. 
     '''
 
-    methods = ['GET',]
-
+    def __init__(self):
+        self.methods = ['GET']
+        
     def GET(self, request):
         '''
         Return corresponding template.
@@ -41,8 +42,9 @@ class NewsItemResource(RestResource):
      * DELETE : to delete news.
     '''
 
-    # Methods allowed.
-    methods = ['GET', 'POST', 'DELETE']
+    def __init__(self):
+        self.methods = ['GET', 'POST', 'DELETE']
+        
 
     def GET(self, request, startKey = None):
         '''
@@ -77,10 +79,8 @@ class NewsItemResource(RestResource):
         data = request.raw_post_data
 
         if data:
-            print data
             data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
             data = data.replace('\n', '<br />').replace('\r', '<br />')
-            print data
             postedNews = json.loads(data)
             news = News()
             news.author = "Gelnior"

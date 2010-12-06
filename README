@@ -1,24 +1,64 @@
-### How to set up the development environment (on Ubuntu 10.4)
+### How to set up a development environment (on Ubuntu 10.4)
 
-1. Install following packages :
+Dependencies :
+python >= 2.6
+django >= 1.2
+couchdb >= 0.11.0
+coucdbkit >= 0.4.8
+
+1. Install following packages:
 python python-django python-couchdbkit couchdb git
 
-2. Create a couchdb database called Newebe via Futon 
+You can install couchbkit via easy_install:
+easy_install -U Couchdbkit
+
+2. Create a couchdb database called newebe via Futon 
 (http://localhost:5984/_utils).
 
-3. Retrieve Newebe project :
-git clone git@github.com:gelnior/newebe.git
+3. Retrieve Newebe project:
+git clone http://github.com/gelnior/newebe.git 
 
-4. Change following constants in settings.py :
+4. Change following constants in settings.py:
 MEDIA_ROOT (path to your media directory).
 TEMPLATE_DIRS (path to your template directory).
 
-5. In Newebe directory run :
+5. In Newebe directory run:
 python manage.py syncdb
 
-6. Then, still in Newebe directory run :
+6. Then, still in Newebe directory run:
 python manage.py runserver
 
 7. In your browser, connect to http://localhost:8000/ and check if everything
 is fine.
+
+
+### How to set up a production environment (on Ubuntu 10.4)
+
+1. Follow steps 1 to 6 of development environment installation
+
+2. Install Lighttpd server (make sure it does not conflict with other 
+server installation like Apache).
+apt-get install lighttpd
+
+3. Add these line at the end of your configuration file by changing
+"/home/newebe/newebe" with you Newebe directory installation:
+
+server.document-root = "/home/newebe/newebe"
+fastcgi.server = ( "/newebe.fcgi" => ((
+ "socket" => "/home/newebe/newebe/newebe.sock",
+ "check-local" => "disable",
+ )))
+
+4. Set PROJDIR variable of start_newebe.sh file with you Newebe directory 
+installation.
+
+5. Run start_newebe script:
+sh start_newebe.sh
+
+6. In your browser, connect to http://localhost/ and check if everything
+is fine.
+
+### Static file handling 
+
+TODO
 

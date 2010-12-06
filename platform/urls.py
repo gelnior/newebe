@@ -11,9 +11,9 @@ jQueryUiResource = MediaFileResource(settings.MEDIA_ROOT_IMAGES +  "jquery-ui/",
                                      "png")
 # URL configuration
 urlpatterns = patterns('',
-    (r'^js/(?P<fileName>[0-9A-Za-z-]+)/$', jsResource),
-    (r'^css/(?P<fileName>[0-9A-Za-z-]+)/$', cssResource),
-    (r'^css/jquery-ui-black-tie/images/(?P<fileName>[0-9A-Za-z-_]+).png/$', 
-         jQueryUiResource),
+#    (r'^js/(?P<fileName>[0-9A-Za-z-]+)/$', jsResource),
+#    (r'^css/(?P<fileName>[0-9A-Za-z-]+)/$', cssResource),
+#    (r'^css/jquery-ui-black-tie/images/(?P<fileName>[0-9A-Za-z-_]+).png/$', 
+#         jQueryUiResource),
 )
 

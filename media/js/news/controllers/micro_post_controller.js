@@ -29,7 +29,9 @@ $.Controller.extend('News.Controllers.MicroPost',
    * posts. When shortcut is activated, it posts the typed text. 
    */
   isCtrl : false,
-   
+
+
+
 
   /* Init functions */
 
@@ -291,6 +293,7 @@ $.Controller.extend('News.Controllers.MicroPost',
     for (var rowIdx in rows) {
       row = rows[rowIdx];
       $('#newss').append(this.getHtmlFromMicroPost(row));
+      News.Models.MicroPost.addDisplayedRow(row);
     }
 
     if (rows.length > 0) {

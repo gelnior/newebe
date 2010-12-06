@@ -15,6 +15,24 @@ $.Model.extend('News.Models.MicroPost',
     date : 'date'
   },
 
+  displayedRows : new Array(),
+
+  addDisplayedRow: function(row) {
+    News.Models.MicroPost.displayedRows.push(row);
+  },
+
+  removeDisplayedRow: function(row) {
+    for (var i = 0; i < displayedRows.length; i++) {
+       if(row.date = displayedRows[i]) {
+        News.Model.MicroPost.displayedRows = News.Model.MicroPost.displayedRows.splice(i, 1);
+       }
+     }
+  },
+
+  clearDisplayedRows: function() {
+    News.Model.MicroPost.displayedRows = new Array();
+  },
+
   /**
    * Retrieves last micro posts from services.
    *
@@ -74,7 +92,7 @@ $.Model.extend('News.Models.MicroPost',
       type: 'delete',
       dataType: 'json',
       success: success,
-      error: error,
+      error: error
       //fixture: "-restDestroy" // uses $.fixture.restDestroy for response.
     });
   },
