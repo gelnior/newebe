@@ -22,6 +22,7 @@ DATABASES = {
 # Couchdb configuration
 COUCHDB_DATABASES = (
     ('newebe.news', 'http://127.0.0.1:5984/newebe'),
+    ('newebe.platform', 'http://127.0.0.1:5984/newebe'),
 )
 
 # Locale configuration
@@ -92,5 +93,4 @@ logging.basicConfig(
 )
 
 # Static files URLs
-STATIC_ROOT = "/home/gelnior/projets/newebe/newebe/media/js/"
 STATIC_URL = "/static/"

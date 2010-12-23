@@ -12,7 +12,7 @@ python python-django python-couchdbkit couchdb git
 You can install couchbkit via easy_install:
 easy_install -U Couchdbkit
 
-2. Create a couchdb database called newebe via Futon 
+2. Create a Couchdb database called newebe (case sensitve) via Futon 
 (http://localhost:5984/_utils).
 
 3. Retrieve Newebe project:
@@ -28,10 +28,10 @@ python manage.py syncdb
 6. Then, still in Newebe directory run:
 python manage.py runserver
 
-7. In your browser, connect to http://localhost:8000/ and check if everything
+7. In your browser, connect to http://localhost:8000/ and check that everything
 is fine.
 
-8. run test suite 
+8. Run tests suite: 
 python manage.py test platform news
 
 ### How to set up a production environment (on Ubuntu 10.4)
@@ -43,8 +43,7 @@ django server.
 server installation like Apache).
 apt-get install lighttpd
 
-3. Add these lines to the end of your configuration file by changing
-"/home/newebe/newebe" with you Newebe directory installation:
+3. Add these lines to the end of your configuration file (/etc/lighttpd/lighttpd.conf) and change "/home/newebe/newebe" with you Newebe directory installation:
 
 server.document-root = "/home/newebe/newebe"
 fastcgi.server = ( "/newebe.fcgi" => ((
@@ -58,7 +57,7 @@ installation.
 5. Run start_newebe script:
 sh start_newebe.sh
 
-6. In your browser, connect to http://localhost/ and check if everything
+6. In your browser, connect to http://localhost/ and check that everything
 is fine.
 
 

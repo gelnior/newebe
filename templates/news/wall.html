@@ -1,50 +1,6 @@
-<html>
-  <head>
-    <link href="/static/css/common.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/css/news.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link type="text/css" href="/static/css/jquery-ui-black-tie.css" 
-          rel="Stylesheet" />          
-    <script type="text/javascript" src="/static/js/jquery.js"></script>
-    <script type="text/javascript" src="/static/js/steal/steal.js?news">
-    </script>
-    <script type="text/javascript" src="/static/js/jqueryui.js"></script>
-    <script type="text/javascript" src="/static/js/date.js"></script>
-    <title>Gelnior's newebe</title>
+{% extends "base_menu.html" %}
 
-  </head>
-  <body>
-    <div id="content">
-      <div id="micro_post">
-            
-         <!-- Posting form -->
-         <form id="news-form" action="/news/wall/" method="post">
-             <textarea class="news-area" 
-                       name="content" id="id_content"></textarea>
-             <input id="news-post-button" 
-                    class="button post-button" type="submit" value="Post" />
-         </form>
-         <!-- End posting form -->
+{% block content %}
+  {% include "news/wall_content.html" %}
+{% endblock %}
 
-         <!-- Tool bar -->
-         <div id="news-toolbar">
-           <a id="news-my-button" href="#">mine</a>
-           <a id="news-all-button" href="#">theirs</a>
-           <span>
-             since <input id="news-from-datepicker" type="text"></input>
-           </span>
-         </div>
-         <div class="spacer"></div>
-         <!-- End tool bar -->
-
-         <!-- News Listing -->
-         <div id="newss" class="news-newss">
-         </div>
-         <!-- End news Listing -->
-
-         <a id="news-more">more...</a>
-      </div>
-    </div>
-  </body>
-</html>

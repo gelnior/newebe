@@ -1,19 +1,17 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns
 
-from newebe.platform.views import MediaFileResource
+from newebe.platform.views import UserResource
+from newebe.lib.rest import DirectTemplateResource
 
-from newebe import settings
-
-# Resources instanciation
-jsResource = MediaFileResource(settings.MEDIA_ROOT_JS, "js")
-cssResource = MediaFileResource(settings.MEDIA_ROOT_CSS, "css")
-jQueryUiResource = MediaFileResource(settings.MEDIA_ROOT_IMAGES +  "jquery-ui/",
-                                     "png")
 # URL configuration
 urlpatterns = patterns('',
-#    (r'^js/(?P<fileName>[0-9A-Za-z-]+)/$', jsResource),
-#    (r'^css/(?P<fileName>[0-9A-Za-z-]+)/$', cssResource),
-#    (r'^css/jquery-ui-black-tie/images/(?P<fileName>[0-9A-Za-z-_]+).png/$', 
-#         jQueryUiResource),
+    (r'^user/$', 
+        UserResource()),
+    (r'^profile/$', 
+        DirectTemplateResource("platform/profile.html")),
+    (r'^profile/content/$', 
+        DirectTemplateResource("platform/profile_content.html")),
+    (r'^profile/menu-content/$', 
+        DirectTemplateResource("platform/profile_menu_content.html")),
 )
 

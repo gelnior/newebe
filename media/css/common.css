@@ -51,9 +51,11 @@ blockquote, q {
 
 /** General */
 
-body { font-family : sans-serif ; } 
+body { font-family : sans-serif ; 
+  margin : 10px 0 0 10px;
+} 
 
-#content { width : 960px; margin : 10 0 0 10; background : white; }
+#apps { width : 960px; margin : 0 0 0 0; background : white; }
 
 div.spacer { clear : both; }
 
@@ -62,3 +64,43 @@ input { background-color : white; color: black; border : 1px solid black; }
 textarea { border : 1px solid black; }
 
 
+/* Menu */
+#menu {
+  margin : 10px 0 10px 0;
+}
+
+#menu a {
+  font-weight: bold;
+  text-decoration: none;
+  margin-right: 5px;
+}
+
+#menu a:visited {
+  color: black;
+}
+
+#menu a:hover { 
+  /*color: #777;*/
+  text-decoration : underline;
+}
+
+/* Platform */
+
+#platform-register-disclaimer {
+  font-weight: bold;
+  font-size: 38px;
+  text-align : center;
+  margin-top: 20%;
+}
+
+#platform-user-form {
+  margin-top: 100px;
+  text-align : center;
+}
+
+#platform-user-text-field {
+  border: none; 
+  font-weight: bold;
+  font-size: 60px;
+  text-align : center;
+}

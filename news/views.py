@@ -1,40 +1,17 @@
 import datetime
 
-from couchdbkit.ext.django.forms import document_to_dict
-from django.views.decorators.csrf import csrf_protect
-
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.http import HttpResponse
 from django.utils import simplejson as json
 
-from newebe.news.models import News, NewsManager
-from newebe.news.forms import NewsForm, News
-from newebe.news import news_settings
-
-from newebe.lib.rest import *
-from newebe.lib.date_util import *
+from newebe.lib.rest import NewebeResource, JsonResponse, ErrorResponse, \
+                            CreationResponse, SuccessResponse
+from newebe.lib.date_util import getDbDateFromUrlDate
 from newebe.lib import json_util
 
-
-class WallResource(RestResource):
-    '''
-    This resource returns the main page of the application containing 
-    all widgets. List of news is empty. 
-    '''
-
-    def __init__(self):
-        self.methods = ['GET']
-        
-    def GET(self, request):
-        '''
-        Return corresponding template.
-        '''
-        return render_to_response("news/wall.html", 
-                                  context_instance=RequestContext(request))
+from newebe.platform.models import UserManager
+from newebe.news.models import News, NewsManager
 
 
-class NewsItemResource(RestResource):
+class NewsItemResource(NewebeResource):
     '''
     This is the main resource of the application. It allows :
      * GET : to retrieve news by pack (number = NEWS_LIMIT) from a given date.
@@ -82,8 +59,9 @@ class NewsItemResource(RestResource):
             data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
             data = data.replace('\n', '<br />').replace('\r', '<br />')
             postedNews = json.loads(data)
+
             news = News()
-            news.author = "Gelnior"
+            news.author = UserManager.getUser().name
             news.content = postedNews['content']
             news.date = datetime.datetime.now()
             news.save()

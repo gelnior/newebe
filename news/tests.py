@@ -1,10 +1,11 @@
 import datetime
 
-from django.test import Client,TestCase
+from django.test import TestCase
+from django.utils import simplejson as json
+
 from newebe.news.models import News, NewsManager
 from newebe.news.news_settings import NEWS_LIMIT
 from newebe.lib.date_util import *
-from django.utils import simplejson as json
 
 class ModelTest(TestCase):
     '''
@@ -53,7 +54,7 @@ class ModelTest(TestCase):
          news.delete()
 
 
-    def test_get_first(self):
+    def test_get_List(self):
          """
          Tests that NEWS_LIMIT elements are retrieved with 
          NewsManager.getList().
@@ -86,7 +87,7 @@ class ResourceTest(TestCase):
         Tests that wall template is return on news/wall URL.
         """
         response = self.client.get('/news/wall/')
-        self.assertEqual(response.template.name, 'news/wall.html')
+        self.assertEqual(response.template[0].name, 'news/wall.html')
 
 
     def test_news_item_resource_get(self):

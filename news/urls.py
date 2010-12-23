@@ -1,17 +1,17 @@
-from django.conf.urls.defaults import *
-from newebe.news import views
-from newebe.news.views import WallResource, NewsItemResource
-from newebe.platform.views import MediaFileResource
-from newebe import settings
+from django.conf.urls.defaults import patterns
 
+from newebe.lib.rest import DirectTemplateResource
+from newebe.news.views import NewsItemResource
 
-wall_handler = WallResource()
 news_item_handler = NewsItemResource()
-jsResource = MediaFileResource(settings.MEDIA_ROOT_JS + "news/", "js")
 
 urlpatterns = patterns('',
-    (r'^wall/$', wall_handler),
-    (r'news-item/$', news_item_handler),
-    (r'news-item/(?P<startKey>[0-9\-]+)/$', news_item_handler),
-    (r'^js/(?P<fileName>[0-9A-Za-z-]+)/$', jsResource),
+    (r'^wall/$', 
+        DirectTemplateResource("news/wall.html")),
+    (r'^wall/content/$', 
+        DirectTemplateResource("news/wall_content.html")),
+    (r'^news-item/$', 
+        news_item_handler),
+    (r'^news-item/(?P<startKey>[0-9\-]+)/$', 
+        news_item_handler),
 )

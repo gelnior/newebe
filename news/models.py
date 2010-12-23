@@ -1,9 +1,8 @@
 import datetime
 
 from django.utils import simplejson as json
-from django.db import models
-
-from couchdbkit.ext.django.schema import *
+from couchdbkit.ext.django.schema import Document, StringProperty, \
+                                         DateTimeProperty
 
 from newebe.lib import date_util
 from newebe.news import news_settings
@@ -11,7 +10,7 @@ from newebe.news import news_settings
 
 class NewsManager():
     '''
-    Methods to easily retrive news from database.
+    Furnishes static methods for easy news database retreiving.
     '''
     @staticmethod
     def getList(startKey=None, skip=0):
@@ -57,6 +56,7 @@ class NewsManager():
             return newss.first()
         else:
             return None
+
 
 class News(Document):
     '''

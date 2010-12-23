@@ -1,10 +1,10 @@
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
+from django.conf.urls.defaults import patterns, include
 from django.conf import settings
-#from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+from newebe.lib.rest import DirectTemplateResource
 
 urlpatterns = patterns('',
-    (r'^$', direct_to_template, {'template': 'platform/home.html'}),    
+    (r'^$', DirectTemplateResource('platform/profile.html')),    
     (r'^platform/', include('platform.urls')),
     (r'^news/', include('news.urls')),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
@@ -12,10 +12,9 @@ urlpatterns = patterns('',
 
 )
 
+#from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 #urlpatterns += staticfiles_urlpatterns()
-
 #from django.conf import settings
-
 
 #if settings.DEBUG:
 #    urlpatterns = patterns('django.contrib.staticfiles.views',
