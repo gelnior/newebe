@@ -21,3 +21,4 @@ def getJsonFromDocList(docs):
     response_dict['rows'] = docsDictList
 
     return json.dumps(response_dict)
+

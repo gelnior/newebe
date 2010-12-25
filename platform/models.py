@@ -2,6 +2,18 @@ from django.utils import simplejson as json
 
 from couchdbkit.ext.django.schema import Document, StringProperty
 
+class NewebeDocument(Document):
+
+    def toDict(self):
+        return self.__dict__["_doc"]
+
+
+    def toJson(self):
+        '''
+        Return json representation of current object.
+        '''
+        #return json.dumps(self.toDict())
+        return json.dumps(self.__dict__["_doc"])
 
 class UserManager():
     '''
@@ -40,6 +52,5 @@ class User(Document):
         Return json representation of current object.
         '''
         return json.dumps(self.toDict())
-
 
 

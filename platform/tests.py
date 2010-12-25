@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.utils import simplejson as json
 
 from newebe.platform.models import User, UserManager
-from newebe.lib import date_util
-from newebe.lib import json_util
+from newebe.platform.contactmodels import Contact, ContactManager
+from newebe.lib import date_util, json_util
 
 
 class DateUtilTest(TestCase):
@@ -177,4 +177,114 @@ class UserTest(TestCase):
                          "platform/profile_content.html")
 
         user.delete()
+
+
+class ContactTest(TestCase):
+    '''
+    Test contact model
+    '''
+
+    def setUp(self):
+        '''
+        Reset contact model by deleting every contacts.
+        '''
+        contacts = ContactManager.getContacts()
+        for contact in contacts:
+            contact.delete()
+
+    def testGetList(self):
+        '''
+        Test that contact manager returns all contacts correctly.
+        '''
+        contacts = ContactManager.getContacts()
+        self.assertEqual(0, len(contacts))
+
+        contact = Contact()
+        contact.url = "http://friend.one/"
+        contact.save()
+        contact2 = Contact()
+        contact2.url = "http://friend.two/"
+        contact2.save()
+
+        contacts = ContactManager.getContacts()
+        self.assertEquals(2, len(contacts))
+
+
+
+class ContactResourceTest(TestCase):
+    '''
+    Test contact resource
+    '''
+
+    def setUp(self):
+        '''
+        Reset contact model by deleting every contacts.
+        '''
+        contacts = ContactManager.getContacts()
+        for contact in contacts:
+            contact.delete()
+
+        self.user = User(name = "Jhon Doe")
+        self.user.save()
+        print "User set"
+
+    def tearDown(self):
+        self.user.delete()
+        print "user delete"
+
+    def test_contact_template_resource_get(self):
+        """
+        Tests that contact template is returned on /platform/contatcts URL.
+        """
+
+        response = self.client.get('/platform/contact/')
+        self.assertEqual(response.template[0].name, 'platform/contact.html')
+
+        response = self.client.get('/platform/contact/content/')
+        self.assertEqual(response.template.name, 
+                         'platform/contact_content.html')
+
+
+    def test_contact_resource_get(self):
+        """
+        Tests that all contacts are retrieved with a GET request to 
+        /platform/contacts/
+        """
+        contact = Contact()
+        contact.url = "http://friend.one/"
+        contact.save()
+        contact2 = Contact()
+        contact2.url = "http://friend.two/"
+        contact2.save()
+
+        response = self.client.get('/platform/contacts/')
+
+        self.assertEqual(response.status_code, 200)
+
+        newss = json.loads(response.content)
+
+        self.assertEquals(2, newss["total_rows"])
+        self.assertEquals(2, len(newss["rows"]))
+
+
+    def testPostContact(self):
+        '''
+        Test that contact created via a POST request is correctly save to 
+        database.
+        '''
+        contact = Contact()
+        contact.url = "http://friend1.com/"
+
+        response = self.client.post('/platform/contacts/',
+                                    contact.toJson(), content_type="text/xml")
+
+        self.assertEqual(201, response.status_code)
+        contacts = ContactManager.getContacts().all()
+        contactServer = contacts[0]
+        self.assertEqual(contact.url, contactServer.url)
+ 
+
+#    def testDeleteContact(self):
+#        pass
+
 

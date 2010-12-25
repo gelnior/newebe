@@ -5,6 +5,7 @@ from newebe.lib.rest import NewebeResource, JsonResponse, CreationResponse, \
                             ErrorResponse, RestResource, SuccessResponse
 
 from newebe.platform.models import User, UserManager
+from newebe.platform.contactmodels import Contact, ContactManager
 
 
 class MediaFileResource(NewebeResource):
@@ -98,4 +99,45 @@ class UserResource(RestResource):
             user.save()
 
         return SuccessResponse("User successfully Modified.")
+
+class ContactResource(NewebeResource):
+    '''
+    This is the resource for contact data management. It allows :
+     * GET : retrieve all contacts data.
+     * POST : create a new contact.
+    '''
+
+    def __init__(self):
+        self.methods = ['GET', 'POST', 'PUT']
+
+
+    def GET(self, request):
+        '''
+        Retrieve current user (newebe owner) data at JSON format.
+        '''
+        contacts = ContactManager.getContacts()
+
+        return JsonResponse(json_util.getJsonFromDocList(contacts))
+
+    def POST(self, request):
+        '''
+        Create a new user (if user exists, error response is returned) from
+        sent data (user object at JSON format).
+        '''
+
+        data = request.raw_post_data
+
+        print data
+        if data:
+            postedContact = json.loads(data)
+            contact = Contact(
+              url = postedContact['url']
+            )
+            contact.save()
+
+            return CreationResponse(contact.toJson())
+
+        else:
+            return ErrorResponse("User has not been created.")
+
 
