@@ -104,3 +104,21 @@ textarea { border : 1px solid black; }
   font-size: 60px;
   text-align : center;
 }
+
+/* Contacts */
+
+#contact-url-field {
+  font-size: 20px;
+  width: 880px;
+  margin-top: 3px;
+  padding: 5px;
+}
+
+#contact-post-button { float: right; }
+
+#contacts { margin-top: 50px; }
+.platform-contact-row { margin-bottom: 10px; border-bottom: 1px solid #CCC; }
+.platform-contact-url { padding: 12px 0 18px 0; }
+.platform-contact-delete { float: right; height: 40px; padding: 0;}
+.platform-contact-resend { float: right; height: 40px; padding: 0;}
+

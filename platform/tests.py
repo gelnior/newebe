@@ -5,6 +5,8 @@ from newebe.platform.models import User, UserManager
 from newebe.platform.contactmodels import Contact, ContactManager
 from newebe.lib import date_util, json_util
 
+from django.template.defaultfilters import slugify
+
 
 class DateUtilTest(TestCase):
      def testGetDbDateFromUrlDate(self):
@@ -201,9 +203,13 @@ class ContactTest(TestCase):
 
         contact = Contact()
         contact.url = "http://friend.one/"
+        contact.slug = slugify(contact.url)
+        contact.state = "pending"
         contact.save()
         contact2 = Contact()
         contact2.url = "http://friend.two/"
+        contact2.slug = slugify(contact.url)
+        contact2.state = "pending"
         contact2.save()
 
         contacts = ContactManager.getContacts()
@@ -252,9 +258,13 @@ class ContactResourceTest(TestCase):
         """
         contact = Contact()
         contact.url = "http://friend.one/"
+        contact.slug = slugify(contact.url)
+        contact.state = "pending"
         contact.save()
         contact2 = Contact()
         contact2.url = "http://friend.two/"
+        contact2.slug = slugify(contact.url)
+        contact2.state = "pending"
         contact2.save()
 
         response = self.client.get('/platform/contacts/')

@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import patterns
 
-from newebe.platform.views import UserResource, ContactResource
+from newebe.platform.views import UserResource, ContactResource, \
+                                  ContactsResource
 from newebe.lib.rest import DirectTemplateResource
 
 # URL configuration
@@ -15,6 +16,8 @@ urlpatterns = patterns('',
         DirectTemplateResource("platform/profile_menu_content.html")),
 
     (r'^contacts/$', 
+        ContactsResource()),
+    (r'^contacts/(?P<slug>[0-9A-Za-z-]+)/$', 
         ContactResource()),
     (r'^contact/$', 
         DirectTemplateResource("platform/contact.html")),

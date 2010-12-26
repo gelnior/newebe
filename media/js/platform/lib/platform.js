@@ -14,29 +14,40 @@
     PlatformView.prototype.el = $("body");
     PlatformView.prototype.events = {
       "click #news-a": "onNewsClicked",
-      "click #profile-a": "onProfileClicked"
+      "click #profile-a": "onProfileClicked",
+      "click #contact-a": "onContactClicked"
     };
     function PlatformView() {
       PlatformView.__super__.constructor.apply(this, arguments);
     }
     PlatformView.prototype.initialize = function() {
-      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo');
-      if ($("#news").length === 0) {
-        this.lastPage = "#profile";
-      } else {
+      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked');
+      if ($("#news").length !== 0) {
         this.lastPage = "#news";
+      } else if ($("#contact").length !== 0) {
+        this.lastPage = "#contact";
+      } else {
+        this.lastPage = "#profile";
       }
       $("#platform-user-text-field").val(null);
       return $("#platform-user-text-field").focus();
     };
     PlatformView.prototype.onNewsClicked = function(ev) {
       ev.preventDefault();
+      document.title = "Newebe | News";
       this.switchTo("#news", '/news/wall/content/');
       return false;
     };
     PlatformView.prototype.onProfileClicked = function(ev) {
       ev.preventDefault();
+      document.title = "Newebe | Profile";
       this.switchTo("#profile", '/platform/profile/content/');
+      return false;
+    };
+    PlatformView.prototype.onContactClicked = function(ev) {
+      ev.preventDefault();
+      document.title = "Newebe | Contact";
+      this.switchTo("#contact", '/platform/contact/content/');
       return false;
     };
     PlatformView.prototype.switchTo = function(page, url) {

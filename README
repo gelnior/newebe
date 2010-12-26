@@ -18,20 +18,16 @@ easy_install -U Couchdbkit
 3. Retrieve Newebe project:
 git clone http://github.com/gelnior/newebe.git 
 
-4. Change following constants in settings.py:
-MEDIA_ROOT (path to your media directory).
-TEMPLATE_DIRS (path to your template directory).
-
-5. In Newebe directory run:
+4. In Newebe directory run:
 python manage.py syncdb
 
-6. Then, still in Newebe directory run:
+5. Then, still in Newebe directory run:
 python manage.py runserver
 
-7. In your browser, connect to http://localhost:8000/ and check that everything
+6. In your browser, connect to http://localhost:8000/ and check that everything
 is fine.
 
-8. Run tests suite: 
+7. Run tests suite: 
 python manage.py test platform news
 
 ### How to set up a production environment (on Ubuntu 10.4)

@@ -31,8 +31,11 @@ LANGUAGE_CODE = 'fr-fr'
 USE_I18N = True
 USE_L10N = True
 
+import os
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 # Media configuration : path for CSS, JS and image files.
-MEDIA_ROOT = '/home/gelnior/projets/newebe/newebe/media/'
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 MEDIA_ROOT_JS = '%sjs/' % MEDIA_ROOT
 MEDIA_ROOT_CSS = '%scss/' % MEDIA_ROOT
 MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
@@ -60,8 +63,9 @@ TEMPLATE_LOADERS = (
 ROOT_URLCONF = 'newebe.urls'
 
 # Path to the django templates.
+TEMPLATE_ROOT = os.path.join(PROJECT_ROOT, 'templates')
 TEMPLATE_DIRS= (
-    '/home/gelnior/projets/newebe/newebe/templates/'
+    TEMPLATE_ROOT
 )
 
 # App installed in newebe
@@ -88,9 +92,10 @@ import logging
 logging.basicConfig(
     level = logging.DEBUG,
     format = '%(asctime)s %(levelname)s %(message)s',
-    filename = 'myapp.log',
+    filename = 'newebe.log',
     filemode = 'w'
 )
 
 # Static files URLs
 STATIC_URL = "/static/"
+

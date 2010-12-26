@@ -83,3 +83,4 @@ class News(Document):
         Return json representation of current object.
         '''
         return json.dumps(self.toDict())
+

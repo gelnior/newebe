@@ -7,6 +7,7 @@ class PlatformView extends Backbone.View
   events:
     "click #news-a": "onNewsClicked"
     "click #profile-a": "onProfileClicked"
+    "click #contact-a": "onContactClicked"
 
 
   constructor: ->
@@ -18,11 +19,13 @@ class PlatformView extends Backbone.View
   # Register last page selector for application browsing.
   # If register view is displayed
   initialize: ->
-    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo')
-    if $("#news").length == 0
-      @lastPage =  "#profile"
+    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked')
+    if $("#news").length != 0
+      @lastPage =  "#news"
+    else if $("#contact").length != 0
+      @lastPage = "#contact"
     else
-      @lastPage = "#news"
+      @lastPage = "#profile"
 
     $("#platform-user-text-field").val(null)
     $("#platform-user-text-field").focus()
@@ -31,6 +34,7 @@ class PlatformView extends Backbone.View
   # When news is clicked, current page is hidden and news page is displayed.
   onNewsClicked: (ev) ->
     ev.preventDefault()
+    document.title = "Newebe | News"
     @switchTo("#news", '/news/wall/content/')
     false
 
@@ -39,7 +43,14 @@ class PlatformView extends Backbone.View
   # page is displayed.
   onProfileClicked: (ev) ->
     ev.preventDefault()
+    document.title = "Newebe | Profile"
     @switchTo("#profile", '/platform/profile/content/')
+    false
+
+  onContactClicked: (ev) ->
+    ev.preventDefault()
+    document.title = "Newebe | Contact"
+    @switchTo("#contact", '/platform/contact/content/')
     false
 
   ##

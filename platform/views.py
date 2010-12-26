@@ -1,4 +1,5 @@
 from django.utils import simplejson as json
+from django.http import HttpResponseNotFound
 
 from newebe.lib import file_util, json_util
 from newebe.lib.rest import NewebeResource, JsonResponse, CreationResponse, \
@@ -7,6 +8,9 @@ from newebe.lib.rest import NewebeResource, JsonResponse, CreationResponse, \
 from newebe.platform.models import User, UserManager
 from newebe.platform.contactmodels import Contact, ContactManager
 
+from django.template.defaultfilters import slugify
+
+STATE_PENDING = "pending"
 
 class MediaFileResource(NewebeResource):
     '''
@@ -100,7 +104,8 @@ class UserResource(RestResource):
 
         return SuccessResponse("User successfully Modified.")
 
-class ContactResource(NewebeResource):
+
+class ContactsResource(NewebeResource):
     '''
     This is the resource for contact data management. It allows :
      * GET : retrieve all contacts data.
@@ -108,21 +113,21 @@ class ContactResource(NewebeResource):
     '''
 
     def __init__(self):
-        self.methods = ['GET', 'POST', 'PUT']
+        self.methods = ['GET', 'POST', 'PUT', 'DELETE']
 
 
     def GET(self, request):
         '''
-        Retrieve current user (newebe owner) data at JSON format.
+        Retrieve whole contact list at JSON format.
         '''
         contacts = ContactManager.getContacts()
 
         return JsonResponse(json_util.getJsonFromDocList(contacts))
 
+
     def POST(self, request):
         '''
-        Create a new user (if user exists, error response is returned) from
-        sent data (user object at JSON format).
+        Create a new contact from sent data (contact object at JSON format).
         '''
 
         data = request.raw_post_data
@@ -130,8 +135,13 @@ class ContactResource(NewebeResource):
         print data
         if data:
             postedContact = json.loads(data)
+            url = postedContact['url']
+            slug = slugify(url)
+
             contact = Contact(
-              url = postedContact['url']
+              url = url,
+              slug = slug,
+              state = STATE_PENDING
             )
             contact.save()
 
@@ -140,4 +150,45 @@ class ContactResource(NewebeResource):
         else:
             return ErrorResponse("User has not been created.")
 
+
+class ContactResource(NewebeResource):
+    '''
+    '''
+
+    def __init__(self):
+        self.methods = ['GET', 'PUT', 'DELETE']
+
+
+    def GET(self, request, slug):
+        '''
+        Retrieve contact corresponding to slug at JSON format.
+        '''
+        contact = ContactManager.getContact(slug)
+
+        if contact:
+            print "cool 2"
+            contacts = [contact]
+            response = JsonResponse(json_util.getJsonFromDocList(contacts))
+        else:
+            response = HttpResponseNotFound("Contact does not exist.")
+
+        return response
+
+    
+    def PUT(self, request, slug):
+        pass
+
+    def DELETE(self, request, slug):
+        '''
+        Delete contact corresponding to slug.
+        '''
+        print "toto"
+        contact = ContactManager.getContact(slug)
+
+        if contact:
+            contact.delete()
+            response = SuccessResponse("Contact has been deleted.")
+        else:
+            response = ErrorResponse("Contact does not exist.")
+        return response
 
