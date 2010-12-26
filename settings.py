@@ -35,7 +35,7 @@ import os
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Media configuration : path for CSS, JS and image files.
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'static')
 MEDIA_ROOT_JS = '%sjs/' % MEDIA_ROOT
 MEDIA_ROOT_CSS = '%scss/' % MEDIA_ROOT
 MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
