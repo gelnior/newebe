@@ -1,9 +1,9 @@
 #!/bin/bash
  
 # Replace these three settings.
-PROJDIR="/home/gelnior/tools/newebe"
-PIDFILE="/home/gelnior/tools.pid"
-PORT=8001
+PROJDIR="/home/newebe/newebe"
+PIDFILE="/home/newebe/newebe/newebe.pid"
+PORT=8000
  
 case "$1" in
     start)
