@@ -1,3 +1,5 @@
+import datetime, urllib2
+
 from django.utils import simplejson as json
 from django.http import HttpResponseNotFound
 
@@ -11,6 +13,7 @@ from newebe.platform.contactmodels import Contact, ContactManager
 from django.template.defaultfilters import slugify
 
 STATE_PENDING = "pending"
+STATE_WAIT_APPROVAL = "Wait for approval"
 
 class MediaFileResource(NewebeResource):
     '''
@@ -132,7 +135,6 @@ class ContactsResource(NewebeResource):
 
         data = request.raw_post_data
 
-        print data
         if data:
             postedContact = json.loads(data)
             url = postedContact['url']
@@ -166,9 +168,13 @@ class ContactResource(NewebeResource):
         contact = ContactManager.getContact(slug)
 
         if contact:
-            print "cool 2"
             contacts = [contact]
             response = JsonResponse(json_util.getJsonFromDocList(contacts))
+            contact = Contact(
+                name = UserManager.getUser().name,
+#                url = url,
+            )
+
         else:
             response = HttpResponseNotFound("Contact does not exist.")
 
@@ -182,7 +188,7 @@ class ContactResource(NewebeResource):
         '''
         Delete contact corresponding to slug.
         '''
-        print "toto"
+
         contact = ContactManager.getContact(slug)
 
         if contact:
@@ -192,3 +198,38 @@ class ContactResource(NewebeResource):
             response = ErrorResponse("Contact does not exist.")
         return response
 
+class ContactPushResource(NewebeResource):
+    '''
+    This is the resource for contact data management. It allows :
+     * POST : ask for a contact authorization.
+    '''
+
+    def __init__(self):
+        self.methods = ['POST']
+
+
+    def POST(self, request):
+        '''
+        Create a new contact from sent data (contact object at JSON format).
+        '''
+        data = request.raw_post_data
+        print "cool"
+
+        if data:
+            postedContact = json.loads(data)
+            url = postedContact['url']
+            slug = slugify(url)
+            contact = Contact(
+                name = postedContact.name, 
+                url = url,
+                slug = slug,
+                state = STATE_WAIT_APPROVAL,
+                requestDate = datetime.dateime.now()
+            )
+            contact.save()
+            response = SuccessResponse("Request received.")
+             
+        else:
+           response = ErrorResponse("Sent data are incorrects.")
+    
+        return response

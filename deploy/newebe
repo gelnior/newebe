@@ -1,0 +1,31 @@
+#!/bin/bash
+ 
+# Replace these three settings.
+PROJDIR="/home/newebe/newebe"
+PIDFILE="/home/newebe/newebe/newebe.pid"
+PORT=8000
+ 
+case "$1" in
+    start)
+      cd $PROJDIR
+      python manage.py runfcgi method=prefork host=127.0.0.1 port=$PORT pidfile=$PIDFILE
+     RETVAL=$?
+  ;;
+    stop)
+      kill `cat -- $PIDFILE`
+      rm -f -- $PIDFILE
+      RETVAL=$?
+  ;;
+    restart)
+      kill `cat -- $PIDFILE`
+      rm -f -- $PIDFILE
+      cd $PROJDIR
+      python manage.py runfcgi method=prefork host=127.0.0.1 port=$PORT pidfile=$PIDFILE
+      RETVAL=$?
+  ;;
+    *)
+      echo "Usage: projet_django {start|stop|restart}"
+      exit 1
+  ;;
+esac      
+exit $RETVAL
