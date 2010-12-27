@@ -3,7 +3,7 @@ Newebe
 ===========
 :Info: Newebe is a (almost) distributed social platform.
 :Author: Gelnior (http://gelnior.wordpress.com)
-
+:License: AGPL v3.0
 
 Dependencies
 ============
