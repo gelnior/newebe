@@ -11,7 +11,7 @@ Dependencies
 * django >= 1.2
 * couchdb >= 0.11.0
 * coucdbkit >= 0.4.8
-
+**
 
 Set up a development environment (Ubuntu 10.4)
 ==============================================
