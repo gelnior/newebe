@@ -232,11 +232,9 @@ class ContactResourceTest(TestCase):
 
         self.user = User(name = "Jhon Doe")
         self.user.save()
-        print "User set"
 
     def tearDown(self):
         self.user.delete()
-        print "user delete"
 
     def test_contact_template_resource_get(self):
         """
@@ -294,7 +292,31 @@ class ContactResourceTest(TestCase):
         self.assertEqual(contact.url, contactServer.url)
  
 
+    def testDeleteContact(self):
+        pass
+
+
+    def testPushContact(self):
+        '''
+        '''
+        contact = Contact()
+        contact.name = "John Doe"
+        contact.url = "http://test.contact.com/"
+        contact.slug = slugify(contact.url)
+
+        response = self.client.post('/platform/contacts/request/',
+                                    contact.toJson(), content_type="text/xml")
+
+        self.assertEqual(200, response.status_code)
+        jsonResponse = json.loads(response.content)
+        self.assertEquals("Request received.", jsonResponse["success"])
+        
+        contacts = ContactManager.getContacts().all()
+        contactServer = contacts[0]
+        self.assertEqual(contact.url, contactServer.url)
+        self.assertEqual("Wait for approval", contactServer.state)
+ 
+
 #    def testDeleteContact(self):
 #        pass
-
 

@@ -157,7 +157,8 @@ class ContactsResource(NewebeResource):
             contact.save()
 
             #data = urllib.urlencode(contact.toJson())
-            req = urllib2.Request(url + "contacts/push/", data)
+            data = contact.toJson()
+            req = urllib2.Request(url + "platform/contacts/request/", data)
             try:
                 response = urllib2.urlopen(req)
                 data = response.read()
@@ -222,7 +223,7 @@ class ContactResource(NewebeResource):
             response = ErrorResponse("Contact does not exist.")
         return response
 
-class ContactPushResource(NewebeResource):
+class ContactPushResource(RestResource):
     '''
     This is the resource for contact data management. It allows :
      * POST : ask for a contact authorization.
@@ -237,18 +238,17 @@ class ContactPushResource(NewebeResource):
         Create a new contact from sent data (contact object at JSON format).
         '''
         data = request.raw_post_data
-        print "cool"
-
+        print data
         if data:
             postedContact = json.loads(data)
-            url = postedContact['url']
+            url = postedContact["url"]
             slug = slugify(url)
             contact = Contact(
-                name = postedContact.name, 
+                name = postedContact["name"], 
                 url = url,
                 slug = slug,
                 state = STATE_WAIT_APPROVAL,
-                requestDate = datetime.dateime.now()
+                requestDate = datetime.datetime.now()
             )
             contact.save()
             response = SuccessResponse("Request received.")
