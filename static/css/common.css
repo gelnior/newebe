@@ -109,9 +109,10 @@ textarea { border : 1px solid black; }
 
 #contact-url-field {
   font-size: 20px;
-  width: 880px;
-  margin-top: 3px;
+  width: 881px;
+  margin-top: 2px;
   padding: 5px;
+  margin-bottom: 1px;
 }
 
 #contact-post-button { float: right; }

@@ -6,6 +6,7 @@ class ContactManager():
     '''
     Methods to easily retrieve contacts from database.
     '''
+
     @staticmethod
     def getContacts():
         '''
@@ -16,9 +17,26 @@ class ContactManager():
         return contacts 
 
 
-    '''
-    Methods to easily retrieve contacts from database.
-    '''
+    @staticmethod
+    def getPendingContacts():
+        '''
+        Returns contacts of which state is equal to *pending* or *error*.
+        '''
+        contacts = Contact.view("platform/pending")
+ 
+        return contacts 
+
+
+    @staticmethod
+    def getRequestedContacts():
+        '''
+        Returns contacts of which state is equal to *requested*.
+        '''
+        contacts = Contact.view("platform/requested")
+ 
+        return contacts 
+
+
     @staticmethod
     def getContact(slug):
         '''
@@ -31,6 +49,7 @@ class ContactManager():
             contact = contacts.first() 
 
         return contact
+
 
 class Contact(NewebeDocument):
     '''

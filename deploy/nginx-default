@@ -1,17 +1,33 @@
 server {
-	listen   80 default;
-	server_name  localhost;
+    listen   80 default;
+    server_name  localhost;
 
-	access_log  /var/log/nginx/localhost.access.log;
+    access_log  /var/log/nginx/localhost.access.log;
     error_log /var/log/nginx/error.log;
 
-	location /static {
-		root   /home/newebe/newebe;
-		autoindex on;
-	}
+    # output compression saves bandwidth
+    gzip  on;
+    gzip_http_version 1.1;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_proxied any;
+    gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # make sure gzip does not lose large gzipped js or css files
+    # see http://blog.leetsoft.com/2007/7/25/nginx-gzip-ssl
+    gzip_buffers 16 8k;
+
+    # Disable gzip for certain browsers.
+    gzip_disable “MSIE [1-6].(?!.*SV1)”;
 
 
-	location / {
+    location /static {
+        root   /home/newebe/newebe;
+        autoindex on;
+    }
+
+
+    location / {
         fastcgi_pass 127.0.0.1:8000;
         fastcgi_param PATH_INFO $fastcgi_script_name;
         fastcgi_param REQUEST_METHOD $request_method;
@@ -23,5 +39,7 @@ server {
         fastcgi_param CONTENT_LENGTH $content_length;
         fastcgi_pass_header Authorization;
         fastcgi_intercept_errors off;
-	}
+   }
 }
+~                                                                               
+~             

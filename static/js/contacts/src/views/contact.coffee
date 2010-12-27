@@ -27,16 +27,17 @@ class ContactRow extends Backbone.View
          
     @model.view = @
     
+  # When mouse is over buttons are displayed.
   onMouseOver: ->
     @$(".platform-contact-delete").show()
     @$(".platform-contact-resend").show()
 
-  # When mouse is out delete button is hidden.
+  # When mouse is out buttons are hidden.
   onMouseOut: ->
     @$(".platform-contact-delete").hide()
     @$(".platform-contact-resend").hide()
 
-  # When delete button is clicked, it will call delete linked micro post method.
+  # When delete button is clicked, it will call delete linked contact method.
   onDeleteClicked: ->
     @model.delete()
 

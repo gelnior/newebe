@@ -7,17 +7,14 @@ urlpatterns = patterns('',
     (r'^$', DirectTemplateResource('platform/profile.html')),    
     (r'^platform/', include('platform.urls')),
     (r'^news/', include('news.urls')),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT}),
-
 )
 
-#from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-#urlpatterns += staticfiles_urlpatterns()
-#from django.conf import settings
 
-#if settings.DEBUG:
-#    urlpatterns = patterns('django.contrib.staticfiles.views',
-#        url(r'^static/(?P<path>.*)$', 'serve'),
- #   )
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (
+            r'^static/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root': settings.MEDIA_ROOT}
+        ),
+    )
 

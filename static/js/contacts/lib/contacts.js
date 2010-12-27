@@ -102,7 +102,10 @@
     ContactView.prototype.isCtrl = false;
     ContactView.prototype.events = {
       "click #contact-post-button": "onPostClicked",
-      "submit #contact-post-button": "onPostClicked"
+      "submit #contact-post-button": "onPostClicked",
+      "click #contact-alm-button": "onAllClicked",
+      "click #contact-pending-button": "onPendingClicked",
+      "click #contact-request-button": "onRequestClicked"
     };
     function ContactView() {
       ContactView.__super__.constructor.apply(this, arguments);
@@ -133,10 +136,27 @@
       return event;
     };
     ContactView.prototype.onPostClicked = function(event) {
-      alert("url sent");
       event.preventDefault();
       this.postNewContact();
       return event;
+    };
+    ContactView.prototype.onAllClicked = function(event) {
+      event.preventDefault();
+      return this.reloadContacts("/platform/contacts/");
+    };
+    ContactView.prototype.onPendingClicked = function(event) {
+      event.preventDefault();
+      return this.reloadContacts("/platform/contacts/pending/");
+    };
+    ContactView.prototype.onRequestClicked = function(event) {
+      event.preventDefault();
+      return this.reloadContacts("/platform/contacts/requested/");
+    };
+    ContactView.prototype.reloadContacts = function(url) {
+      this.clearContacts();
+      this.contacts.url = url;
+      this.contacts.fetch();
+      return this.contacts;
     };
     /* Functions
     */
@@ -151,7 +171,8 @@
       var el, row;
       row = new ContactRow(contact);
       el = row.render();
-      return $("#contacts").prepend(el);
+      $("#contacts").prepend(el);
+      return row;
     };
     ContactView.prototype.prependOne = function(contact) {
       var el, row;
@@ -189,11 +210,23 @@
       $("#contact-post-button").submit(function(event) {
         return contactApp.onPostClicked(event);
       });
-      return $("#contact-post-button").click(function(event) {
+      $("#contact-post-button").click(function(event) {
         return contactApp.onPostClicked(event);
+      });
+      $("#contact-all-button").click(function(event) {
+        return contactApp.onAllClicked(event);
+      });
+      $("#contact-pending-button").click(function(event) {
+        return contactApp.onPendingClicked(event);
+      });
+      return $("#contact-request-button").click(function(event) {
+        return contactApp.onRequestClicked(event);
       });
     };
     ContactView.prototype.setWidgets = function() {
+      $("#contact-all-button").button();
+      $("#contact-pending-button").button();
+      $("#contact-request-button").button();
       return $("input#contact-post-button").button();
     };
     return ContactView;

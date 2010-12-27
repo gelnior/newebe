@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns
 
 from newebe.platform.views import UserResource, ContactResource, \
-                                  ContactsResource
+                                  ContactsResource, ContactPushResource
 from newebe.lib.rest import DirectTemplateResource
 
 # URL configuration
@@ -17,6 +17,12 @@ urlpatterns = patterns('',
 
     (r'^contacts/$', 
         ContactsResource()),
+    (r'^contacts/pending/$', 
+        ContactsResource("pending")),
+    (r'^contacts/requested/$', 
+        ContactsResource("requested")),
+    (r'^contacts/request/$', 
+        ContactPushResource()),
     (r'^contacts/(?P<slug>[0-9A-Za-z-]+)/$', 
         ContactResource()),
     (r'^contact/$', 

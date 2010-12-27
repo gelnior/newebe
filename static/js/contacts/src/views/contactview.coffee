@@ -11,13 +11,15 @@ class ContactView extends Backbone.View
   events:
     "click #contact-post-button" : "onPostClicked"
     "submit #contact-post-button" : "onPostClicked"
-
+    "click #contact-alm-button" : "onAllClicked"
+    "click #contact-pending-button" : "onPendingClicked"
+    "click #contact-request-button" : "onRequestClicked"
 
   constructor: ->
     super
 
   ##
-  # Initiliaze bind functions to this view, sets up contact colleciton
+  # Initiliaze bind functions to this view, sets up contact collection
   # behaviour.
   initialize: ->
     _.bindAll(this, 'postNewContact', 'appendOne', 'prependOne', 'addAll')
@@ -55,10 +57,28 @@ class ContactView extends Backbone.View
   ##
   # When post button is clicked the contact request is posted.
   onPostClicked: (event) ->
-    alert "url sent"
     event.preventDefault()
     @postNewContact()
     event
+
+  onAllClicked: (event) ->
+    event.preventDefault()
+    @reloadContacts("/platform/contacts/")
+
+  onPendingClicked: (event) ->
+    event.preventDefault()
+    @reloadContacts("/platform/contacts/pending/")
+
+  onRequestClicked: (event) ->
+    event.preventDefault()
+    @reloadContacts("/platform/contacts/requested/")
+
+  reloadContacts: (url) ->
+    @clearContacts()
+    @contacts.url = url
+    @contacts.fetch()
+    @contacts
+
 
   ### Functions
   ###
@@ -81,6 +101,7 @@ class ContactView extends Backbone.View
     row = new ContactRow contact
     el = row.render()
     $("#contacts").prepend(el)
+    row
 
   ## 
   # Prepend *contact* to the end of current contact list (render it).
@@ -118,13 +139,22 @@ class ContactView extends Backbone.View
   ##
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
+      
     $("#contact-url-field").keyup((event) -> contactApp.onKeyUp(event))
     $("#contact-url-field").keydown((event) -> contactApp.onKeyDown(event))
     $("#contact-post-button").submit((event) -> contactApp.onPostClicked(event))
     $("#contact-post-button").click((event) -> contactApp.onPostClicked(event))
+    $("#contact-all-button").click((event) -> contactApp.onAllClicked(event))
+    $("#contact-pending-button").click((event) ->
+        contactApp.onPendingClicked(event))
+    $("#contact-request-button").click((event) ->
+        contactApp.onRequestClicked(event))
 
   ##
   # Build JQuery widgets.
   setWidgets: ->
+    $("#contact-all-button").button()
+    $("#contact-pending-button").button()
+    $("#contact-request-button").button()
     $("input#contact-post-button").button()
 

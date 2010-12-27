@@ -1,4 +1,5 @@
-import datetime, urllib2
+import datetime, urllib, urllib2
+from urllib2 import Request, urlopen, URLError, HTTPError
 
 from django.utils import simplejson as json
 from django.http import HttpResponseNotFound
@@ -14,6 +15,7 @@ from django.template.defaultfilters import slugify
 
 STATE_PENDING = "pending"
 STATE_WAIT_APPROVAL = "Wait for approval"
+STATE_ERROR = "Error"
 
 class MediaFileResource(NewebeResource):
     '''
@@ -115,15 +117,22 @@ class ContactsResource(NewebeResource):
      * POST : create a new contact.
     '''
 
-    def __init__(self):
+    def __init__(self, contactFilter = "all"):
         self.methods = ['GET', 'POST', 'PUT', 'DELETE']
+        self.contactFilter = contactFilter
 
 
     def GET(self, request):
         '''
         Retrieve whole contact list at JSON format.
         '''
-        contacts = ContactManager.getContacts()
+        if self.contactFilter and self.contactFilter is "pending":
+            contacts = ContactManager.getPendingContacts()
+        elif self.contactFilter and self.contactFilter is "requested":
+            contacts = ContactManager.getRequestedContacts()
+        else:
+            contacts = ContactManager.getContacts()
+
 
         return JsonResponse(json_util.getJsonFromDocList(contacts))
 
@@ -146,6 +155,21 @@ class ContactsResource(NewebeResource):
               state = STATE_PENDING
             )
             contact.save()
+
+            #data = urllib.urlencode(contact.toJson())
+            req = urllib2.Request(url + "contacts/push/", data)
+            try:
+                response = urllib2.urlopen(req)
+                data = response.read()
+
+                newebeResponse = json.loads(data)
+                if newebeResponse.success:
+                    contact.state = STATE_ERROR
+                    contact.save()
+
+            except:
+                contact.state = STATE_ERROR
+                contact.save()
 
             return CreationResponse(contact.toJson())
 

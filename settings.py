@@ -46,10 +46,10 @@ MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
 # project.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+#    'django.contrib.sessions.middleware.SessionMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 # List of callables that know how to import templates from various sources.
@@ -70,14 +70,11 @@ TEMPLATE_DIRS= (
 
 # App installed in newebe
 INSTALLED_APPS = (
-    'django.contrib.auth',
+#    'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
+#    'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.messages',
-
-    'django.contrib.admin',
-   # 'django.contrib.staticfiles',
+#    'django.contrib.messages',
 
     'couchdbkit.ext.django',
     'newebe.platform',
@@ -85,7 +82,7 @@ INSTALLED_APPS = (
 )
 
 # Fast-cgi need this line for working with Lighttpd.
-FORCE_SCRIPT_NAME=""
+#FORCE_SCRIPT_NAME=""
 
 # Logging stuff for debugging
 import logging
