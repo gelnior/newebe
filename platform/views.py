@@ -159,12 +159,13 @@ class ContactsResource(NewebeResource):
             #data = urllib.urlencode(contact.toJson())
             data = contact.toJson()
             req = urllib2.Request(url + "platform/contacts/request/", data)
+            print url + "platform/contacts/request/"
             try:
                 response = urllib2.urlopen(req)
                 data = response.read()
-
+                print data
                 newebeResponse = json.loads(data)
-                if newebeResponse.success:
+                if not newebeResponse["success"]:
                     contact.state = STATE_ERROR
                     contact.save()
 

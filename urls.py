@@ -3,13 +3,16 @@ from django.conf import settings
 
 from newebe.lib.rest import DirectTemplateResource
 
+# Set applications urls
 urlpatterns = patterns('',
     (r'^$', DirectTemplateResource('platform/profile.html')),    
     (r'^platform/', include('platform.urls')),
     (r'^news/', include('news.urls')),
 )
 
-
+##
+# In production mode, static files (media files) must be accessed via a 
+# HTTP server like Nginx, Apache, Cherokee...
 if settings.DEBUG:
     urlpatterns += patterns('',
         (
