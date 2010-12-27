@@ -24,7 +24,7 @@ You can also install *couchbkit* via *easy_install*:
 
     easy_install -U Couchdbkit
 
-Create a Couchdb database called *newebe* (case sensitve) via Futon 
+Create a Couchdb database called *newebe* (case sensitve) via *Futon*
 (http://localhost:5984/_utils).
 
 Retrieve Newebe project:
