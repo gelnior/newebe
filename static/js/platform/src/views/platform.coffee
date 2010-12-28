@@ -35,7 +35,7 @@ class PlatformView extends Backbone.View
   onNewsClicked: (ev) ->
     ev.preventDefault()
     document.title = "Newebe | News"
-    @switchTo("#news", '/news/wall/content/')
+    @switchTo("#news", '/news/content/')
     false
 
   ##

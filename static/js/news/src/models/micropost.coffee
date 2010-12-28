@@ -4,7 +4,7 @@
 class MicroPost extends Backbone.Model
 
   ##  Url where micro posts lives.
-  url: '/news/news-item/'
+  url: '/news/microposts/'
 
   ## Constructor initialize its field from a javascript raw object.
   ## Fields
@@ -53,7 +53,7 @@ class MicroPostCollection extends Backbone.Collection
   model: MicroPost
 
   ## Url where micro posts lives.
-  url: '/news/news-item/'
+  url: '/news/microposts/'
 
   ## Collection sorting is based on post publsh date.
   comparator: (microPost) ->

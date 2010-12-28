@@ -2,16 +2,15 @@ import datetime
 
 from django.utils import simplejson as json
 
-from newebe.lib.rest import NewebeResource, JsonResponse, ErrorResponse, \
-                            CreationResponse, SuccessResponse
+from newebe.lib.rest import NewebeResource, BadRequestResponse, \
+                            CreationResponse, SuccessResponse, DocumentResponse
 from newebe.lib.date_util import getDbDateFromUrlDate
-from newebe.lib import json_util
 
 from newebe.platform.models import UserManager
-from newebe.news.models import News, NewsManager
+from newebe.news.models import MicroPost, MicroPostManager
 
 
-class NewsItemResource(NewebeResource):
+class MicroPostResource(NewebeResource):
     '''
     This is the main resource of the application. It allows :
      * GET : to retrieve news by pack (number = NEWS_LIMIT) from a given date.
@@ -25,31 +24,31 @@ class NewsItemResource(NewebeResource):
 
     def GET(self, request, startKey = None):
         '''
-        Return news by pack of NEWS_LIMIT at JSON format. If a start key 
+        Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
         is given in URL (it means a date like 2010-10-05-12-30-48), 
-        news from this date are returned. Else latest news are returned. 
+        microposts from this date are returned. Else latest news are returned. 
 
         Arguments:
             *startKey* The date from where news should be returned.
         '''
-        newss = list()
+        microposts = list()
 
         if startKey:
             dateString = getDbDateFromUrlDate(startKey)
-            newss = NewsManager.getList(dateString)
+            microposts = MicroPostManager.getList(dateString)
 
         else:
-            newss = NewsManager.getList()
+            microposts = MicroPostManager.getList()
             
-        return JsonResponse(json_util.getJsonFromDocList(newss))
+        return DocumentResponse(microposts)
 
         
     def POST(self, request):
         '''
-        When post request is recieved, news content is expected inside
-        a json object under member *content*. It is extracted from it
-        then stored inside a new News object. News author is automatically
-        set with current user (TODO) and current date is set as date.
+        When post request is recieved, micropost content is expected inside
+        a string under *content* of JSON object. It is extracted from it
+        then stored inside a new Microposts object. Micropost author is 
+        automatically set with current user and current date is set as date.
 
         It converts carriage return to a <br /> HTML tag.
         '''
@@ -58,37 +57,39 @@ class NewsItemResource(NewebeResource):
         if data:
             data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
             data = data.replace('\n', '<br />').replace('\r', '<br />')
-            postedNews = json.loads(data)
+            postedMicropost = json.loads(data)
 
-            news = News()
-            news.author = UserManager.getUser().name
-            news.content = postedNews['content']
-            news.date = datetime.datetime.now()
-            news.save()
+            micropost = MicroPost()
+            micropost.author = UserManager.getUser().name
+            micropost.content = postedMicropost['content']
+            micropost.date = datetime.datetime.now()
+            micropost.save()
 
-            return CreationResponse(news.toJson())
+            return CreationResponse(micropost.toJson())
     
         else: 
-            return ErrorResponse("News item has not been created.")
+            return BadRequestResponse(
+                    "Sent data were incorrects. No post was created.")
 
 
     def DELETE(self, request, startKey):
         '''
         Delete extract start key date from URL. Start key is the datetime 
-        corresponding at news entry. It retrieves post which have the same
-        datetime and delete it if it exists.
+        corresponding at micro post entry. It retrieves the post which have the 
+        same datetime and delete it if it exists.
         '''
 
         if startKey:
             dateString = getDbDateFromUrlDate(startKey)
-            news = NewsManager.getFirst(dateString)
+            microPost = MicroPostManager.getFirst(dateString)
 
-            if news:  
-                news.delete()
-                return SuccessResponse("Delete succeeds.")
+            if microPost:  
+                microPost.delete()
+                return SuccessResponse("Micro post deletion succeeds.")
             else:
-                return ErrorResponse("No micro post for this date.")
+                return BadRequestResponse(
+                        "No micro post for this date. Nothing was deleted.")
     
         else:
-            return ErrorResponse("No date given, no micro post deleted.")
+            return BadRequestResponse("No date given, nothing was deleted.")
         

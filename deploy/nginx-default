@@ -1,7 +1,10 @@
 server {
+
+    # Server port
     listen   80 default;
     server_name  localhost;
 
+    # Logs places.
     access_log  /var/log/nginx/localhost.access.log;
     error_log /var/log/nginx/error.log;
 
@@ -20,13 +23,14 @@ server {
     # Disable gzip for certain browsers.
     gzip_disable “MSIE [1-6].(?!.*SV1)”;
 
-
+   
+    # Serve static files.
     location /static {
         root   /home/newebe/newebe;
         autoindex on;
     }
 
-
+    # Serve Newebe django application    
     location / {
         fastcgi_pass 127.0.0.1:8000;
         fastcgi_param PATH_INFO $fastcgi_script_name;

@@ -143,9 +143,9 @@ class NewsView extends Backbone.View
   ##
   # Clear micro posts lists and reload micro posts until *date*.
   reloadMicroPosts: (date) ->
-    @microposts.url = '/news/news-item/'
+    @microposts.url = '/news/microposts/'
     if date
-      @microposts.url = '/news/news-item/' + date + '-23-59-00/'
+      @microposts.url = '/news/microposts/' + date + '-23-59-00/'
     @microposts.fetch()
     @microposts
 
@@ -170,9 +170,9 @@ class NewsView extends Backbone.View
   # Then it retrieves posts and display it at the follown of current post list.
   onMoreNewsClicked: ->
     if @lastDate
-      @moreMicroposts.url = '/news/news-item/' + @lastDate
+      @moreMicroposts.url = '/news/microposts/' + @lastDate
     else
-      @moreMicroposts.url = '/news/news-item/'
+      @moreMicroposts.url = '/news/microposts/'
 
     @moreMicroposts.fetch()
     @moreMicroposts

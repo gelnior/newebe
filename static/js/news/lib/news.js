@@ -11,7 +11,7 @@
   };
   MicroPost = function() {
     __extends(MicroPost, Backbone.Model);
-    MicroPost.prototype.url = '/news/news-item/';
+    MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
       var idDate;
       MicroPost.__super__.constructor.apply(this, arguments);
@@ -51,7 +51,7 @@
     }
     __extends(MicroPostCollection, Backbone.Collection);
     MicroPostCollection.prototype.model = MicroPost;
-    MicroPostCollection.prototype.url = '/news/news-item/';
+    MicroPostCollection.prototype.url = '/news/microposts/';
     MicroPostCollection.prototype.comparator = function(microPost) {
       return microPost.getDate();
     };
@@ -204,9 +204,9 @@
       return $("#id_content");
     };
     NewsView.prototype.reloadMicroPosts = function(date) {
-      this.microposts.url = '/news/news-item/';
+      this.microposts.url = '/news/microposts/';
       if (date) {
-        this.microposts.url = '/news/news-item/' + date + '-23-59-00/';
+        this.microposts.url = '/news/microposts/' + date + '-23-59-00/';
       }
       this.microposts.fetch();
       return this.microposts;
@@ -225,9 +225,9 @@
     };
     NewsView.prototype.onMoreNewsClicked = function() {
       if (this.lastDate) {
-        this.moreMicroposts.url = '/news/news-item/' + this.lastDate;
+        this.moreMicroposts.url = '/news/microposts/' + this.lastDate;
       } else {
-        this.moreMicroposts.url = '/news/news-item/';
+        this.moreMicroposts.url = '/news/microposts/';
       }
       this.moreMicroposts.fetch();
       return this.moreMicroposts;

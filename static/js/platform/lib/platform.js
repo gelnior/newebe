@@ -35,7 +35,7 @@
     PlatformView.prototype.onNewsClicked = function(ev) {
       ev.preventDefault();
       document.title = "Newebe | News";
-      this.switchTo("#news", '/news/wall/content/');
+      this.switchTo("#news", '/news/content/');
       return false;
     };
     PlatformView.prototype.onProfileClicked = function(ev) {

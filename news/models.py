@@ -4,11 +4,12 @@ from django.utils import simplejson as json
 from couchdbkit.ext.django.schema import Document, StringProperty, \
                                          DateTimeProperty
 
+from newebe.platform.models import NewebeDocument
 from newebe.lib import date_util
 from newebe.news import news_settings
 
 
-class NewsManager():
+class MicroPostManager():
     '''
     Furnishes static methods for easy news database retreiving.
     '''
@@ -27,13 +28,13 @@ class NewsManager():
           *startKey* The date from where data should be retrieved
         '''
         if startKey:
-            return News.view("news/all", 
+            return MicroPost.view("news/all", 
                              startkey = startKey, 
                              descending=True, 
                              limit=news_settings.NEWS_LIMIT+1, 
                              skip=0)
         else:
-            return News.view("news/all", 
+            return MicroPost.view("news/all", 
                              descending=True, 
                              limit=news_settings.NEWS_LIMIT)
 
@@ -49,38 +50,33 @@ class NewsManager():
         Arguments:
           *date* Date used to retrieve micro post.
         '''
-        newss = News.view("news/all",
-                          key=dateKey)
+        print dateKey
+        microposts = MicroPost.view("news/all",
+                                    key=dateKey)
 
-        if newss:        
-            return newss.first()
-        else:
-            return None
+        micropost = None
+        if microposts:        
+            micropost = microposts.first()
+
+        return micropost
 
 
-class News(Document):
+class MicroPost(NewebeDocument):
     '''
-    News object used to handle news data.
+    Micropost object for micro blogging.
     '''
     author = StringProperty()
     content = StringProperty(required=True)
     date = DateTimeProperty(default=datetime.datetime.now())
  
     def toDict(self):
-         '''
-         Return news as a dict object for easy json serializing.
-         '''
-
-         data = {}
-         data['author'] = self.author
-         data['content'] = self.content
-         data['date']  = self.date.strftime(date_util.DISPLAY_DATETIME_FORMAT)
-
-         return data
-
-    def toJson(self):
         '''
         Return json representation of current object.
         '''
-        return json.dumps(self.toDict())
+        tempDict = self.__dict__["_doc"].copy()
+        tempDict["date"] = self.date.strftime(date_util.DISPLAY_DATETIME_FORMAT)
+
+        return tempDict
+
+
 
