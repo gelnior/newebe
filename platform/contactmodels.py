@@ -4,6 +4,7 @@ from couchdbkit.ext.django.schema import StringProperty, DateTimeProperty
 STATE_PENDING = "pending"
 STATE_WAIT_APPROVAL = "Wait for approval"
 STATE_ERROR = "Error"
+STATE_TRUSTED = "Trusted"
 
 
 class ContactManager():

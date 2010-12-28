@@ -12,7 +12,8 @@ from newebe.lib.rest import NewebeResource, JsonResponse, CreationResponse, \
 
 from newebe.platform.models import User, UserManager
 from newebe.platform.contactmodels import Contact, ContactManager, \
-                                          STATE_WAIT_APPROVAL, STATE_ERROR 
+                                          STATE_WAIT_APPROVAL, STATE_ERROR, \
+                                          STATE_TRUSTED
 
 from django.template.defaultfilters import slugify
 
@@ -107,6 +108,12 @@ class UserResource(RestResource):
         if data:
             postedUser = json.loads(data)
             user.name = postedUser["name"]
+            print  data 
+            print postedUser["url"]
+
+
+            user.url = postedUser["url"]
+            user.city = postedUser["city"]
             user.save()
 
         return SuccessResponse("User successfully Modified.")
@@ -214,7 +221,31 @@ class ContactResource(NewebeResource):
 
     
     def PUT(self, request, slug):
-        pass
+        contact = ContactManager.getContact(slug)
+        contact.state = STATE_TRUSTED
+        contact.save()
+
+        user = UserManager.getUser()
+        data = user.toContact().toJson()
+        req = Request(contact.url + "platform/contacts/confirm/", data)
+
+        try:
+            response = urlopen(req)
+            data = response.read()
+                
+            newebeResponse = json.loads(data)
+            if not newebeResponse["success"]:
+                contact.state = STATE_ERROR
+                contact.save()
+                return ErrorResponse("Error occurs while confirming contact.")
+        except:
+            contact.state = STATE_ERROR
+            contact.save()
+            return ErrorResponse("Error occurs while confirming contact.")
+
+
+        return SuccessResponse("Contact trusted.")
+
 
     def DELETE(self, request, slug):
         '''
@@ -238,7 +269,7 @@ class ContactPushResource(RestResource):
     '''
 
     def __init__(self):
-        self.methods = ['POST']
+        self.methods = ['POST', 'PUT']
 
 
     def POST(self, request):
@@ -266,4 +297,44 @@ class ContactPushResource(RestResource):
            response = BadRequestResponse("Sent data are incorrects.")
     
         return response
+
+
+
+
+
+class ContactConfirmResource(RestResource):
+    '''
+    This is the resource for contact data management. It allows :
+     * POST : confirm a contact and set its state to TRUSTED.
+    '''
+
+    def __init__(self):
+        self.methods = ['POST']
+
+
+    def POST(self, request):
+        '''
+        Update contact from sent data (contact object at JSON format).
+        Sets its status to Trusted.
+        '''
+        data = request.raw_post_data
+
+        if data:
+            postedContact = json.loads(data)
+            url = postedContact["url"]
+            slug = slugify(url)
+            key = postedContact["key"]
+            
+            contact = ContactManager.getContact(slug)
+            contact.state = STATE_TRUSTED
+            contact.key = key
+            contact.save()
+            
+            response = SuccessResponse("Contact trusted.")
+             
+        else:
+           response = BadRequestResponse("Sent data are incorrects.")
+    
+        return response
+
 

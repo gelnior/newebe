@@ -1,6 +1,6 @@
 (function() {
   /* Main view for applications navigation
-  */  var PlatformView, RegisterView, platformView, registerView;
+  */  var InfoDialog, PlatformView, RegisterView, infoDialog, platformView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -51,6 +51,8 @@
       return false;
     };
     PlatformView.prototype.switchTo = function(page, url) {
+      $(this.lastPage + "-a").removeClass("disabled");
+      $(page + "-a").addClass("disabled");
       if (this.lastPage !== page) {
         $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
       }
@@ -107,6 +109,25 @@
     };
     return RegisterView;
   }();
+  InfoDialog = function() {
+    function InfoDialog() {
+      var div;
+      div = document.createElement('div');
+      div.id = "info-dialog";
+      div.innerHTML = "Test";
+      $("body").prepend(div);
+      this.element = $("#info-dialog");
+      this.element.hide();
+    }
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
+    };
+    return InfoDialog;
+  }();
+  infoDialog = new InfoDialog;
   platformView = new PlatformView;
   registerView = new RegisterView;
 }).call(this);

@@ -51,6 +51,8 @@ blockquote, q {
 
 /** General */
 
+a:visited { color: back; }
+
 body { font-family : sans-serif ; 
   margin : 10px 0 0 10px;
 } 
@@ -75,16 +77,24 @@ textarea { border : 1px solid black; }
   margin-right: 5px;
 }
 
-#menu a:visited {
-  color: black;
+#menu a:visited { color: black; }
+#menu a:hover { text-decoration : underline; }
+#menu a.disabled { color: #888; }
+#menu a.disabled:hover { cursor: default; text-decoration: none; }
+
+/* Info dialog */
+
+#info-dialog {
+  background-color: black;
+  color: white;
+  padding: 10px 40px 10px 40px;
+  width: 600px;
+  position: absolute;
+  left: 180px;
+  top: 200px;
 }
 
-#menu a:hover { 
-  /*color: #777;*/
-  text-decoration : underline;
-}
-
-/* Platform */
+/* Register / Profile */
 
 #platform-register-disclaimer {
   font-weight: bold;
@@ -105,6 +115,12 @@ textarea { border : 1px solid black; }
   text-align : center;
 }
 
+#profile  { margin-top: 30px; }
+
+#profile p { margin-bottom: 20px; font-size: 18px;}
+#profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
+#profile input { font-size: 18px; border: none; }
+
 /* Contacts */
 
 #contact-url-field {
@@ -120,6 +136,5 @@ textarea { border : 1px solid black; }
 #contacts { margin-top: 50px; }
 .platform-contact-row { margin-bottom: 10px; border-bottom: 1px solid #CCC; }
 .platform-contact-url { padding: 12px 0 18px 0; }
-.platform-contact-delete { float: right; height: 40px; padding: 0;}
-.platform-contact-resend { float: right; height: 40px; padding: 0;}
+.platform-contact-row-buttons { float: right; height: 40px; padding: 0;}
 

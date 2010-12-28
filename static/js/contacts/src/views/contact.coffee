@@ -8,8 +8,14 @@ class ContactRow extends Backbone.View
 
 
   template:  _.template('''
-    <a class="platform-contact-delete">X</a>
-    <a class="platform-contact-resend">Resend</a>
+    <span class="platform-contact-row-buttons">
+    <% if (state === "Wait for approval") { %>
+      <a class="platform-contact-wap">Confim</a>
+    <% } else { %>
+      <a class="platform-contact-resend">Resend</a>
+    <% } %>
+    <a class="platform-contact-delete">X</a>    
+    </span>
     <p class="platform-contact-url">
      <%= url %> 
      <span> (<%= state %>)</span>
@@ -29,13 +35,11 @@ class ContactRow extends Backbone.View
     
   # When mouse is over buttons are displayed.
   onMouseOver: ->
-    @$(".platform-contact-delete").show()
-    @$(".platform-contact-resend").show()
+    @$(".platform-contact-row-buttons").show()
 
   # When mouse is out buttons are hidden.
   onMouseOut: ->
-    @$(".platform-contact-delete").hide()
-    @$(".platform-contact-resend").hide()
+    @$(".platform-contact-row-buttons").hide()
 
   # When delete button is clicked, it will call delete linked contact method.
   onDeleteClicked: ->
@@ -45,15 +49,15 @@ class ContactRow extends Backbone.View
   remove: ->
     $(@el).remove()
 
-  ## Builds micro post row element from template and linked micro post data.
-  ## It sets the button jquery-ui behavior on delete button then it hides it.
-  ## It does not set element to DOM.
+  ## Builds contact row element from template and linked micro post data.
+  ## It sets the buttons jquery-ui behavior on utility links then it hides 
+  ## them. It does not set element to DOM.
   render: ->
     $(@el).html(@template(@model.toJSON()))
     @$(".platform-contact-delete").button()
-    @$(".platform-contact-delete").hide()
     @$(".platform-contact-resend").button()
-    @$(".platform-contact-resend").hide()
+    @$(".platform-contact-wap").button()
+    @$(".platform-contact-row-buttons").hide()
     @el
 
 

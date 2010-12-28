@@ -7,6 +7,8 @@ from newebe.lib import date_util, json_util
 
 from django.template.defaultfilters import slugify
 
+from newebe.settings import SECRET_KEY
+from newebe.platform.contactmodels import STATE_WAIT_APPROVAL, STATE_TRUSTED
 
 class DateUtilTest(TestCase):
      def testGetDbDateFromUrlDate(self):
@@ -299,9 +301,10 @@ class ContactResourceTest(TestCase):
     def testPushContact(self):
         '''
         '''
+        
         contact = Contact()
         contact.name = "John Doe"
-        contact.url = "http://test.contact.com/"
+        contact.url = "http://localhost/1/"        
         contact.slug = slugify(contact.url)
 
         response = self.client.post('/platform/contacts/request/',
@@ -314,7 +317,48 @@ class ContactResourceTest(TestCase):
         contacts = ContactManager.getContacts().all()
         contactServer = contacts[0]
         self.assertEqual(contact.url, contactServer.url)
-        self.assertEqual("Wait for approval", contactServer.state)
+        self.assertEqual(STATE_WAIT_APPROVAL, contactServer.state)
  
 
+    def testAcknowledge(self): 
+        '''
+        '''
 
+        contact = Contact()
+        contact.name = "John Doe"
+        contact.url = "http://localhost/1/"
+        contact.slug = slugify(contact.url)
+        contact.save()
+        
+        contact.key =  "my-key"
+
+        response = self.client.post('/platform/contacts/confirm/',
+                                    contact.toJson(), content_type="text/xml")
+        self.assertEqual(200, response.status_code)
+        jsonResponse = json.loads(response.content)
+        self.assertEquals("Contact trusted.", jsonResponse["success"])
+
+        contacts = ContactManager.getContacts().all()
+        contactServer = contacts[0]
+        self.assertEqual(contact.url, contactServer.url)
+        self.assertEqual(STATE_TRUSTED, contactServer.state)
+        self.assertEqual(contact.key, contactServer.key)
+
+
+    def testTrusting(self):
+        contact = Contact()
+        contact.name = "John Doe"
+        contact.url = "http://localhost/1/"
+        contact.slug = slugify(contact.url)
+        contact.state =  STATE_WAIT_APPROVAL
+        contact.save()
+
+        response = self.client.put('/platform/contacts/'+ contact.slug + '/',
+                          contact.toJson(), content_type="text/xml")
+
+        self.assertEqual(200, response.status_code)
+        
+        contacts = ContactManager.getContacts().all()
+        contactServer = contacts[0]
+        self.assertEqual(contact.url, contactServer.url)
+        self.assertEqual(STATE_TRUSTED, contactServer.state)

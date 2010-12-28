@@ -17,6 +17,7 @@ appFiles  = [
   'models/platform',
   'views/platform',
   'views/register',
+  'views/infodialog',
   'platform'
 ]
 

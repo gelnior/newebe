@@ -59,7 +59,7 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<a class="platform-contact-delete">X</a>\n<a class="platform-contact-resend">Resend</a>\n<p class="platform-contact-url">\n <%= url %> \n <span> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } else { %>\n  <a class="platform-contact-resend">Resend</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
@@ -71,12 +71,10 @@
       this.model.view = this;
     }
     ContactRow.prototype.onMouseOver = function() {
-      this.$(".platform-contact-delete").show();
-      return this.$(".platform-contact-resend").show();
+      return this.$(".platform-contact-row-buttons").show();
     };
     ContactRow.prototype.onMouseOut = function() {
-      this.$(".platform-contact-delete").hide();
-      return this.$(".platform-contact-resend").hide();
+      return this.$(".platform-contact-row-buttons").hide();
     };
     ContactRow.prototype.onDeleteClicked = function() {
       return this.model["delete"]();
@@ -87,9 +85,9 @@
     ContactRow.prototype.render = function() {
       $(this.el).html(this.template(this.model.toJSON()));
       this.$(".platform-contact-delete").button();
-      this.$(".platform-contact-delete").hide();
       this.$(".platform-contact-resend").button();
-      this.$(".platform-contact-resend").hide();
+      this.$(".platform-contact-wap").button();
+      this.$(".platform-contact-row-buttons").hide();
       return this.el;
     };
     return ContactRow;

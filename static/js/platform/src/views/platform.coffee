@@ -57,6 +57,9 @@ class PlatformView extends Backbone.View
   # Switch to *page*. If page does not exists it is append from html 
   # data retrived at *url*. Switching begins by current page fade out.
   switchTo: (page, url) ->
+    $(@lastPage + "-a").removeClass("disabled")
+    $(page + "-a").addClass("disabled")
+
     if @lastPage != page
       $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))
     @lastPage
