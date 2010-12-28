@@ -28,10 +28,14 @@ class Contact extends Backbone.Model
   # Send a delete request to services backend then remove contact row from
   # contact view.
   delete: ->
-    @url += @id
+    @url = '/platform/contacts/' + @id
     @destroy()
     @view.remove()
 
+  saveToDb: ->
+    @url = '/platform/contacts/' + @id
+    @save()
+    @url
 
   # Contact is considered as new if no state is set.
   isNew: ->

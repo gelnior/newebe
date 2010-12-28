@@ -27,9 +27,14 @@
       return this.get('state');
     };
     Contact.prototype["delete"] = function() {
-      this.url += this.id;
+      this.url = '/platform/contacts/' + this.id;
       this.destroy();
       return this.view.remove();
+    };
+    Contact.prototype.saveToDb = function() {
+      this.url = '/platform/contacts/' + this.id;
+      this.save();
+      return this.url;
     };
     Contact.prototype.isNew = function() {
       return !this.getState();
@@ -59,9 +64,10 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } else { %>\n  <a class="platform-contact-resend">Resend</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } else if (state !== "Trusted") { %>\n  <a class="platform-contact-resend">Resend</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
+      "click .platform-contact-wap": "onConfirmClicked",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut"
     };
@@ -78,6 +84,9 @@
     };
     ContactRow.prototype.onDeleteClicked = function() {
       return this.model["delete"]();
+    };
+    ContactRow.prototype.onConfirmClicked = function() {
+      return this.model.saveToDb();
     };
     ContactRow.prototype.remove = function() {
       return $(this.el).remove();

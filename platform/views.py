@@ -108,8 +108,6 @@ class UserResource(RestResource):
         if data:
             postedUser = json.loads(data)
             user.name = postedUser["name"]
-            print  data 
-            print postedUser["url"]
 
 
             user.url = postedUser["url"]
@@ -170,7 +168,7 @@ class ContactsResource(NewebeResource):
             )
             contact.save()
 
-            data = contact.toJson()
+            data = UserManager.getUser().toContact().toJson()
             req = Request(url + "platform/contacts/request/", data)
 
             try:
@@ -227,13 +225,15 @@ class ContactResource(NewebeResource):
 
         user = UserManager.getUser()
         data = user.toContact().toJson()
+        print contact.url + "platform/contacts/confirm/"
+        print data
         req = Request(contact.url + "platform/contacts/confirm/", data)
 
         try:
             response = urlopen(req)
-            data = response.read()
-                
-            newebeResponse = json.loads(data)
+            incomingData = response.read()
+            print incomingData 
+            newebeResponse = json.loads(incomingData)
             if not newebeResponse["success"]:
                 contact.state = STATE_ERROR
                 contact.save()

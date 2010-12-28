@@ -11,7 +11,7 @@ class ContactRow extends Backbone.View
     <span class="platform-contact-row-buttons">
     <% if (state === "Wait for approval") { %>
       <a class="platform-contact-wap">Confim</a>
-    <% } else { %>
+    <% } else if (state !== "Trusted") { %>
       <a class="platform-contact-resend">Resend</a>
     <% } %>
     <a class="platform-contact-delete">X</a>    
@@ -25,6 +25,7 @@ class ContactRow extends Backbone.View
 
   events:
     "click .platform-contact-delete": "onDeleteClicked"
+    "click .platform-contact-wap": "onConfirmClicked"
     "mouseover" : "onMouseOver"
     "mouseout" : "onMouseOut"
 
@@ -44,6 +45,9 @@ class ContactRow extends Backbone.View
   # When delete button is clicked, it will call delete linked contact method.
   onDeleteClicked: ->
     @model.delete()
+
+  onConfirmClicked: ->
+    @model.saveToDb()
 
   ## Removes micro post row element from DOM.
   remove: ->
