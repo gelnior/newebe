@@ -1,6 +1,10 @@
 from newebe.platform.models import NewebeDocument
 from couchdbkit.ext.django.schema import StringProperty, DateTimeProperty
 
+STATE_PENDING = "pending"
+STATE_WAIT_APPROVAL = "Wait for approval"
+STATE_ERROR = "Error"
+
 
 class ContactManager():
     '''
@@ -60,7 +64,7 @@ class Contact(NewebeDocument):
     name = StringProperty()
     key = StringProperty()
     url = StringProperty(required=True)
-    state = StringProperty()
+    state = StringProperty(required=True, default=STATE_PENDING)
     slug = StringProperty(required=True)
     requestDate = DateTimeProperty()
 

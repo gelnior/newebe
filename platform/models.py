@@ -3,18 +3,25 @@ from django.utils import simplejson as json
 from couchdbkit.ext.django.schema import Document, StringProperty
 
 class NewebeDocument(Document):
-
+    '''
+    Base class for document used by newebe apps. Contains some utility methods.
+    '''
+     
     def toDict(self):
+        '''
+        Return a dict representation of the document (copy).
+        '''
         return self.__dict__["_doc"].copy()
 
 
     def toJson(self):
         '''
-        Return json representation of current object.
+        Return json representation of the document.
         '''
         return json.dumps(self.toDict())
 
-class UserManager():
+
+class UserManager():    
     '''
     Methods to easily retrieve owner of current Newebe from database.
     '''
@@ -31,25 +38,10 @@ class UserManager():
             return None
 
 
-class User(Document):
+class User(NewebeDocument):
     '''
     Users object used to handle owner data.
     '''
     name = StringProperty(required=True)
-
-    def toDict(self):
-         '''
-         Return user as a dict object.
-         '''
-         data = {}
-         data['name'] = self.name
-
-         return data
-
-    def toJson(self):
-        '''
-        Return json representation of current object.
-        '''
-        return json.dumps(self.toDict())
 
 

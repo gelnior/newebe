@@ -1,21 +1,21 @@
-import datetime, urllib, urllib2
-from urllib2 import Request, urlopen, URLError, HTTPError
+import datetime
+
+from urllib2 import Request, urlopen
 
 from django.utils import simplejson as json
 from django.http import HttpResponseNotFound
 
 from newebe.lib import file_util, json_util
 from newebe.lib.rest import NewebeResource, JsonResponse, CreationResponse, \
-                            ErrorResponse, RestResource, SuccessResponse
+                            ErrorResponse, RestResource, SuccessResponse, \
+                            BadRequestResponse, DocumentResponse
 
 from newebe.platform.models import User, UserManager
-from newebe.platform.contactmodels import Contact, ContactManager
+from newebe.platform.contactmodels import Contact, ContactManager, \
+                                          STATE_WAIT_APPROVAL, STATE_ERROR 
 
 from django.template.defaultfilters import slugify
 
-STATE_PENDING = "pending"
-STATE_WAIT_APPROVAL = "Wait for approval"
-STATE_ERROR = "Error"
 
 class MediaFileResource(NewebeResource):
     '''
@@ -69,18 +69,19 @@ class UserResource(RestResource):
         user = UserManager.getUser()
         users.append(user)
 
-        return JsonResponse(json_util.getJsonFromDocList(users))
+        return DocumentResponse(users)
 
     def POST(self, request):
         '''
         Create a new user (if user exists, error response is returned) from
         sent data (user object at JSON format).
-        '''
+        '''        
         if UserManager.getUser():
             return ErrorResponse("User already exists.")
 
 
         data = request.raw_post_data
+        print data
 
         if data:
             postedUser = json.loads(data)
@@ -91,7 +92,8 @@ class UserResource(RestResource):
             return CreationResponse(user.toJson())
 
         else:
-            return ErrorResponse("User has not been created.")
+            return BadRequestResponse(
+                    "Data are not correct. User has not been created.")
 
 
     def PUT(self, request):
@@ -115,6 +117,13 @@ class ContactsResource(NewebeResource):
     This is the resource for contact data management. It allows :
      * GET : retrieve all contacts data.
      * POST : create a new contact.
+    
+    ContactResource can be parameterized to retrieve only contacts
+    with specific states :
+      all = all contacts
+      pending = only contacts that have not approved your contact request or
+                contacts that returned an eroor.
+      requested = contacts that wait for approval.
     '''
 
     def __init__(self, contactFilter = "all"):
@@ -133,8 +142,7 @@ class ContactsResource(NewebeResource):
         else:
             contacts = ContactManager.getContacts()
 
-
-        return JsonResponse(json_util.getJsonFromDocList(contacts))
+        return DocumentResponse(contacts)
 
 
     def POST(self, request):
@@ -151,19 +159,17 @@ class ContactsResource(NewebeResource):
 
             contact = Contact(
               url = url,
-              slug = slug,
-              state = STATE_PENDING
+              slug = slug
             )
             contact.save()
 
-            #data = urllib.urlencode(contact.toJson())
             data = contact.toJson()
-            req = urllib2.Request(url + "platform/contacts/request/", data)
-            print url + "platform/contacts/request/"
+            req = Request(url + "platform/contacts/request/", data)
+
             try:
-                response = urllib2.urlopen(req)
+                response = urlopen(req)
                 data = response.read()
-                print data
+                
                 newebeResponse = json.loads(data)
                 if not newebeResponse["success"]:
                     contact.state = STATE_ERROR
@@ -176,7 +182,8 @@ class ContactsResource(NewebeResource):
             return CreationResponse(contact.toJson())
 
         else:
-            return ErrorResponse("User has not been created.")
+            return BadRequestResponse(
+                    "Wrong data. Contact has not been created.")
 
 
 class ContactResource(NewebeResource):
@@ -198,7 +205,6 @@ class ContactResource(NewebeResource):
             response = JsonResponse(json_util.getJsonFromDocList(contacts))
             contact = Contact(
                 name = UserManager.getUser().name,
-#                url = url,
             )
 
         else:
@@ -224,6 +230,7 @@ class ContactResource(NewebeResource):
             response = ErrorResponse("Contact does not exist.")
         return response
 
+
 class ContactPushResource(RestResource):
     '''
     This is the resource for contact data management. It allows :
@@ -237,9 +244,10 @@ class ContactPushResource(RestResource):
     def POST(self, request):
         '''
         Create a new contact from sent data (contact object at JSON format).
+        Sets its status to Wait For Approval
         '''
         data = request.raw_post_data
-        print data
+
         if data:
             postedContact = json.loads(data)
             url = postedContact["url"]
@@ -255,6 +263,7 @@ class ContactPushResource(RestResource):
             response = SuccessResponse("Request received.")
              
         else:
-           response = ErrorResponse("Sent data are incorrects.")
+           response = BadRequestResponse("Sent data are incorrects.")
     
         return response
+

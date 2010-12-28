@@ -33,7 +33,7 @@ class JsonUtilTest(TestCase):
 
         users = [user1, user2]
 
-        expectedJson = '{"rows": [{"name": "John Doe"}, {"name": "Jack Doe"}],'
+        expectedJson = '{"rows": [{"doc_type": "User", "name": "John Doe"}, {"doc_type": "User", "name": "Jack Doe"}],'
         expectedJson += ' "total_rows": 2}'
         self.assertEqual(expectedJson, json_util.getJsonFromDocList(users))
 
@@ -55,7 +55,7 @@ class UserTest(TestCase):
         user = User()
         user.name = "John Doe"
         
-        expectedJson = '{"name": "John Doe"}'
+        expectedJson = '{"doc_type": "User", "name": "John Doe"}'
         self.assertEqual(expectedJson, user.toJson())
 
 
@@ -202,12 +202,12 @@ class ContactTest(TestCase):
         self.assertEqual(0, len(contacts))
 
         contact = Contact()
-        contact.url = "http://friend.one/"
+        contact.url = "http://localhost/1/"
         contact.slug = slugify(contact.url)
         contact.state = "pending"
         contact.save()
         contact2 = Contact()
-        contact2.url = "http://friend.two/"
+        contact2.url = "http://localhost/2/"
         contact2.slug = slugify(contact.url)
         contact2.state = "pending"
         contact2.save()
@@ -255,12 +255,12 @@ class ContactResourceTest(TestCase):
         /platform/contacts/
         """
         contact = Contact()
-        contact.url = "http://friend.one/"
+        contact.url = "http://localhost/1/"
         contact.slug = slugify(contact.url)
         contact.state = "pending"
         contact.save()
         contact2 = Contact()
-        contact2.url = "http://friend.two/"
+        contact2.url = "http://localhost/2/"
         contact2.slug = slugify(contact.url)
         contact2.state = "pending"
         contact2.save()
@@ -281,7 +281,7 @@ class ContactResourceTest(TestCase):
         database.
         '''
         contact = Contact()
-        contact.url = "http://friend1.com/"
+        contact.url = "http://localhost/1/"
 
         response = self.client.post('/platform/contacts/',
                                     contact.toJson(), content_type="text/xml")
@@ -317,6 +317,4 @@ class ContactResourceTest(TestCase):
         self.assertEqual("Wait for approval", contactServer.state)
  
 
-#    def testDeleteContact(self):
-#        pass
 
