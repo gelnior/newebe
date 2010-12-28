@@ -318,7 +318,6 @@ class ContactConfirmResource(RestResource):
         Sets its status to Trusted.
         '''
         data = request.raw_post_data
-
         if data:
             postedContact = json.loads(data)
             url = postedContact["url"]
