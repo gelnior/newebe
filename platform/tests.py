@@ -370,6 +370,7 @@ class ContactResourceTest(TestCase):
             url="http://localhost/1/",
             key="blender-key",
             state=STATE_TRUSTED,
+            date="2010-12-28T21:55:40Z",
         )
         contact.slug = slugify(contact.url)
 
