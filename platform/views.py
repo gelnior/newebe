@@ -82,7 +82,6 @@ class UserResource(RestResource):
 
 
         data = request.raw_post_data
-        print data
 
         if data:
             postedUser = json.loads(data)
@@ -225,14 +224,12 @@ class ContactResource(NewebeResource):
 
         user = UserManager.getUser()
         data = user.toContact().toJson()
-        print contact.url + "platform/contacts/confirm/"
-        print data
+
         req = Request(contact.url + "platform/contacts/confirm/", data)
 
         try:
             response = urlopen(req)
             incomingData = response.read()
-            print incomingData 
             newebeResponse = json.loads(incomingData)
             if not newebeResponse["success"]:
                 contact.state = STATE_ERROR
@@ -336,4 +333,39 @@ class ContactConfirmResource(RestResource):
     
         return response
 
+class ContactDocumentResource(RestResource):
+    '''
+    This resource allows contact to post documents to current user database.
+    '''
+
+    def __init__(self):
+        self.methods = ['POST']
+
+
+    def POST(self, request):
+        '''
+        Update contact from sent data (contact object at JSON format).
+        Sets its status to Trusted.
+        '''
+        data = request.raw_post_data
+            
+        response = BadRequestResponse("Sent data are incorrects.")
+
+        
+        if data:
+            doc = json.loads(data)
+
+            print doc
+            print doc["authorKey"]
+            if "authorKey" in doc:
+                key = doc["authorKey"]
+                contact = ContactManager.getTrustedContact(key)
+
+                if contact:
+                    from newebe.platform.listener.change_listener import db
+                    db.save_doc(doc)
+
+                    response = SuccessResponse("Document saved.")
+    
+        return response
 

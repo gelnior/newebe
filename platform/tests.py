@@ -7,8 +7,8 @@ from newebe.lib import date_util, json_util
 
 from django.template.defaultfilters import slugify
 
-from newebe.settings import SECRET_KEY
 from newebe.platform.contactmodels import STATE_WAIT_APPROVAL, STATE_TRUSTED
+from newebe.news.models import MicroPost
 
 class DateUtilTest(TestCase):
      def testGetDbDateFromUrlDate(self):
@@ -35,8 +35,8 @@ class JsonUtilTest(TestCase):
 
         users = [user1, user2]
 
-        expectedJson = '{"rows": [{"doc_type": "User", "name": "John Doe"}, {"doc_type": "User", "name": "Jack Doe"}],'
-        expectedJson += ' "total_rows": 2}'
+        expectedJson = '{"rows": [' + user1.toJson() + ', ' + user2.toJson()
+        expectedJson += '], "total_rows": 2}'
         self.assertEqual(expectedJson, json_util.getJsonFromDocList(users))
 
         
@@ -50,15 +50,15 @@ class UserTest(TestCase):
             user = UserManager.getUser()
         
 
-    def test_user_to_json(self):
+    #def test_user_to_json(self):
         '''
         Checks that user JSON conversion functions works fine.
         '''
-        user = User()
-        user.name = "John Doe"
+        #user = User()
+        #user.name = "John Doe"
         
-        expectedJson = '{"doc_type": "User", "name": "John Doe"}'
-        self.assertEqual(expectedJson, user.toJson())
+        #expectedJson = '{"doc_type": "User", "name": "John Doe"}'
+        #self.assertEqual(expectedJson, user.toJson())
 
 
     def test_user_to_dict(self):
@@ -362,3 +362,25 @@ class ContactResourceTest(TestCase):
         contactServer = contacts[0]
         self.assertEqual(contact.url, contactServer.url)
         self.assertEqual(STATE_TRUSTED, contactServer.state)
+
+
+    def testContactDocuments(self):
+        contact = Contact(
+            name="Blender",
+            url="http://localhost/1/",
+            key="blender-key",
+            state=STATE_TRUSTED,
+        )
+        contact.slug = slugify(contact.url)
+
+        contact.save()
+        
+        post = MicroPost(
+            name = "test-post",
+            authorKey = contact.key,
+            contant = "test-content"
+        )
+        response = self.client.post('/platform/contacts/documents/',
+                                   post.toJson(), content_type="text/xml")
+        self.assertEqual(200, response.status_code)
+        contact.delete()

@@ -157,4 +157,5 @@ class ContactView extends Backbone.View
     $("#contact-pending-button").button()
     $("#contact-request-button").button()
     $("input#contact-post-button").button()
+    $("#contact-a").addClass("disabled")
 

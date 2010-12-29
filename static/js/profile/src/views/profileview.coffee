@@ -83,4 +83,5 @@ class ProfileView extends Backbone.View
   # Build JQuery widgets.
   setWidgets: ->
     $("#profile input").val(null)
+    $("#profile-a").addClass("disabled")
 

@@ -63,6 +63,7 @@ class MicroPostResource(NewebeResource):
             micropost.author = UserManager.getUser().name
             micropost.content = postedMicropost['content']
             micropost.date = datetime.datetime.now()
+            micropost.authorKey = UserManager.getUser().key
             micropost.save()
 
             return CreationResponse(micropost.toJson())

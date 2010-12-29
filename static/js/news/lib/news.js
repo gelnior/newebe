@@ -251,7 +251,8 @@
       $("#news-all-button").button();
       $("#news-all-button").button("disable");
       $("#news-more").button();
-      return $("#news-from-datepicker").val(null);
+      $("#news-from-datepicker").val(null);
+      return $("#news-a").addClass("disabled");
     };
     return NewsView;
   }();

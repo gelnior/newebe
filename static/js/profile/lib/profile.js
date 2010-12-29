@@ -112,7 +112,8 @@
       });
     };
     ProfileView.prototype.setWidgets = function() {
-      return $("#profile input").val(null);
+      $("#profile input").val(null);
+      return $("#profile-a").addClass("disabled");
     };
     return ProfileView;
   }();

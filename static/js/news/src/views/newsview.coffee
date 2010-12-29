@@ -198,4 +198,5 @@ class NewsView extends Backbone.View
     $("#news-all-button").button("disable")
     $("#news-more").button()
     $("#news-from-datepicker").val(null)
+    $("#news-a").addClass("disabled")
 

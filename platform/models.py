@@ -22,6 +22,8 @@ class NewebeDocument(Document):
         '''
         return json.dumps(self.toDict())
 
+    authorKey = StringProperty()
+
 from newebe.platform.contactmodels import Contact
 
 class UserManager():    
@@ -57,3 +59,7 @@ class User(NewebeDocument):
         contact.name = self.name
 
         return contact
+
+
+
+

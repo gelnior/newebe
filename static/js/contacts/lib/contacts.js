@@ -234,7 +234,8 @@
       $("#contact-all-button").button();
       $("#contact-pending-button").button();
       $("#contact-request-button").button();
-      return $("input#contact-post-button").button();
+      $("input#contact-post-button").button();
+      return $("#contact-a").addClass("disabled");
     };
     return ContactView;
   }();

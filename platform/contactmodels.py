@@ -41,6 +41,29 @@ class ContactManager():
  
         return contacts 
 
+    @staticmethod
+    def getTrustedContacts():
+        '''
+        Returns contacts of which state is equal to *trusted*.
+        '''
+        contacts = Contact.view("platform/trusted")
+ 
+        return contacts 
+
+    @staticmethod
+    def getTrustedContact(key):
+        '''
+        Returns trusted contact corresponding to key
+        '''
+        contacts = Contact.view("platform/trusted", key=key)
+      
+        contact = None
+        if contacts:
+            contact = contacts.first() 
+
+        return contact
+
+
 
     @staticmethod
     def getContact(slug):
@@ -69,4 +92,5 @@ class Contact(NewebeDocument):
     slug = StringProperty(required=True)
     requestDate = DateTimeProperty()
 
+    
 

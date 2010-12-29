@@ -2,7 +2,8 @@ from django.conf.urls.defaults import patterns
 
 from newebe.platform.views import UserResource, ContactResource, \
                                   ContactsResource, ContactPushResource, \
-                                  ContactConfirmResource
+                                  ContactConfirmResource, \
+                                  ContactDocumentResource
 
 from newebe.lib.rest import DirectTemplateResource
 
@@ -27,6 +28,8 @@ urlpatterns = patterns('',
         ContactPushResource()),
     (r'^contacts/confirm/$', 
         ContactConfirmResource()),
+    (r'^contacts/documents/$', 
+        ContactDocumentResource()),
 #    (r'^contacts/(?P<slug>[0-9A-Za-z-]+)/trust/$', 
 #        ContactTrustResource()),
     (r'^contacts/(?P<slug>[0-9A-Za-z-]+)/$', 
