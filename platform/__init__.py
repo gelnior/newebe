@@ -1,1 +1,3 @@
-# Platform module handles user profile and contacts management.
+'''
+Platform module handles user profile and contacts management.
+'''
