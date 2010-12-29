@@ -5,6 +5,7 @@ from couchdbkit import Server, Consumer
 from couchdbkit.schema import Document, IntegerProperty
 from urllib2 import Request, urlopen
 from newebe.platform.contactmodels import ContactManager
+from django.utils import simplejson as json
 
 class LastSequence(Document):
     lastSequence = IntegerProperty(required=True, default=0)
@@ -56,8 +57,20 @@ def print_line(line):
                 LastSequenceManager.setLastSequence(line["seq"])
                 for contact in ContactManager.getTrustedContacts():
                     print contact
+                    del doc["_id"]
+                    del doc["_rev"]
                     print doc
 
+                    print contact.url + "platform/contacts/documents/", 
+                    req = Request(contact.url + "platform/contacts/documents/", 
+                                  json.dumps(doc))
+                    response = urlopen(req)
+                    data = response.read()
+                    
+                    newebeResponse = json.loads(data)
+
+                    if newebeResponse["success"]:
+                        print "ok"
                     #f.write(doc["doc_type"] + "\n")
                     #f.close()
 
