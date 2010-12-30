@@ -22,6 +22,6 @@ if settings.DEBUG:
     )
 
 
-from newebe.platform.listener.change_listener import ChangeListener
-changeListener = ChangeListener()
-changeListener.start()
+#from newebe.platform.listener.change_listener import ChangeListener
+#changeListener = ChangeListener()
+#changeListener.start()

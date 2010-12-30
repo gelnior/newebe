@@ -9,6 +9,8 @@ from newebe.lib.date_util import getDbDateFromUrlDate
 from newebe.platform.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
 
+from urllib2 import Request, urlopen
+from newebe.platform.contactmodels import ContactManager
 
 class MicroPostResource(NewebeResource):
     '''
@@ -66,6 +68,16 @@ class MicroPostResource(NewebeResource):
             micropost.authorKey = UserManager.getUser().key
             micropost.save()
 
+            for contact in ContactManager.getTrustedContacts():
+                try:
+                    print contact.url + "platform/contacts/documents/"
+                    req = Request(contact.url + "platform/contacts/documents/", 
+                                  micropost.toJson())
+                    response = urlopen(req)
+                    data = response.read()
+                except:
+                    print "micrpost to contact failed"
+                    pass
             return CreationResponse(micropost.toJson())
     
         else: 

@@ -45,23 +45,26 @@ db = server.get_or_create_db("newebe")
 LastSequence.set_db(db)
 
 def print_line(line):
-    #f = open('changes.log', 'a')
+    f = open('changes.log', 'a')
 
     isNotDeleted = "deleted" not in line or not line["deleted"]
 
+    f.write( "Changes occured  \n")
+    
     if isNotDeleted:
         doc = db.get(line["id"])
+        f.write(doc + "\n")
 
         if doc and "doc_type" in doc and isNotDeleted :
             if doc["doc_type"] == "MicroPost":
                 LastSequenceManager.setLastSequence(line["seq"])
                 for contact in ContactManager.getTrustedContacts():
-                    print contact
+                    f.write(contact + "\n")
+                    f.close()
                     del doc["_id"]
                     del doc["_rev"]
-                    print doc
 
-                    print contact.url + "platform/contacts/documents/", 
+                    f.write(contact.url + "platform/contacts/documents/")
                     req = Request(contact.url + "platform/contacts/documents/", 
                                   json.dumps(doc))
                     response = urlopen(req)
@@ -71,8 +74,8 @@ def print_line(line):
 
                     if newebeResponse["success"]:
                         print "ok"
-                    #f.write(doc["doc_type"] + "\n")
-                    #f.close()
+                    f.write(doc + "\n")
+                    f.close()
 
 
 class ChangeListener(threading.Thread):
