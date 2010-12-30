@@ -351,7 +351,7 @@ class ContactDocumentResource(RestResource):
             
         response = BadRequestResponse("Sent data are incorrects.")
 
-        
+        print data 
         if data:
             doc = json.loads(data)
 
@@ -360,9 +360,14 @@ class ContactDocumentResource(RestResource):
             if "authorKey" in doc:
                 key = doc["authorKey"]
                 contact = ContactManager.getTrustedContact(key)
-
+                print len(contact)
+                print contact.toJson()
                 if contact:
                     from newebe.platform.listener.change_listener import db
+                    print  doc
+                    del doc["_id"]
+                    del doc["_rev"]
+                    print  doc
                     db.save_doc(doc)
 
                     response = SuccessResponse("Document saved.")

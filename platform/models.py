@@ -50,7 +50,13 @@ class User(NewebeDocument):
     name = StringProperty(required=True)
     city = StringProperty()
     url = StringProperty()
-    key = StringProperty(required=True, default=SECRET_KEY)
+    key = StringProperty()
+
+    def save(self):
+        super(NewebeDocument, self).save()
+        if not self.key:
+            self.key = self.id
+
 
     def toContact(self):
         contact = Contact()

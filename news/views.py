@@ -72,7 +72,7 @@ class MicroPostResource(NewebeResource):
                 try:
                     print contact.url + "platform/contacts/documents/"
                     req = Request(contact.url + "platform/contacts/documents/", 
-                                  micropost.toJson())
+                                  micropost.toExportJson())
                     response = urlopen(req)
                     data = response.read()
                 except:
