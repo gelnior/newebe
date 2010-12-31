@@ -1,13 +1,13 @@
 from django.utils import simplejson as json
 
 from couchdbkit.ext.django.schema import Document, StringProperty
-from newebe.settings import SECRET_KEY
 
 
 class NewebeDocument(Document):
     '''
     Base class for document used by newebe apps. Contains some utility methods.
     '''
+    authorKey = StringProperty()
      
     def toDict(self):
         '''
@@ -22,7 +22,6 @@ class NewebeDocument(Document):
         '''
         return json.dumps(self.toDict())
 
-    authorKey = StringProperty()
 
 from newebe.platform.contactmodels import Contact
 
@@ -66,6 +65,6 @@ class User(NewebeDocument):
 
         return contact
 
-
+        
 
 

@@ -78,5 +78,10 @@ class MicroPost(NewebeDocument):
 
         return tempDict
 
+    def toExportJson(self):
+        '''
+        Return JSON format to be sent to another newebe (database date format).
+        '''
+        tempDict = self.__dict__["_doc"].copy()
 
-
+        return json.dumps(tempDict)

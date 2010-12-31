@@ -70,12 +70,17 @@ class MicroPostResource(NewebeResource):
 
             for contact in ContactManager.getTrustedContacts():
                 try:
+                    print "envoi contact"
                     print contact.url + "platform/contacts/documents/"
+                    print micropost.date
                     req = Request(contact.url + "platform/contacts/documents/", 
                                   micropost.toExportJson())
                     response = urlopen(req)
                     data = response.read()
-                except:
+                except Exception, err:
+                    import sys
+                    sys.stderr.write('ERROR: %s\n' % str(err))
+
                     print "micrpost to contact failed"
                     pass
             return CreationResponse(micropost.toJson())
