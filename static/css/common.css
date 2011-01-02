@@ -75,12 +75,13 @@ textarea { border : 1px solid black; }
   font-weight: bold;
   text-decoration: none;
   margin-right: 5px;
+  color: black;
 }
 
 #menu a:visited { color: black; }
-#menu a:hover { text-decoration : underline; }
+#menu a:hover { text-decoration : none; border-bottom: 3px solid black; }
 #menu a.disabled { color: #888; }
-#menu a.disabled:hover { cursor: default; text-decoration: none; }
+#menu a.disabled:hover { cursor: default; text-decoration: none; border: none; }
 
 /* Info dialog */
 

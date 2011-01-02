@@ -25,6 +25,9 @@ class Contact extends Backbone.Model
   getState: ->
     @get('state')
 
+  setState: (state) ->
+    @set('state', state)
+
   # Send a delete request to services backend then remove contact row from
   # contact view.
   delete: ->
@@ -34,7 +37,16 @@ class Contact extends Backbone.Model
 
   saveToDb: ->
     @url = '/platform/contacts/' + @id
-    @save()
+    @save(null,
+      success: (model, response) ->
+        model.setState("Trusted")
+        model.view.refresh("Trusted")
+        true
+      error: (model, response) ->
+        model.setState("Error")
+        model.view.refresh("Error")
+        true
+    )
     @url
 
   # Contact is considered as new if no state is set.

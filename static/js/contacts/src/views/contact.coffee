@@ -11,14 +11,12 @@ class ContactRow extends Backbone.View
     <span class="platform-contact-row-buttons">
     <% if (state === "Wait for approval") { %>
       <a class="platform-contact-wap">Confim</a>
-    <% } else if (state !== "Trusted") { %>
-      <a class="platform-contact-resend">Resend</a>
     <% } %>
     <a class="platform-contact-delete">X</a>    
     </span>
     <p class="platform-contact-url">
      <%= url %> 
-     <span> (<%= state %>)</span>
+     <span class="platform-contact-state"> (<%= state %>)</span>
     </p>
   ''')
 
@@ -53,13 +51,17 @@ class ContactRow extends Backbone.View
   remove: ->
     $(@el).remove()
 
+  ## Refresh displayed data with model data.
+  refresh: (state) ->
+    @.$(".platform-contact-state").text("(" + state + ")")
+    
+
   ## Builds contact row element from template and linked micro post data.
   ## It sets the buttons jquery-ui behavior on utility links then it hides 
   ## them. It does not set element to DOM.
   render: ->
     $(@el).html(@template(@model.toJSON()))
     @$(".platform-contact-delete").button()
-    @$(".platform-contact-resend").button()
     @$(".platform-contact-wap").button()
     @$(".platform-contact-row-buttons").hide()
     @el

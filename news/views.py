@@ -1,8 +1,9 @@
 import datetime
+import logging
 
 from django.utils import simplejson as json
 
-from newebe.lib.rest import NewebeResource, BadRequestResponse, \
+from newebe.lib.rest import RestResource, NewebeResource, BadRequestResponse, \
                             CreationResponse, SuccessResponse, DocumentResponse
 from newebe.lib.date_util import getDbDateFromUrlDate
 
@@ -57,32 +58,42 @@ class MicroPostResource(NewebeResource):
         data = request.raw_post_data
 
         if data:
+
+            # Save post locally
             data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
             data = data.replace('\n', '<br />').replace('\r', '<br />')
             postedMicropost = json.loads(data)
 
-            micropost = MicroPost()
-            micropost.author = UserManager.getUser().name
-            micropost.content = postedMicropost['content']
-            micropost.date = datetime.datetime.now()
-            micropost.authorKey = UserManager.getUser().key
+            micropost = MicroPost(
+                author = UserManager.getUser().name,
+                content = postedMicropost['content'],
+                date = datetime.datetime.now(),
+                authorKey = UserManager.getUser().key
+            )
             micropost.save()
 
+            # Sent post to contacts
+            logger = logging.getLogger("newebe.news")
             for contact in ContactManager.getTrustedContacts():
                 try:
-                    print "envoi contact"
-                    print contact.url + "platform/contacts/documents/"
-                    print micropost.date
-                    req = Request(contact.url + "platform/contacts/documents/", 
-                                  micropost.toExportJson())
+                    url = "%snews/microposts/contacts/" % contact.url
+                    logger.debug("Micropost sent to %s\n" % url)
+                    req = Request(url, micropost.toExportJson())
                     response = urlopen(req)
                     data = response.read()
+
+                    dataDict = json.loads(data)
+                    if not "success" in dataDict:
+                      logger.error("Micropost sending failed")
+
+
                 except Exception, err:
-                    import sys
-                    sys.stderr.write('ERROR: %s\n' % str(err))
+                    logger.error('%s\n' % str(err))
 
                     print "micrpost to contact failed"
                     pass
+
+            # return success response    
             return CreationResponse(micropost.toJson())
     
         else: 
@@ -110,4 +121,46 @@ class MicroPostResource(NewebeResource):
     
         else:
             return BadRequestResponse("No date given, nothing was deleted.")
-        
+
+
+class ContactMicroPostResource(RestResource):
+    '''
+    '''
+
+    def __init__(self):
+        self.methods = ['POST', 'DELETE']
+
+    def POST(self, request):
+        '''
+        When post request is recieved, micropost content is expected inside
+        a string under *content* of JSON object. It is extracted from it
+        then stored inside a new Microposts object. Micropost author is 
+        automatically set with current user and current date is set as date.
+
+        It converts carriage return to a <br /> HTML tag.
+        '''
+        data = request.raw_post_data
+
+        if data:
+            try:
+                postedMicropost = json.loads(data)
+
+                micropost = MicroPost(
+                    author = postedMicropost["author"],
+                    content = postedMicropost['content'],
+                    date = postedMicropost["date"],
+                    authorKey = postedMicropost["authorKey"]
+                )
+                micropost.save()
+                return CreationResponse(micropost.toJson())
+
+            except Exception:
+                return BadRequestResponse(
+                    "Sent data are not correctly formatted.")
+
+        else:
+            return BadRequestResponse("No data sent.")
+ 
+    def DELETE(self, request, startKey):
+        return BadRequestResponse("Not implemented yet.")
+

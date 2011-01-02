@@ -35,22 +35,10 @@ class ContactView extends Backbone.View
   ###
 
   ##
-  # When key control is up it set is ctrl pressed variable to false.
-  onKeyUp: (event) ->
-    if(event.keyCode == 17)
-      @isCtrl = false
-    event
-
-  ##
   # When key is down, if enter and CTRL are down together, the contact request
   # is posted.
   onKeyDown: (event) ->
-
-    if(event.keyCode == 17)
-      @isCtrl = true
-
     if (event.keyCode == 13 and @isCtrl)
-      @isCtrl = false
       @postNewContact()
     event
  
@@ -63,15 +51,22 @@ class ContactView extends Backbone.View
 
   onAllClicked: (event) ->
     event.preventDefault()
-    @reloadContacts("/platform/contacts/")
+    @onFilterClicked("#contact-all-button", "/platform/contacts/")
 
   onPendingClicked: (event) ->
     event.preventDefault()
-    @reloadContacts("/platform/contacts/pending/")
+    @onFilterClicked("#contact-pending-button", "/platform/contacts/pending/")
 
   onRequestClicked: (event) ->
     event.preventDefault()
-    @reloadContacts("/platform/contacts/requested/")
+    @onFilterClicked("#contact-request-button", "/platform/contacts/requested/")
+
+  onFilterClicked: (filterClicked, path) ->
+    if(@lastFilterClicked != filterClicked)
+      $(filterClicked).button( "option", "disabled", true )
+      $(@lastFilterClicked).button( "option", "disabled", false )
+      @lastFilterClicked = filterClicked
+      @reloadContacts(path)
 
   reloadContacts: (url) ->
     @clearContacts()
@@ -127,9 +122,14 @@ class ContactView extends Backbone.View
   # Send a post request to server and add post at the beginning of current 
   # post list.
   postNewContact: ()->
-    @contacts.create(url : $("#contact-url-field").val())
-    $("#contact-url-field").val(null)
-    $("#contact-url-field").focus()
+    contactUrl = $("#contact-url-field").val()
+    if @contacts.find((contact) -> contactUrl == contact.getUrl())
+      infoDialog.display("Contact is already in your list")
+    else
+      @contacts.create(url : contactUrl)
+      $("#contact-url-field").val(null)
+      $("#contact-url-field").focus()
+    
     false
 
 
@@ -140,7 +140,6 @@ class ContactView extends Backbone.View
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
       
-    $("#contact-url-field").keyup((event) -> contactApp.onKeyUp(event))
     $("#contact-url-field").keydown((event) -> contactApp.onKeyDown(event))
     $("#contact-post-button").submit((event) -> contactApp.onPostClicked(event))
     $("#contact-post-button").click((event) -> contactApp.onPostClicked(event))
@@ -158,4 +157,6 @@ class ContactView extends Backbone.View
     $("#contact-request-button").button()
     $("input#contact-post-button").button()
     $("#contact-a").addClass("disabled")
+    $("#contact-all-button").button( "option", "disabled", true)
+    @lastFilterClicked = "#contact-all-button"
 

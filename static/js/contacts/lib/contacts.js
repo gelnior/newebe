@@ -1,6 +1,5 @@
 (function() {
-  /* Model for a single Contact
-  */  var Contact, ContactCollection, ContactRow, ContactView, contactApp;
+  var Contact, ContactCollection, ContactRow, ContactView, InfoDialog, contactApp, infoDialog;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -9,6 +8,26 @@
     child.__super__ = parent.prototype;
     return child;
   };
+  InfoDialog = function() {
+    function InfoDialog() {
+      var div;
+      div = document.createElement('div');
+      div.id = "info-dialog";
+      div.innerHTML = "Test";
+      $("body").prepend(div);
+      this.element = $("#info-dialog");
+      this.element.hide();
+    }
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
+    };
+    return InfoDialog;
+  }();
+  /* Model for a single Contact
+  */
   Contact = function() {
     __extends(Contact, Backbone.Model);
     Contact.prototype.url = '/platform/contacts/';
@@ -26,6 +45,9 @@
     Contact.prototype.getState = function() {
       return this.get('state');
     };
+    Contact.prototype.setState = function(state) {
+      return this.set('state', state);
+    };
     Contact.prototype["delete"] = function() {
       this.url = '/platform/contacts/' + this.id;
       this.destroy();
@@ -33,7 +55,18 @@
     };
     Contact.prototype.saveToDb = function() {
       this.url = '/platform/contacts/' + this.id;
-      this.save();
+      this.save(null, {
+        success: function(model, response) {
+          model.setState("Trusted");
+          model.view.refresh("Trusted");
+          return true;
+        },
+        error: function(model, response) {
+          model.setState("Error");
+          model.view.refresh("Error");
+          return true;
+        }
+      });
       return this.url;
     };
     Contact.prototype.isNew = function() {
@@ -64,7 +97,7 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } else if (state !== "Trusted") { %>\n  <a class="platform-contact-resend">Resend</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
       "click .platform-contact-wap": "onConfirmClicked",
@@ -91,10 +124,12 @@
     ContactRow.prototype.remove = function() {
       return $(this.el).remove();
     };
+    ContactRow.prototype.refresh = function(state) {
+      return this.$(".platform-contact-state").text("(" + state + ")");
+    };
     ContactRow.prototype.render = function() {
       $(this.el).html(this.template(this.model.toJSON()));
       this.$(".platform-contact-delete").button();
-      this.$(".platform-contact-resend").button();
       this.$(".platform-contact-wap").button();
       this.$(".platform-contact-row-buttons").hide();
       return this.el;
@@ -126,18 +161,8 @@
     };
     /* Events
     */
-    ContactView.prototype.onKeyUp = function(event) {
-      if (event.keyCode === 17) {
-        this.isCtrl = false;
-      }
-      return event;
-    };
     ContactView.prototype.onKeyDown = function(event) {
-      if (event.keyCode === 17) {
-        this.isCtrl = true;
-      }
       if (event.keyCode === 13 && this.isCtrl) {
-        this.isCtrl = false;
         this.postNewContact();
       }
       return event;
@@ -149,15 +174,23 @@
     };
     ContactView.prototype.onAllClicked = function(event) {
       event.preventDefault();
-      return this.reloadContacts("/platform/contacts/");
+      return this.onFilterClicked("#contact-all-button", "/platform/contacts/");
     };
     ContactView.prototype.onPendingClicked = function(event) {
       event.preventDefault();
-      return this.reloadContacts("/platform/contacts/pending/");
+      return this.onFilterClicked("#contact-pending-button", "/platform/contacts/pending/");
     };
     ContactView.prototype.onRequestClicked = function(event) {
       event.preventDefault();
-      return this.reloadContacts("/platform/contacts/requested/");
+      return this.onFilterClicked("#contact-request-button", "/platform/contacts/requested/");
+    };
+    ContactView.prototype.onFilterClicked = function(filterClicked, path) {
+      if (this.lastFilterClicked !== filterClicked) {
+        $(filterClicked).button("option", "disabled", true);
+        $(this.lastFilterClicked).button("option", "disabled", false);
+        this.lastFilterClicked = filterClicked;
+        return this.reloadContacts(path);
+      }
     };
     ContactView.prototype.reloadContacts = function(url) {
       this.clearContacts();
@@ -198,19 +231,24 @@
       return this.contacts;
     };
     ContactView.prototype.postNewContact = function() {
-      this.contacts.create({
-        url: $("#contact-url-field").val()
-      });
-      $("#contact-url-field").val(null);
-      $("#contact-url-field").focus();
+      var contactUrl;
+      contactUrl = $("#contact-url-field").val();
+      if (this.contacts.find(function(contact) {
+        return contactUrl === contact.getUrl();
+      })) {
+        infoDialog.display("Contact is already in your list");
+      } else {
+        this.contacts.create({
+          url: contactUrl
+        });
+        $("#contact-url-field").val(null);
+        $("#contact-url-field").focus();
+      }
       return false;
     };
     /* UI Builders
     */
     ContactView.prototype.setListeners = function() {
-      $("#contact-url-field").keyup(function(event) {
-        return contactApp.onKeyUp(event);
-      });
       $("#contact-url-field").keydown(function(event) {
         return contactApp.onKeyDown(event);
       });
@@ -235,12 +273,15 @@
       $("#contact-pending-button").button();
       $("#contact-request-button").button();
       $("input#contact-post-button").button();
-      return $("#contact-a").addClass("disabled");
+      $("#contact-a").addClass("disabled");
+      $("#contact-all-button").button("option", "disabled", true);
+      return this.lastFilterClicked = "#contact-all-button";
     };
     return ContactView;
   }();
   /* Contact application entry point
   */
+  infoDialog = new InfoDialog;
   contactApp = new ContactView;
   contactApp.setWidgets();
   contactApp.setListeners();
