@@ -15,3 +15,5 @@ def getDbDateFromUrlDate(urlDate):
     date = datetime.datetime.strptime(urlDate, URL_DATETIME_FORMAT)
     return date.strftime(DB_DATETIME_FORMAT)
 
+def getDateFromDbDate(date):
+    return datetime.datetime.strptime(date, DB_DATETIME_FORMAT)

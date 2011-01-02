@@ -13,6 +13,8 @@ from newebe.news.models import MicroPost, MicroPostManager
 from urllib2 import Request, urlopen
 from newebe.platform.contactmodels import ContactManager
 
+from newebe.lib.date_util import getDateFromDbDate
+
 class MicroPostResource(NewebeResource):
     '''
     This is the main resource of the application. It allows :
@@ -140,18 +142,20 @@ class ContactMicroPostResource(RestResource):
         It converts carriage return to a <br /> HTML tag.
         '''
         data = request.raw_post_data
-
         if data:
             try:
                 postedMicropost = json.loads(data)
 
+                date = getDateFromDbDate(postedMicropost["date"])
+
                 micropost = MicroPost(
                     author = postedMicropost["author"],
                     content = postedMicropost['content'],
-                    date = postedMicropost["date"],
+                    date = date,
                     authorKey = postedMicropost["authorKey"]
                 )
                 micropost.save()
+
                 return CreationResponse(micropost.toJson())
 
             except Exception:
