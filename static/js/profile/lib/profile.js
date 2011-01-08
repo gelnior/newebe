@@ -11,7 +11,7 @@
   };
   User = function() {
     __extends(User, Backbone.Model);
-    User.prototype.url = '/platform/user/';
+    User.prototype.url = '/user/';
     function User(user) {
       User.__super__.constructor.apply(this, arguments);
       this.id = "";
@@ -52,7 +52,7 @@
     }
     __extends(UserCollection, Backbone.Collection);
     UserCollection.prototype.model = User;
-    UserCollection.prototype.url = '/platform/user/';
+    UserCollection.prototype.url = '/user/';
     UserCollection.prototype.parse = function(response) {
       return response.rows;
     };

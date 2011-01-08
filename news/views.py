@@ -3,17 +3,53 @@ import logging
 
 from django.utils import simplejson as json
 
-from newebe.lib.rest import RestResource, NewebeResource, BadRequestResponse, \
-                            CreationResponse, SuccessResponse, DocumentResponse
-from newebe.lib.date_util import getDbDateFromUrlDate
+from newebe.lib.resource import RestResource, NewebeResource
+from newebe.lib.response import BadRequestResponse, CreationResponse, \
+                                SuccessResponse, DocumentResponse
 
-from newebe.platform.models import UserManager
+from newebe.lib.date_util import getDbDateFromUrlDate, getDateFromDbDate
+
+from newebe.core.models import UserManager
+from newebe.core.models import ContactManager
 from newebe.news.models import MicroPost, MicroPostManager
 
 from urllib2 import Request, urlopen
-from newebe.platform.contactmodels import ContactManager
 
-from newebe.lib.date_util import getDateFromDbDate
+
+def sendDocumentToContacts(path, doc, method = 'POST'):
+    '''
+    Utility function to send documents to given path for all your contacts.
+    '''
+    logger = logging.getLogger("newebe.news")
+
+    for contact in ContactManager.getTrustedContacts():
+
+        logger.info("Sending document to %s" %contact.url)
+        try:
+            url = "%s%s" % (contact.url, path)
+            logger.debug("Document sent to %s\n" % url)
+            req = Request(url, doc.toJson())
+            req.get_method = lambda: method
+            response = urlopen(req)
+            data = response.read()
+
+            dataDict = json.loads(data)
+            if not "success" in dataDict:
+              logger.error("Sending failed")
+            else: 
+              logger.info("Sending succeeds")
+
+
+        except Exception, err:
+            logger.error('%s\n' % str(err))
+            logger.error("Sending failed")
+
+            pass
+
+def sendDeleteDocumentToContacts(path, doc):
+    sendDocumentToContacts(path, doc, 'DELETE')
+
+
 
 class MicroPostResource(NewebeResource):
     '''
@@ -50,12 +86,14 @@ class MicroPostResource(NewebeResource):
         
     def POST(self, request):
         '''
-        When post request is recieved, micropost content is expected inside
-        a string under *content* of JSON object. It is extracted from it
+        When post request is recieved, micropost data are expected as
+        a JSON object. It is extracted from it
         then stored inside a new Microposts object. Micropost author is 
         automatically set with current user and current date is set as date.
 
         It converts carriage return to a <br /> HTML tag.
+
+        Created microposts are forwarder to contacts.
         '''
         data = request.raw_post_data
 
@@ -74,26 +112,9 @@ class MicroPostResource(NewebeResource):
             )
             micropost.save()
 
-            # Sent post to contacts
-            logger = logging.getLogger("newebe.news")
-            for contact in ContactManager.getTrustedContacts():
-                try:
-                    url = "%snews/microposts/contacts/" % contact.url
-                    logger.debug("Micropost sent to %s\n" % url)
-                    req = Request(url, micropost.toExportJson())
-                    response = urlopen(req)
-                    data = response.read()
+            # Forward post to contacts
+            sendDocumentToContacts("news/microposts/contacts/", micropost)
 
-                    dataDict = json.loads(data)
-                    if not "success" in dataDict:
-                      logger.error("Micropost sending failed")
-
-
-                except Exception, err:
-                    logger.error('%s\n' % str(err))
-
-                    print "micrpost to contact failed"
-                    pass
 
             # return success response    
             return CreationResponse(micropost.toJson())
@@ -116,6 +137,9 @@ class MicroPostResource(NewebeResource):
 
             if microPost:  
                 microPost.delete()
+                sendDeleteDocumentToContacts("news/microposts/contacts/", \
+                                             microPost)
+
                 return SuccessResponse("Micro post deletion succeeds.")
             else:
                 return BadRequestResponse(
@@ -125,8 +149,10 @@ class MicroPostResource(NewebeResource):
             return BadRequestResponse("No date given, nothing was deleted.")
 
 
+
 class ContactMicroPostResource(RestResource):
     '''
+    This resource allows authorized contacts to send their microposts.
     '''
 
     def __init__(self):

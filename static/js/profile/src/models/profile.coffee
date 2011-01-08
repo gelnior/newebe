@@ -4,7 +4,7 @@
 class User extends Backbone.Model
 
   ##  Url where contacts lives.
-  url: '/platform/user/'
+  url: '/user/'
 
   ## Constructor initialize its field from a javascript raw object.
   ## Fields:
@@ -51,7 +51,7 @@ class UserCollection extends Backbone.Collection
   model: User
 
   ## Url where user lives.
-  url: '/platform/user/'
+  url: '/user/'
   
   ## Select which field from backend response to use for parsing to populate  
   ## collection.

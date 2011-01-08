@@ -44,13 +44,13 @@ class PlatformView extends Backbone.View
   onProfileClicked: (ev) ->
     ev.preventDefault()
     document.title = "Newebe | Profile"
-    @switchTo("#profile", '/platform/profile/content/')
+    @switchTo("#profile", '/profile/content/')
     false
 
   onContactClicked: (ev) ->
     ev.preventDefault()
     document.title = "Newebe | Contact"
-    @switchTo("#contact", '/platform/contact/content/')
+    @switchTo("#contact", '/contact/content/')
     false
 
   ##

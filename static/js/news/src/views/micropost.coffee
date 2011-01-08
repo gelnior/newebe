@@ -14,7 +14,7 @@ class MicroPostRow extends Backbone.View
      <%= content %>
     </p>
     <p class="news-micropost-date">
-     <%= date%>
+     <%= displayDate%>
     </p>
   ''')
 

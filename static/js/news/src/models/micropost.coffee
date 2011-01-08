@@ -17,11 +17,14 @@ class MicroPost extends Backbone.Model
 
     @set('author', microPost.author)
     @set('content', microPost.content)
-    @set('date', microPost.date)
 
     if microPost.date
-      idDate = microPost.date.replace(" ", "-").replace(":", "-")
-      idDate = idDate.replace(":","-")
+      tmpDate = microPost.date
+      postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")
+      stringDate = postDate.toString("dd MMM yyyy, HH:mm")
+      @attributes['displayDate'] = stringDate
+
+      idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss")
       @id =  idDate + "/"
 
   getAuthor: ->

@@ -22,11 +22,11 @@ DATABASES = {
 # Couchdb configuration
 COUCHDB_DATABASES = (
     ('newebe.news', 'http://127.0.0.1:5984/newebe'),
-    ('newebe.platform', 'http://127.0.0.1:5984/newebe'),
+    ('newebe.core', 'http://127.0.0.1:5984/newebe'),
 )
 
 # Locale configuration
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Paris'
 LANGUAGE_CODE = 'fr-fr'
 USE_I18N = True
 USE_L10N = True
@@ -36,9 +36,9 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Media configuration : path for CSS, JS and image files.
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'static')
-MEDIA_ROOT_JS = '%sjs/' % MEDIA_ROOT
-MEDIA_ROOT_CSS = '%scss/' % MEDIA_ROOT
-MEDIA_ROOT_IMAGES = '%simages/' % MEDIA_ROOT
+MEDIA_ROOT_JS = os.path.join(MEDIA_ROOT, 'js')
+MEDIA_ROOT_CSS = os.path.join(MEDIA_ROOT, 'css')
+MEDIA_ROOT_IMAGES = os.path.join(MEDIA_ROOT, 'images')
 
 
 # Django middleware. CSRF is disabled, because it causes me trouble to post
@@ -77,22 +77,50 @@ INSTALLED_APPS = (
 #    'django.contrib.messages',
 
     'couchdbkit.ext.django',
-    'newebe.platform',
+    'newebe.core',
     'newebe.news',
 )
 
-# Fast-cgi need this line for working with Lighttpd.
-#FORCE_SCRIPT_NAME=""
-
-# Logging stuff for debugging
-import logging
-logging.basicConfig(
-    level = logging.DEBUG,
-    format = '%(asctime)s %(levelname)s %(message)s',
-    filename = 'newebe.log',
-    filemode = 'w'
-)
 
 # Static files URLs
 STATIC_URL = "/static/"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'simple',
+            'filename': 'newebe.log',
+            'maxBytes': 1024,
+            'backupCount': 3,
+        }
+    },
+    'loggers': {
+        'newebe': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        }
+    }
+}
+
 

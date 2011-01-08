@@ -1,12 +1,12 @@
 from django.conf.urls.defaults import patterns, include
 from django.conf import settings
 
-from newebe.lib.rest import DirectTemplateResource
+from newebe.lib.resource import DirectTemplateResource
 
 # Set applications urls
 urlpatterns = patterns('',
-    (r'^$', DirectTemplateResource('platform/profile.html')),    
-    (r'^platform/', include('platform.urls')),
+    (r'^$', DirectTemplateResource('core/profile/profile.html')),    
+    (r'^', include('core.urls')),
     (r'^news/', include('news.urls')),
 )
 
@@ -21,7 +21,3 @@ if settings.DEBUG:
         ),
     )
 
-
-#from newebe.platform.listener.change_listener import ChangeListener
-#changeListener = ChangeListener()
-#changeListener.start()

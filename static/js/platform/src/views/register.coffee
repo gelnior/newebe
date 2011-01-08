@@ -22,13 +22,13 @@ class RegisterView extends Backbone.View
     if event.keyCode == 13 and not @isPosting
       dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}'
       @isPosting = true
-      url = "/platform/user/"
+      url = "/user/"
       $.post(url, dataPost,
         (data) ->
           $("#register").fadeOut(1600,
             () ->
               $("body").hide()
-              $.get("/platform/profile/menu-content/",
+              $.get("/profile/menu-content/",
                 (data) ->
                   $("body").prepend(data)
                   $("#menu").hide()

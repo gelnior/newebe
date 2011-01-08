@@ -1,11 +1,8 @@
 import datetime
 
-from django.utils import simplejson as json
-from couchdbkit.ext.django.schema import Document, StringProperty, \
-                                         DateTimeProperty
+from couchdbkit.ext.django.schema import StringProperty,  DateTimeProperty
 
-from newebe.platform.models import NewebeDocument
-from newebe.lib import date_util
+from newebe.core.models import NewebeDocument
 from newebe.news import news_settings
 
 
@@ -69,19 +66,4 @@ class MicroPost(NewebeDocument):
     content = StringProperty(required=True)
     date = DateTimeProperty(default=datetime.datetime.now())
  
-    def toDict(self):
-        '''
-        Return json representation of current object.
-        '''
-        tempDict = self.__dict__["_doc"].copy()
-        tempDict["date"] = self.date.strftime(date_util.DISPLAY_DATETIME_FORMAT)
 
-        return tempDict
-
-    def toExportJson(self):
-        '''
-        Return JSON format to be sent to another newebe (database date format).
-        '''
-        tempDict = self.__dict__["_doc"].copy()
-
-        return json.dumps(tempDict)

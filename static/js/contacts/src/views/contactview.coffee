@@ -51,15 +51,15 @@ class ContactView extends Backbone.View
 
   onAllClicked: (event) ->
     event.preventDefault()
-    @onFilterClicked("#contact-all-button", "/platform/contacts/")
+    @onFilterClicked("#contact-all-button", "/contacts/")
 
   onPendingClicked: (event) ->
     event.preventDefault()
-    @onFilterClicked("#contact-pending-button", "/platform/contacts/pending/")
+    @onFilterClicked("#contact-pending-button", "/contacts/pending/")
 
   onRequestClicked: (event) ->
     event.preventDefault()
-    @onFilterClicked("#contact-request-button", "/platform/contacts/requested/")
+    @onFilterClicked("#contact-request-button", "/contacts/requested/")
 
   onFilterClicked: (filterClicked, path) ->
     if(@lastFilterClicked != filterClicked)

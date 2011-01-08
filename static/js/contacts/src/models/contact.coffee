@@ -4,7 +4,7 @@
 class Contact extends Backbone.Model
 
   ##  Url where contacts lives.
-  url: '/platform/contacts/'
+  url: '/contacts/'
 
   ## Constructor initialize its field from a javascript raw object.
   ## Fields:
@@ -31,12 +31,12 @@ class Contact extends Backbone.Model
   # Send a delete request to services backend then remove contact row from
   # contact view.
   delete: ->
-    @url = '/platform/contacts/' + @id
+    @url = '/contacts/' + @id
     @destroy()
     @view.remove()
 
   saveToDb: ->
-    @url = '/platform/contacts/' + @id
+    @url = '/contacts/' + @id
     @save(null,
       success: (model, response) ->
         model.setState("Trusted")
@@ -62,7 +62,7 @@ class ContactCollection extends Backbone.Collection
   model: Contact
 
   ## Url where contacts lives.
-  url: '/platform/contacts/'
+  url: '/contacts/'
 
   ## Collection sorting is based on contact URI.
   comparator: (contact) ->

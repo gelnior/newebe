@@ -30,7 +30,7 @@
   */
   Contact = function() {
     __extends(Contact, Backbone.Model);
-    Contact.prototype.url = '/platform/contacts/';
+    Contact.prototype.url = '/contacts/';
     function Contact(contact) {
       Contact.__super__.constructor.apply(this, arguments);
       this.set('url', contact.url);
@@ -49,12 +49,12 @@
       return this.set('state', state);
     };
     Contact.prototype["delete"] = function() {
-      this.url = '/platform/contacts/' + this.id;
+      this.url = '/contacts/' + this.id;
       this.destroy();
       return this.view.remove();
     };
     Contact.prototype.saveToDb = function() {
-      this.url = '/platform/contacts/' + this.id;
+      this.url = '/contacts/' + this.id;
       this.save(null, {
         success: function(model, response) {
           model.setState("Trusted");
@@ -82,7 +82,7 @@
     }
     __extends(ContactCollection, Backbone.Collection);
     ContactCollection.prototype.model = Contact;
-    ContactCollection.prototype.url = '/platform/contacts/';
+    ContactCollection.prototype.url = '/contacts/';
     ContactCollection.prototype.comparator = function(contact) {
       return contact.getUrl();
     };

@@ -111,11 +111,14 @@ class NewsView extends Backbone.View
   # it means that there are no more posts, so more button is hidden.
   addAll: ->
     @microposts.each(@prependOne)
-    @lastDate = @microposts.first().id
-    if(@microposts.length < 10)
+    if(@microposts.length > 0)
+      @lastDate = @microposts.first().id
+      if(@microposts.length < 10)
+        $("#news-more").hide()
+    else
       $("#news-more").hide()
 
-    @lastDate
+    @microposts.length
 
   ## 
   # Append *micropost* to the beginning of current post list (render it).

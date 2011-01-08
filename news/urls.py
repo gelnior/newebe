@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns
 
-from newebe.lib.rest import DirectTemplateResource
+from newebe.lib.resource import DirectTemplateResource
 from newebe.news.views import MicroPostResource, ContactMicroPostResource
 
 news_item_handler = MicroPostResource()

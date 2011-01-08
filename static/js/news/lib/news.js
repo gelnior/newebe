@@ -13,14 +13,16 @@
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
-      var idDate;
+      var idDate, postDate, stringDate, tmpDate;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('content', microPost.content);
-      this.set('date', microPost.date);
       if (microPost.date) {
-        idDate = microPost.date.replace(" ", "-").replace(":", "-");
-        idDate = idDate.replace(":", "-");
+        tmpDate = microPost.date;
+        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
+        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+        this.attributes['displayDate'] = stringDate;
+        idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss");
         this.id = idDate + "/";
       }
     }
@@ -66,7 +68,7 @@
     __extends(MicroPostRow, Backbone.View);
     MicroPostRow.prototype.tagName = "div";
     MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= date%>\n</p>');
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= displayDate%>\n</p>');
     MicroPostRow.prototype.events = {
       "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
@@ -178,11 +180,15 @@
     };
     NewsView.prototype.addAll = function() {
       this.microposts.each(this.prependOne);
-      this.lastDate = this.microposts.first().id;
-      if (this.microposts.length < 10) {
+      if (this.microposts.length > 0) {
+        this.lastDate = this.microposts.first().id;
+        if (this.microposts.length < 10) {
+          $("#news-more").hide();
+        }
+      } else {
         $("#news-more").hide();
       }
-      return this.lastDate;
+      return this.microposts.length;
     };
     NewsView.prototype.appendOne = function(micropost) {
       var el, row;

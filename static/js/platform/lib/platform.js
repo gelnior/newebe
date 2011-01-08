@@ -41,13 +41,13 @@
     PlatformView.prototype.onProfileClicked = function(ev) {
       ev.preventDefault();
       document.title = "Newebe | Profile";
-      this.switchTo("#profile", '/platform/profile/content/');
+      this.switchTo("#profile", '/profile/content/');
       return false;
     };
     PlatformView.prototype.onContactClicked = function(ev) {
       ev.preventDefault();
       document.title = "Newebe | Contact";
-      this.switchTo("#contact", '/platform/contact/content/');
+      this.switchTo("#contact", '/contact/content/');
       return false;
     };
     PlatformView.prototype.switchTo = function(page, url) {
@@ -91,11 +91,11 @@
       if (event.keyCode === 13 && !this.isPosting) {
         dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}';
         this.isPosting = true;
-        url = "/platform/user/";
+        url = "/user/";
         return $.post(url, dataPost, function(data) {
           return $("#register").fadeOut(1600, function() {
             $("body").hide();
-            return $.get("/platform/profile/menu-content/", function(data) {
+            return $.get("/profile/menu-content/", function(data) {
               $("body").prepend(data);
               $("#menu").hide();
               $("#apps").hide();
