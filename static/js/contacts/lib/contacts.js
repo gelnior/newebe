@@ -174,15 +174,15 @@
     };
     ContactView.prototype.onAllClicked = function(event) {
       event.preventDefault();
-      return this.onFilterClicked("#contact-all-button", "/platform/contacts/");
+      return this.onFilterClicked("#contact-all-button", "/contacts/");
     };
     ContactView.prototype.onPendingClicked = function(event) {
       event.preventDefault();
-      return this.onFilterClicked("#contact-pending-button", "/platform/contacts/pending/");
+      return this.onFilterClicked("#contact-pending-button", "/contacts/pending/");
     };
     ContactView.prototype.onRequestClicked = function(event) {
       event.preventDefault();
-      return this.onFilterClicked("#contact-request-button", "/platform/contacts/requested/");
+      return this.onFilterClicked("#contact-request-button", "/contacts/requested/");
     };
     ContactView.prototype.onFilterClicked = function(filterClicked, path) {
       if (this.lastFilterClicked !== filterClicked) {
