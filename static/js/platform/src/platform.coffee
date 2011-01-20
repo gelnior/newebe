@@ -5,3 +5,4 @@ infoDialog = new InfoDialog
 platformView = new PlatformView
 registerView = new RegisterView
 
+loadingIndicator = new LoadingIndicator

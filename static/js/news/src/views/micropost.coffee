@@ -14,7 +14,7 @@ class MicroPostRow extends Backbone.View
      <%= content %>
     </p>
     <p class="news-micropost-date">
-     <%= displayDate%>
+     <%= displayDate %>
     </p>
   ''')
 
@@ -49,6 +49,8 @@ class MicroPostRow extends Backbone.View
   ## It sets the button jquery-ui behavior on delete button then it hides it.
   ## It does not set element to DOM.
   render: ->
+    if not @model.getDisplayDate()
+        @model.setDisplayDate()
     $(@el).html(@template(@model.toJSON()))
     @$(".news-micropost-delete").button()
     @$(".news-micropost-delete").hide()

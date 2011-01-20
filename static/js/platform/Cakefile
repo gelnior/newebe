@@ -18,6 +18,7 @@ appFiles  = [
   'views/platform',
   'views/register',
   'views/infodialog',
+  'views/loadingindicator',
   'platform'
 ]
 

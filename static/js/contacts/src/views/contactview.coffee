@@ -69,6 +69,7 @@ class ContactView extends Backbone.View
       @reloadContacts(path)
 
   reloadContacts: (url) ->
+    loadingIndicator.display()
     @clearContacts()
     @contacts.url = url
     @contacts.fetch()
@@ -88,6 +89,7 @@ class ContactView extends Backbone.View
   # Adds all retrieved contacts to current contact list.
   addAll: ->
     @contacts.each(@appendOne)
+    loadingIndicator.hide()
     @contacts
 
   ## 
@@ -104,6 +106,7 @@ class ContactView extends Backbone.View
     row = new ContactRow contact
     el = row.render()
     $("#contacts").prepend(el)
+    loadingIndicator.hide()
     row
 
   ##
@@ -126,6 +129,7 @@ class ContactView extends Backbone.View
     if @contacts.find((contact) -> contactUrl == contact.getUrl())
       infoDialog.display("Contact is already in your list")
     else
+      loadingIndicator.display()
       @contacts.create(url : contactUrl)
       $("#contact-url-field").val(null)
       $("#contact-url-field").focus()

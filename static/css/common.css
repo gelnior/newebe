@@ -95,6 +95,16 @@ textarea { border : 1px solid black; }
   top: 200px;
 }
 
+#loading-indicator {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  position: absolute;
+  float: right;
+  right: 30px;
+  top: 30px;
+}
+
 /* Register / Profile */
 
 #platform-register-disclaimer {
@@ -140,3 +150,6 @@ textarea { border : 1px solid black; }
 .platform-contact-url { padding: 12px 0 18px 0; }
 .platform-contact-row-buttons { float: right; height: 40px; padding: 0;}
 
+/* Tutorial */
+.tutorial-text { padding-bottom: 10px; font-size : 18px; }
+h3.tutorial-text { font-weight: bold; }

@@ -1,6 +1,6 @@
 (function() {
   /* Main view for applications navigation
-  */  var InfoDialog, PlatformView, RegisterView, infoDialog, platformView, registerView;
+  */  var InfoDialog, LoadingIndicator, PlatformView, RegisterView, infoDialog, loadingIndicator, platformView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -127,7 +127,26 @@
     };
     return InfoDialog;
   }();
+  LoadingIndicator = function() {
+    function LoadingIndicator() {
+      var div;
+      div = document.createElement('div');
+      div.id = "loading-indicator";
+      div.innerHTML = '<img src="/static/images/clock_32.png" />';
+      $("body").prepend(div);
+      this.element = $("#loading-indicator");
+      this.element.hide();
+    }
+    LoadingIndicator.prototype.display = function() {
+      return this.element.show();
+    };
+    LoadingIndicator.prototype.hide = function() {
+      return this.element.hide();
+    };
+    return LoadingIndicator;
+  }();
   infoDialog = new InfoDialog;
   platformView = new PlatformView;
   registerView = new RegisterView;
+  loadingIndicator = new LoadingIndicator;
 }).call(this);

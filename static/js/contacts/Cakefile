@@ -15,6 +15,7 @@ fs     = require 'fs'
 # File to compile
 appFiles  = [
   '../../platform/src/views/infodialog'
+  '../../platform/src/views/loadingindicator'
   'models/contact',
   'views/contact',
   'views/contactview',

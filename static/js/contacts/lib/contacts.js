@@ -1,5 +1,5 @@
 (function() {
-  var Contact, ContactCollection, ContactRow, ContactView, InfoDialog, contactApp, infoDialog;
+  var Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, contactApp, infoDialog, loadingIndicator;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -25,6 +25,24 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
+  }();
+  LoadingIndicator = function() {
+    function LoadingIndicator() {
+      var div;
+      div = document.createElement('div');
+      div.id = "loading-indicator";
+      div.innerHTML = '<img src="/static/images/clock_32.png" />';
+      $("body").prepend(div);
+      this.element = $("#loading-indicator");
+      this.element.hide();
+    }
+    LoadingIndicator.prototype.display = function() {
+      return this.element.show();
+    };
+    LoadingIndicator.prototype.hide = function() {
+      return this.element.hide();
+    };
+    return LoadingIndicator;
   }();
   /* Model for a single Contact
   */
@@ -193,6 +211,7 @@
       }
     };
     ContactView.prototype.reloadContacts = function(url) {
+      loadingIndicator.display();
       this.clearContacts();
       this.contacts.url = url;
       this.contacts.fetch();
@@ -205,6 +224,7 @@
     };
     ContactView.prototype.addAll = function() {
       this.contacts.each(this.appendOne);
+      loadingIndicator.hide();
       return this.contacts;
     };
     ContactView.prototype.appendOne = function(contact) {
@@ -219,6 +239,7 @@
       row = new ContactRow(contact);
       el = row.render();
       $("#contacts").prepend(el);
+      loadingIndicator.hide();
       return row;
     };
     ContactView.prototype.clearPostField = function() {
@@ -238,6 +259,7 @@
       })) {
         infoDialog.display("Contact is already in your list");
       } else {
+        loadingIndicator.display();
         this.contacts.create({
           url: contactUrl
         });
@@ -282,6 +304,7 @@
   /* Contact application entry point
   */
   infoDialog = new InfoDialog;
+  loadingIndicator = new LoadingIndicator;
   contactApp = new ContactView;
   contactApp.setWidgets();
   contactApp.setListeners();

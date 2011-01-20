@@ -1,6 +1,5 @@
 (function() {
-  /* Model for a single Micro Post
-  */  var MicroPost, MicroPostCollection, MicroPostRow, NewsView, newsApp;
+  var InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, loadingIndicator, newsApp;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -9,23 +8,69 @@
     child.__super__ = parent.prototype;
     return child;
   };
+  InfoDialog = function() {
+    function InfoDialog() {
+      var div;
+      div = document.createElement('div');
+      div.id = "info-dialog";
+      div.innerHTML = "Test";
+      $("body").prepend(div);
+      this.element = $("#info-dialog");
+      this.element.hide();
+    }
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
+    };
+    return InfoDialog;
+  }();
+  LoadingIndicator = function() {
+    function LoadingIndicator() {
+      var div;
+      div = document.createElement('div');
+      div.id = "loading-indicator";
+      div.innerHTML = '<img src="/static/images/clock_32.png" />';
+      $("body").prepend(div);
+      this.element = $("#loading-indicator");
+      this.element.hide();
+    }
+    LoadingIndicator.prototype.display = function() {
+      return this.element.show();
+    };
+    LoadingIndicator.prototype.hide = function() {
+      return this.element.hide();
+    };
+    return LoadingIndicator;
+  }();
   MicroPost = function() {
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
-      var idDate, postDate, stringDate, tmpDate;
+      var idDate, postDate;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('content', microPost.content);
+      this.set('authorKey', microPost.authorKey);
       if (microPost.date) {
-        tmpDate = microPost.date;
-        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
-        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
-        this.attributes['displayDate'] = stringDate;
+        postDate = this.setDisplayDateFromDbDate(microPost.date);
         idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss");
         this.id = idDate + "/";
       }
     }
+    MicroPost.prototype.setDisplayDateFromDbDate = function(date) {
+      var postDate, stringDate;
+      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+      stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+      this.attributes['displayDate'] = stringDate;
+      return postDate;
+    };
+    MicroPost.prototype.setDisplayDate = function() {
+      var dateToSet;
+      dateToSet = this.attributes["date"];
+      return this.setDisplayDateFromDbDate(dateToSet);
+    };
     MicroPost.prototype.getAuthor = function() {
       return this.get('author');
     };
@@ -34,6 +79,9 @@
     };
     MicroPost.prototype.getContent = function() {
       return this.get('content');
+    };
+    MicroPost.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
     };
     MicroPost.prototype["delete"] = function() {
       this.url += this.id;
@@ -45,8 +93,6 @@
     };
     return MicroPost;
   }();
-  /* Model for a Micro Post collection
-  */
   MicroPostCollection = function() {
     function MicroPostCollection() {
       MicroPostCollection.__super__.constructor.apply(this, arguments);
@@ -68,7 +114,7 @@
     __extends(MicroPostRow, Backbone.View);
     MicroPostRow.prototype.tagName = "div";
     MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= displayDate%>\n</p>');
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= displayDate %>\n</p>');
     MicroPostRow.prototype.events = {
       "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
@@ -93,6 +139,9 @@
       return $(this.el).remove();
     };
     MicroPostRow.prototype.render = function() {
+      if (!this.model.getDisplayDate()) {
+        this.model.setDisplayDate();
+      }
       $(this.el).html(this.template(this.model.toJSON()));
       this.$(".news-micropost-delete").button();
       this.$(".news-micropost-delete").hide();
@@ -119,6 +168,7 @@
       _.bindAll(this, 'postNewPost', 'appendOne', 'prependOne', 'addAll');
       _.bindAll(this, 'displayMyNews', 'onMoreNewsClicked', 'addAllMore');
       _.bindAll(this, 'onDatePicked');
+      this.tutorialOn = true;
       this.microposts = new MicroPostCollection;
       this.microposts.bind('add', this.prependOne);
       this.microposts.bind('refresh', this.addAll);
@@ -176,18 +226,26 @@
       if (microPostsArray.length < 10) {
         $("#news-more").hide();
       }
+      loadingIndicator.hide();
       return this.lastDate;
     };
     NewsView.prototype.addAll = function() {
-      this.microposts.each(this.prependOne);
       if (this.microposts.length > 0) {
+        this.tutorialOn = false;
         this.lastDate = this.microposts.first().id;
         if (this.microposts.length < 10) {
           $("#news-more").hide();
         }
       } else {
+        if (this.tutorialOn) {
+          this.displayTutorial(1);
+        } else {
+          $("#tutorial").html(null);
+        }
         $("#news-more").hide();
       }
+      this.microposts.each(this.prependOne);
+      loadingIndicator.hide();
       return this.microposts.length;
     };
     NewsView.prototype.appendOne = function(micropost) {
@@ -202,7 +260,17 @@
       row = new MicroPostRow(micropost);
       el = row.render();
       $("#micro-posts").prepend(el);
+      loadingIndicator.hide();
+      if (this.tutorialOn) {
+        this.displayTutorial(2);
+        this.tutorialOn = false;
+      }
       return row;
+    };
+    NewsView.prototype.displayTutorial = function(index) {
+      return $.get("/news/tutorial/" + index + "/", function(data) {
+        return $("#tutorial").html(data);
+      });
     };
     NewsView.prototype.clearPostField = function() {
       $("#id_content").val(null);
@@ -210,6 +278,7 @@
       return $("#id_content");
     };
     NewsView.prototype.reloadMicroPosts = function(date) {
+      loadingIndicator.display();
       this.microposts.url = '/news/microposts/';
       if (date) {
         this.microposts.url = '/news/microposts/' + date + '-23-59-00/';
@@ -222,14 +291,20 @@
       return this.microposts;
     };
     NewsView.prototype.postNewPost = function() {
+      loadingIndicator.display();
       this.microposts.create({
         content: $("#id_content").val()
+      }, {
+        success: function(nextModel, resp) {
+          return loadingIndicator.hide();
+        }
       });
       $("#id_content").val(null);
       $("#id_content").focus();
       return false;
     };
     NewsView.prototype.onMoreNewsClicked = function() {
+      loadingIndicator.display();
       if (this.lastDate) {
         this.moreMicroposts.url = '/news/microposts/' + this.lastDate;
       } else {
@@ -265,6 +340,7 @@
   /* News application entry point
   */
   newsApp = new NewsView;
+  loadingIndicator = new LoadingIndicator;
   newsApp.setWidgets();
   newsApp.setListeners();
   newsApp.clearPostField();

@@ -28,6 +28,7 @@ class Contact extends Backbone.Model
   setState: (state) ->
     @set('state', state)
 
+
   # Send a delete request to services backend then remove contact row from
   # contact view.
   delete: ->

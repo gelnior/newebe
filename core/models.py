@@ -22,7 +22,11 @@ class NewebeDocument(Document):
         '''
         Return json representation of the document.
         '''
-        return json.dumps(self.toDict())
+        docDict = self.toDict()
+        del docDict["_id"]
+        del docDict["_rev"]
+        print self.toDict()
+        return json.dumps(docDict)
 
 
 # User document
