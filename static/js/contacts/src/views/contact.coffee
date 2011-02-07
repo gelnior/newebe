@@ -1,11 +1,11 @@
-### ContactRow is the widget representation of a Contact instance.
-###
+### ContactRow is the widget representation of a Contact instance. ###
 
 class ContactRow extends Backbone.View
 
   tagName: "div"
   className: "platform-contact-row"
 
+  # HTML Template
 
   template:  _.template('''
     <span class="platform-contact-row-buttons">
@@ -20,6 +20,7 @@ class ContactRow extends Backbone.View
     </p>
   ''')
 
+ # Events binding
 
   events:
     "click .platform-contact-delete": "onDeleteClicked"
@@ -31,34 +32,43 @@ class ContactRow extends Backbone.View
     super
          
     @model.view = @
-    
-  # When mouse is over buttons are displayed.
+
+
+  ## Event listeners
+
+  # When mouse is over a contact row buttons are displayed.
   onMouseOver: ->
     @$(".platform-contact-row-buttons").show()
 
-  # When mouse is out buttons are hidden.
+  # When mouse goes out a contact row buttons are hidden.
   onMouseOut: ->
     @$(".platform-contact-row-buttons").hide()
 
-  # When delete button is clicked, it will call delete linked contact method.
+  # When delete button is clicked, it will call the delete method of linked 
+  # contact.
   onDeleteClicked: ->
     @model.delete()
 
+  # When a contact is confirmed, it sends a POST request to the confirmation
+  # service.
   onConfirmClicked: ->
     @model.saveToDb()
 
-  ## Removes micro post row element from DOM.
+
+  ## Functions
+
+  # Removes micro post row element from DOM.
   remove: ->
     $(@el).remove()
 
-  ## Refresh displayed data with model data.
+  # Refresh displayed data with model data.
   refresh: (state) ->
     @.$(".platform-contact-state").text("(" + state + ")")
     
 
-  ## Builds contact row element from template and linked micro post data.
-  ## It sets the buttons jquery-ui behavior on utility links then it hides 
-  ## them. It does not set element to DOM.
+  # Builds contact row element from template and linked micro post data.
+  # It sets the buttons jquery-ui behavior on utility links then it hides 
+  # them. It does not set element to DOM.
   render: ->
     $(@el).html(@template(@model.toJSON()))
     @$(".platform-contact-delete").button()

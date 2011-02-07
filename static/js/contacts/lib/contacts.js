@@ -44,8 +44,7 @@
     };
     return LoadingIndicator;
   }();
-  /* Model for a single Contact
-  */
+  /* Model for a single Contact */
   Contact = function() {
     __extends(Contact, Backbone.Model);
     Contact.prototype.url = '/contacts/';
@@ -92,8 +91,7 @@
     };
     return Contact;
   }();
-  /* Model for a Micro Post collection
-  */
+  /* Model for a Micro Post collection */
   ContactCollection = function() {
     function ContactCollection() {
       ContactCollection.__super__.constructor.apply(this, arguments);
@@ -109,8 +107,7 @@
     };
     return ContactCollection;
   }();
-  /* ContactRow is the widget representation of a Contact instance.
-  */
+  /* ContactRow is the widget representation of a Contact instance. */
   ContactRow = function() {
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
@@ -154,18 +151,16 @@
     };
     return ContactRow;
   }();
-  /* Main view for contact application
-  */
+  /* Main view for contact application */
   ContactView = function() {
     __extends(ContactView, Backbone.View);
     ContactView.prototype.el = $("#news");
-    ContactView.prototype.isCtrl = false;
     ContactView.prototype.events = {
       "click #contact-post-button": "onPostClicked",
       "submit #contact-post-button": "onPostClicked",
       "click #contact-alm-button": "onAllClicked",
       "click #contact-pending-button": "onPendingClicked",
-      "click #contact-request-button": "onRequestClicked"
+      "click #contact-request-button": "onRequestedClicked"
     };
     function ContactView() {
       ContactView.__super__.constructor.apply(this, arguments);
@@ -176,14 +171,6 @@
       this.contacts = new ContactCollection;
       this.contacts.bind('add', this.prependOne);
       return this.contacts.bind('refresh', this.addAll);
-    };
-    /* Events
-    */
-    ContactView.prototype.onKeyDown = function(event) {
-      if (event.keyCode === 13 && this.isCtrl) {
-        this.postNewContact();
-      }
-      return event;
     };
     ContactView.prototype.onPostClicked = function(event) {
       event.preventDefault();
@@ -198,7 +185,7 @@
       event.preventDefault();
       return this.onFilterClicked("#contact-pending-button", "/contacts/pending/");
     };
-    ContactView.prototype.onRequestClicked = function(event) {
+    ContactView.prototype.onRequestedClicked = function(event) {
       event.preventDefault();
       return this.onFilterClicked("#contact-request-button", "/contacts/requested/");
     };
@@ -210,6 +197,7 @@
         return this.reloadContacts(path);
       }
     };
+    /* Functions */
     ContactView.prototype.reloadContacts = function(url) {
       loadingIndicator.display();
       this.clearContacts();
@@ -217,8 +205,28 @@
       this.contacts.fetch();
       return this.contacts;
     };
-    /* Functions
-    */
+    ContactView.prototype.clearContacts = function() {
+      return $("#contacts").empty();
+    };
+    ContactView.prototype.addAll = function() {
+      this.contacts.each(this.appendOne);
+      loadingIndicator.hide();
+      return this.contacts;
+    };
+    ContactView.prototype.appendOne = function(contact) {
+      var el, row;
+      row = new ContactRow(contact);
+      el = row.render();
+      $("#contacts").prepend(el);
+      return row;
+    };
+    ContactView.prototype.prependOne = function(contact) {
+      var el, row;
+      row = new ContactRow(contact);
+      el = row.render();
+      $("#contacts").prepend(el);
+      return loadingIndicator.hide();
+    };
     ContactView.prototype.clearContacts = function() {
       return $("#contacts").empty();
     };
@@ -247,6 +255,11 @@
       $("#contact-url-field").focus();
       return $("#contact-url-field");
     };
+    ContactView.prototype.clearPostField = function() {
+      $("#contact-url-field").val(null);
+      $("#contact-url-field").focus();
+      return $("#contact-url-field");
+    };
     ContactView.prototype.fetch = function() {
       this.contacts.fetch();
       return this.contacts;
@@ -268,8 +281,7 @@
       }
       return false;
     };
-    /* UI Builders
-    */
+    /* UI Builders */
     ContactView.prototype.setListeners = function() {
       $("#contact-url-field").keydown(function(event) {
         return contactApp.onKeyDown(event);
@@ -301,8 +313,7 @@
     };
     return ContactView;
   }();
-  /* Contact application entry point
-  */
+  /* Contact application entry point */
   infoDialog = new InfoDialog;
   loadingIndicator = new LoadingIndicator;
   contactApp = new ContactView;

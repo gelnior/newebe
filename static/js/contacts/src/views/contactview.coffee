@@ -1,26 +1,21 @@
-### Main view for contact application
-###
+### Main view for contact application ###
 
 class ContactView extends Backbone.View
   el: $("#news")
 
-  # Local variable needed to test if user type a CTRL+Enter keyboard shortcut
-  # while typing his post content.
-  isCtrl: false
+
+  # Events binding
 
   events:
     "click #contact-post-button" : "onPostClicked"
     "submit #contact-post-button" : "onPostClicked"
     "click #contact-alm-button" : "onAllClicked"
     "click #contact-pending-button" : "onPendingClicked"
-    "click #contact-request-button" : "onRequestClicked"
+    "click #contact-request-button" : "onRequestedClicked"
 
   constructor: ->
     super
 
-  ##
-  # Initiliaze bind functions to this view, sets up contact collection
-  # behaviour.
   initialize: ->
     _.bindAll(this, 'postNewContact', 'appendOne', 'prependOne', 'addAll')
     _.bindAll(this, 'onPostClicked')
@@ -31,36 +26,34 @@ class ContactView extends Backbone.View
     @contacts.bind('refresh', @addAll)
         
 
-  ### Events
-  ###
+  ## Event listeners ##
 
-  ##
-  # When key is down, if enter and CTRL are down together, the contact request
-  # is posted.
-  onKeyDown: (event) ->
-    if (event.keyCode == 13 and @isCtrl)
-      @postNewContact()
-    event
- 
-  ##
   # When post button is clicked the contact request is posted.
   onPostClicked: (event) ->
     event.preventDefault()
     @postNewContact()
     event
 
+  # When all button is clicked, list is refreshed with the whole contact list.
   onAllClicked: (event) ->
     event.preventDefault()
     @onFilterClicked("#contact-all-button", "/contacts/")
 
+  # When pending button is clicked, list is refreshed with the list of contacts
+  # that are waiting for an answer.
   onPendingClicked: (event) ->
     event.preventDefault()
     @onFilterClicked("#contact-pending-button", "/contacts/pending/")
 
-  onRequestClicked: (event) ->
+  # When requested button is clicked, list is refreshed with the list of 
+  # contacts that needs a confirmation.
+  onRequestedClicked: (event) ->
     event.preventDefault()
     @onFilterClicked("#contact-request-button", "/contacts/requested/")
 
+  # When a filter button is clicked, it checks which button has been
+  # clicked last time : enables this button then disable button thats has
+  # is clicked.
   onFilterClicked: (filterClicked, path) ->
     if(@lastFilterClicked != filterClicked)
       $(filterClicked).button( "option", "disabled", true )
@@ -68,6 +61,11 @@ class ContactView extends Backbone.View
       @lastFilterClicked = filterClicked
       @reloadContacts(path)
 
+
+
+  ### Functions ###
+
+  # Reloads contact list (whole list).
   reloadContacts: (url) ->
     loadingIndicator.display()
     @clearContacts()
@@ -75,33 +73,50 @@ class ContactView extends Backbone.View
     @contacts.fetch()
     @contacts
 
-
-  ### Functions
-  ###
-
-  ##
   # Clears contact list then display more news button.
   clearContacts: ->
     $("#contacts").empty()
 
 
-  ##
   # Adds all retrieved contacts to current contact list.
   addAll: ->
     @contacts.each(@appendOne)
     loadingIndicator.hide()
     @contacts
 
-  ## 
-  # Append *contact* to the beginning of current post list (render it).
+  # Append *contact* to the beginning of current contact list (render it).
   appendOne: (contact) ->
     row = new ContactRow contact
     el = row.render()
     $("#contacts").prepend(el)
     row
 
-  ## 
   # Prepend *contact* to the end of current contact list (render it).
+  prependOne: (contact) ->
+    row = new ContactRow contact
+    el = row.render()
+    $("#contacts").prepend(el)
+    loadingIndicator.hide()
+
+  # Clears contact list then display more news button.
+  clearContacts: ->
+    $("#contacts").empty()
+
+
+  # Adds all retrieved contacts to current contact list.
+  addAll: ->
+    @contacts.each(@appendOne)
+    loadingIndicator.hide()
+    @contacts
+
+  # Appends *contact* to the beginning of current post list (render it).
+  appendOne: (contact) ->
+    row = new ContactRow contact
+    el = row.render()
+    $("#contacts").prepend(el)
+    row
+
+  # Prepends *contact* to the end of current contact list (render it).
   prependOne: (contact) ->
     row = new ContactRow contact
     el = row.render()
@@ -109,21 +124,26 @@ class ContactView extends Backbone.View
     loadingIndicator.hide()
     row
 
-  ##
-  # Clear post field and focus it.
+  # Clears post field and focus it.
   clearPostField: () ->
     $("#contact-url-field").val(null)
     $("#contact-url-field").focus()
     $("#contact-url-field")
 
-  # Reload contact list.
+
+  # Clear url field and focus it.
+  clearPostField: () ->
+    $("#contact-url-field").val(null)
+    $("#contact-url-field").focus()
+    $("#contact-url-field")
+
+  # Reloads contact list.
   fetch: () ->
     @contacts.fetch()
     @contacts
 
-  ##
-  # Send a post request to server and add post at the beginning of current 
-  # post list.
+  # Send a post request to server and add current at the beginning of current 
+  # contact list.
   postNewContact: ()->
     contactUrl = $("#contact-url-field").val()
     if @contacts.find((contact) -> contactUrl == contact.getUrl())
@@ -137,10 +157,8 @@ class ContactView extends Backbone.View
     false
 
 
-  ### UI Builders
-  ###
+  ### UI Builders ###
 
-  ##
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
       
@@ -153,7 +171,6 @@ class ContactView extends Backbone.View
     $("#contact-request-button").click((event) ->
         contactApp.onRequestClicked(event))
 
-  ##
   # Build JQuery widgets.
   setWidgets: ->
     $("#contact-all-button").button()

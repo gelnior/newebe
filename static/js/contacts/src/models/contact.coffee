@@ -1,15 +1,16 @@
-### Model for a single Contact
-###
+### Model for a single Contact ###
 
 class Contact extends Backbone.Model
 
-  ##  Url where contacts lives.
+  #  Url where contacts lives.
   url: '/contacts/'
 
-  ## Constructor initialize its field from a javascript raw object.
-  ## Fields:
-  ## url : contact URL.
-  ## state : contact request state.
+  # Constructor initialize its field from a javascript raw object.
+  #
+  # Fields:
+  #
+  # * url : contact URL.
+  # * state : contact request state.
   constructor: (contact) ->
     super
 
@@ -18,6 +19,7 @@ class Contact extends Backbone.Model
     if contact.state
       @set('state', contact.state)
 
+  ## Accessors / Editors
 
   getUrl: ->
     @get('url')
@@ -29,7 +31,7 @@ class Contact extends Backbone.Model
     @set('state', state)
 
 
-  # Send a delete request to services backend then remove contact row from
+  # Send a delete request to services backend then removes contact row from
   # contact view.
   delete: ->
     @url = '/contacts/' + @id
@@ -56,21 +58,20 @@ class Contact extends Backbone.Model
 
     
 
-### Model for a Micro Post collection
-###
+### Model for a Micro Post collection ###
 
 class ContactCollection extends Backbone.Collection
   model: Contact
 
-  ## Url where contacts lives.
+  # Url where contacts lives.
   url: '/contacts/'
 
-  ## Collection sorting is based on contact URI.
+  # Collection sorting is based on contact URI.
   comparator: (contact) ->
     contact.getUrl()
 
-  ## Select which field from backend response to use for parsing to populate  
-  ## collection.
+  # Select which field from backend response to use for populating  
+  # collection.
   parse: (response) ->
     response.rows
 

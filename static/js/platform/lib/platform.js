@@ -1,6 +1,5 @@
 (function() {
-  /* Main view for applications navigation
-  */  var InfoDialog, LoadingIndicator, PlatformView, RegisterView, infoDialog, loadingIndicator, platformView, registerView;
+  /* Platform controller Handle URL routes */  var InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -9,6 +8,31 @@
     child.__super__ = parent.prototype;
     return child;
   };
+  PlatformController = function() {
+    function PlatformController() {
+      PlatformController.__super__.constructor.apply(this, arguments);
+    }
+    __extends(PlatformController, Backbone.Controller);
+    PlatformController.prototype.routes = {
+      "contact": "displayContact",
+      "news": "displayNews",
+      "profile": "displayProfile"
+    };
+    PlatformController.prototype.displayContact = function() {
+      return this.view.onContactClicked(null);
+    };
+    PlatformController.prototype.displayNews = function() {
+      return this.view.onNewsClicked(null);
+    };
+    PlatformController.prototype.displayProfile = function() {
+      return this.view.onProfileClicked(null);
+    };
+    PlatformController.prototype.registerView = function(view) {
+      return this.view = view;
+    };
+    return PlatformController;
+  }();
+  /* Main view for applications navigation */
   PlatformView = function() {
     __extends(PlatformView, Backbone.View);
     PlatformView.prototype.el = $("body");
@@ -17,7 +41,9 @@
       "click #profile-a": "onProfileClicked",
       "click #contact-a": "onContactClicked"
     };
-    function PlatformView() {
+    function PlatformView(controller) {
+      this.controller = controller;
+      controller.registerView(this);
       PlatformView.__super__.constructor.apply(this, arguments);
     }
     PlatformView.prototype.initialize = function() {
@@ -33,19 +59,25 @@
       return $("#platform-user-text-field").focus();
     };
     PlatformView.prototype.onNewsClicked = function(ev) {
-      ev.preventDefault();
+      if (ev) {
+        ev.preventDefault();
+      }
       document.title = "Newebe | News";
       this.switchTo("#news", '/news/content/');
       return false;
     };
     PlatformView.prototype.onProfileClicked = function(ev) {
-      ev.preventDefault();
+      if (ev) {
+        ev.preventDefault();
+      }
       document.title = "Newebe | Profile";
       this.switchTo("#profile", '/profile/content/');
       return false;
     };
     PlatformView.prototype.onContactClicked = function(ev) {
-      ev.preventDefault();
+      if (ev) {
+        ev.preventDefault();
+      }
       document.title = "Newebe | Contact";
       this.switchTo("#contact", '/contact/content/');
       return false;
@@ -53,6 +85,7 @@
     PlatformView.prototype.switchTo = function(page, url) {
       $(this.lastPage + "-a").removeClass("disabled");
       $(page + "-a").addClass("disabled");
+      this.controller.saveLocation(page);
       if (this.lastPage !== page) {
         $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
       }
@@ -146,7 +179,9 @@
     return LoadingIndicator;
   }();
   infoDialog = new InfoDialog;
-  platformView = new PlatformView;
+  platformController = new PlatformController;
+  platformView = new PlatformView(platformController);
   registerView = new RegisterView;
   loadingIndicator = new LoadingIndicator;
+  Backbone.history.start();
 }).call(this);

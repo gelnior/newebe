@@ -148,6 +148,7 @@ class NewsView extends Backbone.View
       @tutorialOn = false
     row
 
+  # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get("/news/tutorial/" + index + "/", (data) ->
       $("#tutorial").html(data)

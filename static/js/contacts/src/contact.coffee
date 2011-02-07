@@ -1,9 +1,8 @@
-### Contact application entry point
-###
+### Contact application entry point ###
 
-## 
-# Build news app view, then init widgets and listeners. Finally retrive data
-# and displays it.
+
+# Build news app view, then init widgets and listeners. Finally it retrieves 
+# data and displays it.
 
 infoDialog = new InfoDialog
 loadingIndicator = new LoadingIndicator

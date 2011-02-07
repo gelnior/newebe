@@ -84,6 +84,10 @@
       $("#platform-profile-name").val(this.user.getName());
       $("#platform-profile-city").val(this.user.getCity());
       $("#platform-profile-url").val(this.user.get("url"));
+      if (!this.user.get("url")) {
+        this.tutorialOn = true;
+        this.displayTutorial(1);
+      }
       return this.users;
     };
     ProfileView.prototype.fetch = function() {
@@ -91,12 +95,26 @@
       return this.users;
     };
     ProfileView.prototype.postUserInfo = function() {
-      this.user.save({
+      return this.user.save({
         name: $("#platform-profile-name").val(),
         url: $("#platform-profile-url").val(),
         city: $("#platform-profile-city").val()
+      }, {
+        success: this.testTutorial
       });
+    };
+    ProfileView.prototype.testTutorial = function() {
+      if (this.tutorialOn) {
+        alert("ha");
+        this.displayTutorial(2);
+        this.tutorialOn = false;
+      }
       return false;
+    };
+    ProfileView.prototype.displayTutorial = function(index) {
+      return $.get("/profile/tutorial/" + index + "/", function(data) {
+        return $("#tutorial").html(data);
+      });
     };
     /* UI Builders
     */

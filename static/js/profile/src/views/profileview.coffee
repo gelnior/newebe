@@ -36,15 +36,18 @@ class ProfileView extends Backbone.View
     @users
     @user = @users.first()
     
-    
     $("#platform-profile-name").val(@user.getName())
     $("#platform-profile-city").val(@user.getCity())
     $("#platform-profile-url").val(@user.get("url"))
 
+    if not @user.get("url")
+      @tutorialOn = true
+      @displayTutorial(1)
+
     @users
 
 
-  # Reload contact list.
+  # Reload user data.
   fetch: ->
     @users.fetch()
     @users
@@ -55,19 +58,26 @@ class ProfileView extends Backbone.View
   # post list.
 
   postUserInfo: ->
-
-
     @user.save(
-        name : $("#platform-profile-name").val()
-        url : $("#platform-profile-url").val()
-        city : $("#platform-profile-city").val()
+        (
+          name : $("#platform-profile-name").val()
+          url : $("#platform-profile-url").val()
+          city : $("#platform-profile-city").val()
+        ),
+        success: @testTutorial
     )
-        #@user.setName($("#platform-profile-name").val())
-    #@user.name = $("#platform-profile-name").val()
-    #@user.save()
-
+        
+  testTutorial: ->
+    if @tutorialOn
+      @displayTutorial(2)
+      @tutorialOn = false
     false
 
+  # Displays tutorial in the tutorial DIV element.
+  displayTutorial: (index) ->
+    $.get("/profile/tutorial/" + index + "/", (data) ->
+      $("#tutorial").html(data)
+    )
 
   ### UI Builders
   ###
