@@ -15,7 +15,7 @@ class ContactRow extends Backbone.View
     <a class="platform-contact-delete">X</a>    
     </span>
     <p class="platform-contact-url">
-     <%= url %> 
+     <a href="<%= url %>"><%= url %></a>
      <span class="platform-contact-state"> (<%= state %>)</span>
     </p>
   ''')

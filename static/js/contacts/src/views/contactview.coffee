@@ -53,7 +53,7 @@ class ContactView extends Backbone.View
 
   # When a filter button is clicked, it checks which button has been
   # clicked last time : enables this button then disable button thats has
-  # is clicked.
+  # been clicked before.
   onFilterClicked: (filterClicked, path) ->
     if(@lastFilterClicked != filterClicked)
       $(filterClicked).button( "option", "disabled", true )
@@ -62,12 +62,11 @@ class ContactView extends Backbone.View
       @reloadContacts(path)
 
 
-
   ### Functions ###
 
   # Reloads contact list (whole list).
   reloadContacts: (url) ->
-    loadingIndicator.display()
+    loadingIndicator.hide()
     @clearContacts()
     @contacts.url = url
     @contacts.fetch()
@@ -150,7 +149,14 @@ class ContactView extends Backbone.View
       infoDialog.display("Contact is already in your list")
     else
       loadingIndicator.display()
-      @contacts.create(url : contactUrl)
+      @contacts.create(url : contactUrl,
+        success : (model, response) ->  loadingIndicator.hide(),
+        error: (model, response) ->
+         loadingIndicator.hide()
+         infoDialog.display("An error occured on server. Please refresh the contact list.")
+        )
+
+
       $("#contact-url-field").val(null)
       $("#contact-url-field").focus()
     
@@ -162,14 +168,14 @@ class ContactView extends Backbone.View
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
       
-    $("#contact-url-field").keydown((event) -> contactApp.onKeyDown(event))
+      #:$("#contact-url-field").keydown((event) -> contactApp.onKeyDown(event))
     $("#contact-post-button").submit((event) -> contactApp.onPostClicked(event))
     $("#contact-post-button").click((event) -> contactApp.onPostClicked(event))
     $("#contact-all-button").click((event) -> contactApp.onAllClicked(event))
     $("#contact-pending-button").click((event) ->
         contactApp.onPendingClicked(event))
     $("#contact-request-button").click((event) ->
-        contactApp.onRequestClicked(event))
+        contactApp.onRequestedClicked(event))
 
   # Build JQuery widgets.
   setWidgets: ->

@@ -1,4 +1,6 @@
 /** Style reset */
+
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -130,6 +132,7 @@ textarea { border : 1px solid black; }
 
 #profile p { margin-bottom: 20px; font-size: 18px;}
 #profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
+#profile input#platform-profile-url { width: 600px;  }
 #profile input { font-size: 18px; border: none; }
 
 /* Contacts */

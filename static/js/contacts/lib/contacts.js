@@ -112,7 +112,7 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= url %> \n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a href="<%= url %>"><%= url %></a>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
       "click .platform-contact-wap": "onConfirmClicked",
@@ -199,7 +199,7 @@
     };
     /* Functions */
     ContactView.prototype.reloadContacts = function(url) {
-      loadingIndicator.display();
+      loadingIndicator.hide();
       this.clearContacts();
       this.contacts.url = url;
       this.contacts.fetch();
@@ -275,6 +275,14 @@
         loadingIndicator.display();
         this.contacts.create({
           url: contactUrl
+        }, {
+          success: function(model, response) {
+            return loadingIndicator.hide();
+          },
+          error: function(model, response) {
+            loadingIndicator.hide();
+            return infoDialog.display("An error occured on server. Please refresh the contact list.");
+          }
         });
         $("#contact-url-field").val(null);
         $("#contact-url-field").focus();
@@ -283,9 +291,6 @@
     };
     /* UI Builders */
     ContactView.prototype.setListeners = function() {
-      $("#contact-url-field").keydown(function(event) {
-        return contactApp.onKeyDown(event);
-      });
       $("#contact-post-button").submit(function(event) {
         return contactApp.onPostClicked(event);
       });
@@ -299,7 +304,7 @@
         return contactApp.onPendingClicked(event);
       });
       return $("#contact-request-button").click(function(event) {
-        return contactApp.onRequestClicked(event);
+        return contactApp.onRequestedClicked(event);
       });
     };
     ContactView.prototype.setWidgets = function() {
