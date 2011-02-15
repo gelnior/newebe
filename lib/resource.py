@@ -34,7 +34,6 @@ class NewebeResource(RestResource):
     '''
 
     def __call__(self, request, *args, **kwargs):
-        
         if UserManager.getUser():
             return RestResource.__call__(self, request, *args, **kwargs)
         else:

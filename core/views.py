@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from urllib2 import Request, urlopen
 
@@ -122,6 +123,8 @@ class ContactsResource(NewebeResource):
         '''
         Create a new contact from sent data (contact object at JSON format).
         '''
+        logger = logging.getLogger("newebe.news")
+
         data = request.raw_post_data
 
         if data:
@@ -134,11 +137,11 @@ class ContactsResource(NewebeResource):
               slug = slug
             )
             contact.save()
-
-            data = UserManager.getUser().toContact().toJson()
-            req = Request("%scontacts/request/" % url, data)
-
+        
             try:
+                data = UserManager.getUser().toContact().toJson()
+                req = Request("%scontacts/request/" % url, data)
+
                 response = urlopen(req)
                 data = response.read()
                 
@@ -147,7 +150,11 @@ class ContactsResource(NewebeResource):
                     contact.state = STATE_ERROR
                     contact.save()
 
-            except:
+            except Exception:
+                import traceback
+                logger.error("Error on adding contact:\n %s" % 
+                        traceback.format_exc())
+
                 contact.state = STATE_ERROR
                 contact.save()
 
@@ -225,7 +232,6 @@ class ContactResource(NewebeResource):
         '''
 
         contact = ContactManager.getContact(slug)
-        print slug 
         if contact:
             contact.delete()
             response = SuccessResponse("Contact has been deleted.")

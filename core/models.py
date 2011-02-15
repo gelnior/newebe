@@ -23,9 +23,10 @@ class NewebeDocument(Document):
         Return json representation of the document.
         '''
         docDict = self.toDict()
-        del docDict["_id"]
-        del docDict["_rev"]
-        print self.toDict()
+        if "_id" in docDict:
+            del docDict["_id"]
+        if "_rev" in docDict:
+            del docDict["_rev"]
         return json.dumps(docDict)
 
 

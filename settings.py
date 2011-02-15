@@ -118,7 +118,7 @@ LOGGING = {
     'loggers': {
         'newebe': {
             'handlers': ['console', 'file'],
-            'level': 'INFO',
+            'level': 'DEBUG',
         }
     }
 }

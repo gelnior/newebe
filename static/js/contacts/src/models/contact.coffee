@@ -5,7 +5,7 @@ class Contact extends Backbone.Model
   #  Url where contacts lives.
   url: '/contacts/'
 
-  # Constructor initialize its field from a javascript raw object.
+  # Constructors initialize its field from a javascript raw object.
   #
   # Fields:
   #
@@ -31,7 +31,7 @@ class Contact extends Backbone.Model
     @set('state', state)
 
 
-  # Send a delete request to services backend then removes contact row from
+  # Sends a delete request to services backend then removes contact row from
   # contact view.
   delete: ->
     @url = '/contacts/' + @id
