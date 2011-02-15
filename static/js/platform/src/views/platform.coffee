@@ -1,4 +1,6 @@
-### Main view for applications navigation ###
+## Platform view
+
+# Main view for applications navigation 
 
 class PlatformView extends Backbone.View
   el: $("body")
@@ -14,10 +16,9 @@ class PlatformView extends Backbone.View
     controller.registerView(@)
     super
 
-  # Initiliazes bind functions to this view and sets up micropost collection
-  # behaviours.
-  # Registers last page selector for application browsing.
-  # If register view is displayed
+  # Initiliazes bind functions to this view.
+  # Registers current page as last page selected. It is needed to update menu
+  # items (disabled or not) when user changes application.
   initialize: ->
     _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked')
     if $("#news").length != 0
@@ -47,6 +48,8 @@ class PlatformView extends Backbone.View
     @switchTo("#profile", '/profile/content/')
     false
 
+  # When contact is clicked, current page is hidden and contact
+  # page is displayed.
   onContactClicked: (ev) ->
     if ev
       ev.preventDefault()
@@ -54,8 +57,10 @@ class PlatformView extends Backbone.View
     @switchTo("#contact", '/contact/content/')
     false
 
-  # Switch to *page*. If page does not exists it is append from html 
-  # data retrived at *url*. Switching begins by current page fade out.
+  # Switch to *page*: hides current page and displays *page*. 
+  # If has not been loaded it appends html 
+  # data retrieved at corresponding *url*. Switching begins by current page 
+  # fade out.
   switchTo: (page, url) ->
     $(@lastPage + "-a").removeClass("disabled")
     $(page + "-a").addClass("disabled")
@@ -65,8 +70,8 @@ class PlatformView extends Backbone.View
       $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))
     @lastPage
 
-  # When last page fade out it fades in *page* or load it from *url* if page
-  # is not present.
+  # When last page fade out finishes, it fades in *page* or load it from *url* 
+  # if page is not yet loaded.
   onLastPageFadeOut:(page, url) ->
     $(@lastPage).hide()
     @lastPage = page

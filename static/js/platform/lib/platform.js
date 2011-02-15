@@ -1,5 +1,5 @@
 (function() {
-  /* Platform controller Handle URL routes */  var InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
+  var InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -32,7 +32,6 @@
     };
     return PlatformController;
   }();
-  /* Main view for applications navigation */
   PlatformView = function() {
     __extends(PlatformView, Backbone.View);
     PlatformView.prototype.el = $("body");

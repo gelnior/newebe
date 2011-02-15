@@ -1,5 +1,4 @@
-##
-# Build platform view and set listeners.
+# Build main view and common widgets
 
 infoDialog = new InfoDialog
 platformController = new PlatformController

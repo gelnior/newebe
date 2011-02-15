@@ -1,8 +1,10 @@
+## LoadingIndicator
 
-# Utility class to displays loading indicator.
+# Utility class to displays loading indicator (little clock on top right of the
+# window).
 class LoadingIndicator
     
-  # Build loading indicator widget.
+  # Builds loading indicator widget.
   constructor: () ->
     div = document.createElement('div')
     div.id = "loading-indicator"
