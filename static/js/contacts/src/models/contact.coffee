@@ -1,4 +1,6 @@
-### Model for a single Contact ###
+## Contact
+
+# Model for a single Contact
 
 class Contact extends Backbone.Model
 
@@ -19,7 +21,7 @@ class Contact extends Backbone.Model
     if contact.state
       @set('state', contact.state)
 
-  ## Accessors / Editors
+  ### Accessors / Editors ###
 
   getUrl: ->
     @get('url')
@@ -38,6 +40,8 @@ class Contact extends Backbone.Model
     @destroy()
     @view.remove()
 
+  # Sends a POST request to services backend to ask for confirmation for this
+  # contact.
   saveToDb: ->
     @url = '/contacts/' + @id
     @save(null,

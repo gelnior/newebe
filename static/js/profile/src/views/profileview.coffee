@@ -1,14 +1,14 @@
-### Main view for contact application    
-###
+## Profile View
+
+# Main view for profile application.
 
 class ProfileView extends Backbone.View
   el: $("#profile")
 
   constructor: ->
     super
-
-  ##
-  # Initiliaze bind functions to this view, sets up contact collection
+  
+  # Initiliaze bind functions to this view, sets up user collection
   # behaviour.
   initialize: ->
     _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll')
@@ -18,20 +18,16 @@ class ProfileView extends Backbone.View
     @users.bind('refresh', @addAll)
         
 
-  ### Events
-  ###
+  ### Events ###
 
-  ##
   # When key control is up it set is ctrl pressed variable to false.
   onKeyUp: (event) ->
     @postUserInfo()
 
 
-  ### Functions
-  ###
+  ### Functions ###
 
-  ##
-  # Adds all retrieved contacts to current contact list.
+  # Fills user form with data retrieved from current user service.
   addAll: ->
     @users
     @user = @users.first()
@@ -47,15 +43,13 @@ class ProfileView extends Backbone.View
     @users
 
 
-  # Reload user data.
+  # Reloads user data.
   fetch: ->
     @users.fetch()
     @users
 
 
-  ##
-  # Send a post request to server and add post at the beginning of current 
-  # post list.
+  # Sends a put request to server to update data.
 
   postUserInfo: ->
     @user.save(
@@ -66,7 +60,8 @@ class ProfileView extends Backbone.View
         ),
         success: @testTutorial
     )
-        
+       
+  # Display the second tutorial if tutorial mode is on.
   testTutorial: ->
     if @tutorialOn
       @displayTutorial(2)
@@ -79,17 +74,14 @@ class ProfileView extends Backbone.View
       $("#tutorial").html(data)
     )
 
-  ### UI Builders
-  ###
+  ### UI Builders ###
 
-  ##
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
     $("#platform-profile-name").keyup((event) -> profileApp.onKeyUp(event))
     $("#platform-profile-url").keyup((event) -> profileApp.onKeyUp(event))
     $("#platform-profile-city").keyup((event) -> profileApp.onKeyUp(event))
 
-  ##
   # Build JQuery widgets.
   setWidgets: ->
     $("#profile input").val(null)

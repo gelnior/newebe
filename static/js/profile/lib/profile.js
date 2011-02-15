@@ -105,7 +105,6 @@
     };
     ProfileView.prototype.testTutorial = function() {
       if (this.tutorialOn) {
-        alert("ha");
         this.displayTutorial(2);
         this.tutorialOn = false;
       }
@@ -135,8 +134,6 @@
     };
     return ProfileView;
   }();
-  /* Profile application entry point
-  */
   profileApp = new ProfileView;
   profileApp.setWidgets();
   profileApp.setListeners();

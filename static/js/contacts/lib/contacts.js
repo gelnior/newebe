@@ -318,7 +318,6 @@
     };
     return ContactView;
   }();
-  /* Contact application entry point */
   infoDialog = new InfoDialog;
   loadingIndicator = new LoadingIndicator;
   contactApp = new ContactView;

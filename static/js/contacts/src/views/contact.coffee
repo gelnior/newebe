@@ -1,4 +1,6 @@
-### ContactRow is the widget representation of a Contact instance. ###
+## Contact Row
+
+# ContactRow is the widget representation of a Contact instance.
 
 class ContactRow extends Backbone.View
 
@@ -49,7 +51,7 @@ class ContactRow extends Backbone.View
   onDeleteClicked: ->
     @model.delete()
 
-  # When a contact is confirmed, it sends a POST request to the confirmation
+  # When a contact is confirmed, it sends a PT request to the confirmation
   # service.
   onConfirmClicked: ->
     @model.saveToDb()

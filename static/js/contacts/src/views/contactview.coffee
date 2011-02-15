@@ -130,7 +130,7 @@ class ContactView extends Backbone.View
     $("#contact-url-field")
 
 
-  # Clear url field and focus it.
+  # Clears url field and focus it.
   clearPostField: () ->
     $("#contact-url-field").val(null)
     $("#contact-url-field").focus()
@@ -168,7 +168,6 @@ class ContactView extends Backbone.View
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
       
-      #:$("#contact-url-field").keydown((event) -> contactApp.onKeyDown(event))
     $("#contact-post-button").submit((event) -> contactApp.onPostClicked(event))
     $("#contact-post-button").click((event) -> contactApp.onPostClicked(event))
     $("#contact-all-button").click((event) -> contactApp.onAllClicked(event))
