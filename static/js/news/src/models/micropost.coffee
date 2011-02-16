@@ -4,7 +4,7 @@ class MicroPost extends Backbone.Model
   #  Url where micro posts lives.
   url: '/news/microposts/'
 
-  # Constructor initialize its field from a javascript raw object.
+  # Constructor initializes its field from a javascript raw object.
   # Fields:
   #
   # * id : micro post date formatted to be used for micro post URI building.
@@ -24,15 +24,22 @@ class MicroPost extends Backbone.Model
       idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss")
       @id =  idDate + "/"
 
+  ### Getters / Setters ###
+
+  getDisplayDate: ->
+     @attributes['displayDate']
+
+  setDisplayDate: ->
+    dateToSet = @attributes["date"]
+    @setDisplayDateFromDbDate(dateToSet)
+  
+  # Convert raw *date* to human readable date.
   setDisplayDateFromDbDate: (date) ->
     postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
     stringDate = postDate.toString("dd MMM yyyy, HH:mm")
     @attributes['displayDate'] = stringDate
     postDate
-
-  setDisplayDate: ->
-    dateToSet = @attributes["date"]
-    @setDisplayDateFromDbDate(dateToSet)
+  
 
   getAuthor: ->
     @get('author')
@@ -43,11 +50,8 @@ class MicroPost extends Backbone.Model
   getContent: ->
     @get('content')
 
-  getDisplayDate: ->
-     @attributes['displayDate']
-
-  # Send a delete request to services backend then remove micro post view fro
-  # app view.
+  # Sends a delete request to services backend then ask view to remove micro 
+  # post view.
   delete: ->
     @url += @id
     @destroy()
@@ -59,7 +63,7 @@ class MicroPost extends Backbone.Model
 
     
 
-## Model for a Micro Post collection
+## Micro Post collection
 class MicroPostCollection extends Backbone.Collection
   model: MicroPost
 

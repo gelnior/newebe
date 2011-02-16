@@ -1,9 +1,7 @@
-### News application entry point
-###
+## News application entry point
 
-## 
-# Build news app view, then init widgets and listeners. Finally retrieve data
-# and displays it.
+# Builds news app view, inits widgets and listeners, retrieves last microposts
+# and displays them.
 newsApp = new NewsView
 
 loadingIndicator = new LoadingIndicator

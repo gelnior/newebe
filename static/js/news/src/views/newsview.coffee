@@ -1,6 +1,7 @@
-### Main view for news application
-###
+## NewsView
 
+
+# Main view for news application
 class NewsView extends Backbone.View
   el: $("#news")
 
@@ -8,6 +9,8 @@ class NewsView extends Backbone.View
   # while typing his post content.
   isCtrl: false
 
+
+  ### Events ###
   events:
     "click #news-post-button" : "onPostClicked"
     "submit #news-post-button" : "onPostClicked"
@@ -18,7 +21,6 @@ class NewsView extends Backbone.View
   constructor: ->
     super
 
-  ##
   # Initiliaze bind functions to this view, sets up micropost colleciton
   # behaviours.
   initialize: ->
@@ -35,17 +37,15 @@ class NewsView extends Backbone.View
     @moreMicroposts = new MicroPostCollection
     @moreMicroposts.bind('refresh', @addAllMore)
 
-  ### Events
-  ###
+  ### Listeners  ###
 
-  ##
   # When key control is up it set is ctrl pressed variable to false.
   onKeyUp: (event) ->
     if(event.keyCode == 17)
       @isCtrl = false
     event
 
-  ##
+
   # When key is down, if enter and CTRL are down together, the content field
   # is posted.
   onKeyDown: (event) ->
@@ -58,14 +58,14 @@ class NewsView extends Backbone.View
       @postNewPost()
     event
  
-  ##
+
   # When post button is clicked the content field is posted.
   onPostClicked: (event) ->
     event.preventDefault()
     @postNewPost()
     event
 
-  ##
+  
   # When my news is clicked it reloads all news from current user since today.
   onMineClicked: (event) ->
     @clearNews(null)
@@ -73,7 +73,7 @@ class NewsView extends Backbone.View
     @displayMyNews()
     event
 
-  ##
+  
   # When a date is picked it loads all news from current user since this date.
   onDatePicked: (dateText, event) ->
     d = Date.parse(dateText)
@@ -83,16 +83,15 @@ class NewsView extends Backbone.View
     @reloadMicroPosts(sinceDate)
 
 
-  ### Functions
-  ###
+  ### Functions  ###
 
-  ##
+  
   # Clear micro posts list then display more news button.
   clearNews: ->
     $("#micro-posts").empty()
     $("#news-more").show()
 
-  ##
+  
   # Add more news to current list. It skips first result to not display again
   # last post. If less thant 10 rows are returned, it means that there are 
   # no more posts, so more button is hidden.
@@ -108,7 +107,7 @@ class NewsView extends Backbone.View
     loadingIndicator.hide()
     @lastDate
 
-  ##
+  
   # Add news to current list. If less thant 10 rows are returned, 
   # it means that there are no more posts, so more button is hidden.
   addAll: ->
@@ -128,7 +127,7 @@ class NewsView extends Backbone.View
     loadingIndicator.hide()
     @microposts.length
 
-  ## 
+   
   # Append *micropost* to the beginning of current post list (render it).
   appendOne: (micropost) ->
     row = new MicroPostRow micropost
@@ -136,8 +135,9 @@ class NewsView extends Backbone.View
     $("#micro-posts").append(el)
     row
 
-  ## 
+   
   # Prepend *micropost* to the end of current post list (render it).
+  # Displays second tutorial of tutorial mode is on.
   prependOne: (micropost) ->
     row = new MicroPostRow micropost
     el = row.render()
@@ -148,6 +148,7 @@ class NewsView extends Backbone.View
       @tutorialOn = false
     row
 
+
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get("/news/tutorial/" + index + "/", (data) ->
@@ -155,15 +156,14 @@ class NewsView extends Backbone.View
     )
 
 
-  ##
-  # Clear post field and focus it.
+  # Clears post field and focus it.
   clearPostField: () ->
     $("#id_content").val(null)
     $("#id_content").focus()
     $("#id_content")
 
-  ##
-  # Clear micro posts lists and reload micro posts until *date*.
+  
+  # Clears micro posts lists and reload micro posts until *date*.
   reloadMicroPosts: (date) ->
     loadingIndicator.display()
     @microposts.url = '/news/microposts/'
@@ -172,14 +172,14 @@ class NewsView extends Backbone.View
     @microposts.fetch()
     @microposts
 
-  ##
-  # Reload micro post list.
+  
+  # Reloads micro post list.
   fetch: () ->
     @microposts.fetch()
     @microposts
 
-  ##
-  # Send a post request to server and add post at the beginning of current 
+  
+  # Sends a post request to server and add post at the beginning of current 
   # post list.
   postNewPost: ()->
     loadingIndicator.display()
@@ -191,7 +191,7 @@ class NewsView extends Backbone.View
     $("#id_content").focus()
     false
 
-  ##
+  
   # When more news is clicked, GET URL is updated with last register date,
   # (because /news/news-item/*date* returns 10 last micro posts until *date*).
   # Then it retrieves posts and display it at the follown of current post list.
@@ -205,10 +205,9 @@ class NewsView extends Backbone.View
     @moreMicroposts.fetch()
     @moreMicroposts
 
-  ### UI Builders
-  ###
+  ### UI Builders  ###
 
-  ##
+  
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
     $("#id_content").keyup((event) -> newsApp.onKeyUp(event))
@@ -217,7 +216,7 @@ class NewsView extends Backbone.View
       onSelect : @onDatePicked
     })
 
-  ##
+  
   # Build JQuery widgets.
   setWidgets: ->
     $("input#news-post-button").button()
