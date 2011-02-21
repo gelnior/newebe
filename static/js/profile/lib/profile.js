@@ -1,6 +1,5 @@
 (function() {
-  /* Model for current User
-  */  var ProfileView, User, UserCollection, profileApp;
+  var ProfileView, User, UserCollection, profileApp;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -19,6 +18,7 @@
       this.set("name", user.name);
       this.set("city", user.city);
     }
+    /* Setters / Accessors */
     User.prototype.getName = function() {
       return this.get("name");
     };
@@ -44,8 +44,7 @@
     };
     return User;
   }();
-  /* Model for a User collection
-  */
+  /* Model for a User collection */
   UserCollection = function() {
     function UserCollection() {
       UserCollection.__super__.constructor.apply(this, arguments);
@@ -58,8 +57,6 @@
     };
     return UserCollection;
   }();
-  /* Main view for contact application
-  */
   ProfileView = function() {
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
@@ -71,13 +68,11 @@
       this.users = new UserCollection;
       return this.users.bind('refresh', this.addAll);
     };
-    /* Events
-    */
+    /* Events */
     ProfileView.prototype.onKeyUp = function(event) {
       return this.postUserInfo();
     };
-    /* Functions
-    */
+    /* Functions */
     ProfileView.prototype.addAll = function() {
       this.users;
       this.user = this.users.first();
@@ -95,12 +90,20 @@
       return this.users;
     };
     ProfileView.prototype.postUserInfo = function() {
+      var tutorialOn;
+      tutorialOn = this.tutorialOn;
       return this.user.save({
         name: $("#platform-profile-name").val(),
         url: $("#platform-profile-url").val(),
         city: $("#platform-profile-city").val()
       }, {
-        success: this.testTutorial
+        success: function() {
+          if (tutorialOn) {
+            return $.get("/profile/tutorial/2/", function(data) {
+              return $("#tutorial-profile").html(data);
+            });
+          }
+        }
       });
     };
     ProfileView.prototype.testTutorial = function() {
@@ -112,11 +115,10 @@
     };
     ProfileView.prototype.displayTutorial = function(index) {
       return $.get("/profile/tutorial/" + index + "/", function(data) {
-        return $("#tutorial").html(data);
+        return $("#tutorial-profile").html(data);
       });
     };
-    /* UI Builders
-    */
+    /* UI Builders */
     ProfileView.prototype.setListeners = function() {
       $("#platform-profile-name").keyup(function(event) {
         return profileApp.onKeyUp(event);

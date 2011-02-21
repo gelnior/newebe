@@ -1,5 +1,5 @@
 (function() {
-  var InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, loadingIndicator, newsApp;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, confirmationDialog, loadingIndicator, newsApp;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -13,6 +13,7 @@
       var div;
       div = document.createElement('div');
       div.id = "info-dialog";
+      div.className = "dialog";
       div.innerHTML = "Test";
       $("body").prepend(div);
       this.element = $("#info-dialog");
@@ -25,6 +26,38 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
+  }();
+  ConfirmationDialog = function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      div = document.createElement('div');
+      div.id = "confirmation-dialog";
+      div.className = "dialog";
+      div.innerHTML = '<div id="confirmation-text"></div>';
+      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+      $("body").prepend(div);
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
+    }
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return ConfirmationDialog;
   }();
   LoadingIndicator = function() {
     function LoadingIndicator() {
@@ -59,17 +92,21 @@
         this.id = idDate + "/";
       }
     }
+    /* Getters / Setters */
+    MicroPost.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
+    };
+    MicroPost.prototype.setDisplayDate = function() {
+      var dateToSet;
+      dateToSet = this.attributes["date"];
+      return this.setDisplayDateFromDbDate(dateToSet);
+    };
     MicroPost.prototype.setDisplayDateFromDbDate = function(date) {
       var postDate, stringDate;
       postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
       stringDate = postDate.toString("dd MMM yyyy, HH:mm");
       this.attributes['displayDate'] = stringDate;
       return postDate;
-    };
-    MicroPost.prototype.setDisplayDate = function() {
-      var dateToSet;
-      dateToSet = this.attributes["date"];
-      return this.setDisplayDateFromDbDate(dateToSet);
     };
     MicroPost.prototype.getAuthor = function() {
       return this.get('author');
@@ -79,9 +116,6 @@
     };
     MicroPost.prototype.getContent = function() {
       return this.get('content');
-    };
-    MicroPost.prototype.getDisplayDate = function() {
-      return this.attributes['displayDate'];
     };
     MicroPost.prototype["delete"] = function() {
       this.url += this.id;
@@ -108,13 +142,12 @@
     };
     return MicroPostCollection;
   }();
-  /* MicroPostRow is the widget representation of a MicroPost
-  */
   MicroPostRow = function() {
     __extends(MicroPostRow, Backbone.View);
     MicroPostRow.prototype.tagName = "div";
     MicroPostRow.prototype.className = "news-micropost-row";
     MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= displayDate %>\n</p>');
+    /* Events */
     MicroPostRow.prototype.events = {
       "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
@@ -126,6 +159,7 @@
       this.id = "micropost-" + this.model.id;
       this.model.view = this;
     }
+    /* Listeners */
     MicroPostRow.prototype.onMouseOver = function() {
       return this.$(".news-micropost-delete").show();
     };
@@ -133,8 +167,14 @@
       return this.$(".news-micropost-delete").hide();
     };
     MicroPostRow.prototype.onDeleteClicked = function() {
-      return this.model["delete"]();
+      var model;
+      model = this.model;
+      return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
+        confirmationDialog.hide();
+        return model["delete"]();
+      });
     };
+    /* Functions */
     MicroPostRow.prototype.remove = function() {
       return $(this.el).remove();
     };
@@ -149,12 +189,11 @@
     };
     return MicroPostRow;
   }();
-  /* Main view for news application
-  */
   NewsView = function() {
     __extends(NewsView, Backbone.View);
     NewsView.prototype.el = $("#news");
     NewsView.prototype.isCtrl = false;
+    /* Events */
     NewsView.prototype.events = {
       "click #news-post-button": "onPostClicked",
       "submit #news-post-button": "onPostClicked",
@@ -175,8 +214,7 @@
       this.moreMicroposts = new MicroPostCollection;
       return this.moreMicroposts.bind('refresh', this.addAllMore);
     };
-    /* Events
-    */
+    /* Listeners  */
     NewsView.prototype.onKeyUp = function(event) {
       if (event.keyCode === 17) {
         this.isCtrl = false;
@@ -211,8 +249,7 @@
       this.clearNews();
       return this.reloadMicroPosts(sinceDate);
     };
-    /* Functions
-    */
+    /* Functions  */
     NewsView.prototype.clearNews = function() {
       $("#micro-posts").empty();
       return $("#news-more").show();
@@ -269,7 +306,7 @@
     };
     NewsView.prototype.displayTutorial = function(index) {
       return $.get("/news/tutorial/" + index + "/", function(data) {
-        return $("#tutorial").html(data);
+        return $("#tutorial-news").html(data);
       });
     };
     NewsView.prototype.clearPostField = function() {
@@ -313,8 +350,7 @@
       this.moreMicroposts.fetch();
       return this.moreMicroposts;
     };
-    /* UI Builders
-    */
+    /* UI Builders  */
     NewsView.prototype.setListeners = function() {
       $("#id_content").keyup(function(event) {
         return newsApp.onKeyUp(event);
@@ -337,10 +373,11 @@
     };
     return NewsView;
   }();
-  /* News application entry point
-  */
   newsApp = new NewsView;
   loadingIndicator = new LoadingIndicator;
+  confirmationDialog = new ConfirmationDialog(function() {
+    return alert("ok");
+  });
   newsApp.setWidgets();
   newsApp.setListeners();
   newsApp.clearPostField();

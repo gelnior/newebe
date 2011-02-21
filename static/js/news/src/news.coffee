@@ -4,7 +4,10 @@
 # and displays them.
 newsApp = new NewsView
 
+
 loadingIndicator = new LoadingIndicator
+confirmationDialog = new ConfirmationDialog
+
 
 newsApp.setWidgets()
 newsApp.setListeners()

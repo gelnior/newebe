@@ -46,10 +46,18 @@ class ContactRow extends Backbone.View
   onMouseOut: ->
     @$(".platform-contact-row-buttons").hide()
 
-  # When delete button is clicked, it will call the delete method of linked 
-  # contact.
+  # When delete button is clicked, it displays a confirmation dialog box.
+  # When deletion is confirmed, delete request is sent to server and contact
+  # is remove from current page.
   onDeleteClicked: ->
-    @model.delete()
+    model = @model
+    confirmationDialog.display(
+        "Are you sure you want to delete this contact ?",
+        ->
+          confirmationDialog.hide()
+          model.delete()
+    )
+
 
   # When a contact is confirmed, it sends a PT request to the confirmation
   # service.

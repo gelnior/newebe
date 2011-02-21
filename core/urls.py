@@ -40,5 +40,9 @@ urlpatterns = patterns('',
         DirectTemplateResource("core/contact/contact.html")),
     (r'^contact/content/$', 
         DirectTemplateResource("core/contact/contact_content.html")),
+    (r'^contact/tutorial/1/$', 
+        DirectTemplateResource("core/contact/tutorial_1.html")),
+    (r'^contact/tutorial/2/$', 
+        DirectTemplateResource("core/contact/tutorial_2.html")),
 )
 

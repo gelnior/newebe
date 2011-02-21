@@ -11,6 +11,7 @@ class NewsView extends Backbone.View
 
 
   ### Events ###
+
   events:
     "click #news-post-button" : "onPostClicked"
     "submit #news-post-button" : "onPostClicked"
@@ -21,7 +22,7 @@ class NewsView extends Backbone.View
   constructor: ->
     super
 
-  # Initiliaze bind functions to this view, sets up micropost colleciton
+  # Initiliaze binds functions to this view, sets up micropost colleciton
   # behaviours.
   initialize: ->
     _.bindAll(this, 'postNewPost', 'appendOne', 'prependOne', 'addAll')
@@ -36,6 +37,7 @@ class NewsView extends Backbone.View
         
     @moreMicroposts = new MicroPostCollection
     @moreMicroposts.bind('refresh', @addAllMore)
+
 
   ### Listeners  ###
 
@@ -152,7 +154,7 @@ class NewsView extends Backbone.View
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get("/news/tutorial/" + index + "/", (data) ->
-      $("#tutorial").html(data)
+      $("#tutorial-news").html(data)
     )
 
 
@@ -204,6 +206,7 @@ class NewsView extends Backbone.View
 
     @moreMicroposts.fetch()
     @moreMicroposts
+
 
   ### UI Builders  ###
 

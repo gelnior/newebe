@@ -49,19 +49,24 @@ class ProfileView extends Backbone.View
     @users
 
 
-  # Sends a put request to server to update data.
-
+  # Sends a put request to server to update data. if it is in tutorial mode,
+  # success tutorial is displayed.
   postUserInfo: ->
+    tutorialOn = @tutorialOn
     @user.save(
         (
           name : $("#platform-profile-name").val()
           url : $("#platform-profile-url").val()
           city : $("#platform-profile-city").val()
         ),
-        success: @testTutorial
-    )
+        success: () ->
+          if tutorialOn
+            $.get("/profile/tutorial/2/", (data) ->
+              $("#tutorial-profile").html(data)
+            )
+        )
        
-  # Display the second tutorial if tutorial mode is on.
+  # Displays the second tutorial if tutorial mode is on.
   testTutorial: ->
     if @tutorialOn
       @displayTutorial(2)
@@ -71,7 +76,7 @@ class ProfileView extends Backbone.View
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get("/profile/tutorial/" + index + "/", (data) ->
-      $("#tutorial").html(data)
+      $("#tutorial-profile").html(data)
     )
 
   ### UI Builders ###

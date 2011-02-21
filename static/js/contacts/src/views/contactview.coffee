@@ -21,7 +21,9 @@ class ContactView extends Backbone.View
     _.bindAll(this, 'onPostClicked')
 
     @contacts = new ContactCollection
-    
+
+    @tutorialOn = true
+
     @contacts.bind('add', @prependOne)
     @contacts.bind('refresh', @addAll)
         
@@ -79,6 +81,13 @@ class ContactView extends Backbone.View
 
   # Adds all retrieved contacts to current contact list.
   addAll: ->
+    if @contacts.length > 0
+      @tutorialOn = false
+    else
+      if @tutorialOn and @lastFilterClicked == "#contact-all-button"
+        @displayTutorial(1)
+      else
+        $("#tutorial-contact").html(null)
     @contacts.each(@appendOne)
     loadingIndicator.hide()
     @contacts
@@ -87,7 +96,7 @@ class ContactView extends Backbone.View
   appendOne: (contact) ->
     row = new ContactRow contact
     el = row.render()
-    $("#contacts").prepend(el)
+    $("#contacts").append(el)
     row
 
   # Prepend *contact* to the end of current contact list (render it).
@@ -96,39 +105,19 @@ class ContactView extends Backbone.View
     el = row.render()
     $("#contacts").prepend(el)
     loadingIndicator.hide()
+    if @tutorialOn
+       @displayTutorial(2)
+       @tutorialOn = false
 
   # Clears contact list then display more news button.
   clearContacts: ->
     $("#contacts").empty()
-
-
-  # Adds all retrieved contacts to current contact list.
-  addAll: ->
-    @contacts.each(@appendOne)
-    loadingIndicator.hide()
-    @contacts
-
-  # Appends *contact* to the beginning of current post list (render it).
-  appendOne: (contact) ->
-    row = new ContactRow contact
-    el = row.render()
-    $("#contacts").prepend(el)
-    row
-
-  # Prepends *contact* to the end of current contact list (render it).
-  prependOne: (contact) ->
-    row = new ContactRow contact
-    el = row.render()
-    $("#contacts").prepend(el)
-    loadingIndicator.hide()
-    row
 
   # Clears post field and focus it.
   clearPostField: () ->
     $("#contact-url-field").val(null)
     $("#contact-url-field").focus()
     $("#contact-url-field")
-
 
   # Clears url field and focus it.
   clearPostField: () ->
@@ -153,15 +142,21 @@ class ContactView extends Backbone.View
         success : (model, response) ->  loadingIndicator.hide(),
         error: (model, response) ->
          loadingIndicator.hide()
-         infoDialog.display("An error occured on server. Please refresh the contact list.")
+         infoDialog.display("An error occured on server." + \
+             "Please refresh the contact list.")
         )
-
 
       $("#contact-url-field").val(null)
       $("#contact-url-field").focus()
     
     false
 
+  # Displays tutorial in the tutorial DIV element.
+  displayTutorial: (index) ->
+    $.get(
+      "/contact/tutorial/" + index + "/",
+      (data) -> $("#tutorial-contact").html(data)
+    )
 
   ### UI Builders ###
 

@@ -1,5 +1,5 @@
 (function() {
-  var InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -146,6 +146,7 @@
       var div;
       div = document.createElement('div');
       div.id = "info-dialog";
+      div.className = "dialog";
       div.innerHTML = "Test";
       $("body").prepend(div);
       this.element = $("#info-dialog");
@@ -158,6 +159,38 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
+  }();
+  ConfirmationDialog = function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      div = document.createElement('div');
+      div.id = "confirmation-dialog";
+      div.className = "dialog";
+      div.innerHTML = '<div id="confirmation-text"></div>';
+      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+      $("body").prepend(div);
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
+    }
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return ConfirmationDialog;
   }();
   LoadingIndicator = function() {
     function LoadingIndicator() {

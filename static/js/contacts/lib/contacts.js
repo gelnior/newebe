@@ -1,5 +1,5 @@
 (function() {
-  var Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, contactApp, infoDialog, loadingIndicator;
+  var ConfirmationDialog, Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, confirmationDialog, contactApp, infoDialog, loadingIndicator;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -13,6 +13,7 @@
       var div;
       div = document.createElement('div');
       div.id = "info-dialog";
+      div.className = "dialog";
       div.innerHTML = "Test";
       $("body").prepend(div);
       this.element = $("#info-dialog");
@@ -25,6 +26,38 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
+  }();
+  ConfirmationDialog = function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      div = document.createElement('div');
+      div.id = "confirmation-dialog";
+      div.className = "dialog";
+      div.innerHTML = '<div id="confirmation-text"></div>';
+      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+      $("body").prepend(div);
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
+    }
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return ConfirmationDialog;
   }();
   LoadingIndicator = function() {
     function LoadingIndicator() {
@@ -44,7 +77,6 @@
     };
     return LoadingIndicator;
   }();
-  /* Model for a single Contact */
   Contact = function() {
     __extends(Contact, Backbone.Model);
     Contact.prototype.url = '/contacts/';
@@ -56,6 +88,7 @@
         this.set('state', contact.state);
       }
     }
+    /* Accessors / Editors */
     Contact.prototype.getUrl = function() {
       return this.get('url');
     };
@@ -107,7 +140,6 @@
     };
     return ContactCollection;
   }();
-  /* ContactRow is the widget representation of a Contact instance. */
   ContactRow = function() {
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
@@ -131,7 +163,12 @@
       return this.$(".platform-contact-row-buttons").hide();
     };
     ContactRow.prototype.onDeleteClicked = function() {
-      return this.model["delete"]();
+      var model;
+      model = this.model;
+      return confirmationDialog.display("Are you sure you want to delete this contact ?", function() {
+        confirmationDialog.hide();
+        return model["delete"]();
+      });
     };
     ContactRow.prototype.onConfirmClicked = function() {
       return this.model.saveToDb();
@@ -169,6 +206,7 @@
       _.bindAll(this, 'postNewContact', 'appendOne', 'prependOne', 'addAll');
       _.bindAll(this, 'onPostClicked');
       this.contacts = new ContactCollection;
+      this.tutorialOn = true;
       this.contacts.bind('add', this.prependOne);
       return this.contacts.bind('refresh', this.addAll);
     };
@@ -209,6 +247,15 @@
       return $("#contacts").empty();
     };
     ContactView.prototype.addAll = function() {
+      if (this.contacts.length > 0) {
+        this.tutorialOn = false;
+      } else {
+        if (this.tutorialOn && this.lastFilterClicked === "#contact-all-button") {
+          this.displayTutorial(1);
+        } else {
+          $("#tutorial-contact").html(null);
+        }
+      }
       this.contacts.each(this.appendOne);
       loadingIndicator.hide();
       return this.contacts;
@@ -217,7 +264,7 @@
       var el, row;
       row = new ContactRow(contact);
       el = row.render();
-      $("#contacts").prepend(el);
+      $("#contacts").append(el);
       return row;
     };
     ContactView.prototype.prependOne = function(contact) {
@@ -225,30 +272,14 @@
       row = new ContactRow(contact);
       el = row.render();
       $("#contacts").prepend(el);
-      return loadingIndicator.hide();
+      loadingIndicator.hide();
+      if (this.tutorialOn) {
+        this.displayTutorial(2);
+        return this.tutorialOn = false;
+      }
     };
     ContactView.prototype.clearContacts = function() {
       return $("#contacts").empty();
-    };
-    ContactView.prototype.addAll = function() {
-      this.contacts.each(this.appendOne);
-      loadingIndicator.hide();
-      return this.contacts;
-    };
-    ContactView.prototype.appendOne = function(contact) {
-      var el, row;
-      row = new ContactRow(contact);
-      el = row.render();
-      $("#contacts").prepend(el);
-      return row;
-    };
-    ContactView.prototype.prependOne = function(contact) {
-      var el, row;
-      row = new ContactRow(contact);
-      el = row.render();
-      $("#contacts").prepend(el);
-      loadingIndicator.hide();
-      return row;
     };
     ContactView.prototype.clearPostField = function() {
       $("#contact-url-field").val(null);
@@ -281,13 +312,18 @@
           },
           error: function(model, response) {
             loadingIndicator.hide();
-            return infoDialog.display("An error occured on server. Please refresh the contact list.");
+            return infoDialog.display("An error occured on server." + "Please refresh the contact list.");
           }
         });
         $("#contact-url-field").val(null);
         $("#contact-url-field").focus();
       }
       return false;
+    };
+    ContactView.prototype.displayTutorial = function(index) {
+      return $.get("/contact/tutorial/" + index + "/", function(data) {
+        return $("#tutorial-contact").html(data);
+      });
     };
     /* UI Builders */
     ContactView.prototype.setListeners = function() {
@@ -319,6 +355,7 @@
     return ContactView;
   }();
   infoDialog = new InfoDialog;
+  confirmationDialog = new ConfirmationDialog;
   loadingIndicator = new LoadingIndicator;
   contactApp = new ContactView;
   contactApp.setWidgets();

@@ -42,11 +42,21 @@ class MicroPostRow extends Backbone.View
   onMouseOut: ->
     @$(".news-micropost-delete").hide()
 
-  # When delete button is clicked, it will call delete linked micro post method.
+  # When delete button is clicked, it displays a confirmation dialog box.
+  # When deletion is confirmed, delete request is sent to server and micropost
+  # is remove from current page.
   onDeleteClicked: ->
-    @model.delete()
+    model = @model
+    confirmationDialog.display(
+        "Are you sure you want to delete this post ?",
+        ->
+          confirmationDialog.hide()
+          model.delete()
+    )
+
 
   ### Functions ###
+
 
   # Removes micro post row element from DOM.
   remove: ->

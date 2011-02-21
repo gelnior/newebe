@@ -87,7 +87,7 @@ textarea { border : 1px solid black; }
 
 /* Info dialog */
 
-#info-dialog {
+.dialog {
   background-color: black;
   color: white;
   padding: 10px 40px 10px 40px;
@@ -96,6 +96,13 @@ textarea { border : 1px solid black; }
   left: 180px;
   top: 200px;
 }
+
+#confirmation-buttons { text-align: center; margin : 25px 0 5px 0;}
+#confirmation-buttons span { color: white; font-weight: bold; 
+    text-decoration: none; padding: 20px; cursor: pointer; }
+#confirmation-text { margin-top: 10px; }
+
+/* Loading indicator */
 
 #loading-indicator {
   background-color: black;

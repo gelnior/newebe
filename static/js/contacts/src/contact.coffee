@@ -4,6 +4,7 @@
 # data and displays it.
 
 infoDialog = new InfoDialog
+confirmationDialog = new ConfirmationDialog
 loadingIndicator = new LoadingIndicator
 contactApp = new ContactView
 
