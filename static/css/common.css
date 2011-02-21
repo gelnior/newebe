@@ -137,10 +137,14 @@ textarea { border : 1px solid black; }
 
 #profile  { margin-top: 30px; }
 
+
 #profile p { margin-bottom: 20px; font-size: 18px;}
 #profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
 #profile input#platform-profile-url { width: 600px;  }
-#profile input { font-size: 18px; border: none; }
+#profile input { font-size: 18px; border: none; padding: 0 0 6px 0;}
+
+.modified { background:#ffffff url('/static/images/modification_marker.png') 
+            no-repeat right top; }
 
 /* Contacts */
 

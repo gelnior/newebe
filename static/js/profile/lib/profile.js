@@ -91,6 +91,7 @@
     };
     ProfileView.prototype.postUserInfo = function() {
       var tutorialOn;
+      $("#profile").addClass("modified");
       tutorialOn = this.tutorialOn;
       return this.user.save({
         name: $("#platform-profile-name").val(),
@@ -99,10 +100,11 @@
       }, {
         success: function() {
           if (tutorialOn) {
-            return $.get("/profile/tutorial/2/", function(data) {
+            $.get("/profile/tutorial/2/", function(data) {
               return $("#tutorial-profile").html(data);
             });
           }
+          return $("#profile").removeClass("modified");
         }
       });
     };

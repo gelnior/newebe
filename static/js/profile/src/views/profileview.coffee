@@ -52,6 +52,7 @@ class ProfileView extends Backbone.View
   # Sends a put request to server to update data. if it is in tutorial mode,
   # success tutorial is displayed.
   postUserInfo: ->
+    $("#profile").addClass("modified")
     tutorialOn = @tutorialOn
     @user.save(
         (
@@ -64,6 +65,7 @@ class ProfileView extends Backbone.View
             $.get("/profile/tutorial/2/", (data) ->
               $("#tutorial-profile").html(data)
             )
+          $("#profile").removeClass("modified")
         )
        
   # Displays the second tutorial if tutorial mode is on.
