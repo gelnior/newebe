@@ -1,3 +1,4 @@
+import datetime
 from django.utils import simplejson as json
 
 from couchdbkit.ext.django.schema import Document, StringProperty, \
@@ -10,6 +11,7 @@ class NewebeDocument(Document):
     Base class for document used by newebe apps. Contains some utility methods.
     '''
     authorKey = StringProperty()
+    date = DateTimeProperty(required=True, default=datetime.datetime.now())
      
     def toDict(self):
         '''

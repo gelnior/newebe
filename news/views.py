@@ -7,11 +7,10 @@ from newebe.lib.resource import RestResource, NewebeResource
 from newebe.lib.response import BadRequestResponse, CreationResponse, \
                                 SuccessResponse, DocumentResponse
 
-from newebe.lib.date_util import getDbDateFromUrlDate, getDateFromDbDate
+from newebe.lib.date_util import getDbDateFromUrlDate
 
-from newebe.core.models import UserManager
 from newebe.core.models import ContactManager
-from newebe.news.models import MicroPost, MicroPostManager
+from newebe.news.models import MicroPostManager
 
 from urllib2 import Request, urlopen
 
@@ -60,7 +59,7 @@ class MicroPostResource(NewebeResource):
     '''
 
     def __init__(self):
-        self.methods = ['GET', 'POST', 'DELETE']
+        self.methods = ['GET', 'POST']
         
 
     def GET(self, request, startKey = None):
@@ -83,47 +82,7 @@ class MicroPostResource(NewebeResource):
             
         return DocumentResponse(microposts)
 
-        
-    def POST(self, request):
-        '''
-        When post request is recieved, micropost data are expected as
-        a JSON object. It is extracted from it
-        then stored inside a new Microposts object. Micropost author is 
-        automatically set with current user and current date is set as date.
-
-        It converts carriage return to a <br /> HTML tag.
-
-        Created microposts are forwarder to contacts.
-        '''
-        data = request.raw_post_data
-
-        if data:
-
-            # Save post locally
-            data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
-            data = data.replace('\n', '<br />').replace('\r', '<br />')
-            postedMicropost = json.loads(data)
-
-            micropost = MicroPost(
-                author = UserManager.getUser().name,
-                content = postedMicropost['content'],
-                date = datetime.datetime.now(),
-                authorKey = UserManager.getUser().key
-            )
-            micropost.save()
-
-            # Forward post to contacts
-            sendDocumentToContacts("news/microposts/contacts/", micropost)
-
-
-            # return success response    
-            return CreationResponse(micropost.toJson())
-    
-        else: 
-            return BadRequestResponse(
-                    "Sent data were incorrects. No post was created.")
-
-
+       
     def DELETE(self, request, startKey):
         '''
         Delete extract start key date from URL. Start key is the datetime 
@@ -150,47 +109,4 @@ class MicroPostResource(NewebeResource):
 
 
 
-class ContactMicroPostResource(RestResource):
-    '''
-    This resource allows authorized contacts to send their microposts.
-    '''
-
-    def __init__(self):
-        self.methods = ['POST', 'DELETE']
-
-    def POST(self, request):
-        '''
-        When post request is recieved, micropost content is expected inside
-        a string under *content* of JSON object. It is extracted from it
-        then stored inside a new Microposts object. Micropost author is 
-        automatically set with current user and current date is set as date.
-
-        It converts carriage return to a <br /> HTML tag.
-        '''
-        data = request.raw_post_data
-        if data:
-            try:
-                postedMicropost = json.loads(data)
-
-                date = getDateFromDbDate(postedMicropost["date"])
-
-                micropost = MicroPost(
-                    author = postedMicropost["author"],
-                    content = postedMicropost['content'],
-                    date = date,
-                    authorKey = postedMicropost["authorKey"]
-                )
-                micropost.save()
-
-                return CreationResponse(micropost.toJson())
-
-            except Exception:
-                return BadRequestResponse(
-                    "Sent data are not correctly formatted.")
-
-        else:
-            return BadRequestResponse("No data sent.")
- 
-    def DELETE(self, request, startKey):
-        return BadRequestResponse("Not implemented yet.")
 

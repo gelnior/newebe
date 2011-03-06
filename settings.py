@@ -1,7 +1,7 @@
 # Django settings for newebe project.
 
 # Main variables
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 SITE_ID = 1
 SECRET_KEY = '*=$m*%d4u8gi$ry8#_ez&**3s#8wtv8x^a3_tdrk$snhd-uw_a'
@@ -20,9 +20,11 @@ DATABASES = {
 }
 
 # Couchdb configuration
+COUCHDB_DB_NAME = "newebe"
 COUCHDB_DATABASES = (
-    ('newebe.news', 'http://127.0.0.1:5984/newebe'),
-    ('newebe.core', 'http://127.0.0.1:5984/newebe'),
+    ('newebe.news', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
+    ('newebe.core', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
+    ('newebe.activities', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
 )
 
 # Locale configuration
@@ -79,6 +81,7 @@ INSTALLED_APPS = (
     'couchdbkit.ext.django',
     'newebe.core',
     'newebe.news',
+    'newebe.activities',
 )
 
 
@@ -93,7 +96,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '[%(levelname)s] %(asctime)s: %(message)s'
         },
     },
     'handlers': {
@@ -123,4 +126,4 @@ LOGGING = {
     }
 }
 
-
+TORNADO_PORT = 8000

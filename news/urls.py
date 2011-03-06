@@ -1,9 +1,9 @@
 from django.conf.urls.defaults import patterns
 
 from newebe.lib.resource import DirectTemplateResource
-from newebe.news.views import MicroPostResource, ContactMicroPostResource
+from newebe.news.views import MicroPostResource
 
-news_item_handler = MicroPostResource()
+#news_item_handler = MicroPostResource()
 
 urlpatterns = patterns('',
     (r'^$', 
@@ -15,10 +15,8 @@ urlpatterns = patterns('',
     (r'^tutorial/2/$', 
         DirectTemplateResource("news/tutorial_2.html")),
 
-    (r'^microposts/$', 
-        news_item_handler),
-    (r'^microposts/contacts/$', 
-        ContactMicroPostResource()),
+    #(r'^microposts/$', 
+    #    news_item_handler),
     (r'^microposts/(?P<startKey>[0-9\-]+)/$', 
-        news_item_handler),
+        MicroPostResource()),
 )

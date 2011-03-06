@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, confirmationDialog, loadingIndicator, newsApp;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, confirmationDialog, loadingIndicator, newsApp, updater;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -375,11 +375,41 @@
   }();
   newsApp = new NewsView;
   loadingIndicator = new LoadingIndicator;
-  confirmationDialog = new ConfirmationDialog(function() {
-    return alert("ok");
-  });
+  confirmationDialog = new ConfirmationDialog;
   newsApp.setWidgets();
   newsApp.setListeners();
   newsApp.clearPostField();
   newsApp.fetch();
+  updater = {
+    errorSleepTime: 500,
+    cursor: null,
+    poll: function() {
+      return $.ajax({
+        url: "/news/suscribe/",
+        type: "GET",
+        dataType: "text",
+        success: updater.onSuccess,
+        error: updater.onError
+      });
+    },
+    onSuccess: function(response) {
+      var micropost;
+      try {
+        if (response) {
+          micropost = new MicroPost(eval('(' + response + ')'));
+          newsApp.prependOne(micropost);
+        }
+      } catch (e) {
+        updater.onError();
+        return;
+      }
+      updater.errorSleepTime = 500;
+      return window.setTimeout(updater.poll, 0);
+    },
+    onError: function(response) {
+      updater.errorSleepTime *= 2;
+      return window.setTimeout(updater.poll, updater.errorSleepTime);
+    }
+  };
+  updater.poll();
 }).call(this);

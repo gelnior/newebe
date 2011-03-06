@@ -4,7 +4,7 @@ import threading
 from couchdbkit import Server, Consumer
 from couchdbkit.schema import Document, IntegerProperty
 from urllib2 import Request, urlopen
-from newebe.platform.contactmodels import ContactManager
+from newebe.core.models import ContactManager
 from django.utils import simplejson as json
 
 class LastSequence(Document):

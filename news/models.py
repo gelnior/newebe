@@ -64,6 +64,5 @@ class MicroPost(NewebeDocument):
     '''
     author = StringProperty()
     content = StringProperty(required=True)
-    date = DateTimeProperty(default=datetime.datetime.now())
  
 
