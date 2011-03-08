@@ -7,7 +7,7 @@ class MicroPost extends Backbone.Model
   # Constructor initializes its field from a javascript raw object.
   # Fields:
   #
-  # * id : micro post date formatted to be used for micro post URI building.
+  # * id : micro post id in database.
   # * author : micro post author.
   # * date : micro post publish date.  
   # * content : micro post content.
@@ -17,12 +17,14 @@ class MicroPost extends Backbone.Model
     @set('author', microPost.author)
     @set('content', microPost.content)
     @set('authorKey', microPost.authorKey)
+    @set('micropostId', microPost.id)
+    @id = microPost._id
 
-    if microPost.date
-      postDate = @setDisplayDateFromDbDate(microPost.date)
+    #if microPost.date
+        #postDate = @setDisplayDateFromDbDate(microPost.date)
 
-      idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss")
-      @id =  idDate + "/"
+    #  idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss")
+    #  @id =  idDate + "/"
 
   ### Getters / Setters ###
 
@@ -68,7 +70,7 @@ class MicroPostCollection extends Backbone.Collection
   model: MicroPost
 
   # Url where micro posts lives.
-  url: '/news/microposts/'
+  url: '/news/microposts/all/'
 
   # Collection sorting is based on post publsh date.
   comparator: (microPost) ->

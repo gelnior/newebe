@@ -1,18 +1,15 @@
 import logging
 import datetime
 
-
 from django.utils import simplejson as json
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import RequestHandler, asynchronous, HTTPError
 
-
 from newebe.lib.response import JSON_MIMETYPE 
 from newebe.lib import json_util
+from newebe.lib.date_util import getDateFromDbDate
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity
-from newebe.lib.date_util import getDateFromDbDate
-
 from newebe.core.models import ContactManager, UserManager
 
 
@@ -21,85 +18,155 @@ logger = logging.getLogger("newebe.news")
 
 
 class NewsSuscribeHandler(RequestHandler):
+    '''
+    Handler that managers long polling connections.
+    '''
 
     @asynchronous
     def get(self):
         '''
-        # TODO
+        Add request to the waiting queue. When a new post will come, this
+        handler callback will be called then a response with new post 
+        will be sent to client that made this request.
         '''
         logger.info("Long polling incoming")
-        connections.append(self.async_callback(self.on_new_message))
+        connections.append(self.async_callback(self.on_new_post))
 
-    def on_new_message(self, response_data):
+
+    def on_new_post(self, response_data):
         '''
-        # TODO
+        When new post arrives, it sends it to client requesting for new
+        posts.
         '''
         self.write(response_data)
         self.finish()
 
 
+class NewebeHandler(RequestHandler):
 
-class NewsContactHandler(RequestHandler):
+    def returnJson(self, json):
+        self.set_header("Content-Type", JSON_MIMETYPE)
+        self.write(json)
+        self.finish()
+
+    def returnSuccess(self, text):
+        self.returnJson(json.dumps({ "success" : text }))
+        
+
+class MicropostHandler(NewebeHandler):
     '''
-    This resource allows authorized contacts to send their microposts.
+    Manage single poss data :
+    * GET request returns post corresponding to the id given in the request URL.
+    * DELETE request deletes post corresponding to the id given in the request 
+    URL. Then send the delete request to contacts.
     '''
-
-    def post(self):
+    
+    def __init__(self, application, request, **kwargs):
         '''
-        When post request is recieved, micropost content is expected inside
-        a string under *content* of JSON object. It is extracted from it
-        then stored inside a new Microposts object. Micropost author is 
-        automatically set with current user and current date is set as date.
-
-        It converts carriage return to a <br /> HTML tag.
+        Initialize contacts dictionnary. This dictionary linked a request to
+        a contact to handle error if request fails.
         '''
-        data = self.request.body
+        NewebeHandler.__init__(self, application, request, **kwargs)
+        self.contacts = dict()
 
-        if data:
-            #try:
-                postedMicropost = json.loads(data)
-                date = getDateFromDbDate(postedMicropost["date"])
 
-                micropost = MicroPost(
-                    authorKey = postedMicropost["authorKey"],
-                    author = postedMicropost["author"],
-                    content = postedMicropost['content'],
-                    date = date,
-                )
-                micropost.save()
-                # Save corresponding activity
-                activity = Activity(
-                    authorKey = micropost.author,
-                    author = micropost.authorKey,
-                    docId = micropost._id,
-                    verb = "writes",
-                    isMine = False,
-                    date = date
-                )
-                activity.save()
-
-                for connection in connections:
-                    connection(micropost.toJson())
-                #connections = []
-
-                logger.info("Micropost from %s recieved" % micropost.author)
-                self.set_status(201)
-                self.set_header("Content-Type", JSON_MIMETYPE)
-                self.write(micropost.toJson())
-                self.finish()
-
-            
-            #except Exception:
-            #    raise tornado.web.HTTPError(405,
-            #        "Sent data are not correctly formatted.")
-
+    def get(self, postId):
+        '''
+        GET request returns post corresponding to the id given in the request 
+        URL.
+        '''
+        micropost = MicroPostManager.getMicropost(postId)
+        if micropost:
+            self.returnJson(micropost.toJson())
         else:
-            raise HTTPError(405, "No data sent.")
+            raise HTTPError(404, "Micropost not found.")
+
+
+    @asynchronous
+    def delete(self, postId):
+        '''
+        put instead of delete because does  not support body in DELETE 
+        requests... Yes that sux.
+        # TODO
+        '''
+        micropost = MicroPostManager.getMicropost(postId)
+        if micropost:
+            self.set_status(200)
+
+            user = UserManager.getUser()
+            self.activity = Activity(
+                authorKey = user.key,
+                author = user.name,
+                verb = "deletes",
+                docId = micropost._id,
+                method = "DELETE"
+            )
+            micropost.delete()
+            self.activity.save()
+
+            # Forward post to contacts
+            if micropost.authorKey == user.key:
+                httpClient = AsyncHTTPClient()            
+                for contact in ContactManager.getTrustedContacts():
+                    url = contact.url.encode("utf-8") + 'news/microposts/contacts/'
+                    body = micropost.toJson()
+                    request = HTTPRequest(url, method = "PUT", body = body)
+                    self.contacts[request] = (contact, micropost)
+                    try:
+                        httpClient.fetch(request, self.onContactResponse)
+                    except:
+                        activityError = {                    
+                            "contactKey" : contact.key,
+                            "contactUrl" : contact.name,
+                            "extra" : micropost.date
+                        }
+                        self.activity.errors.append(activityError)
+                        self.activity.save()
+
+            self.returnSuccess("Micropost deletion succeeds.")
+            
+        else:
+            raise HTTPError(404, "Micropost not found.")
+
+
+    @asynchronous
+    def onContactResponse(self, response, **kwargs):
+        '''
+        # TODO
+        '''
+
+        if response.error: 
+            logger.error("Sending delete request to a contact failed, error infos are stored inside activity.")
+
+            (contact, micropost) = self.contacts[response.request]
+            activityError = {                    
+                    "contactKey" : contact.key,
+                    "contactUrl" : contact.name,
+                    "extra" : micropost.date
+            }
+            if not self.activity.errors:
+                self.activity.errors = []
+            self.activity.errors.append(activityError)
+            self.activity.save()
+
+            del self.contacts[response.request]
+
+        else: 
+            logger.info("Delete post successfully sent.")
+
+        self.clear()
 
 
 
+class NewsHandler(NewebeHandler):
+    '''
+    This handler handles request that retrieve lists of news.
+    It also 
+    '''
+    def __init__(self, application, request, **kwargs):
+        NewebeHandler.__init__(self, application, request, **kwargs)
+        self.contacts = dict()
 
-class NewsHandler(RequestHandler):
 
     @asynchronous
     def get(self):
@@ -111,27 +178,8 @@ class NewsHandler(RequestHandler):
         Arguments:
             *startKey* The date from where news should be returned.
         '''
-        microposts = list()
-
-        self.set_header("Content-Type", JSON_MIMETYPE)
         microposts = MicroPostManager.getList()
-        self.write(json_util.getJsonFromDocList(microposts))
-
-        self.finish()
-
-
-    @asynchronous
-    def onContactResponse(self, response, **kwargs):
-        '''
-        # TODO
-        '''
-        print self.activity
-
-        if response.error: 
-            logger.error("Post to a contact failed")
-        else: 
-            logger.info("Post successfully sent")
-        self.clear()
+        self.returnJson(json_util.getJsonFromDocList(microposts))
 
 
     @asynchronous
@@ -148,13 +196,13 @@ class NewsHandler(RequestHandler):
         '''
         
         logger.info("Micropost post received.")
-        data = self.request.body
 
+        data = self.request.body
         if data:
 
             # Save post locally
-            data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
-            data = data.replace('\n', '<br />').replace('\r', '<br />')
+            #data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
+            #data = data.replace('\n', '<br />').replace('\r', '<br />')
             postedMicropost = json.loads(data)
 
             user = UserManager.getUser()
@@ -167,15 +215,13 @@ class NewsHandler(RequestHandler):
             micropost.save()
 
             # Save corresponding activity
-            print micropost
-            activity = Activity(
+            self.activity = Activity(
                 authorKey = user.key,
                 author = user.name,
                 verb = "writes",
                 docId = micropost._id
             )
-            activity.save()
-            self.activity = activity
+            self.activity.save()
     
             # Forward post to contacts
             httpClient = AsyncHTTPClient()            
@@ -183,16 +229,137 @@ class NewsHandler(RequestHandler):
                 url = contact.url.encode("utf-8") + 'news/microposts/contacts/'
                 body = micropost.toJson()
                 request = HTTPRequest(url, method = "POST", body = body)
-                httpClient.fetch(request, self.onContactResponse)
+                self.contacts[request] = contact
+                try:
+                    httpClient.fetch(request, self.onContactResponse)
+                except:
+                    activityError = {                    
+                        "contactKey" : contact.key,
+                        "contactUrl" : contact.name
+                    }
+                    self.activity.errors.append(activityError)
+                    self.activity.save()
 
             self.set_status(201)
-            self.set_header("Content-Type", JSON_MIMETYPE)            
-            self.write(micropost.toJson())
+            self.returnJson(micropost.toJson())
     
         else: 
             raise HTTPError(405,
                     "Sent data were incorrects. No post was created.")
 
 
-        logger.info("Micropost posted.")
-        self.finish()
+    @asynchronous
+    def onContactResponse(self, response, **kwargs):
+        '''
+        # TODO
+        '''
+
+        if response.error: 
+            logger.error("Post to a contact failed, error infos are stored inside activity.")
+            contact = self.contacts[response.request]
+            activityError = {                    
+                    "contactKey" : contact.key,
+                    "contactUrl" : contact.name
+            }
+            if not self.activity.errors:
+                self.activity.errors = []
+            self.activity.errors.append(activityError)
+            self.activity.save()
+
+            del self.contacts[response.request]
+
+        else: 
+            logger.info("Post successfully sent.")
+        self.clear()
+
+
+
+class NewsContactHandler(NewebeHandler):
+    '''
+    This resource allows authorized contacts to send their microposts.
+    '''
+
+    def post(self):
+        '''
+        When post request is recieved, micropost content is expected inside
+        a string under *content* of JSON object. It is extracted from it
+        then stored inside a new Microposts object. Micropost author is 
+        automatically set with current user and current date is set as date.
+
+        It converts carriage return to a <br /> HTML tag.
+        '''
+        data = self.request.body
+
+        if data:
+            postedMicropost = json.loads(data)
+            date = getDateFromDbDate(postedMicropost["date"])
+
+            micropost = MicroPost(
+                authorKey = postedMicropost["authorKey"],
+                author = postedMicropost["author"],
+                content = postedMicropost['content'],
+                date = date,
+                isMine = False
+            )
+            micropost.save()
+
+            # Save corresponding activity
+            activity = Activity(
+                authorKey = micropost.author,
+                author = micropost.authorKey,
+                docId = micropost._id,
+                verb = "writes",
+                isMine = False,
+                date = date
+            )
+            activity.save()
+
+            while connections:
+                connection = connections.pop() 
+                connection(micropost.toJson())
+
+            logger.info("Micropost from %s recieved" % micropost.author)
+            
+            self.set_status(201)
+            self.returnJson(micropost.toJson())
+
+        else:
+            raise HTTPError(405, "No data sent.")
+
+
+
+    def put(self):
+        '''
+        TODO
+        '''
+        data = self.request.body
+
+        if data:
+            deletedMicropost = json.loads(data)
+            micropost = MicroPostManager.getContactMicropost(
+                 deletedMicropost["authorKey"], deletedMicropost["date"])
+
+            # Save corresponding activity
+            if micropost:
+                activity = Activity(
+                    authorKey = micropost.authorKey,
+                    author = micropost.author,
+                    docId = micropost._id,
+                    verb = "deletes",
+                    isMine = False,
+                    method = "DELETE"
+                )
+                activity.save()
+
+            micropost.delete()
+            logger.info(
+                "Micropost deletion from %s recieved" % micropost.author)
+            self.set_status(200)
+            self.finish()
+
+
+        else:
+            raise HTTPError(405, "No data sent.")
+
+
+        

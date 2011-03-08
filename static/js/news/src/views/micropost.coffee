@@ -4,7 +4,7 @@
 class MicroPostRow extends Backbone.View
 
   tagName: "div"
-  className: "news-micropost-row" 
+  className: "news-micropost-row"
 
   # HTML representation
   template:  _.template('''
@@ -28,7 +28,7 @@ class MicroPostRow extends Backbone.View
   # Constructor : register view and set HTML element id.
   constructor: (@model) ->
     super
-    @id = "micropost-" + @model.id
+    @id = @model.id
          
     @model.view = @
     

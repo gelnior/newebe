@@ -265,6 +265,7 @@ class ContactPushResource(RestResource):
                 name = postedContact["name"], 
                 url = url,
                 slug = slug,
+                key = postedContact["key"],
                 state = STATE_WAIT_APPROVAL,
                 requestDate = datetime.datetime.now()
             )
@@ -302,10 +303,12 @@ class ContactConfirmResource(RestResource):
             url = postedContact["url"]
             slug = slugify(url)
             key = postedContact["key"]
+            name = postedContact["name"]
 
             contact = ContactManager.getContact(slug)
             contact.state = STATE_TRUSTED
             contact.key = key
+            contact.name = name
             contact.save()
             
 

@@ -16,6 +16,7 @@ class NewsView extends Backbone.View
     "click #news-post-button" : "onPostClicked"
     "submit #news-post-button" : "onPostClicked"
     "click #news-my-button" : "onMineClicked"
+    "click #news-all-button" : "onAllClicked"
     "click #news-more" : "onMoreNewsClicked"
 
 
@@ -37,6 +38,8 @@ class NewsView extends Backbone.View
         
     @moreMicroposts = new MicroPostCollection
     @moreMicroposts.bind('refresh', @addAllMore)
+
+    @currentPath = '/news/microposts/all/'
 
 
   ### Listeners  ###
@@ -70,9 +73,22 @@ class NewsView extends Backbone.View
   
   # When my news is clicked it reloads all news from current user since today.
   onMineClicked: (event) ->
+    $("#news-my-button").button("disable")
+    $("#news-all-button").button("enable")
     @clearNews(null)
-    @reloadMicroPosts()
-    @displayMyNews()
+    $("#news-from-datepicker").val(null)
+    @currentPath = '/news/microposts/mine/'
+    @reloadMicroPosts(null)
+    event
+
+  # When all news is clicked it reloads news from contacts and user since today.
+  onAllClicked: (event) ->
+    $("#news-all-button").button("disable")
+    $("#news-my-button").button("enable")
+    @clearNews(null)
+    $("#news-from-datepicker").val(null)
+    @currentPath = '/news/microposts/all/'
+    @reloadMicroPosts(null)
     event
 
   
@@ -166,11 +182,11 @@ class NewsView extends Backbone.View
 
   
   # Clears micro posts lists and reload micro posts until *date*.
-  reloadMicroPosts: (date) ->
+  reloadMicroPosts: (date, path) ->
     loadingIndicator.display()
-    @microposts.url = '/news/microposts/'
+    @microposts.url = @currentPath
     if date
-      @microposts.url = '/news/microposts/' + date + '-23-59-00/'
+      @microposts.url = @currentPath + date + '-23-59-00/'
     @microposts.fetch()
     @microposts
 
@@ -200,9 +216,9 @@ class NewsView extends Backbone.View
   onMoreNewsClicked: ->
     loadingIndicator.display()
     if @lastDate
-      @moreMicroposts.url = '/news/microposts/' + @lastDate
+      @moreMicroposts.url = @currentPath + @lastDate
     else
-      @moreMicroposts.url = '/news/microposts/'
+      @moreMicroposts.url = @currentPath
 
     @moreMicroposts.fetch()
     @moreMicroposts

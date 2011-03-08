@@ -81,16 +81,12 @@
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
-      var idDate, postDate;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('content', microPost.content);
       this.set('authorKey', microPost.authorKey);
-      if (microPost.date) {
-        postDate = this.setDisplayDateFromDbDate(microPost.date);
-        idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss");
-        this.id = idDate + "/";
-      }
+      this.set('micropostId', microPost.id);
+      this.id = microPost._id;
     }
     /* Getters / Setters */
     MicroPost.prototype.getDisplayDate = function() {
@@ -133,7 +129,7 @@
     }
     __extends(MicroPostCollection, Backbone.Collection);
     MicroPostCollection.prototype.model = MicroPost;
-    MicroPostCollection.prototype.url = '/news/microposts/';
+    MicroPostCollection.prototype.url = '/news/microposts/all/';
     MicroPostCollection.prototype.comparator = function(microPost) {
       return microPost.getDate();
     };
@@ -156,7 +152,7 @@
     function MicroPostRow(model) {
       this.model = model;
       MicroPostRow.__super__.constructor.apply(this, arguments);
-      this.id = "micropost-" + this.model.id;
+      this.id = this.model.id;
       this.model.view = this;
     }
     /* Listeners */
@@ -198,6 +194,7 @@
       "click #news-post-button": "onPostClicked",
       "submit #news-post-button": "onPostClicked",
       "click #news-my-button": "onMineClicked",
+      "click #news-all-button": "onAllClicked",
       "click #news-more": "onMoreNewsClicked"
     };
     function NewsView() {
@@ -212,7 +209,8 @@
       this.microposts.bind('add', this.prependOne);
       this.microposts.bind('refresh', this.addAll);
       this.moreMicroposts = new MicroPostCollection;
-      return this.moreMicroposts.bind('refresh', this.addAllMore);
+      this.moreMicroposts.bind('refresh', this.addAllMore);
+      return this.currentPath = '/news/microposts/all/';
     };
     /* Listeners  */
     NewsView.prototype.onKeyUp = function(event) {
@@ -237,9 +235,21 @@
       return event;
     };
     NewsView.prototype.onMineClicked = function(event) {
+      $("#news-my-button").button("disable");
+      $("#news-all-button").button("enable");
       this.clearNews(null);
-      this.reloadMicroPosts();
-      this.displayMyNews();
+      $("#news-from-datepicker").val(null);
+      this.currentPath = '/news/microposts/mine/';
+      this.reloadMicroPosts(null);
+      return event;
+    };
+    NewsView.prototype.onAllClicked = function(event) {
+      $("#news-all-button").button("disable");
+      $("#news-my-button").button("enable");
+      this.clearNews(null);
+      $("#news-from-datepicker").val(null);
+      this.currentPath = '/news/microposts/all/';
+      this.reloadMicroPosts(null);
       return event;
     };
     NewsView.prototype.onDatePicked = function(dateText, event) {
@@ -314,11 +324,11 @@
       $("#id_content").focus();
       return $("#id_content");
     };
-    NewsView.prototype.reloadMicroPosts = function(date) {
+    NewsView.prototype.reloadMicroPosts = function(date, path) {
       loadingIndicator.display();
-      this.microposts.url = '/news/microposts/';
+      this.microposts.url = this.currentPath;
       if (date) {
-        this.microposts.url = '/news/microposts/' + date + '-23-59-00/';
+        this.microposts.url = this.currentPath + date + '-23-59-00/';
       }
       this.microposts.fetch();
       return this.microposts;
@@ -343,9 +353,9 @@
     NewsView.prototype.onMoreNewsClicked = function() {
       loadingIndicator.display();
       if (this.lastDate) {
-        this.moreMicroposts.url = '/news/microposts/' + this.lastDate;
+        this.moreMicroposts.url = this.currentPath + this.lastDate;
       } else {
-        this.moreMicroposts.url = '/news/microposts/';
+        this.moreMicroposts.url = this.currentPath;
       }
       this.moreMicroposts.fetch();
       return this.moreMicroposts;

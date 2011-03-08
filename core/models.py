@@ -25,8 +25,8 @@ class NewebeDocument(Document):
         Return json representation of the document.
         '''
         docDict = self.toDict()
-        if "_id" in docDict:
-            del docDict["_id"]
+        #if "_id" in docDict:
+        #    del docDict["_id"]
         if "_rev" in docDict:
             del docDict["_rev"]
         return json.dumps(docDict)
@@ -75,8 +75,8 @@ class User(NewebeDocument):
         return contact
 
 
-# Contact document
 
+# Contact document
 
 STATE_PENDING = "pending"
 STATE_WAIT_APPROVAL = "Wait for approval"

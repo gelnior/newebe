@@ -1,8 +1,6 @@
-import datetime
+from couchdbkit.ext.django.schema import StringProperty, BooleanProperty
 
-from couchdbkit.ext.django.schema import StringProperty,  DateTimeProperty
-
-from newebe.core.models import NewebeDocument
+from newebe.core.models import NewebeDocument, UserManager
 from newebe.news import news_settings
 
 
@@ -10,12 +8,43 @@ class MicroPostManager():
     '''
     Furnishes static methods for easy news database retreiving.
     '''
+
     @staticmethod
-    def getList(startKey=None, skip=0):
+    def getMine(startKey=None, skip=0):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
         startKey. 
+
+        Ex: If you need post from November, 2nd 2010, set *startKey*
+        as 2010-11-02T23:59:00Z. First element is never included (because of
+        pagination).
+
+        Arguments:
+          *startKey* The date from where data should be retrieved
+        '''
+
+        user = UserManager.getUser()
+        if startKey:
+            return MicroPost.view("news/mine", 
+                             startkey = startKey, 
+                             descending = True, 
+                             limit = news_settings.NEWS_LIMIT+1, 
+                             skip = 0,
+                             params = { "authorKey" : user.key })
+        else:
+            return MicroPost.view("news/mine", 
+                             descending=True, 
+                             limit = news_settings.NEWS_LIMIT,
+                             params = { "authorKey" : user.key })
+
+
+
+    @staticmethod
+    def getList(startKey=None, skip=0):
+        '''
+        Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending.
+        If *startKey* is given, it retrieves micro posts from startKey. 
 
         Ex: If you need post from November, 2nd 2010, set *startKey*
         as 2010-11-02T23:59:00Z. First element is never included (because of
@@ -35,6 +64,37 @@ class MicroPostManager():
                              descending=True, 
                              limit=news_settings.NEWS_LIMIT)
 
+
+    @staticmethod
+    def getMicropost(mid):
+        '''
+        Returns post of which id match given *id*.
+        '''
+
+        microposts = MicroPost.view("news/full", key=mid)
+
+        micropost = None
+        if microposts:
+            micropost = microposts.first()
+
+        return micropost
+
+
+    @staticmethod
+    def getContactMicropost(contactKey, date):
+        '''
+        TODO
+        '''
+
+        microposts = MicroPost.view("news/contact", key=[contactKey, date])
+
+        micropost = None
+        if microposts:
+            micropost = microposts.first()
+
+        return micropost
+
+
     @staticmethod
     def getFirst(dateKey):
         '''
@@ -47,9 +107,7 @@ class MicroPostManager():
         Arguments:
           *date* Date used to retrieve micro post.
         '''
-        print dateKey
-        microposts = MicroPost.view("news/all",
-                                    key=dateKey)
+        microposts = MicroPost.view("news/all", key=dateKey)
 
         micropost = None
         if microposts:        
@@ -64,5 +122,5 @@ class MicroPost(NewebeDocument):
     '''
     author = StringProperty()
     content = StringProperty(required=True)
- 
+    isMine = BooleanProperty(required=True, default=True) 
 

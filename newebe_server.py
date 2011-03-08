@@ -12,7 +12,7 @@ sys.path.append("../")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 from newebe.settings import TORNADO_PORT, DEBUG
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
-                                 NewsSuscribeHandler
+                                 NewsSuscribeHandler, MicropostHandler
 
 
 class Newebe(Application):
@@ -23,6 +23,7 @@ class Newebe(Application):
     def __init__(self):
         handlers = [
             ('/news/microposts/', NewsHandler),
+            ('/news/microposts/([0-9a-z]+)', MicropostHandler),
             ('/news/microposts/contacts/', NewsContactHandler),
             ('/news/suscribe/', NewsSuscribeHandler),
             ('.*', FallbackHandler, dict(fallback=django_wsgi)),
