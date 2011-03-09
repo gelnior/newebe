@@ -20,16 +20,16 @@ class MicroPost extends Backbone.Model
     @set('micropostId', microPost.id)
     @id = microPost._id
 
-    #if microPost.date
-        #postDate = @setDisplayDateFromDbDate(microPost.date)
+    if microPost.date
+        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")
+        urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
+        @attributes['urlDate'] = urlDate
 
-    #  idDate = postDate.toString("yyyy-MM-dd-HH-mm-ss")
-    #  @id =  idDate + "/"
-
+    
   ### Getters / Setters ###
 
   getDisplayDate: ->
-     @attributes['displayDate']
+    @attributes['displayDate']
 
   setDisplayDate: ->
     dateToSet = @attributes["date"]
@@ -42,6 +42,8 @@ class MicroPost extends Backbone.Model
     @attributes['displayDate'] = stringDate
     postDate
   
+  getUrlDate: ->
+    @attributes['urlDate']
 
   getAuthor: ->
     @get('author')

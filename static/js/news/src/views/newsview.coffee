@@ -117,7 +117,7 @@ class NewsView extends Backbone.View
     microPostsArray = @moreMicroposts.toArray().reverse()
     microPostsArray = _.rest(microPostsArray)
     _.each(microPostsArray, @appendOne)
-    @lastDate = @moreMicroposts.last().id
+    @lastDate = @moreMicroposts.last().getUrlDate()
     
     if(microPostsArray.length < 10)
       $("#news-more").hide()
@@ -131,7 +131,7 @@ class NewsView extends Backbone.View
   addAll: ->
     if @microposts.length > 0
       @tutorialOn = false
-      @lastDate = @microposts.first().id
+      @lastDate = @microposts.first().getUrlDate()
       if @microposts.length < 10
         $("#news-more").hide()
     else

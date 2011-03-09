@@ -81,12 +81,18 @@
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
+      var postDate, urlDate;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('content', microPost.content);
       this.set('authorKey', microPost.authorKey);
       this.set('micropostId', microPost.id);
       this.id = microPost._id;
+      if (microPost.date) {
+        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
+        urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
+        this.attributes['urlDate'] = urlDate;
+      }
     }
     /* Getters / Setters */
     MicroPost.prototype.getDisplayDate = function() {
@@ -103,6 +109,9 @@
       stringDate = postDate.toString("dd MMM yyyy, HH:mm");
       this.attributes['displayDate'] = stringDate;
       return postDate;
+    };
+    MicroPost.prototype.getUrlDate = function() {
+      return this.attributes['urlDate'];
     };
     MicroPost.prototype.getAuthor = function() {
       return this.get('author');
@@ -269,7 +278,7 @@
       microPostsArray = this.moreMicroposts.toArray().reverse();
       microPostsArray = _.rest(microPostsArray);
       _.each(microPostsArray, this.appendOne);
-      this.lastDate = this.moreMicroposts.last().id;
+      this.lastDate = this.moreMicroposts.last().getUrlDate();
       if (microPostsArray.length < 10) {
         $("#news-more").hide();
       }
@@ -279,7 +288,7 @@
     NewsView.prototype.addAll = function() {
       if (this.microposts.length > 0) {
         this.tutorialOn = false;
-        this.lastDate = this.microposts.first().id;
+        this.lastDate = this.microposts.first().getUrlDate();
         if (this.microposts.length < 10) {
           $("#news-more").hide();
         }
