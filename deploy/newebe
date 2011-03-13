@@ -1,34 +1,45 @@
-#!/bin/bash
- 
-# Replace these three settings to match your newebe directory.
-PROJDIR="/home/newebe/newebe"
+#!/bin/sh
+#
+
+### BEGIN INIT INFO
+# Provides:          nginx
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the nginx web server
+# Description:       starts nginx using start-stop-daemon
+### END INIT INFO
+
+
+NEWEBE_PATH=/home/newebe/newebe/
 PIDFILE="/home/newebe/newebe/newebe.pid"
-PORT=8000
- 
+
+# Handle manual control parameters like start, stop, status, restart, etc.
+
 case "$1" in
-    # Start run your newebe app in Fast CGI mode on specified port.
-    start)
-      cd $PROJDIR
-      python manage.py runfcgi method=prefork host=127.0.0.1 port=$PORT pidfile=$PIDFILE
-     RETVAL=$?
-  ;;
-    # Stop the fast cgi script.
-    stop)
-      kill `cat -- $PIDFILE`
-      rm -f -- $PIDFILE
-      RETVAL=$?
-  ;;
-    # Stop then start newebe Fast CGI script
-    restart)
-      kill `cat -- $PIDFILE`
-      rm -f -- $PIDFILE
-      cd $PROJDIR
-      python manage.py runfcgi method=prefork host=127.0.0.1 port=$PORT pidfile=$PIDFILE
-      RETVAL=$?
-  ;;
-    *)
-      echo "Usage: newebe {start|stop|restart}"
-      exit 1
-  ;;
-esac      
-exit $RETVAL
+  start)
+    echo "Starting newebe..."
+    cd $NEWEBE_PATH
+    python newebe_server.py
+    ;;
+
+  stop)
+    # Stop daemons.
+    echo "Shutting down newebe... "
+    kill `cat -- $PIDFILE`
+
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0
+
+

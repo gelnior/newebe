@@ -1,11 +1,11 @@
 # Global settings
 TORNADO_PORT = 8000
 COUCHDB_DB_NAME = "newebe"
+DEBUG = False
 
 # Django settings for newebe project.
 
 # Main variables
-DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 SITE_ID = 1
 SECRET_KEY = '*=$m*%d4u8gi$ry8#_ez&**3s#8wtv8x^a3_tdrk$snhd-uw_a'
@@ -111,19 +111,19 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.StreamHandler',
             'formatter': 'simple'
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'simple',
-            'filename': 'newebe.log',
-            'maxBytes': 1024,
-            'backupCount': 3,
         }
+        #'file': {
+        #    'level': 'INFO',
+        #    'class': 'logging.handlers.RotatingFileHandler',
+        #    'formatter': 'simple',
+        #    'filename': 'newebe.log',
+        #    'maxBytes': 1024,
+        #    'backupCount': 3,
+        #}
     },
     'loggers': {
         'newebe': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'DEBUG',
         }
     }
