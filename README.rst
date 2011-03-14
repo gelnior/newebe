@@ -12,37 +12,29 @@ Dependencies
 * django >= 1.2
 * couchdb >= 0.11.0
 * coucdbkit >= 0.4.8
+* tornado >= 1.2.0
 
 
 Set up a development environment (Ubuntu 10.4)
 ==============================================
 Install following packages:
 
-    python python-django python-couchdbkit couchdb git
+    python python-setuptools python-pycurl python-daemon couchdb git
 
-You can also install *couchbkit* via *easy_install*:
+Then via easy_install:
 
-    easy_install -U Couchdbkit
-
-Create a Couchdb database called *newebe* (case sensitve) via *Futon*
-(http://localhost:5984/_utils).
+    easy_install couchdbkit django tornado
 
 Retrieve Newebe project:
 
    git clone http://github.com/gelnior/newebe.git 
 
-In Newebe directory run:
-
-   python manage.py syncdb
+In Newebe settings file (*settings.py*), set *DEBUG* varialbe to *True*.
 
 Then, still in Newebe directory run:
 
    python manage.py runserver
-
-Run tests suite: 
-
-   python manage.py test platform news
-
+   
 In your browser, connect to http://localhost:8000/ and check that 
 everything is fine.
 
