@@ -14,6 +14,9 @@ from newebe.settings import TORNADO_PORT, DEBUG
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler
 
+import newebe.lib.pid as pid
+
+# Handle better when tornado request failed.
 
 class Newebe(Application):
     '''
@@ -69,7 +72,6 @@ if __name__ == '__main__':
             logger.info("Server stopped.")
 
     else:
-        import pid
         from daemon import daemon
         # capture stdout/err in logfile
         log_file = 'newebe.%s.log' % TORNADO_PORT

@@ -1,6 +1,4 @@
 /** Style reset */
-
-
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -19,71 +17,51 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     font-family: inherit;
     vertical-align: baseline;
 }
-
-/* remember to define focus styles! */
-:focus {
-    outline: 0;
-}
-body {
-    line-height: 1;
-    color: black;
-    background: white;
-}
-ol, ul {
-    list-style: none;
-}
+:focus { outline: 0; }
+body { line-height: 1; color: black; background: white; }
+ol, ul { list-style: none; }
 /* tables still need 'cellspacing="0"' in the markup */
-table {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-caption, th, td {
-    text-align: left;
-    font-weight: normal;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content: "";
-}
-blockquote, q {
-    quotes: "" "";
-}
+table { border-collapse: separate; border-spacing: 0; }
+caption, th, td { text-align: left; font-weight: normal; }
+blockquote:before, blockquote:after, q:before, q:after { content: ""; }
+blockquote, q { quotes: "" ""; }
 /** END : Style reset */
 
 
 /** General */
-
 a:visited { color: back; }
-
-body { font-family : sans-serif ; 
-  margin : 10px 0 0 10px;
-} 
+body { font-family : sans-serif ; margin : 10px 0 0 10px; } 
 
 #apps { width : 960px; margin : 0 0 0 0; background : white; }
-
 div.spacer { clear : both; }
 
+em { font-style: italic; }
+strong { font-weight: bold; }
+ul { list-style-type: disc; margin-bottom: 6px; }
+li { margin-left: 30px; }
 /** Forms */
+
 input { background-color : white; color: black; border : 1px solid black; }
 textarea { border : 1px solid black; }
 
 
 /* Menu */
-#menu {
-  margin : 10px 0 10px 0;
-}
 
+#menu { margin : 10px 0 10px 0; }
 #menu a {
   font-weight: bold;
   text-decoration: none;
   margin-right: 5px;
   color: black;
 }
-
 #menu a:visited { color: black; }
 #menu a:hover { text-decoration : none; border-bottom: 3px solid black; }
 #menu a.disabled { color: #888; }
 #menu a.disabled:hover { cursor: default; text-decoration: none; border: none; }
+
+h1 { font-weight: bold; text-decoration : underline; margin-bottom: 6px; }
+h2 { font-weight: bold; font-style: italic; margin-bottom: 6px; }
+h3 { font-weight: bold; margin-bottom: 6px; }
 
 /* Info dialog */
 
@@ -96,11 +74,11 @@ textarea { border : 1px solid black; }
   left: 180px;
   top: 200px;
 }
-
 #confirmation-buttons { text-align: center; margin : 25px 0 5px 0;}
 #confirmation-buttons span { color: white; font-weight: bold; 
     text-decoration: none; padding: 20px; cursor: pointer; }
 #confirmation-text { margin-top: 10px; }
+
 
 /* Loading indicator */
 
@@ -113,6 +91,7 @@ textarea { border : 1px solid black; }
   right: 30px;
   top: 30px;
 }
+
 
 /* Register / Profile */
 
@@ -136,8 +115,6 @@ textarea { border : 1px solid black; }
 }
 
 #profile  { margin-top: 30px; }
-
-
 #profile p { margin-bottom: 20px; font-size: 18px;}
 #profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
 #profile input#platform-profile-url { width: 600px;  }
@@ -145,6 +122,7 @@ textarea { border : 1px solid black; }
 
 .modified { background:#ffffff url('/static/images/modification_marker.png') 
             no-repeat right top; }
+
 
 /* Contacts */
 
@@ -155,15 +133,17 @@ textarea { border : 1px solid black; }
   padding: 5px;
   margin-bottom: 1px;
 }
-
 #contact-post-button { float: right; }
-
 #contacts { margin-top: 50px; }
+
 #user-menu { float: right; width: 200px; }
+
 .platform-contact-row { margin-bottom: 10px; border-bottom: 1px solid #CCC; }
 .platform-contact-url { padding: 12px 0 18px 0; }
 .platform-contact-row-buttons { float: right; height: 40px; padding: 0;}
 
+
 /* Tutorial */
 .tutorial-text { padding-bottom: 10px; font-size : 18px; }
 h3.tutorial-text { font-weight: bold; }
+

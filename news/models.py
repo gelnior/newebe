@@ -66,36 +66,6 @@ class MicroPostManager():
 
 
     @staticmethod
-    def getMicropost(mid):
-        '''
-        Returns post of which id match given *id*.
-        '''
-
-        microposts = MicroPost.view("news/full", key=mid)
-
-        micropost = None
-        if microposts:
-            micropost = microposts.first()
-
-        return micropost
-
-
-    @staticmethod
-    def getContactMicropost(contactKey, date):
-        '''
-        TODO
-        '''
-
-        microposts = MicroPost.view("news/contact", key=[contactKey, date])
-
-        micropost = None
-        if microposts:
-            micropost = microposts.first()
-
-        return micropost
-
-
-    @staticmethod
     def getFirst(dateKey):
         '''
         Return first micro post written by current user from the list of micro
@@ -114,6 +84,38 @@ class MicroPostManager():
             micropost = microposts.first()
 
         return micropost
+
+
+    @staticmethod
+    def getMicropost(mid):
+        '''
+        Returns post of which id match given *id*.
+        '''
+
+        microposts = MicroPost.view("news/full", key=mid)
+
+        micropost = None
+        if microposts:
+            micropost = microposts.first()
+
+        return micropost
+
+
+    @staticmethod
+    def getContactMicropost(contactKey, date):
+        '''
+        Returns all micropost posted by a given contact. Contact key is used
+        to retrieve the microposts.
+        '''
+
+        microposts = MicroPost.view("news/contact", key=[contactKey, date])
+
+        micropost = None
+        if microposts:
+            micropost = microposts.first()
+
+        return micropost
+
 
 
 class MicroPost(NewebeDocument):

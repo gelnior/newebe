@@ -13,9 +13,35 @@ from newebe.activities.models import Activity
 from newebe.core.models import ContactManager, UserManager
 
 
+CONTACT_PATH = 'news/microposts/contacts/'
+
 connections = []
 logger = logging.getLogger("newebe.news")
 
+class NewebeHandler(RequestHandler):
+    '''
+    NewebeHandler is a base class to provide utility methods for handlers used 
+    by the newebe application.
+    '''
+
+
+    def returnJson(self, json):
+        '''
+        Return a response containig json (content-type already set).
+        '''
+        self.set_header("Content-Type", JSON_MIMETYPE)
+        self.write(json)
+        self.finish()
+
+
+    def returnSuccess(self, text, statusCode=200):
+        '''
+        Return a success response containing a JSON object that describes
+        the success.
+        '''
+        self.set_status(statusCode)
+        self.returnJson(json.dumps({ "success" : text }))
+ 
 
 class NewsSuscribeHandler(RequestHandler):
     '''
@@ -41,17 +67,6 @@ class NewsSuscribeHandler(RequestHandler):
         self.write(response_data)
         self.finish()
 
-
-class NewebeHandler(RequestHandler):
-
-    def returnJson(self, json):
-        self.set_header("Content-Type", JSON_MIMETYPE)
-        self.write(json)
-        self.finish()
-
-    def returnSuccess(self, text):
-        self.returnJson(json.dumps({ "success" : text }))
-        
 
 class MicropostHandler(NewebeHandler):
     '''
@@ -85,9 +100,11 @@ class MicropostHandler(NewebeHandler):
     @asynchronous
     def delete(self, postId):
         '''
-        put instead of delete because does  not support body in DELETE 
-        requests... Yes that sux.
-        # TODO
+        Deletes the post of which id is equal to postId, add an activity and 
+        forward the delete request to each trusted contact.
+
+        put instead of delete because tornado does not support body in DELETE 
+        requests...
         '''
         micropost = MicroPostManager.getMicropost(postId)
         if micropost:
@@ -104,11 +121,11 @@ class MicropostHandler(NewebeHandler):
             micropost.delete()
             self.activity.save()
 
-            # Forward post to contacts
+            # Forward delete to contacts
             if micropost.authorKey == user.key:
                 httpClient = AsyncHTTPClient()            
                 for contact in ContactManager.getTrustedContacts():
-                    url = contact.url.encode("utf-8") + 'news/microposts/contacts/'
+                    url = contact.url.encode("utf-8") + CONTACT_PATH
                     body = micropost.toJson()
                     request = HTTPRequest(url, method = "PUT", body = body)
                     self.contacts[request] = (contact, micropost)
@@ -129,10 +146,10 @@ class MicropostHandler(NewebeHandler):
             raise HTTPError(404, "Micropost not found.")
 
 
-    @asynchronous
     def onContactResponse(self, response, **kwargs):
         '''
-        # TODO
+        Callback for delete request sent to contacts. If error occurs it 
+        marks it inside the activity for which error occurs.
         '''
 
         if response.error: 
@@ -154,14 +171,12 @@ class MicropostHandler(NewebeHandler):
         else: 
             logger.info("Delete post successfully sent.")
 
-        self.clear()
-
-
 
 class NewsHandler(NewebeHandler):
     '''
     This handler handles request that retrieve lists of news.
-    It also 
+    GET : Retrieve last 10 microposts published before a given date.
+    POST : Creates a new microposts and forward the activity to contacts.
     '''
     def __init__(self, application, request, **kwargs):
         NewebeHandler.__init__(self, application, request, **kwargs)
@@ -190,8 +205,6 @@ class NewsHandler(NewebeHandler):
         then stored inside a new Microposts object. Micropost author is 
         automatically set with current user and current date is set as date.
 
-        It converts carriage return to a <br /> HTML tag.
-
         Created microposts are forwarded to contacts.
         '''
         
@@ -201,8 +214,6 @@ class NewsHandler(NewebeHandler):
         if data:
 
             # Save post locally
-            #data = data.replace('\n\r', '<br />').replace('\r\n', '<br />')
-            #data = data.replace('\n', '<br />').replace('\r', '<br />')
             postedMicropost = json.loads(data)
 
             user = UserManager.getUser()
@@ -226,7 +237,7 @@ class NewsHandler(NewebeHandler):
             # Forward post to contacts
             httpClient = AsyncHTTPClient()            
             for contact in ContactManager.getTrustedContacts():
-                url = contact.url.encode("utf-8") + 'news/microposts/contacts/'
+                url = contact.url.encode("utf-8") + CONTACT_PATH
                 body = micropost.toJson()
                 request = HTTPRequest(url, method = "POST", body = body)
                 self.contacts[request] = contact
@@ -248,10 +259,10 @@ class NewsHandler(NewebeHandler):
                     "Sent data were incorrects. No post was created.")
 
 
-    @asynchronous
     def onContactResponse(self, response, **kwargs):
         '''
-        # TODO
+        Callback for post request sent to contacts. If error occurs it 
+        marks it inside the activity for which error occurs.
         '''
 
         if response.error: 
@@ -270,9 +281,7 @@ class NewsHandler(NewebeHandler):
 
         else: 
             logger.info("Post successfully sent.")
-        self.clear()
-
-
+        
 
 class NewsContactHandler(NewebeHandler):
     '''
@@ -285,8 +294,6 @@ class NewsContactHandler(NewebeHandler):
         a string under *content* of JSON object. It is extracted from it
         then stored inside a new Microposts object. Micropost author is 
         automatically set with current user and current date is set as date.
-
-        It converts carriage return to a <br /> HTML tag.
         '''
         data = self.request.body
 
@@ -330,7 +337,9 @@ class NewsContactHandler(NewebeHandler):
 
     def put(self):
         '''
-        TODO
+        When a delete request from a contact is incoming, it executes the 
+        delete request locally then it creates a new activity corresponding
+        to this deletion.
         '''
         data = self.request.body
 
@@ -351,12 +360,12 @@ class NewsContactHandler(NewebeHandler):
                 )
                 activity.save()
 
-            micropost.delete()
+                micropost.delete()
             logger.info(
-                "Micropost deletion from %s recieved" % micropost.author)
+               "Micropost deletion from %s recieved" % micropost.author)
             self.set_status(200)
             self.finish()
-
+            
 
         else:
             raise HTTPError(405, "No data sent.")

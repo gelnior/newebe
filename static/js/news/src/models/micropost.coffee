@@ -15,15 +15,23 @@ class MicroPost extends Backbone.Model
     super
 
     @set('author', microPost.author)
-    @set('content', microPost.content)
     @set('authorKey', microPost.authorKey)
-    @set('micropostId', microPost.id)
+    @set('micropostId', microPost._id)
+    @set('content', microPost.content)
     @id = microPost._id
+
+    content = microPost.content.replace(/<(?:.|\s)*?>/g, "")
+    converter = new Showdown.converter()
+    html = converter.makeHtml(content)
+    @set('contentHtml', html)
+    @attributes['contentHtml'] = html
+    
 
     if microPost.date
         postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")
         urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
         @attributes['urlDate'] = urlDate
+
 
     
   ### Getters / Setters ###

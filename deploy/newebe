@@ -13,7 +13,7 @@
 
 
 NEWEBE_PATH=/home/newebe/newebe/
-PIDFILE="/home/newebe/newebe/newebe.pid"
+PIDFILE=$NEWEBE_PATH"newebe.pid"
 
 # Handle manual control parameters like start, stop, status, restart, etc.
 

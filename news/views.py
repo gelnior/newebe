@@ -1,6 +1,5 @@
 from newebe.lib.resource import NewebeResource
-from newebe.lib.response import BadRequestResponse, \
-                                SuccessResponse, DocumentResponse
+from newebe.lib.response import DocumentResponse
 
 from newebe.lib.date_util import getDbDateFromUrlDate
 from newebe.news.models import MicroPostManager
@@ -11,7 +10,6 @@ class MicroPostResource(NewebeResource):
     '''
     This is the main resource of the application. It allows :
      * GET : to retrieve news by pack (number = NEWS_LIMIT) from a given date.
-     * DELETE : to delete news.
     '''
 
     def __init__(self, isMine=False):

@@ -81,13 +81,18 @@
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
-      var postDate, urlDate;
+      var content, converter, html, postDate, urlDate;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
-      this.set('content', microPost.content);
       this.set('authorKey', microPost.authorKey);
-      this.set('micropostId', microPost.id);
+      this.set('micropostId', microPost._id);
+      this.set('content', microPost.content);
       this.id = microPost._id;
+      content = microPost.content.replace(/<(?:.|\s)*?>/g, "");
+      converter = new Showdown.converter();
+      html = converter.makeHtml(content);
+      this.set('contentHtml', html);
+      this.attributes['contentHtml'] = html;
       if (microPost.date) {
         postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
         urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
@@ -151,7 +156,7 @@
     __extends(MicroPostRow, Backbone.View);
     MicroPostRow.prototype.tagName = "div";
     MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<p class="news-micropost-content">\n <span><%= author %></span>\n <%= content %>\n</p>\n<p class="news-micropost-date">\n <%= displayDate %>\n</p>');
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<span class="news-micropost-author"><%= author %></span>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>\n</p>');
     /* Events */
     MicroPostRow.prototype.events = {
       "click .news-micropost-delete": "onDeleteClicked",
@@ -352,7 +357,9 @@
         content: $("#id_content").val()
       }, {
         success: function(nextModel, resp) {
-          return loadingIndicator.hide();
+          loadingIndicator.hide();
+          nextModel.view.el.id = resp._id;
+          return nextModel.id = resp._id;
         }
       });
       $("#id_content").val(null);

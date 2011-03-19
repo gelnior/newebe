@@ -3,7 +3,6 @@ from django.conf.urls.defaults import patterns
 from newebe.lib.resource import DirectTemplateResource
 from newebe.news.views import MicroPostResource
 
-#news_item_handler = MicroPostResource()
 
 urlpatterns = patterns('',
     (r'^$', 

@@ -9,10 +9,8 @@ class MicroPostRow extends Backbone.View
   # HTML representation
   template:  _.template('''
     <a class="news-micropost-delete">X</a>
-    <p class="news-micropost-content">
-     <span><%= author %></span>
-     <%= content %>
-    </p>
+    <span class="news-micropost-author"><%= author %></span>
+    <%= contentHtml %>
     <p class="news-micropost-date">
      <%= displayDate %>
     </p>
@@ -68,6 +66,7 @@ class MicroPostRow extends Backbone.View
   render: ->
     if not @model.getDisplayDate()
         @model.setDisplayDate()
+
     $(@el).html(@template(@model.toJSON()))
     @$(".news-micropost-delete").button()
     @$(".news-micropost-delete").hide()

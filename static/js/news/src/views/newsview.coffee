@@ -54,7 +54,6 @@ class NewsView extends Backbone.View
   # When key is down, if enter and CTRL are down together, the content field
   # is posted.
   onKeyDown: (event) ->
-
     if(event.keyCode == 17)
       @isCtrl = true
 
@@ -204,6 +203,8 @@ class NewsView extends Backbone.View
     @microposts.create(content : $("#id_content").val(),
                         success : (nextModel, resp) ->
                             loadingIndicator.hide()
+                            nextModel.view.el.id = resp._id
+                            nextModel.id = resp._id
                       )
     $("#id_content").val(null)
     $("#id_content").focus()
