@@ -1,7 +1,7 @@
 # Global settings
 TORNADO_PORT = 8000
 COUCHDB_DB_NAME = "newebe"
-DEBUG = True
+DEBUG = False
 
 # Django settings for newebe project.
 
