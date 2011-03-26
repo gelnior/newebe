@@ -13,6 +13,8 @@ Dependencies
 * couchdb >= 0.11.0
 * coucdbkit >= 0.4.8
 * tornado >= 1.2.0
+* daemon >= 1.0.0
+* pycurl >= 1.0.0
 
 
 Set up a development environment (Ubuntu 10.4)
@@ -29,11 +31,11 @@ Retrieve Newebe project:
 
    git clone http://github.com/gelnior/newebe.git 
 
-In Newebe settings file (*settings.py*), set *DEBUG* varialbe to *True*.
+In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
 Then, still in Newebe directory run:
 
-   python manage.py runserver
+   python newebe_server.py
    
 In your browser, connect to http://localhost:8000/ and check that 
 everything is fine.
