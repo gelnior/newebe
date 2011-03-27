@@ -9,6 +9,68 @@
 
 <title>Newebe : get the data back home</title>
 <script>
+
+$(function(){
+    $('#installation').hide();
+    $('#documentation').hide();
+    $('#contact').hide();
+    $('#developers').hide();
+    var lastSelected = $('#home');
+    var lastSelectedMenu = $('#menu-home');
+    lastSelectedMenu.addClass('selected');
+
+    $('#menu-home').click(function(event) {
+        lastSelected.fadeOut(300, function() {
+            $('#home').fadeIn(500);
+        });
+        lastSelected = $('#home');
+        lastSelectedMenu.removeClass('selected');
+        lastSelectedMenu = $('#menu-home');
+        lastSelectedMenu.addClass('selected');
+        event.preventDefault();
+    });
+    $('#menu-installation').click(function(event) {
+        lastSelected.fadeOut(300, function() {
+            $('#installation').fadeIn(500);
+        });
+        lastSelected = $('#installation');
+        lastSelectedMenu.removeClass('selected');
+        lastSelectedMenu = $('#menu-installation');
+        lastSelectedMenu.addClass('selected');
+        event.preventDefault();
+    });
+    $('#menu-documentation').click(function(event) {
+        lastSelected.fadeOut(300, function() {
+            $('#documentation').fadeIn(300);
+        });
+        lastSelected = $('#documentation');
+        lastSelectedMenu.removeClass('selected');
+        lastSelectedMenu = $('#menu-documentation');
+        lastSelectedMenu.addClass('selected');
+        event.preventDefault();
+    });
+    $('#menu-contact').click(function(event) {
+        lastSelected.fadeOut(300, function() {
+            $('#contact').fadeIn(300);
+        });
+        lastSelected = $('#contact');
+        lastSelectedMenu.removeClass('selected');
+        lastSelectedMenu = $('#menu-contact');
+        lastSelectedMenu.addClass('selected');
+        event.preventDefault();
+    });
+    $('#menu-developers').click(function(event) {
+        lastSelected.fadeOut(300, function() {
+            $('#developers').fadeIn(300);
+        });
+        lastSelected = $('#developers');
+        lastSelectedMenu.removeClass('selected');
+        lastSelectedMenu = $('#menu-developers');
+        lastSelectedMenu.addClass('selected');
+        event.preventDefault();
+    });
+});
+
 </script>
 
 <style type="text/css">
@@ -44,6 +106,7 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
         border-bottom: 1px solid black; }
 #menu li { display: inline; margin: 0 10px 0 0; }
 #menu a:hover { border-bottom: 3px solid black; }
+.selected { color: grey; }
 </style>
 </head>
 
@@ -62,18 +125,19 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     
     <div class="description">
       Growth of web applications has been a huge improvement for social 
-      sharing and collaborative work. Unfortunately, to enjoy this new tool,
+      sharing and collaborative work. Unfortunately, to enjoy these new tools,
       we have traded our privacy. Newebe aims to solve this problem
       by providing web applications you host at your home and that connect
       to your contacts.
     </div>
 
     <ul id="menu">
-        <li><a href="#home">Home</></li>
-        <li><a href="#installation"> Installation</a></li>
-        <li><a href="#documentation">Documentation</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li><a href="#developers">Developers</a></li>
+        <li><a id="menu-home" href="#home">Home</></li>
+        <li><a id="menu-installation" href="#installation">Installation</a></li>
+        <li><a id="menu-documentation" href="#documentation">
+            Documentation</a></li>
+        <li><a id="menu-contact" href="#contact">Contact</a></li>
+        <li><a id="menu-developers" href="#developers">Developers</a></li>
     </ul>
 
     <div id="home">
@@ -254,7 +318,6 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <p>For more details about a subject, send an email to the mailing
     list and I will answer as soon as I can.
     </p>
-    </div>
 
     
     <h2>Under the hood</h2>
@@ -278,6 +341,7 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
         <img src="images/backbonepowered.png" 
              alt="Backbone JS"/>
     </a>
+    </div>
 
 </body>
 </html>
