@@ -16,7 +16,266 @@ body {
 }
 #container {
    margin: 0 auto;
-   width: 700px;
+   width: 700px;none }
+h2 { font-size: 1.5em; color: black; }
+h3 { color: black; }
+a { color: black; font-weight: bold; text-decoration: none;}
+.download { float: right; }
+pre { background: #000; color: white; padding: 15px;}
+hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+.footer { text-align:center; padding-top:30px; font-style: italic; }
+img { border: 0; }
+    
+span.step { font-weight: bold; color: #555; font-size: 0.8em; 
+    margin-right: 10px;}
+.description { font-style: italic; }
+#download { float: right; background-color: #EEE; padding: 20px; 
+    font-size: 1em; border: 1px solid black; -moz-border-radius: 1em; }
+#download a { font-size:1.2em; text-decoration: none; font-weight; bold; }
+#download p { padding: 0; margin: 0; }
+#download p#disclaimer { font-size: 0.6em; }
+
+#menu { list-style-type: none; margin: 20px 0 20px 0 ; padding : 0 0 10px 0; 
+        border-bottom: 1px solid black; }
+#menu li { display: inline; margin: 0 10px 0 0; }
+#menu a:hover { border-bottom: 3px solid black; }
+</style>
+</head>
+
+<body>
+  <a href="http://github.com/gelnior/newebe"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div id="download">
+        <p>download <a href="http://github.com/gelnior/newebe/zipball/master">
+            newebe 0.1.0</a></p>
+        <p id="disclaimer">warning: newebe is not production ready.</p>
+    </div>
+    <h1><a href="http://github.com/gelnior/newebe">Newebe</a></h1>
+    <h2>Get the data back home</h2>
+    
+    <div class="description">
+      Growth of web applications has been a huge improvement for social 
+      sharing and collaborative work. Unfortunately, to enjoy this new tool,
+      we have traded our privacy. Newebe aims to solve this problem
+      by providing web applications you host at your home and that connect
+      to your contacts.
+    </div>
+
+    <ul id="menu">
+        <li><a href="#home">Home</></li>
+        <li><a href="#installation"> Installation</a></li>
+        <li><a href="#documentation">Documentation</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#developers">Developers</a></li>
+    </ul>
+
+    <div id="home">
+    <h2>Newebe is...</h2>
+    <ul>
+        <li>a social tool to share data with contacts or friends</li>
+        <li>a web application</li>
+        <li>self-hosted</li>
+        <li>mono-user</li>
+        <li>a free software</li>
+    </ul>
+    <h2>Newebe is not...</h2>
+    <ul>
+        <li>a web application to be hosted as a public website</li>
+        <li>a Facebook like</li>
+        <li>a Jabber server</li>
+    </ul>
+    <!--h2>Screenshots</h2-->
+    </div>
+
+    <div id="installation">
+    <h2>Installation</h2>
+    <h3>Dependencies</h3>
+    <ul>
+        <li>Python &lt; 2.6</li>
+        <li>Django &lt;= 1.2</li>
+        <li>Couchdb &lt;= 0.11.0</li>
+        <li>Coucdbkit &lt;= 0.4.8</li>
+        <li>Tornado &lt;= 1.2.0</li>
+        <li>Pycurl &lt;= 1.0.0</li>
+        <li>Daemon &lt;= 1.0.0</li>
+    </ul>    
+    <h3>Procedure</h3>
+    <p>
+    <span class="step"> step 1 </span> Install following packages :
+    </p>
+    <pre>
+ python python-setuptools python-pycurl python-daemon couchdb git
+    </pre>
+    <p>
+        Via easy_install install <em>couchdbkit</em>, <em>django</em> and 
+        <em>tornado</em> :
+    </p>
+    <pre>
+ easy_install couchdbkit django tornado
+    </pre>
+    <p>
+        <span class="step"> step 2 </span> Get <em>Newebe</em> from 
+        <em>Github</em> or unpack the downloaded archive:
+    </p>
+    <pre>
+  git clone git://github.com/gelnior/newebe.git
+    </pre>
+    <p>
+        <span class="step"> step 3 </span> Ensure database is started, then in
+        <em>Newebe</em> directory execute following command to configure 
+        database :
+    </p>
+    <pre>
+  python manage.py sync_couchdb
+    </pre>
+    <p>
+        <span class="step"> step 4 </span>  Update deployment file 
+        (<em>deploy/newebe</em>) by changing 
+        <em>NEWEBE_PATH</em> and PIDFILE constants to make it point to your 
+        <em>Newebe</em> directory (pid file will be created at first startup).
+    </p>
+    <p>
+        <span class="step"> step 4 bis </span> To change database name or port 
+        change constants sets in
+        <em>settings.py</em> file : <em>TORNADO_PORT</em> and 
+        <em>COUCHDB_DB_NAME</em>. Default port is
+        8000 and default database name is <em>newebe</em>.
+    </p>
+    <p>
+        <span class="step"> step 5 </span> Copy file <em>deploy/newebe</em> in 
+        the folder <em>/etc/init.d/</em> then give it execution rights.
+    </p>
+    <pre>
+  cp deploy/newebe /etc/init.d
+  chmod +x /etc/init.d/newebe
+    </pre>
+    <p>
+        <span class="step"> step 6 </span> Start <em>Newebe</em> server.
+    </p>
+    <pre>
+  /etc/init.d/newebe start
+    </pre>
+    <p>
+        <span class="step"> step 7</span> Check that everything is fine via 
+        your web browser : go to the URL
+        <em>http://localhost:port/</em> (remplace port by <em>TORNADO_PORT</em> 
+        value, default is 8000). 
+    </p>
+        <h2>Warning</h2>
+    <p>
+        Newebe is in its early stage of development. For now, it is only a 
+        prototype without security features. Use it just for fun and don't 
+        expect reliability from it.
+    </p>
+    </div>
+
+    <div id="documentation">
+    <h2>Documentation</h2>
+    <p>
+    A tutorial is displayed when you first use newebe to help you
+    understand the way it works ! So just start using it and you will know
+    what to do.
+    </p>    
+    <p> For more informations about Newebe you can check the 
+    <a href="http://github.com/gelnior/newebe">wiki</a>.
+    </p>
+    </div>
+
+    <div id="contact">
+    <h2>Contact</h2>
+    <h3>Mailing-list</h3>
+    <p>
+      <a href="http://groups.google.com/group/newebe">
+        http://groups.google.com/group/newebe
+      </a>  
+    </p>
+    <h3>Author</h3>
+    <p>Gelnior : gelnior [ at ] free . fr</p>
+    </div>
+
+
+    <div id="developers">
+     <h2>Developers</h2>
+    <!--p>
+      You can download this project in either
+      <a href="http://github.com/gelnior/newebe/zipball/master">zip</a> or
+      <a href="http://github.com/gelnior/newebe/tarball/master">tar</a> formats.
+    </p-->
+    <h3>Get the code</h3>
+    <p>You can clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/gelnior/newebe</pre>
+      Then follow the 
+      <a href="https://github.com/gelnior/newebe/blob/master/README.rst">
+          README</a> instructions to set up your development environment.
+      </p>      
+
+    <h3>Commit policy</h3>
+    <p>
+    Before starting any development, please inform me via the mailing list.
+    It could save you time if I don't agree with what you are doing.
+    Then fork the code from github, code and make a pull request with comments
+    about what you did.
+    </p>
+    <p>
+    Please document every code you push or it will be rejected. 
+    </p>
+
+    <h3>What to do</h3>
+    <p>
+    Newebe must stay simple and easy to use. Moreover, there is a lot to do
+    to make it reach its goal. So please don't do useless feature, or nice
+    to have feature. There a lot of big issues to solve first. They are listed
+    below. If you want to contribute pick one and start working on it ! 
+    Short specifications about what you do are welcome. 
+    </p>
+
+    <h3>Issues</h3>
+    <p>Here are the main issues to solve to make newebe fully functional :</p>
+    <ul>
+        <li>Unit testing</li>
+        <li>Security</li>
+        <li>Synchronisation</li>
+        <li>Logging</li>
+        <li>Note application</li>
+        <li>Document attachment</li>
+        <li>Picture application</li>
+        <li>Back-up</li>
+        <li>Internationalization</li>
+        <li>Application manager</li>
+    </ul>
+    <p>For more details about a subject, send an email to the mailing
+    list and I will answer as soon as I can.
+    </p>
+    </div>
+
+    
+    <h2>Under the hood</h2>
+    <h3>Server is powered by...</h3>
+    <a href="http://www.tornadoweb.org/" style="margin-right: 10px;">
+        <img src="images/tornadopowered.png" alt="Tornado"/>
+    </a>
+    <a href="http://couchdb.apache.org/" style="margin-right: 10px;">
+        <img src="images/couchdbpowered.png" alt="Couchdb"/>
+    </a>
+    <a href="http://www.djangoproject.com/">
+    <img src="images/djangopowered.gif" alt="Django" 
+         title="Powered by Django."/>
+    </a>
+    <h3>Client is powered y...</h3>
+    <a  href="http://jashkenas.github.com/coffee-script/" 
+        style="margin-right: 10px;">
+        <img src="images/coffeescriptpowered.png" alt="Coffee Script"/>
+    </a>
+    <a href="http://documentcloud.github.com/backbone/">
+        <img src="images/backbonepowered.png" 
+             alt="Backbone JS"/>
+    </a>
+
+</body>
+</html>
 }
 
 a:hover { border-bottom: 2px solid black; }
