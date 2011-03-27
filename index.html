@@ -102,11 +102,12 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
 #download p { padding: 0; margin: 0; }
 #download p#disclaimer { font-size: 0.6em; }
 
-#menu { list-style-type: none; margin: 20px 0 20px 0 ; padding : 0 0 10px 0; 
+#menu { list-style-type: none; padding: 0; font-size: 1.2em; 
         border-bottom: 1px solid black; }
-#menu li { display: inline; margin: 0 10px 0 0; }
+#menu li { display: inline; padding : 20px 10px 0px 0; }
 #menu a:hover { border-bottom: 3px solid black; }
-.selected { color: grey; }
+.selected { color: #888; }
+#menu a.selected:hover  { border: none; }
 </style>
 </head>
 
@@ -116,8 +117,10 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
   <div id="container">
 
     <div id="download">
-        <p>download <a href="http://github.com/gelnior/newebe/zipball/master">
-            newebe 0.1.0</a></p>
+        <p>download 
+        <a href="https://github.com/downloads/gelnior/newebe/newebe-0.1.0.zip">
+            newebe 0.1.0</a>
+        </p>
         <p id="disclaimer">warning: newebe is not production ready.</p>
     </div>
     <h1><a href="http://github.com/gelnior/newebe">Newebe</a></h1>
@@ -152,10 +155,10 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <h2>Newebe is not...</h2>
     <ul>
         <li>a web application to be hosted as a public website</li>
-        <li>a Facebook like</li>
-        <li>a Jabber server</li>
     </ul>
-    <!--h2>Screenshots</h2-->
+    <h2>Screenshot</h2>
+    <img src="images/screenshot-news-thumb.jpg" alt="Newebe screenshot"/>
+
     </div>
 
     <div id="installation">
@@ -243,12 +246,12 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <div id="documentation">
     <h2>Documentation</h2>
     <p>
-    A tutorial is displayed when you first use newebe to help you
-    understand the way it works ! So just start using it and you will know
-    what to do.
+    Tutorial are displayed when you first use newebe to help you
+    understand the way it works. You just have to start using it, newebe will
+    tell you what to do.
     </p>    
     <p> For more informations about Newebe you can check the 
-    <a href="http://github.com/gelnior/newebe">wiki</a>.
+    <a href="http://github.com/gelnior/newebe">wiki</a> (French only).
     </p>
     </div>
 
@@ -284,7 +287,7 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <h3>Commit policy</h3>
     <p>
     Before starting any development, please inform me via the mailing list.
-    It could save you time if I don't agree with what you are doing.
+    It could save you time and will makes integration easier for me.
     Then fork the code from github, code and make a pull request with comments
     about what you did.
     </p>
@@ -295,14 +298,14 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <h3>What to do</h3>
     <p>
     Newebe must stay simple and easy to use. Moreover, there is a lot to do
-    to make it reach its goal. So please don't do useless feature, or nice
-    to have feature. There a lot of big issues to solve first. They are listed
-    below. If you want to contribute pick one and start working on it ! 
-    Short specifications about what you do are welcome. 
+    to make it reach its goal. So, if you don't know where to start,
+    focus on big issues that are listed below. They are mandatory to make
+    newebe production ready. Short specifications about what you do are 
+    welcome too. 
     </p>
 
     <h3>Issues</h3>
-    <p>Here are the main issues to solve to make newebe fully functional :</p>
+    <p>Here are the main issues to solve :</p>
     <ul>
         <li>Unit testing</li>
         <li>Security</li>
