@@ -76,34 +76,35 @@ $(function(){
 <style type="text/css">
 body {
    margin-top: 1.0em;
-   background-color: white;
    font-family: "sans-serif";
    color: black;
 }
 #container {
+   background-color: white;
    margin: 0 auto;
    width: 700px;none }
 h1 { font-size: 3.8em; color: black; margin-bottom: 3px; }
-h2 { font-size: 1.5em; color: black; }
-h3 { color: black; }
+h2 { font-size: 1.5em; color: black; margin-top: 35px;}
+h3 { color: black; margin-top: 25px;}
 a { color: black; font-weight: bold; text-decoration: none;}
 .download { float: right; }
-pre { background: #000; color: white; padding: 15px;}
+pre { background: #DDEFFF; color: black; padding: 15px;}
 hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 .footer { text-align:center; padding-top:30px; font-style: italic; }
 img { border: 0; }
     
 span.step { font-weight: bold; color: #555; font-size: 0.8em; 
     margin-right: 10px;}
+#slogan { margin-top: 10px; }
 .description { font-style: italic; }
-#download { float: right; background-color: #EEE; padding: 20px; 
+#download { float: right; background-color: #DEF; padding: 20px; 
     font-size: 1em; border: 1px solid black; -moz-border-radius: 1em; }
 #download a { font-size:1.2em; text-decoration: none; font-weight; bold; }
 #download p { padding: 0; margin: 0; }
 #download p#disclaimer { font-size: 0.6em; }
 
 #menu { list-style-type: none; padding: 0; font-size: 1.2em; 
-        border-bottom: 1px solid black; }
+        border-bottom: 1px solid black; margin-top: 30px; }
 #menu li { display: inline; padding : 20px 10px 0px 0; }
 #menu a:hover { border-bottom: 3px solid black; }
 .selected { color: #888; }
@@ -124,7 +125,7 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
         <p id="disclaimer">warning: newebe is not production ready.</p>
     </div>
     <h1><a href="http://github.com/gelnior/newebe">Newebe</a></h1>
-    <h2>Get the data back home</h2>
+    <h2 id="slogan">Get the data back home</h2>
     
     <div class="description">
       Growth of web applications has been a huge improvement for social 
@@ -178,30 +179,26 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     <span class="step"> step 1 </span> Install following packages :
     </p>
     <pre>
- python python-setuptools python-pycurl python-daemon couchdb git
-    </pre>
+ python python-setuptools python-pycurl python-daemon couchdb git</pre>
     <p>
         Via easy_install install <em>couchdbkit</em>, <em>django</em> and 
         <em>tornado</em> :
     </p>
     <pre>
- easy_install couchdbkit django tornado
-    </pre>
+ easy_install couchdbkit django tornado </pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
         <em>Github</em> or unpack the downloaded archive:
     </p>
     <pre>
-  git clone git://github.com/gelnior/newebe.git
-    </pre>
+  git clone git://github.com/gelnior/newebe.git </pre>
     <p>
         <span class="step"> step 3 </span> Ensure database is started, then in
         <em>Newebe</em> directory execute following command to configure 
         database :
     </p>
     <pre>
-  python manage.py sync_couchdb
-    </pre>
+  python manage.py sync_couchdb</pre>
     <p>
         <span class="step"> step 4 </span>  Update deployment file 
         (<em>deploy/newebe</em>) by changing 
@@ -221,14 +218,12 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
     </p>
     <pre>
   cp deploy/newebe /etc/init.d
-  chmod +x /etc/init.d/newebe
-    </pre>
+  chmod +x /etc/init.d/newebe</pre>
     <p>
         <span class="step"> step 6 </span> Start <em>Newebe</em> server.
     </p>
     <pre>
-  /etc/init.d/newebe start
-    </pre>
+  /etc/init.d/newebe start</pre>
     <p>
         <span class="step"> step 7</span> Check that everything is fine via 
         your web browser : go to the URL
