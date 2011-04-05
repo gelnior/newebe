@@ -5,12 +5,12 @@ from django.utils import simplejson as json
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import RequestHandler, asynchronous, HTTPError
 
-from newebe.lib.response import JSON_MIMETYPE 
 from newebe.lib import json_util
 from newebe.lib.date_util import getDateFromDbDate
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity
 from newebe.core.models import ContactManager, UserManager
+from newebe.core.handlers import NewebeHandler
 
 
 CONTACT_PATH = 'news/microposts/contacts/'
@@ -18,30 +18,7 @@ CONTACT_PATH = 'news/microposts/contacts/'
 connections = []
 logger = logging.getLogger("newebe.news")
 
-class NewebeHandler(RequestHandler):
-    '''
-    NewebeHandler is a base class to provide utility methods for handlers used 
-    by the newebe application.
-    '''
 
-
-    def returnJson(self, json):
-        '''
-        Return a response containig json (content-type already set).
-        '''
-        self.set_header("Content-Type", JSON_MIMETYPE)
-        self.write(json)
-        self.finish()
-
-
-    def returnSuccess(self, text, statusCode=200):
-        '''
-        Return a success response containing a JSON object that describes
-        the success.
-        '''
-        self.set_status(statusCode)
-        self.returnJson(json.dumps({ "success" : text }))
- 
 
 class NewsSuscribeHandler(RequestHandler):
     '''
@@ -312,8 +289,8 @@ class NewsContactHandler(NewebeHandler):
 
             # Save corresponding activity
             activity = Activity(
-                authorKey = micropost.author,
-                author = micropost.authorKey,
+                authorKey = micropost.authorKey,
+                author = micropost.author,
                 docId = micropost._id,
                 verb = "writes",
                 isMine = False,
