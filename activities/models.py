@@ -2,6 +2,48 @@ from couchdbkit.ext.django.schema import StringProperty, BooleanProperty, \
                                          ListProperty
 
 from newebe.core.models import NewebeDocument
+from newebe.activities import activity_settings
+
+
+
+class ActivityManager():
+    '''
+    Furnishes static methods to retrieve easy activities from database.
+    '''
+
+    @staticmethod
+    def get_mine(startKey=None, skip=0):
+        '''
+        '''
+        if startKey:
+            return Activity.view("activities/mine", 
+                             startkey = startKey, 
+                             descending = True, 
+                             limit = activity_settings.LIMIT + 1, 
+                             skip = 0)
+        else:
+            return Activity.view("activities/mine", 
+                             descending=True, 
+                             limit = activity_settings.LIMIT)
+
+
+    @staticmethod
+    def get_all(startKey=None, skip=0):
+        
+        if startKey:
+            return Activity.view("activities/all", 
+                             startkey = startKey, 
+                             descending=True, 
+                             limit=activity_settings.LIMIT+1, 
+                             skip=0)
+        else:
+            return Activity.view("activities/all", 
+                             descending=True, 
+                             limit=activity_settings.LIMIT)
+
+
+
+
 
 
 class Activity(NewebeDocument):

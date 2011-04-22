@@ -24,20 +24,16 @@ class MicroPostManager():
           *startKey* The date from where data should be retrieved
         '''
 
-        user = UserManager.getUser()
         if startKey:
             return MicroPost.view("news/mine", 
                              startkey = startKey, 
                              descending = True, 
                              limit = news_settings.NEWS_LIMIT+1, 
-                             skip = 0,
-                             params = { "authorKey" : user.key })
+                             skip = 0)
         else:
             return MicroPost.view("news/mine", 
                              descending=True, 
-                             limit = news_settings.NEWS_LIMIT,
-                             params = { "authorKey" : user.key })
-
+                             limit = news_settings.NEWS_LIMIT)
 
 
     @staticmethod
