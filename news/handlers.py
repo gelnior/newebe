@@ -243,7 +243,8 @@ class NewsHandler(NewebeHandler):
         '''
 
         if response.error: 
-            logger.error("Post to a contact failed, error infos are stored inside activity.")
+            logger.error("Post to a contact failed, error infos are stored" \
+                    "inside activity.")
             contact = self.contacts[response.request]
             activityError = {                    
                     "contactKey" : contact.key,

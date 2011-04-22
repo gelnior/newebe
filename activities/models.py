@@ -15,6 +15,7 @@ class Activity(NewebeDocument):
     Data store in error list and activity are enought to make retry later to 
     send data to the contact of which request sending failed.
     '''
+
     author = StringProperty()
     # docId is used to retrieve the doc linked to the activity.
     docId = StringProperty(required=True)
