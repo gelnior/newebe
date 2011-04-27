@@ -8,13 +8,16 @@ from newebe.activities import activity_settings
 
 class ActivityManager():
     '''
-    Furnishes static methods to retrieve easy activities from database.
+    Furnishes static methods to retrieve easily activities from database.
     '''
 
     @staticmethod
     def get_mine(startKey=None, skip=0):
         '''
+        Return last 30 activities of newebe owner. If *startKey* (date) 
+        is given, last 30 activities until *startKey* will be returned.
         '''
+
         if startKey:
             return Activity.view("activities/mine", 
                              startkey = startKey, 
@@ -29,6 +32,11 @@ class ActivityManager():
 
     @staticmethod
     def get_all(startKey=None, skip=0):
+        '''
+        Return last 30 activities of newebe owner and of his contacts. If
+        *startKey* (date) is given, last 30 activities until *startKey* 
+        will be returned.
+        '''
         
         if startKey:
             return Activity.view("activities/all", 
@@ -48,14 +56,12 @@ class ActivityManager():
 
 class Activity(NewebeDocument):
     '''
-    Activity describes a user action or a contact action. This object is very 
-    useful.
-
-    With activities, the user log all his actions and all the actions from 
-    his contacts. Moreover each user action stores when an error occured while
-    transfering data corresponding to activity to a contact. 
-    Data store in error list and activity are enought to make retry later to 
-    send data to the contact of which request sending failed.
+    Activity describes a user action or a contact action.
+    With activities, the user log alls his actions and all the actions from 
+    his contacts. Moreover inside activities are stored error which occured 
+    while transfering document corresponding to activity to a contact. It
+    handles a list of error (one error for each contact is stored). This
+    list is used to makre retries later.
     '''
 
     author = StringProperty()

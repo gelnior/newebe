@@ -17,7 +17,10 @@ class NewebeDocument(Document):
         '''
         Return a dict representation of the document (copy).
         '''
-        return self.__dict__["_doc"].copy()
+        docDict = self.__dict__["_doc"].copy()
+        if "_rev" in docDict:
+            del docDict["_rev"]
+        return docDict
 
 
     def toJson(self):
@@ -27,8 +30,6 @@ class NewebeDocument(Document):
         docDict = self.toDict()
         #if "_id" in docDict:
         #    del docDict["_id"]
-        if "_rev" in docDict:
-            del docDict["_rev"]
         return json.dumps(docDict)
 
 

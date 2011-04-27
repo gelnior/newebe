@@ -13,10 +13,10 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 from newebe.settings import TORNADO_PORT, DEBUG
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler
+from newebe.activities.handlers import ActivityHandler, MyActivityHandler
 
 import newebe.lib.pid as pid
 
-# Handle better when tornado request failed.
 
 class Newebe(Application):
     '''
@@ -26,9 +26,14 @@ class Newebe(Application):
     def __init__(self):
         handlers = [
             ('/news/microposts/', NewsHandler),
-            ('/news/microposts/([0-9a-z]+)', MicropostHandler),
+            ('/news/microposts/([0-9a-z]+)/', MicropostHandler),
             ('/news/microposts/contacts/', NewsContactHandler),
             ('/news/suscribe/', NewsSuscribeHandler),
+            
+            ('/activities/all/', ActivityHandler),
+            ('/activities/all/([0-9\-]+)/', ActivityHandler),
+            ('/activities/mine/', MyActivityHandler),
+            ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
             ('.*', FallbackHandler, dict(fallback=django_wsgi)),
         ]
         
