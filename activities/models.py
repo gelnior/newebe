@@ -5,11 +5,11 @@ from newebe.core.models import NewebeDocument
 from newebe.activities import activity_settings
 
 
-
 class ActivityManager():
     '''
     Furnishes static methods to retrieve easily activities from database.
     '''
+
 
     @staticmethod
     def get_mine(startKey=None, skip=0):
