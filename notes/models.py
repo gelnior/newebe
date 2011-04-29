@@ -15,7 +15,7 @@ class NoteManager():
     @staticmethod
     def getAll():
         '''
-        Return all note from newebe owner.
+        Returns all note from newebe owner.
         '''
         return Note.view("notes/mine_sort_title")
 
@@ -23,7 +23,7 @@ class NoteManager():
     @staticmethod
     def getAllSortedByDate():
         '''
-        Return all note from newebe owner.
+        Returns all note from newebe owner.
         '''
         return Note.view("notes/mine_sort_date")
 
@@ -32,7 +32,7 @@ class NoteManager():
     @staticmethod
     def getFirst(key):
         '''
-        Return note correspoding to key. If key does not exist or if note 
+        Returns note correspoding to key. If key does not exist or if note 
         author is not the newebe owner, None is returned.
         '''
         notes = Note.view("notes/mine", key=key)
@@ -60,7 +60,7 @@ class Note(NewebeDocument):
     def save(self):
         '''
         When document is saved, the last modified field is updated to 
-        make sure last modification is well updated. 
+        make sure it is always correct. 
         '''
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)
