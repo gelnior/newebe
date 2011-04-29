@@ -50,10 +50,6 @@ class ActivityManager():
                              limit=activity_settings.LIMIT)
 
 
-
-
-
-
 class Activity(NewebeDocument):
     '''
     Activity describes a user action or a contact action.
