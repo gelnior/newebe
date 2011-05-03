@@ -1,5 +1,5 @@
 (function() {
-  var ProfileView, User, UserCollection, profileApp;
+  var ProfileView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -8,56 +8,7 @@
     child.__super__ = parent.prototype;
     return child;
   };
-  User = function() {
-    __extends(User, Backbone.Model);
-    User.prototype.url = '/user/';
-    function User(user) {
-      User.__super__.constructor.apply(this, arguments);
-      this.id = "";
-      this.set("url", user.url);
-      this.set("name", user.name);
-      this.set("city", user.city);
-    }
-    /* Setters / Accessors */
-    User.prototype.getName = function() {
-      return this.get("name");
-    };
-    User.prototype.setName = function(name) {
-      alert(name);
-      this.set("name", name);
-      return alert(this.getName());
-    };
-    User.prototype.setUrl = function(url) {
-      return this.set("url", url);
-    };
-    User.prototype.setCity = function(city) {
-      return this.set("city", city);
-    };
-    User.prototype.getUrl = function() {
-      return this.get("userUrl");
-    };
-    User.prototype.getCity = function() {
-      return this.get("city");
-    };
-    User.prototype.isNew = function() {
-      return false;
-    };
-    return User;
-  }();
-  /* Model for a User collection */
-  UserCollection = function() {
-    function UserCollection() {
-      UserCollection.__super__.constructor.apply(this, arguments);
-    }
-    __extends(UserCollection, Backbone.Collection);
-    UserCollection.prototype.model = User;
-    UserCollection.prototype.url = '/user/';
-    UserCollection.prototype.parse = function(response) {
-      return response.rows;
-    };
-    return UserCollection;
-  }();
-  ProfileView = function() {
+  ProfileView = (function() {
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
@@ -137,9 +88,5 @@
       return $("#profile-a").addClass("disabled");
     };
     return ProfileView;
-  }();
-  profileApp = new ProfileView;
-  profileApp.setWidgets();
-  profileApp.setListeners();
-  profileApp.fetch();
+  })();
 }).call(this);

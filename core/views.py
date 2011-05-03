@@ -278,9 +278,6 @@ class ContactPushResource(RestResource):
         return response
 
 
-
-
-
 class ContactConfirmResource(RestResource):
     '''
     This is the resource for contact confirmation. It allows :

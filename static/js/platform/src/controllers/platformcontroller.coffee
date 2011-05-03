@@ -7,17 +7,21 @@ class PlatformController extends Backbone.Controller
     routes: {
       "contact":  "displayContact",
       "news":  "displayNews",
+      "activities":  "displayActivities",
       "profile":  "displayProfile",
     }
 
     displayContact: () ->
-      @view.onContactClicked(null)
+      @view.onContactClicked()
       
     displayNews: () ->
-      @view.onNewsClicked(null)
+      @view.onNewsClicked()
       
     displayProfile: () ->
-      @view.onProfileClicked(null)
+      @view.onProfileClicked()
+      
+    displayActivities: () ->
+      @view.onActivitiesClicked()
       
     registerView: (view) ->
       @view = view

@@ -8,7 +8,7 @@
     child.__super__ = parent.prototype;
     return child;
   };
-  PlatformController = function() {
+  PlatformController = (function() {
     function PlatformController() {
       PlatformController.__super__.constructor.apply(this, arguments);
     }
@@ -16,29 +16,34 @@
     PlatformController.prototype.routes = {
       "contact": "displayContact",
       "news": "displayNews",
+      "activities": "displayActivities",
       "profile": "displayProfile"
     };
     PlatformController.prototype.displayContact = function() {
-      return this.view.onContactClicked(null);
+      return this.view.onContactClicked();
     };
     PlatformController.prototype.displayNews = function() {
-      return this.view.onNewsClicked(null);
+      return this.view.onNewsClicked();
     };
     PlatformController.prototype.displayProfile = function() {
-      return this.view.onProfileClicked(null);
+      return this.view.onProfileClicked();
+    };
+    PlatformController.prototype.displayActivities = function() {
+      return this.view.onActivitiesClicked();
     };
     PlatformController.prototype.registerView = function(view) {
       return this.view = view;
     };
     return PlatformController;
-  }();
-  PlatformView = function() {
+  })();
+  PlatformView = (function() {
     __extends(PlatformView, Backbone.View);
     PlatformView.prototype.el = $("body");
     PlatformView.prototype.events = {
       "click #news-a": "onNewsClicked",
       "click #profile-a": "onProfileClicked",
-      "click #contact-a": "onContactClicked"
+      "click #contact-a": "onContactClicked",
+      "click #activities-a": "onActivitiesClicked"
     };
     function PlatformView(controller) {
       this.controller = controller;
@@ -46,11 +51,13 @@
       PlatformView.__super__.constructor.apply(this, arguments);
     }
     PlatformView.prototype.initialize = function() {
-      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked');
+      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked');
       if ($("#news").length !== 0) {
         this.lastPage = "#news";
       } else if ($("#contact").length !== 0) {
         this.lastPage = "#contact";
+      } else if ($("#activities").length !== 0) {
+        this.lastPage = "#activties";
       } else {
         this.lastPage = "#profile";
       }
@@ -81,6 +88,14 @@
       this.switchTo("#contact", '/contact/content/');
       return false;
     };
+    PlatformView.prototype.onActivitiesClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Activities";
+      this.switchTo("#activities", '/activities/content/');
+      return false;
+    };
     PlatformView.prototype.switchTo = function(page, url) {
       $(this.lastPage + "-a").removeClass("disabled");
       $(page + "-a").addClass("disabled");
@@ -104,8 +119,8 @@
       return false;
     };
     return PlatformView;
-  }();
-  RegisterView = function() {
+  })();
+  RegisterView = (function() {
     __extends(RegisterView, Backbone.View);
     RegisterView.prototype.el = $("body");
     function RegisterView() {
@@ -140,8 +155,8 @@
       }
     };
     return RegisterView;
-  }();
-  InfoDialog = function() {
+  })();
+  InfoDialog = (function() {
     function InfoDialog() {
       var div;
       div = document.createElement('div');
@@ -159,8 +174,8 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
-  }();
-  ConfirmationDialog = function() {
+  })();
+  ConfirmationDialog = (function() {
     function ConfirmationDialog(callback) {
       var div;
       div = document.createElement('div');
@@ -191,8 +206,8 @@
       return this.element.fadeOut();
     };
     return ConfirmationDialog;
-  }();
-  LoadingIndicator = function() {
+  })();
+  LoadingIndicator = (function() {
     function LoadingIndicator() {
       var div;
       div = document.createElement('div');
@@ -209,7 +224,7 @@
       return this.element.hide();
     };
     return LoadingIndicator;
-  }();
+  })();
   infoDialog = new InfoDialog;
   platformController = new PlatformController;
   platformView = new PlatformView(platformController);

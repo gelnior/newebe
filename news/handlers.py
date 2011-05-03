@@ -6,7 +6,7 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import RequestHandler, asynchronous, HTTPError
 
 from newebe.lib import json_util
-from newebe.lib.date_util import getDateFromDbDate
+from newebe.lib.date_util import getDateFromDbDate, getDbDateFromUrlDate
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity
 from newebe.core.models import ContactManager, UserManager
@@ -67,6 +67,7 @@ class MicropostHandler(NewebeHandler):
         GET request returns post corresponding to the id given in the request 
         URL.
         '''
+
         micropost = MicroPostManager.getMicropost(postId)
         if micropost:
             self.returnJson(micropost.toJson())
@@ -149,6 +150,35 @@ class MicropostHandler(NewebeHandler):
             logger.info("Delete post successfully sent.")
 
 
+class MyNewsHandler(NewebeHandler):
+    '''
+    This handler handles request that retrieve lists of news published by
+    Newebe owner.
+    GET : Retrieve last 10 microposts published before a given date by owner.
+    '''
+
+    def get(self, startKey=None):
+        '''
+        Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
+        is given in URL (it means a date like 2010-10-05-12-30-48), 
+        microposts from this date are returned. Else latest news are returned. 
+        Only microposts published by Newebe owner are returned.
+
+        Arguments:
+            *startKey* The date from where news should be returned.
+        '''
+        microposts = list()
+
+        if startKey:
+            dateString = getDbDateFromUrlDate(startKey)
+            microposts = MicroPostManager.getMine(dateString)
+
+        else:
+            microposts = MicroPostManager.getMine()
+
+        self.returnJson(json_util.getJsonFromDocList(microposts))
+
+
 class NewsHandler(NewebeHandler):
     '''
     This handler handles request that retrieve lists of news.
@@ -161,7 +191,7 @@ class NewsHandler(NewebeHandler):
 
 
     @asynchronous
-    def get(self):
+    def get(self, startKey=None):
         '''
         Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
         is given in URL (it means a date like 2010-10-05-12-30-48), 
@@ -170,7 +200,15 @@ class NewsHandler(NewebeHandler):
         Arguments:
             *startKey* The date from where news should be returned.
         '''
-        microposts = MicroPostManager.getList()
+        microposts = list()
+
+        if startKey:
+            dateString = getDbDateFromUrlDate(startKey)
+            microposts = MicroPostManager.getList(dateString)
+
+        else:
+            microposts = MicroPostManager.getList()
+
         self.returnJson(json_util.getJsonFromDocList(microposts))
 
 
@@ -349,4 +387,21 @@ class NewsContactHandler(NewebeHandler):
             raise HTTPError(405, "No data sent.")
 
 
-        
+
+class NewsContentTHandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/news/news_content.html")
+
+
+class NewsTutorial1THandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/news/tutorial_1.html")
+
+
+class NewsTutorial2THandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/news/tutorial_2.html")
+

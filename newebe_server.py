@@ -11,9 +11,19 @@ import sys, os
 sys.path.append("../")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 from newebe.settings import TORNADO_PORT, DEBUG
+
+from newebe.core.handlers import ProfileContentTHandler, \
+                                 ProfileMenuContentTHandler, \
+                                 ProfileTutorial1THandler, \
+                                 ProfileTutorial2THandler
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
-                                 NewsSuscribeHandler, MicropostHandler
-from newebe.activities.handlers import ActivityHandler, MyActivityHandler
+                                 NewsSuscribeHandler, MicropostHandler, \
+                                 MyNewsHandler, \
+                                 NewsContentTHandler, \
+                                 NewsTutorial1THandler, NewsTutorial2THandler
+from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
+                                       ActivityContentHandler, \
+                                       ActivityPageHandler
 
 import newebe.lib.pid as pid
 
@@ -25,11 +35,26 @@ class Newebe(Application):
     '''
     def __init__(self):
         handlers = [
+            ('/profile/content/$', ProfileContentTHandler),
+            ('/profile/menu-content/$', ProfileMenuContentTHandler),
+            ('/profile/tutorial/1/$', ProfileTutorial1THandler),
+            ('/profile/tutorial/2/$', ProfileTutorial2THandler),
+
+
             ('/news/microposts/', NewsHandler),
+            ('/news/microposts/mine/([0-9\-]+)/', MyNewsHandler),
+            ('/news/microposts/mine/', MyNewsHandler),
+            ('/news/microposts/all/([0-9\-]+)/', NewsHandler),
+            ('/news/microposts/all/', NewsHandler),
+            ('/news/content/', NewsContentTHandler),
+            ('/news/tutorial/1/', NewsTutorial1THandler),
+            ('/news/tutorial/2/', NewsTutorial2THandler),
             ('/news/microposts/([0-9a-z]+)/', MicropostHandler),
             ('/news/microposts/contacts/', NewsContactHandler),
             ('/news/suscribe/', NewsSuscribeHandler),
-            
+       
+            ('/activities/', ActivityPageHandler),
+            ('/activities/content/', ActivityContentHandler),
             ('/activities/all/', ActivityHandler),
             ('/activities/all/([0-9\-]+)/', ActivityHandler),
             ('/activities/mine/', MyActivityHandler),

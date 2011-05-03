@@ -41,3 +41,24 @@ class TemplateHandler(RequestHandler):
 
 
 
+class ProfileContentTHandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/core/profile/profile_content.html")
+
+class ProfileMenuContentTHandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/core/profile/profile_menu_content.html")
+
+class ProfileTutorial1THandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/core/profile/tutorial_1.html")
+
+class ProfileTutorial2THandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/core/profile/tutorial_2.html")
+
+

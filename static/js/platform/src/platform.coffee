@@ -7,3 +7,4 @@ registerView = new RegisterView
 
 loadingIndicator = new LoadingIndicator
 Backbone.history.start()
+

@@ -30,7 +30,7 @@ task 'build', 'Build single application file from source files', ->
   appContents = new Array remaining = appFiles.length
 
   # Retrieve file
-  for file, index in appFiles
+  for file, index in appFiles then do (file, index) ->
     fs.readFile "src/#{file}.coffee", 'utf8', (err, fileContents) ->
       throw err if err
       appContents[index] = fileContents

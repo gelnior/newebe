@@ -9,6 +9,7 @@ class PlatformView extends Backbone.View
     "click #news-a": "onNewsClicked"
     "click #profile-a": "onProfileClicked"
     "click #contact-a": "onContactClicked"
+    "click #activities-a": "onActivitiesClicked"
 
 
   constructor: (controller) ->
@@ -16,15 +17,18 @@ class PlatformView extends Backbone.View
     controller.registerView(@)
     super
 
-  # Initiliazes bind functions to this view.
+  # Initiliaze binds functions to this view.
   # Registers current page as last page selected. It is needed to update menu
   # items (disabled or not) when user changes application.
   initialize: ->
-    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked')
+    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked')
+
     if $("#news").length != 0
-      @lastPage =  "#news"
+      @lastPage = "#news"
     else if $("#contact").length != 0
       @lastPage = "#contact"
+    else if $("#activities").length != 0
+      @lastPage = "#activties"
     else
       @lastPage = "#profile"
 
@@ -55,6 +59,15 @@ class PlatformView extends Backbone.View
       ev.preventDefault()
     document.title = "Newebe | Contact"
     @switchTo("#contact", '/contact/content/')
+    false
+
+  # When activities is clicked, current page is hidden and activities
+  # page is displayed.
+  onActivitiesClicked: (ev) ->
+    if ev
+      ev.preventDefault()
+    document.title = "Newebe | Activities"
+    @switchTo("#activities", '/activities/content/')
     false
 
   # Switch to *page*: hides current page and displays *page*. 
