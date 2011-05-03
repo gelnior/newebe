@@ -5,11 +5,11 @@ from newebe.core.models import NewebeDocument
 from newebe.activities import activity_settings
 
 
-
 class ActivityManager():
     '''
     Furnishes static methods to retrieve easily activities from database.
     '''
+
 
     @staticmethod
     def get_mine(startKey=None, skip=0):
@@ -50,18 +50,15 @@ class ActivityManager():
                              limit=activity_settings.LIMIT)
 
 
-
-
-
-
 class Activity(NewebeDocument):
     '''
     Activity describes a user action or a contact action.
-    With activities, the user log alls his actions and all the actions from 
-    his contacts. Moreover inside activities are stored error which occured 
-    while transfering document corresponding to activity to a contact. It
-    handles a list of error (one error for each contact is stored). This
-    list is used to makre retries later.
+    With activities, newebe log alls actions from owner and his contacts. 
+    Moreover inside each activity are stored error which occured 
+    while transfering document corresponding to this activity. It
+    handles a list of error: one error for each contact where error occurs. 
+    This list is used to make retry sending data later to concerned
+    contact.
     '''
 
     author = StringProperty()

@@ -12,10 +12,14 @@ from newebe.activities.models import Activity
 from newebe.core.models import ContactManager, UserManager
 from newebe.core.handlers import NewebeHandler
 
-
+# When a new post is created, it is forwarded to contacts. CONTACT_PATH is 
+# the end of the URI to post the data. Full URI is contact UR + CONTACT_PATH
 CONTACT_PATH = 'news/microposts/contacts/'
 
+# Long polling queue
 connections = []
+
+# Logging stuff
 logger = logging.getLogger("newebe.news")
 
 
@@ -24,6 +28,7 @@ class NewsSuscribeHandler(RequestHandler):
     '''
     Handler that managers long polling connections.
     '''
+
 
     @asynchronous
     def get(self):
@@ -182,9 +187,11 @@ class MyNewsHandler(NewebeHandler):
 class NewsHandler(NewebeHandler):
     '''
     This handler handles request that retrieve lists of news.
-    GET : Retrieve last 10 microposts published before a given date.
+    GET : Retrieve last NEWS_LIMIT microposts published before a given date.
     POST : Creates a new microposts and forward the activity to contacts.
     '''
+
+
     def __init__(self, application, request, **kwargs):
         NewebeHandler.__init__(self, application, request, **kwargs)
         self.contacts = dict()

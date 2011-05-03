@@ -13,6 +13,7 @@ class NewebeDocument(Document):
     authorKey = StringProperty()
     date = DateTimeProperty(required=True, default=datetime.datetime.now())
      
+
     def toDict(self):
         '''
         Return a dict representation of the document (copy).
@@ -39,6 +40,8 @@ class UserManager():
     '''
     Methods to easily retrieve owner of current Newebe from database.
     '''
+
+
     @staticmethod
     def getUser(startKey=None, skip=0):
         '''
@@ -61,6 +64,7 @@ class User(NewebeDocument):
     url = StringProperty()
     key = StringProperty()
 
+
     def save(self):
         super(NewebeDocument, self).save()
         if not self.key:
@@ -79,6 +83,7 @@ class User(NewebeDocument):
 
 # Contact document
 
+# Contacts available states
 STATE_PENDING = "pending"
 STATE_WAIT_APPROVAL = "Wait for approval"
 STATE_ERROR = "Error"
@@ -89,6 +94,7 @@ class ContactManager():
     '''
     Methods to easily retrieve contacts from database.
     '''
+
 
     @staticmethod
     def getContacts():
@@ -119,6 +125,7 @@ class ContactManager():
  
         return contacts 
 
+
     @staticmethod
     def getTrustedContacts():
         '''
@@ -127,6 +134,7 @@ class ContactManager():
         contacts = Contact.view("core/trusted")
  
         return contacts 
+
 
     @staticmethod
     def getTrustedContact(key):
@@ -140,7 +148,6 @@ class ContactManager():
             contact = contacts.first() 
 
         return contact
-
 
 
     @staticmethod
