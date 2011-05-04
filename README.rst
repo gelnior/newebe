@@ -33,7 +33,11 @@ Retrieve Newebe project:
 
 In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
-Then, still in Newebe directory run:
+Then, still in Newebe directory set DB by running:
+
+   python manage.py sync_couchdb
+
+and, at last run the server:
 
    python newebe_server.py
    
