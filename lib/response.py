@@ -56,7 +56,6 @@ class  BadRequestResponse(HttpResponse):
         HttpResponse.__init__(self, json, status=400, mimetype=JSON_MIMETYPE)
 
 
-
 class  SuccessResponse(JsonResponse):
     '''
     Http response to return a success message encapsuled in a JSON object with

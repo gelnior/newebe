@@ -5,9 +5,6 @@ from newebe.lib.resource import DirectTemplateResource
 
 # Set applications urls
 urlpatterns = patterns('',
-    (r'^$', DirectTemplateResource('news/news.html')),    
-    (r'^', include('core.urls')),
-    (r'^news/', include('news.urls')),
 )
 
 ##

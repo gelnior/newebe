@@ -29,7 +29,6 @@ class NewsSuscribeHandler(RequestHandler):
     Handler that managers long polling connections.
     '''
 
-
     @asynchronous
     def get(self):
         '''
@@ -84,11 +83,12 @@ class MicropostHandler(NewebeHandler):
     def delete(self, postId):
         '''
         Deletes the post of which id is equal to postId, add an activity and 
-        forward the delete request to each trusted contact.
+        forwards the delete request to each trusted contact.
 
         put instead of delete because tornado does not support body in DELETE 
         requests...
         '''
+
         micropost = MicroPostManager.getMicropost(postId)
         if micropost:
             self.set_status(200)
@@ -172,6 +172,7 @@ class MyNewsHandler(NewebeHandler):
         Arguments:
             *startKey* The date from where news should be returned.
         '''
+
         microposts = list()
 
         if startKey:
@@ -207,6 +208,7 @@ class NewsHandler(NewebeHandler):
         Arguments:
             *startKey* The date from where news should be returned.
         '''
+
         microposts = list()
 
         if startKey:
@@ -261,7 +263,7 @@ class NewsHandler(NewebeHandler):
             for contact in ContactManager.getTrustedContacts():
                 url = contact.url.encode("utf-8") + CONTACT_PATH
                 body = micropost.toJson()
-                request = HTTPRequest(url, method = "POST", body = body)
+                request = HTTPRequest(url, method="POST", body=body)
                 self.contacts[request] = contact
                 try:
                     httpClient.fetch(request, self.onContactResponse)
@@ -393,6 +395,11 @@ class NewsContactHandler(NewebeHandler):
         else:
             raise HTTPError(405, "No data sent.")
 
+
+class NewsTHandler(NewebeHandler):
+
+    def get(self):
+        self.render("../templates/news/news.html")
 
 
 class NewsContentTHandler(NewebeHandler):

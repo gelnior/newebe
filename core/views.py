@@ -42,6 +42,7 @@ class UserResource(RestResource):
 
         return DocumentResponse(users)
 
+
     def POST(self, request):
         '''
         Create a new user (if user exists, error response is returned) from
