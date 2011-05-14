@@ -16,7 +16,7 @@
       this.id = "";
       this.set("url", user.url);
       this.set("name", user.name);
-      this.set("city", user.city);
+      this.set("description", user.description);
     }
     /* Setters / Accessors */
     User.prototype.getName = function() {
@@ -27,17 +27,17 @@
       this.set("name", name);
       return alert(this.getName());
     };
-    User.prototype.setUrl = function(url) {
-      return this.set("url", url);
-    };
-    User.prototype.setCity = function(city) {
-      return this.set("city", city);
-    };
     User.prototype.getUrl = function() {
       return this.get("userUrl");
     };
-    User.prototype.getCity = function() {
-      return this.get("city");
+    User.prototype.setUrl = function(url) {
+      return this.set("url", url);
+    };
+    User.prototype.getDescription = function() {
+      return this.get("description");
+    };
+    User.prototype.setDescription = function(description) {
+      return this.set("description", description);
     };
     User.prototype.isNew = function() {
       return false;
@@ -70,14 +70,15 @@
     };
     /* Events */
     ProfileView.prototype.onKeyUp = function(event) {
-      return this.postUserInfo();
+      this.postUserInfo();
+      return event;
     };
     /* Functions */
     ProfileView.prototype.addAll = function() {
       this.users;
       this.user = this.users.first();
       $("#platform-profile-name").val(this.user.getName());
-      $("#platform-profile-city").val(this.user.getCity());
+      $("#profile-description").val(this.user.getDescription());
       $("#platform-profile-url").val(this.user.get("url"));
       if (!this.user.get("url")) {
         this.tutorialOn = true;
@@ -96,7 +97,7 @@
       return this.user.save({
         name: $("#platform-profile-name").val(),
         url: $("#platform-profile-url").val(),
-        city: $("#platform-profile-city").val()
+        description: $("#profile-description").val()
       }, {
         success: function() {
           if (tutorialOn) {
@@ -128,7 +129,7 @@
       $("#platform-profile-url").keyup(function(event) {
         return profileApp.onKeyUp(event);
       });
-      return $("#platform-profile-city").keyup(function(event) {
+      return $("#profile-description").keyup(function(event) {
         return profileApp.onKeyUp(event);
       });
     };

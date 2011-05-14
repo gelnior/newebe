@@ -60,7 +60,7 @@ class User(NewebeDocument):
     Users object used to handle owner data.
     '''
     name = StringProperty(required=True)
-    city = StringProperty()
+    description = StringProperty()
     url = StringProperty()
     key = StringProperty()
 
@@ -176,6 +176,7 @@ class Contact(NewebeDocument):
     state = StringProperty(required=True, default=STATE_PENDING)
     slug = StringProperty(required=True)
     requestDate = DateTimeProperty()
+    description = StringProperty()
 
     
 

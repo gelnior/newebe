@@ -9,10 +9,10 @@ class MicroPostRow extends Backbone.View
   # HTML representation
   template:  _.template('''
     <a class="news-micropost-delete">X</a>
-    <span class="news-micropost-author"><%= author %></span>
+    <a href="#" class="news-micropost-author"><%= author %></a>
     <%= contentHtml %>
     <p class="news-micropost-date">
-     <%= displayDate %>
+     <%= displayDate %>     
     </p>
   ''')
 
@@ -22,6 +22,7 @@ class MicroPostRow extends Backbone.View
     "click .news-micropost-delete": "onDeleteClicked"
     "mouseover" : "onMouseOver"
     "mouseout" : "onMouseOut"
+    "click .news-micropost-author": "onAuthorClicked"
 
   # Constructor : register view and set HTML element id.
   constructor: (@model) ->
@@ -52,6 +53,13 @@ class MicroPostRow extends Backbone.View
           model.delete()
     )
 
+  onAuthorClicked: (event) ->
+    $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
+      $("#news-preview").html(data)
+    )
+
+    event.preventDefault()
+    false
 
   ### Functions ###
 

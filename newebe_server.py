@@ -17,7 +17,7 @@ from newebe.core.handlers import ProfileTHandler, \
                                  ProfileMenuContentTHandler, \
                                  ProfileTutorial1THandler, \
                                  ProfileTutorial2THandler, \
-                                 ContactTHandler, \
+                                 ContactUpdateHandler, ContactTHandler, \
                                  ContactContentTHandler, \
                                  ContactTutorial1THandler, \
                                  ContactTutorial2THandler, \
@@ -25,10 +25,12 @@ from newebe.core.handlers import ProfileTHandler, \
                                  ContactPushHandler, ContactConfirmHandler, \
                                  ContactHandler, ContactsHandler, \
                                  ContactsPendingHandler, \
-                                 ContactsRequestedHandler
+                                 ContactsRequestedHandler, \
+                                 ContactRenderTHandler
 
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler, \
+                                 MicropostTHandler, \
                                  MyNewsHandler, \
                                  NewsContentTHandler, NewsTHandler, \
                                  NewsTutorial1THandler, NewsTutorial2THandler
@@ -51,10 +53,12 @@ class Newebe(Application):
             ('/', NewsTHandler),
 
             ('/contacts/$', ContactsHandler),
+            ('/contacts/update-profile/$', ContactUpdateHandler),
             ('/contacts/pending/$', ContactsPendingHandler),
             ('/contacts/requested/$', ContactsRequestedHandler),
             ('/contacts/confirm/$', ContactConfirmHandler),
             ('/contacts/request/$', ContactPushHandler),
+            ('/contacts/render/([0-9A-Za-z-]+)/$', ContactRenderTHandler),
             ('/contacts/([0-9A-Za-z-]+)/$', ContactHandler),
 
             ('/contact/$', ContactTHandler),
@@ -75,11 +79,12 @@ class Newebe(Application):
             ('/news/microposts/mine/', MyNewsHandler),
             ('/news/microposts/all/([0-9\-]+)/', NewsHandler),
             ('/news/microposts/all/', NewsHandler),
+            ('/news/microposts/([0-9a-z]+)/', MicropostHandler),
+            ('/news/microposts/([0-9a-z]+)/html/', MicropostTHandler),
+            ('/news/microposts/contacts/', NewsContactHandler),
             ('/news/content/', NewsContentTHandler),
             ('/news/tutorial/1/', NewsTutorial1THandler),
             ('/news/tutorial/2/', NewsTutorial2THandler),
-            ('/news/microposts/contacts/', NewsContactHandler),
-            ('/news/microposts/([0-9a-z]+)/', MicropostHandler),
             ('/news/suscribe/', NewsSuscribeHandler),
  
             ('/activities/', ActivityPageHandler),
@@ -88,14 +93,14 @@ class Newebe(Application):
             ('/activities/all/([0-9\-]+)/', ActivityHandler),
             ('/activities/mine/', MyActivityHandler),
             ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
-            ('.*', FallbackHandler, dict(fallback=django_wsgi)),
+        #    ('.*', FallbackHandler, dict(fallback=django_wsgi)),
         ]
         
-        settings = dict()
-        if not DEBUG: 
-            settings = dict(
-              static_path=os.path.join(os.path.dirname(__file__), "static"),
-            )
+        #settings = dict()
+        #if not DEBUG: 
+        settings = dict(
+          static_path=os.path.join(os.path.dirname(__file__), "static"),
+        )
         Application.__init__(self, handlers, **settings)
 
 

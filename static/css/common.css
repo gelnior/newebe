@@ -29,10 +29,13 @@ blockquote, q { quotes: "" ""; }
 
 
 /** General */
-a:visited { color: back; }
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
 body { font-family : sans-serif ; margin : 10px 0 0 10px; } 
 
-#apps { width : 960px; margin : 0 0 0 0; background : white; }
+#apps { width : 100%; /*960px; */ margin : 0; background : white; }
+.app { width: 49%; float: left; } 
+.preview { width: 49%; float: right; } 
 div.spacer { clear : both; }
 
 em { font-style: italic; }
@@ -117,7 +120,9 @@ h3 { font-weight: bold; margin-bottom: 6px; }
 #profile  { margin-top: 30px; }
 #profile p { margin-bottom: 20px; font-size: 18px;}
 #profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
-#profile input#platform-profile-url { width: 600px;  }
+#profile input#platform-profile-url { width: 80%;  }
+#profile textarea#profile-description { 
+    width: 100%; height: 70%; border: 0; font-size: 14px;}
 #profile input { font-size: 18px; border: none; padding: 0 0 6px 0;}
 
 .modified { background:#ffffff url('/static/images/modification_marker.png') 
@@ -128,7 +133,8 @@ h3 { font-weight: bold; margin-bottom: 6px; }
 
 #contact-url-field {
   font-size: 20px;
-  width: 881px;
+  /*width: 881px;*/
+  width: 100%;
   margin-top: 2px;
   padding: 5px;
   margin-bottom: 1px;

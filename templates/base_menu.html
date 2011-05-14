@@ -2,6 +2,9 @@
 
 {% block body %}
 {% include "../templates/base_menu_content.html" %}
+<div id="preview">
+  {% block preview %}{% end %}
+</div>
 <div id="apps">
   {% block content %}{% end %}
 </div>

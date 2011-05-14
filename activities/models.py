@@ -62,9 +62,10 @@ class Activity(NewebeDocument):
     '''
 
     author = StringProperty()
+    verb = StringProperty(required=True)
+    docType = StringProperty(required=True)
     # docId is used to retrieve the doc linked to the activity.
     docId = StringProperty(required=True)
-    verb = StringProperty(required=True)
     method = StringProperty(required=True, default="POST")
     isMine = BooleanProperty(required=True, default=True)
     errors = ListProperty()

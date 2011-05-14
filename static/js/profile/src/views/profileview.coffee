@@ -23,6 +23,7 @@ class ProfileView extends Backbone.View
   # When key control is up it set is ctrl pressed variable to false.
   onKeyUp: (event) ->
     @postUserInfo()
+    event
 
 
   ### Functions ###
@@ -33,7 +34,7 @@ class ProfileView extends Backbone.View
     @user = @users.first()
     
     $("#platform-profile-name").val(@user.getName())
-    $("#platform-profile-city").val(@user.getCity())
+    $("#profile-description").val(@user.getDescription())
     $("#platform-profile-url").val(@user.get("url"))
 
     if not @user.get("url")
@@ -58,7 +59,7 @@ class ProfileView extends Backbone.View
         (
           name : $("#platform-profile-name").val()
           url : $("#platform-profile-url").val()
-          city : $("#platform-profile-city").val()
+          description : $("#profile-description").val()
         ),
         success: () ->
           if tutorialOn
@@ -87,7 +88,7 @@ class ProfileView extends Backbone.View
   setListeners: ->
     $("#platform-profile-name").keyup((event) -> profileApp.onKeyUp(event))
     $("#platform-profile-url").keyup((event) -> profileApp.onKeyUp(event))
-    $("#platform-profile-city").keyup((event) -> profileApp.onKeyUp(event))
+    $("#profile-description").keyup((event) -> profileApp.onKeyUp(event))
 
   # Build JQuery widgets.
   setWidgets: ->

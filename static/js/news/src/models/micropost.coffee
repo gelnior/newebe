@@ -56,6 +56,9 @@ class MicroPost extends Backbone.Model
   getAuthor: ->
     @get('author')
 
+  getAuthorKey: ->
+    @get('authorKey')
+
   getDate: ->
     @get('date')
 

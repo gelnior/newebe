@@ -51,7 +51,7 @@ class NewsSuscribeHandler(RequestHandler):
 
 class MicropostHandler(NewebeHandler):
     '''
-    Manage single poss data :
+    Manage single post data :
     * GET request returns post corresponding to the id given in the request URL.
     * DELETE request deletes post corresponding to the id given in the request 
     URL. Then send the delete request to contacts.
@@ -98,6 +98,7 @@ class MicropostHandler(NewebeHandler):
                 authorKey = user.key,
                 author = user.name,
                 verb = "deletes",
+                docType = "micropost",
                 docId = micropost._id,
                 method = "DELETE"
             )
@@ -153,6 +154,24 @@ class MicropostHandler(NewebeHandler):
 
         else: 
             logger.info("Delete post successfully sent.")
+
+
+class MicropostTHandler(NewebeHandler):
+    '''
+    * GET
+    '''
+    
+    def get(self, postId):
+        '''
+        '''
+
+        micropost = MicroPostManager.getMicropost(postId)
+        if micropost:   
+            self.render("../templates/news/micropost.html", micropost=micropost)
+        else:
+            raise HTTPError(404, "Micropost not found.")
+
+
 
 
 class MyNewsHandler(NewebeHandler):
@@ -254,6 +273,7 @@ class NewsHandler(NewebeHandler):
                 authorKey = user.key,
                 author = user.name,
                 verb = "writes",
+                docType = "micropost",
                 docId = micropost._id
             )
             self.activity.save()
@@ -339,8 +359,9 @@ class NewsContactHandler(NewebeHandler):
             activity = Activity(
                 authorKey = micropost.authorKey,
                 author = micropost.author,
-                docId = micropost._id,
                 verb = "writes",
+                docType = "micropost",
+                docId = micropost._id,
                 isMine = False,
                 date = date
             )
@@ -387,7 +408,7 @@ class NewsContactHandler(NewebeHandler):
 
                 micropost.delete()
             logger.info(
-               "Micropost deletion from %s recieved" % micropost.author)
+               "Micropost deletion from %s received" % micropost.author)
             self.set_status(200)
             self.finish()
             

@@ -6,15 +6,13 @@ from tornado.httpclient import HTTPClient, HTTPRequest
 
 from django.template.defaultfilters import slugify
 
-from newebe.lib.response import JSON_MIMETYPE 
-
 from newebe.lib import json_util
 from django.utils import simplejson as json
 from newebe.core.models import User, UserManager
 from newebe.core.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED
-
+from newebe.activities.models import Activity
 
 
 class NewebeHandler(RequestHandler):
@@ -30,7 +28,7 @@ class NewebeHandler(RequestHandler):
         '''
 
         self.set_status(statusCode)
-        self.set_header("Content-Type", JSON_MIMETYPE)
+        self.set_header("Content-Type", "application/json")
         self.write(json)
         self.finish()
 
@@ -67,6 +65,45 @@ class NewebeHandler(RequestHandler):
         '''
         
         self.returnJson(json.dumps({ "error" : text }), statusCode)
+
+
+from threading import Timer
+
+
+global sending_data
+sending_data= False
+
+
+def send_profile_to_contacts():
+     client = HTTPClient()
+     global sending_data
+     sending_data = False
+
+     user = UserManager.getUser()
+     jsonbody = user.toJson()
+
+     activity = Activity(
+         authorKey = user.key,
+         author = user.name,
+         verb = "modifies",
+         docType = "profile",
+         method = "PUT",
+         docId = "none",
+         isMine = True
+     )
+     activity.save()
+
+     for contact in ContactManager.getTrustedContacts():
+         request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
+                      method="PUT", body=jsonbody)
+         client.fetch(request)
+
+def forward_profile():
+    t = Timer(5.0, send_profile_to_contacts)
+    global sending_data
+    if not sending_data:
+        sending_data = True
+        t.start()
 
 
 class UserHandler(NewebeHandler):
@@ -114,6 +151,7 @@ class UserHandler(NewebeHandler):
             self.returnFailure(
                     "Data are not correct. User has not been created.", 400)
 
+
     def put(self):
         '''
         Modify current user data with sent data (user object at JSON format).
@@ -127,10 +165,54 @@ class UserHandler(NewebeHandler):
             postedUser = json.loads(data)
             user.name = postedUser["name"]
             user.url = postedUser["url"]
-            user.city = postedUser["city"]
+            user.description = postedUser["description"]
             user.save()
 
-        self.returnSuccess("User successfully Modified.")
+            forward_profile()
+
+            self.returnSuccess("User successfully Modified.")
+        else:
+            self.returnFailure("No data were sent.")
+
+
+
+class ContactUpdateHandler(NewebeHandler):
+
+    def put(self):
+        '''
+        '''      
+
+        data = self.request.body
+
+        if data:
+            putContact = json.loads(data)
+            key = putContact["key"]            
+
+            contact = ContactManager.getTrustedContact(key)
+            if contact:
+                contact.url = putContact["url"]
+                contact.description = putContact["description"]
+                contact.name = putContact["name"]
+                contact.save()
+         
+                activity = Activity(
+                     authorKey = contact.key,
+                     author = contact.name,
+                     verb = "modifies",
+                     docType = "profile",
+                     method = "PUT",
+                     docId = "none",
+                     isMine = False
+                )
+                activity.save()
+
+                self.returnSuccess("Contact successfully Modified.")
+       
+            else:
+                self.returnFailure(
+                        "No contact found corresponding to given contact", 404)
+        else:
+            self.returnFailure("Empty data.")
 
 
 class ContactsPendingHandler(NewebeHandler):
@@ -164,73 +246,6 @@ class ContactsRequestedHandler(NewebeHandler):
         contacts = ContactManager.getRequestedContacts()
 
         self.return_documents(contacts)
-
-
-class ContactsHandler(NewebeHandler):
-    '''
-    This is the resource for contact data management. It allows :
-     * GET : retrieve all contacts data.
-     * POST : create a new contact.
-    '''
-
-
-    def get(self):
-        '''
-        Retrieve whole contact list at JSON format.
-        '''
-        contacts = ContactManager.getContacts()
-
-        self.return_documents(contacts)
-
-
-    def post(self):
-        '''
-        Create a new contact from sent data (contact object at JSON format).
-        '''
-
-        logger = logging.getLogger("newebe.contact")
-
-        data = self.request.body
-
-        if data:
-            postedContact = json.loads(data)
-            url = postedContact['url']
-            slug = slugify(url)
-
-            contact = Contact(
-              url = url,
-              slug = slug
-            )
-            contact.save()
-        
-            try:
-                data = UserManager.getUser().toContact().toJson()
-
-                client = HTTPClient()
-                request = HTTPRequest("%scontacts/request/" % url, 
-                                      method="POST", body=data)
-
-                response = client.fetch(request)
-                data = response.body
-                
-                newebeResponse = json.loads(data)
-                if not newebeResponse["success"]:
-                    contact.state = STATE_ERROR
-                    contact.save()
-
-            except Exception:
-                import traceback
-                logger.error("Error on adding contact:\n %s" % 
-                        traceback.format_exc())
-
-                contact.state = STATE_ERROR
-                contact.save()
-
-            return self.returnJson(contact.toJson(), 201)
-
-        else:
-            return self.returnFailure(
-                    "Wrong data. Contact has not been created.", 400)
 
 
 class ContactHandler(NewebeHandler):
@@ -304,6 +319,74 @@ class ContactHandler(NewebeHandler):
             self.returnFailure("Contact does not exist.")
 
 
+class ContactsHandler(NewebeHandler):
+    '''
+    This is the resource for contact data management. It allows :
+     * GET : retrieve all contacts data.
+     * POST : create a new contact.
+    '''
+
+
+    def get(self):
+        '''
+        Retrieve whole contact list at JSON format.
+        '''
+        contacts = ContactManager.getContacts()
+
+        self.return_documents(contacts)
+
+
+    def post(self):
+        '''
+        Create a new contact from web client data 
+        (contact object at JSON format).
+        '''
+
+        logger = logging.getLogger("newebe.contact")
+
+        data = self.request.body
+
+        if data:
+            postedContact = json.loads(data)
+            url = postedContact['url']
+            slug = slugify(url)
+
+            contact = Contact(
+              url = url,
+              slug = slug
+            )
+            contact.save()
+        
+            try:
+                data = UserManager.getUser().toContact().toJson()
+
+                client = HTTPClient()
+                request = HTTPRequest("%scontacts/request/" % url, 
+                                      method="POST", body=data)
+
+                response = client.fetch(request)
+                data = response.body
+                
+                newebeResponse = json.loads(data)
+                if not newebeResponse["success"]:
+                    contact.state = STATE_ERROR
+                    contact.save()
+
+            except Exception:
+                import traceback
+                logger.error("Error on adding contact:\n %s" % 
+                        traceback.format_exc())
+
+                contact.state = STATE_ERROR
+                contact.save()
+
+            return self.returnJson(contact.toJson(), 201)
+
+        else:
+            return self.returnFailure(
+                    "Wrong data. Contact has not been created.", 400)
+
+
 class ContactPushHandler(NewebeHandler):
     '''
     This is the resource for contact request. It allows :
@@ -328,7 +411,8 @@ class ContactPushHandler(NewebeHandler):
                 slug = slug,
                 key = postedContact["key"],
                 state = STATE_WAIT_APPROVAL,
-                requestDate = datetime.datetime.now()
+                requestDate = datetime.datetime.now(),
+                description = postedContact["description"]
             )
             contact.save()
             self.returnSuccess("Request received.")
@@ -369,7 +453,24 @@ class ContactConfirmHandler(NewebeHandler):
              
         else:
             self.returnFailure("Sent data are incorrects.", 400)
+
+
+class ContactRenderTHandler(NewebeHandler):
+    '''
+    * GET
+    '''
     
+    def get(self, key):
+        '''        
+        '''
+
+        contact = ContactManager.getTrustedContact(key)
+        if contact: 
+            self.render("../templates/core/contact/contact_render.html", 
+                        contact=contact)
+        else:
+            return self.returnFailure("Contact not found.", 404)
+
 
 class ProfileTHandler(NewebeHandler):
 

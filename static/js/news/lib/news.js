@@ -8,7 +8,7 @@
     child.__super__ = parent.prototype;
     return child;
   };
-  InfoDialog = function() {
+  InfoDialog = (function() {
     function InfoDialog() {
       var div;
       div = document.createElement('div');
@@ -26,8 +26,8 @@
       return this.element.fadeOut(4000);
     };
     return InfoDialog;
-  }();
-  ConfirmationDialog = function() {
+  })();
+  ConfirmationDialog = (function() {
     function ConfirmationDialog(callback) {
       var div;
       div = document.createElement('div');
@@ -58,8 +58,8 @@
       return this.element.fadeOut();
     };
     return ConfirmationDialog;
-  }();
-  LoadingIndicator = function() {
+  })();
+  LoadingIndicator = (function() {
     function LoadingIndicator() {
       var div;
       div = document.createElement('div');
@@ -76,8 +76,8 @@
       return this.element.hide();
     };
     return LoadingIndicator;
-  }();
-  MicroPost = function() {
+  })();
+  MicroPost = (function() {
     __extends(MicroPost, Backbone.Model);
     MicroPost.prototype.url = '/news/microposts/';
     function MicroPost(microPost) {
@@ -121,6 +121,9 @@
     MicroPost.prototype.getAuthor = function() {
       return this.get('author');
     };
+    MicroPost.prototype.getAuthorKey = function() {
+      return this.get('authorKey');
+    };
     MicroPost.prototype.getDate = function() {
       return this.get('date');
     };
@@ -136,8 +139,8 @@
       return !this.getAuthor();
     };
     return MicroPost;
-  }();
-  MicroPostCollection = function() {
+  })();
+  MicroPostCollection = (function() {
     function MicroPostCollection() {
       MicroPostCollection.__super__.constructor.apply(this, arguments);
     }
@@ -151,17 +154,18 @@
       return response.rows;
     };
     return MicroPostCollection;
-  }();
-  MicroPostRow = function() {
+  })();
+  MicroPostRow = (function() {
     __extends(MicroPostRow, Backbone.View);
     MicroPostRow.prototype.tagName = "div";
     MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<span class="news-micropost-author"><%= author %></span>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>\n</p>');
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
     /* Events */
     MicroPostRow.prototype.events = {
       "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
-      "mouseout": "onMouseOut"
+      "mouseout": "onMouseOut",
+      "click .news-micropost-author": "onAuthorClicked"
     };
     function MicroPostRow(model) {
       this.model = model;
@@ -184,6 +188,13 @@
         return model["delete"]();
       });
     };
+    MicroPostRow.prototype.onAuthorClicked = function(event) {
+      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
+        return $("#news-preview").html(data);
+      });
+      event.preventDefault();
+      return false;
+    };
     /* Functions */
     MicroPostRow.prototype.remove = function() {
       return $(this.el).remove();
@@ -198,8 +209,8 @@
       return this.el;
     };
     return MicroPostRow;
-  }();
-  NewsView = function() {
+  })();
+  NewsView = (function() {
     __extends(NewsView, Backbone.View);
     NewsView.prototype.el = $("#news");
     NewsView.prototype.isCtrl = false;
@@ -398,7 +409,7 @@
       return $("#news-a").addClass("disabled");
     };
     return NewsView;
-  }();
+  })();
   newsApp = new NewsView;
   loadingIndicator = new LoadingIndicator;
   confirmationDialog = new ConfirmationDialog;

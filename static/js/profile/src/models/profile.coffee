@@ -17,7 +17,7 @@ class User extends Backbone.Model
     @id =  ""
     @set("url", user.url)
     @set("name", user.name)
-    @set("city", user.city)
+    @set("description", user.description)
     
   ### Setters / Accessors ###
 
@@ -29,18 +29,18 @@ class User extends Backbone.Model
     @set("name", name)
     alert @getName()
 
-  setUrl: (url) ->
-    @set("url", url)
-
-  setCity: (city) ->
-    @set("city", city)
-
-
   getUrl: ->
     @get("userUrl")
 
-  getCity: ->
-    @get("city")
+  setUrl: (url) ->
+    @set("url", url)
+
+  getDescription: ->
+    @get("description")
+
+  setDescription: (description) ->
+    @set("description", description)
+
 
   # User is never new. If this page is displayed, it means that the owner
   # is already registered.
