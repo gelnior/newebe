@@ -1,0 +1,16 @@
+#activity-list {
+  margin: 20px 0 20px 0;
+  font-size: 13px;
+}
+#activity-list a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #000;
+}
+#activity-list a:hover {
+  text-decoration: underline;
+}
+.activity-row {
+  border-bottom: 1px solid #aaa;
+  padding: 10px 0 10px 0;
+}
