@@ -1,0 +1,42 @@
+<!DOCTYPE html>  <html> <head>   <title>profile.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               profile.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h1>User</h1>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Model for current User</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">User</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Url where contacts lives.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">url: </span><span class="s1">&#39;/user/&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Constructor initializes its field from a javascript raw object.
+Fields:</p>
+
+<ul>
+<li>url : current newebe instance URL.</li>
+<li>name : current newebe owner Name.</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">(user) -&gt;</span>
+    <span class="k">super</span>
+
+    <span class="vi">@id = </span> <span class="s2">&quot;&quot;</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">url</span><span class="p">)</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">city</span><span class="p">)</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h2>Setters / Accessors</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">getName: </span><span class="o">-&gt;</span>
+    <span class="nx">@get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+  <span class="nv">setName: </span><span class="nf">(name) -&gt;</span>
+    <span class="nx">alert</span> <span class="nx">name</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span>
+    <span class="nx">alert</span> <span class="nx">@getName</span><span class="p">()</span>
+
+  <span class="nv">setUrl: </span><span class="nf">(url) -&gt;</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="nx">url</span><span class="p">)</span>
+
+  <span class="nv">setCity: </span><span class="nf">(city) -&gt;</span>
+    <span class="nx">@set</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="nx">city</span><span class="p">)</span>
+
+
+  <span class="nv">getUrl: </span><span class="o">-&gt;</span>
+    <span class="nx">@get</span><span class="p">(</span><span class="s2">&quot;userUrl&quot;</span><span class="p">)</span>
+
+  <span class="nv">getCity: </span><span class="o">-&gt;</span>
+    <span class="nx">@get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>User is never new. If this page is displayed, it means that the owner
+is already registered.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">isNew: </span><span class="o">-&gt;</span>
+    <span class="kc">false</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h2>Model for a User collection</h2>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">UserCollection</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span>
+  <span class="nv">model: </span><span class="nx">User</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Url where user lives.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">url: </span><span class="s1">&#39;/user/&#39;</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Select which field from backend response to use for parsing to populate <br />
+collection.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">parse: </span><span class="nf">(response) -&gt;</span>
+    <span class="nx">response</span><span class="p">.</span><span class="nx">rows</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
