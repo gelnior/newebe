@@ -197,10 +197,19 @@ class NewsView extends Backbone.View
 
   
   # Sends a post request to server and add post at the beginning of current 
-  # post list.
+  # post list. 
+  # Urls are converted to markup format to be displayed automatically as href
+  # links.
   postNewPost: ()->
     loadingIndicator.display()
-    @microposts.create(content : $("#id_content").val(),
+    content = $("#id_content").val()
+    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    urls = content.match(regexp)
+    if urls
+        url = urls[0]
+        content = content.replace(regexp, "[" + url + "]" + "(" + url + ")" )
+
+    @microposts.create(content : content,
                         success : (nextModel, resp) ->
                             loadingIndicator.hide()
                             nextModel.view.el.id = resp._id

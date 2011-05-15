@@ -363,9 +363,17 @@
       return this.microposts;
     };
     NewsView.prototype.postNewPost = function() {
+      var content, regexp, url, urls;
       loadingIndicator.display();
+      content = $("#id_content").val();
+      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+      urls = content.match(regexp);
+      if (urls) {
+        url = urls[0];
+        content = content.replace(regexp, "[" + url + "]" + "(" + url + ")");
+      }
       this.microposts.create({
-        content: $("#id_content").val()
+        content: content
       }, {
         success: function(nextModel, resp) {
           loadingIndicator.hide();
