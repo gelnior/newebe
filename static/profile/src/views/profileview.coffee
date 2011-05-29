@@ -37,6 +37,8 @@ class ProfileView extends Backbone.View
     $("#profile-description").val(@user.getDescription())
     $("#platform-profile-url").val(@user.get("url"))
 
+    @renderProfile()
+
     if not @user.get("url")
       @tutorialOn = true
       @displayTutorial(1)
@@ -69,6 +71,8 @@ class ProfileView extends Backbone.View
           $("#profile").removeClass("modified")
         )
        
+    @renderProfile()
+
   # Displays the second tutorial if tutorial mode is on.
   testTutorial: ->
     if @tutorialOn
@@ -81,6 +85,26 @@ class ProfileView extends Backbone.View
     $.get("/profile/tutorial/" + index + "/", (data) ->
       $("#tutorial-profile").html(data)
     )
+
+  renderProfile: ->
+    renderer = _.template('''
+    <h1 class="profile-name"><%= name %></h1>
+    <p class="profile-url"><%= url %></p>
+    <p class="profile-description"><%= description %></p>
+    '''
+    )
+
+    desc = $("#profile-description").val()
+    converter = new Showdown.converter()
+    desc = converter.makeHtml(desc)
+
+    $("#profile-render").html(renderer(
+        name : $("#platform-profile-name").val()
+        url : $("#platform-profile-url").val()
+        description : desc
+    ))
+    @user
+
 
   ### UI Builders ###
 

@@ -12,6 +12,7 @@ class NewebeDocument(Document):
     '''
     authorKey = StringProperty()
     date = DateTimeProperty(required=True, default=datetime.datetime.now())
+    password = StringProperty()
      
 
     def toDict(self):
@@ -35,7 +36,6 @@ class NewebeDocument(Document):
 
 
 # User document
-
 class UserManager():
     '''
     Methods to easily retrieve owner of current Newebe from database.
@@ -177,6 +177,5 @@ class Contact(NewebeDocument):
     slug = StringProperty(required=True)
     requestDate = DateTimeProperty()
     description = StringProperty()
-
     
 

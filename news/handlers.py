@@ -10,7 +10,7 @@ from newebe.lib.date_util import getDateFromDbDate, getDbDateFromUrlDate
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity
 from newebe.core.models import ContactManager, UserManager
-from newebe.core.handlers import NewebeHandler
+from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 
 # When a new post is created, it is forwarded to contacts. CONTACT_PATH is 
 # the end of the URI to post the data. Full URI is contact UR + CONTACT_PATH
@@ -24,7 +24,7 @@ logger = logging.getLogger("newebe.news")
 
 
 
-class NewsSuscribeHandler(RequestHandler):
+class NewsSuscribeHandler(NewebeAuthHandler):
     '''
     Handler that managers long polling connections.
     '''
@@ -49,7 +49,7 @@ class NewsSuscribeHandler(RequestHandler):
         self.finish()
 
 
-class MicropostHandler(NewebeHandler):
+class MicropostHandler(NewebeAuthHandler):
     '''
     Manage single post data :
     * GET request returns post corresponding to the id given in the request URL.
@@ -156,7 +156,7 @@ class MicropostHandler(NewebeHandler):
             logger.info("Delete post successfully sent.")
 
 
-class MicropostTHandler(NewebeHandler):
+class MicropostTHandler(NewebeAuthHandler):
     '''
     * GET
     '''
@@ -174,7 +174,7 @@ class MicropostTHandler(NewebeHandler):
 
 
 
-class MyNewsHandler(NewebeHandler):
+class MyNewsHandler(NewebeAuthHandler):
     '''
     This handler handles request that retrieve lists of news published by
     Newebe owner.
@@ -204,7 +204,7 @@ class MyNewsHandler(NewebeHandler):
         self.returnJson(json_util.getJsonFromDocList(microposts))
 
 
-class NewsHandler(NewebeHandler):
+class NewsHandler(NewebeAuthHandler):
     '''
     This handler handles request that retrieve lists of news.
     GET : Retrieve last NEWS_LIMIT microposts published before a given date.
@@ -417,25 +417,25 @@ class NewsContactHandler(NewebeHandler):
             raise HTTPError(405, "No data sent.")
 
 
-class NewsTHandler(NewebeHandler):
+class NewsTHandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/news/news.html")
 
 
-class NewsContentTHandler(NewebeHandler):
+class NewsContentTHandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/news/news_content.html")
 
 
-class NewsTutorial1THandler(NewebeHandler):
+class NewsTutorial1THandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/news/tutorial_1.html")
 
 
-class NewsTutorial2THandler(NewebeHandler):
+class NewsTutorial2THandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/news/tutorial_2.html")

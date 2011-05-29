@@ -1,155 +1,321 @@
-/** Style reset */
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    font-weight: inherit;
-    font-style: inherit;
-    font-size: 100%;
-    font-family: inherit;
-    vertical-align: baseline;
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+font,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
 }
-:focus { outline: 0; }
-body { line-height: 1; color: black; background: white; }
-ol, ul { list-style: none; }
-/* tables still need 'cellspacing="0"' in the markup */
-table { border-collapse: separate; border-spacing: 0; }
-caption, th, td { text-align: left; font-weight: normal; }
-blockquote:before, blockquote:after, q:before, q:after { content: ""; }
-blockquote, q { quotes: "" ""; }
-/** END : Style reset */
-
-
-/** General */
-a { text-decoration: none; }
-a:hover { text-decoration: underline; }
-body { font-family : sans-serif ; margin : 10px 0 0 10px; } 
-
-#apps { width : 100%; /*960px; */ margin : 0; background : white; }
-.app { width: 49%; float: left; } 
-.preview { width: 49%; float: right; } 
-div.spacer { clear : both; }
-
-em { font-style: italic; }
-strong { font-weight: bold; }
-ul { list-style-type: disc; margin-bottom: 6px; }
-li { margin-left: 30px; }
-/** Forms */
-
-input { background-color : white; color: black; border : 1px solid black; }
-textarea { border : 1px solid black; }
-
-
-/* Menu */
-
-#menu { margin : 10px 0 10px 0; }
+:focus {
+  outline: 0;
+}
+body {
+  line-height: 1;
+  color: #000;
+  background: #fff;
+}
+ol,
+ul {
+  list-style: none;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+caption,
+th,
+td {
+  text-align: left;
+  font-weight: normal;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+}
+blockquote,
+q {
+  quotes: "" "";
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+body {
+  font-family: sans-serif;
+  margin: 10px 0 0 10px;
+}
+#apps {
+  width: 100%;
+  margin: 0;
+  background: #fff;
+}
+.app {
+  width: 49%;
+  float: left;
+}
+.preview {
+  width: 49%;
+  float: right;
+}
+div.spacer {
+  clear: both;
+}
+em {
+  font-style: italic;
+}
+strong {
+  font-weight: bold;
+}
+ul {
+  list-style-type: disc;
+  margin-bottom: 6px;
+}
+li {
+  margin-left: 30px;
+}
+input {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+textarea {
+  border: 1px solid #000;
+}
+#menu {
+  margin: 10px 0 10px 0;
+}
 #menu a {
   font-weight: bold;
   text-decoration: none;
   margin-right: 5px;
-  color: black;
+  color: #000;
 }
-#menu a:visited { color: black; }
-#menu a:hover { text-decoration : none; border-bottom: 3px solid black; }
-#menu a.disabled { color: #888; }
-#menu a.disabled:hover { cursor: default; text-decoration: none; border: none; }
-
-h1 { font-weight: bold; text-decoration : underline; margin-bottom: 6px; }
-h2 { font-weight: bold; font-style: italic; margin-bottom: 6px; }
-h3 { font-weight: bold; margin-bottom: 6px; }
-
-/* Info dialog */
-
+#menu a:visited {
+  color: #000;
+}
+#menu a:hover {
+  text-decoration: none;
+  border-bottom: 3px solid #000;
+}
+#menu a.disabled {
+  color: #888;
+}
+#menu a.disabled:hover {
+  cursor: default;
+  text-decoration: none;
+  border: none;
+}
+h1 {
+  font-weight: bold;
+  text-decoration: underline;
+  margin-bottom: 6px;
+}
+h2 {
+  font-weight: bold;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+h3 {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
 .dialog {
-  background-color: black;
-  color: white;
+  background-color: #000;
+  color: #fff;
   padding: 10px 40px 10px 40px;
   width: 600px;
   position: absolute;
   left: 180px;
   top: 200px;
 }
-#confirmation-buttons { text-align: center; margin : 25px 0 5px 0;}
-#confirmation-buttons span { color: white; font-weight: bold; 
-    text-decoration: none; padding: 20px; cursor: pointer; }
-#confirmation-text { margin-top: 10px; }
-
-
-/* Loading indicator */
-
+#confirmation-buttons {
+  text-align: center;
+  margin: 25px 0 5px 0;
+}
+#confirmation-buttons span {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 20px;
+  cursor: pointer;
+}
+#confirmation-text {
+  margin-top: 10px;
+}
 #loading-indicator {
-  background-color: black;
-  color: white;
+  background-color: #000;
+  color: #fff;
   padding: 10px;
   position: absolute;
   float: right;
   right: 30px;
   top: 30px;
 }
-
-
-/* Register / Profile */
-
 #platform-register-disclaimer {
   font-weight: bold;
   font-size: 38px;
-  text-align : center;
+  text-align: center;
   margin-top: 20%;
 }
-
 #platform-user-form {
   margin-top: 100px;
-  text-align : center;
+  text-align: center;
 }
-
 #platform-user-text-field {
-  border: none; 
+  border: none;
   font-weight: bold;
   font-size: 60px;
-  text-align : center;
+  text-align: center;
 }
-
-#profile  { margin-top: 30px; }
-#profile p { margin-bottom: 20px; font-size: 18px;}
-#profile input#platform-profile-name { font-size: 56px; font-weight: bold; }
-#profile input#platform-profile-url { width: 80%;  }
-#profile textarea#profile-description { 
-    width: 100%; height: 70%; border: 0; font-size: 14px;}
-#profile input { font-size: 18px; border: none; padding: 0 0 6px 0;}
-
-.modified { background:#ffffff url('/static/images/modification_marker.png') 
-            no-repeat right top; }
-
-
-/* Contacts */
-
+#platform-password-text-field,
+#login-password-text-field {
+  border: none;
+  font-weight: bold;
+  font-size: 60px;
+  text-align: center;
+}
+#profile {
+  margin-top: 30px;
+  font-size: 18px;
+}
+#profile p {
+  margin-bottom: 20px;
+}
+#profile input#platform-profile-name {
+  font-size: 56px;
+  font-weight: bold;
+}
+#profile input#platform-profile-url {
+  width: 80%;
+}
+#profile textarea#profile-description {
+  width: 100%;
+  height: 70%;
+  border: 0;
+  font-size: 14px;
+}
+#profile input {
+  font-size: 18px;
+  border: none;
+  padding: 0 0 6px 0;
+}
+#profile-render {
+  margin-top: 20px;
+}
+.profile-name {
+  font-size: 32px;
+  text-decoration: none;
+}
+.profile-url {
+  font-size: 10px;
+  font-style: italic;
+}
+.profile-description {
+  margin-top: 10px;
+}
+#logout-a {
+  float: right;
+}
+.modified {
+  background: #fff url("/static/images/modification_marker.png") no-repeat right top;
+}
 #contact-url-field {
   font-size: 20px;
-  /*width: 881px;*/
   width: 100%;
   margin-top: 2px;
   padding: 5px;
   margin-bottom: 1px;
 }
-#contact-post-button { float: right; }
-#contacts { margin-top: 50px; }
-
-#user-menu { float: right; width: 200px; }
-
-.platform-contact-row { margin-bottom: 10px; border-bottom: 1px solid #CCC; }
-.platform-contact-url { padding: 12px 0 18px 0; }
-.platform-contact-row-buttons { float: right; height: 40px; padding: 0;}
-
-
-/* Tutorial */
-.tutorial-text { padding-bottom: 10px; font-size : 18px; }
-h3.tutorial-text { font-weight: bold; }
-
+#contact-post-button {
+  float: right;
+}
+#contacts {
+  margin-top: 50px;
+}
+#user-menu {
+  float: right;
+  width: 200px;
+}
+.platform-contact-row {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+}
+.platform-contact-url {
+  padding: 12px 0 18px 0;
+}
+.platform-contact-row-buttons {
+  float: right;
+  height: 40px;
+  padding: 0;
+}
+.tutorial-text {
+  padding-bottom: 10px;
+  font-size: 18px;
+}
+h3.tutorial-text {
+  font-weight: bold;
+}

@@ -198,7 +198,7 @@ class NewsView extends Backbone.View
   
   # Sends a post request to server and add post at the beginning of current 
   # post list. 
-  # Urls are converted to markup format to be displayed automatically as href
+  # Urls are converted to markdown links to be displayed automatically as href
   # links.
   postNewPost: ()->
     loadingIndicator.display()

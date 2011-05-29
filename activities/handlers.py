@@ -1,11 +1,11 @@
 from newebe.lib.date_util import getDbDateFromUrlDate
-from newebe.core.handlers import NewebeHandler
+from newebe.core.handlers import NewebeAuthHandler
 from newebe.lib import json_util
 
 from newebe.activities.models import ActivityManager
 
 
-class ActivityHandler(NewebeHandler):
+class ActivityHandler(NewebeAuthHandler):
     '''
     This handler handles requests that retrieve lists of activities.
     GET : Retrieves last LIMIT activities published before a given date.
@@ -31,7 +31,7 @@ class ActivityHandler(NewebeHandler):
         self.returnJson(json_util.getJsonFromDocList(activities))
 
         
-class MyActivityHandler(NewebeHandler):
+class MyActivityHandler(NewebeAuthHandler):
     '''
     This handler handles requests that retrieve lists of activities of
     newebe owner.
@@ -59,12 +59,12 @@ class MyActivityHandler(NewebeHandler):
         self.returnJson(json_util.getJsonFromDocList(activities))
 
 
-class ActivityContentHandler(NewebeHandler):
+class ActivityContentHandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/activities/activities_content.html")
 
-class ActivityPageHandler(NewebeHandler):
+class ActivityPageHandler(NewebeAuthHandler):
 
     def get(self):
         self.render("../templates/activities/activities.html")

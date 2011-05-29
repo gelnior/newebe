@@ -80,6 +80,7 @@
       $("#platform-profile-name").val(this.user.getName());
       $("#profile-description").val(this.user.getDescription());
       $("#platform-profile-url").val(this.user.get("url"));
+      this.renderProfile();
       if (!this.user.get("url")) {
         this.tutorialOn = true;
         this.displayTutorial(1);
@@ -94,7 +95,7 @@
       var tutorialOn;
       $("#profile").addClass("modified");
       tutorialOn = this.tutorialOn;
-      return this.user.save({
+      this.user.save({
         name: $("#platform-profile-name").val(),
         url: $("#platform-profile-url").val(),
         description: $("#profile-description").val()
@@ -108,6 +109,7 @@
           return $("#profile").removeClass("modified");
         }
       });
+      return this.renderProfile();
     };
     ProfileView.prototype.testTutorial = function() {
       if (this.tutorialOn) {
@@ -120,6 +122,19 @@
       return $.get("/profile/tutorial/" + index + "/", function(data) {
         return $("#tutorial-profile").html(data);
       });
+    };
+    ProfileView.prototype.renderProfile = function() {
+      var converter, desc, renderer;
+      renderer = _.template('<h1 class="profile-name"><%= name %></h1>\n<p class="profile-url"><%= url %></p>\n<p class="profile-description"><%= description %></p>');
+      desc = $("#profile-description").val();
+      converter = new Showdown.converter();
+      desc = converter.makeHtml(desc);
+      $("#profile-render").html(renderer({
+        name: $("#platform-profile-name").val(),
+        url: $("#platform-profile-url").val(),
+        description: desc
+      }));
+      return this.user;
     };
     /* UI Builders */
     ProfileView.prototype.setListeners = function() {

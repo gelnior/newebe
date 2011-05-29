@@ -10,6 +10,7 @@ class PlatformView extends Backbone.View
     "click #profile-a": "onProfileClicked"
     "click #contact-a": "onContactClicked"
     "click #activities-a": "onActivitiesClicked"
+    "click #logout-a": "onLogoutClicked"
 
 
   constructor: (controller) ->
@@ -21,7 +22,7 @@ class PlatformView extends Backbone.View
   # Registers current page as last page selected. It is needed to update menu
   # items (disabled or not) when user changes application.
   initialize: ->
-    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked')
+    _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked', 'onLogoutClicked')
 
     if $("#news").length != 0
       @lastPage = "#news"
@@ -82,6 +83,12 @@ class PlatformView extends Backbone.View
     if @lastPage != page
       $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))
     @lastPage
+
+
+  onLogoutClicked: (event) ->
+    $("body").fadeOut(@onLogout)
+
+  
 
   # When last page fade out finishes, it fades in *page* or load it from *url* 
   # if page is not yet loaded.

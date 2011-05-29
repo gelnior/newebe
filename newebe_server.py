@@ -26,7 +26,11 @@ from newebe.core.handlers import ProfileTHandler, \
                                  ContactHandler, ContactsHandler, \
                                  ContactsPendingHandler, \
                                  ContactsRequestedHandler, \
-                                 ContactRenderTHandler
+                                 ContactRenderTHandler, \
+                                 LoginHandler, LogoutHandler, LoginJsonHandler,\
+                                 RegisterTHandler, RegisterPasswordTHandler, \
+                                 RegisterPasswordContentTHandler
+                                 
 
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler, \
@@ -52,6 +56,20 @@ class Newebe(Application):
         handlers = [
             ('/', NewsTHandler),
 
+            ('/login/', LoginHandler),
+            ('/login/json/', LoginJsonHandler),
+            ('/logout/', LogoutHandler),
+            ('/register/', RegisterTHandler),
+            ('/register/password/', RegisterPasswordTHandler),
+            ('/register/password/content/', RegisterPasswordContentTHandler),
+            
+            ('/user/$', UserHandler),
+            ('/profile/$', ProfileTHandler),
+            ('/profile/content/$', ProfileContentTHandler),
+            ('/profile/menu-content/$', ProfileMenuContentTHandler),
+            ('/profile/tutorial/1/$', ProfileTutorial1THandler),
+            ('/profile/tutorial/2/$', ProfileTutorial2THandler),
+
             ('/contacts/$', ContactsHandler),
             ('/contacts/update-profile/$', ContactUpdateHandler),
             ('/contacts/pending/$', ContactsPendingHandler),
@@ -65,13 +83,6 @@ class Newebe(Application):
             ('/contact/content/$', ContactContentTHandler),
             ('/contact/tutorial/1/$', ContactTutorial1THandler),
             ('/contact/tutorial/2/$', ContactTutorial2THandler),
-            
-            ('/user/$', UserHandler),
-            ('/profile/$', ProfileTHandler),
-            ('/profile/content/$', ProfileContentTHandler),
-            ('/profile/menu-content/$', ProfileMenuContentTHandler),
-            ('/profile/tutorial/1/$', ProfileTutorial1THandler),
-            ('/profile/tutorial/2/$', ProfileTutorial2THandler),
 
             ('/news/', NewsTHandler),
             ('/news/microposts/', NewsHandler),
@@ -93,14 +104,13 @@ class Newebe(Application):
             ('/activities/all/([0-9\-]+)/', ActivityHandler),
             ('/activities/mine/', MyActivityHandler),
             ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
-        #    ('.*', FallbackHandler, dict(fallback=django_wsgi)),
         ]
         
-        #settings = dict()
-        #if not DEBUG: 
-        settings = dict(
-          static_path=os.path.join(os.path.dirname(__file__), "static"),
-        )
+        settings = {
+          "static_path": os.path.join(os.path.dirname(__file__), "static"),
+          "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
+          "login_url": "/login",
+        }
         Application.__init__(self, handlers, **settings)
 
 
@@ -116,8 +126,8 @@ if __name__ == '__main__':
     logger = logging.getLogger("newebe")
     logger.info("Sets up application server.")
     os.environ["DJANGO_SETTINGS_MODULE"] = 'newebe.settings'
-    django_application = django.core.handlers.wsgi.WSGIHandler()
-    django_wsgi = WSGIContainer(django_application)
+    #django_application = django.core.handlers.wsgi.WSGIHandler()
+    #django_wsgi = WSGIContainer(django_application)
     tornado_app = Newebe()
 
     if DEBUG:

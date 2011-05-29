@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, PlatformController, PlatformView, RegisterView, infoDialog, loadingIndicator, platformController, platformView, registerView;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -7,7 +7,7 @@
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  };
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   PlatformController = (function() {
     function PlatformController() {
       PlatformController.__super__.constructor.apply(this, arguments);
@@ -43,7 +43,8 @@
       "click #news-a": "onNewsClicked",
       "click #profile-a": "onProfileClicked",
       "click #contact-a": "onContactClicked",
-      "click #activities-a": "onActivitiesClicked"
+      "click #activities-a": "onActivitiesClicked",
+      "click #logout-a": "onLogoutClicked"
     };
     function PlatformView(controller) {
       this.controller = controller;
@@ -51,7 +52,7 @@
       PlatformView.__super__.constructor.apply(this, arguments);
     }
     PlatformView.prototype.initialize = function() {
-      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked');
+      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked', 'onLogoutClicked');
       if ($("#news").length !== 0) {
         this.lastPage = "#news";
       } else if ($("#contact").length !== 0) {
@@ -105,6 +106,9 @@
       }
       return this.lastPage;
     };
+    PlatformView.prototype.onLogoutClicked = function(event) {
+      return $("body").fadeOut(this.onLogout);
+    };
     PlatformView.prototype.onLastPageFadeOut = function(page, url) {
       $(this.lastPage).hide();
       this.lastPage = page;
@@ -138,7 +142,45 @@
       if (event.keyCode === 13 && !this.isPosting) {
         dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}';
         this.isPosting = true;
-        url = "/user/";
+        url = "/register/";
+        return $.post(url, dataPost, function(data) {
+          return $("#register").fadeOut(1600, function() {
+            $("body").hide();
+            return $.get("/register/password/content/", function(data) {
+              var registerPasswordView;
+              $("body").prepend(data);
+              $("#menu").hide();
+              $("#apps").hide();
+              $("body").show();
+              $("#menu").fadeIn();
+              $("#apps").fadeIn();
+              return registerPasswordView = new RegisterPasswordView;
+            });
+          });
+        }, "json");
+      }
+    };
+    return RegisterView;
+  })();
+  RegisterPasswordView = (function() {
+    __extends(RegisterPasswordView, Backbone.View);
+    RegisterPasswordView.prototype.el = $("body");
+    function RegisterPasswordView() {
+      RegisterPasswordView.__super__.constructor.apply(this, arguments);
+    }
+    RegisterPasswordView.prototype.initialize = function() {
+      _.bindAll(this, 'onUserFieldKeyUp');
+      this.isPosting = false;
+      $("#platform-password-text-field").val(null);
+      $("#platform-password-text-field").focus();
+      return $("#platform-password-text-field").keyup(this.onUserFieldKeyUp);
+    };
+    RegisterPasswordView.prototype.onUserFieldKeyUp = function(event) {
+      var dataPost, url;
+      if (event.keyCode === 13 && !this.isPosting) {
+        dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}';
+        this.isPosting = true;
+        url = "/register/password/";
         return $.post(url, dataPost, function(data) {
           return $("#register").fadeOut(1600, function() {
             $("body").hide();
@@ -154,7 +196,54 @@
         }, "json");
       }
     };
-    return RegisterView;
+    return RegisterPasswordView;
+  })();
+  LoginView = (function() {
+    __extends(LoginView, Backbone.View);
+    LoginView.prototype.el = $("body");
+    function LoginView() {
+      LoginView.__super__.constructor.apply(this, arguments);
+    }
+    LoginView.prototype.initialize = function() {
+      _.bindAll(this, 'onPasswordFieldKeyUp');
+      this.isPosting = false;
+      $("#login-password-text-field").val(null);
+      $("#login-password-text-field").focus();
+      return $("#login-password-text-field").keyup(this.onPasswordFieldKeyUp);
+    };
+    LoginView.prototype.onPasswordFieldKeyUp = function(event) {
+      var dataPost, url;
+      if (event.keyCode === 13 && !this.isPosting) {
+        this.isPosting = true;
+        url = "/login/json/";
+        dataPost = '{ "password":"' + $("#login-password-text-field").val() + '"}';
+        return $.ajax({
+          type: "POST",
+          url: url,
+          data: dataPost,
+          datatype: "json",
+          success: __bind(function(data) {
+            return $("#login-form").fadeOut(1600, __bind(function() {
+              $("body").hide();
+              return $.get("/profile/menu-content/", __bind(function(data) {
+                $("body").prepend(data);
+                $("#menu").hide();
+                $("#apps").hide();
+                $("body").show();
+                $("#menu").fadeIn();
+                $("#apps").fadeIn();
+                return this.isPosting = false;
+              }, this));
+            }, this));
+          }, this),
+          error: __bind(function() {
+            $("#login-password-text-field").val(null);
+            return this.isPosting = false;
+          }, this)
+        });
+      }
+    };
+    return LoginView;
   })();
   InfoDialog = (function() {
     function InfoDialog() {
@@ -229,6 +318,8 @@
   platformController = new PlatformController;
   platformView = new PlatformView(platformController);
   registerView = new RegisterView;
+  registerPasswordView = new RegisterPasswordView;
+  loginView = new LoginView;
   loadingIndicator = new LoadingIndicator;
   Backbone.history.start();
 }).call(this);
