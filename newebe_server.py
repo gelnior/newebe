@@ -114,6 +114,8 @@ class Newebe(Application):
         Application.__init__(self, handlers, **settings)
 
 
+PRIVATE_KEY = os.path.join("./", "server.key")
+CERTIFICATE = os.path.join("./", "server.crt")
 
 if __name__ == '__main__':
 
@@ -133,7 +135,11 @@ if __name__ == '__main__':
     if DEBUG:
         try:
             # Server running.
-            http_server = HTTPServer(tornado_app)
+            http_server = HTTPServer(tornado_app, ssl_options={
+                "certfile": CERTIFICATE,
+                "keyfile": PRIVATE_KEY,
+            })
+
             http_server.listen(TORNADO_PORT)
             logger.info("Starts Newebe on port %d." % TORNADO_PORT)
             ioloop = IOLoop.instance()

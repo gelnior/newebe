@@ -3,7 +3,7 @@ import datetime
 
 from django.utils import simplejson as json
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
-from tornado.web import RequestHandler, asynchronous, HTTPError
+from tornado.web import asynchronous, HTTPError
 
 from newebe.lib import json_util
 from newebe.lib.date_util import getDateFromDbDate, getDbDateFromUrlDate
@@ -158,11 +158,15 @@ class MicropostHandler(NewebeAuthHandler):
 
 class MicropostTHandler(NewebeAuthHandler):
     '''
-    * GET
+    This handler allows to retrieve micropost at HTML format.
+    * GET: Return for given id the HTML representation of corresponding 
+           micropost.
     '''
     
     def get(self, postId):
         '''
+        Returns for given id the HTML representation of corresponding 
+        micropost.
         '''
 
         micropost = MicroPostManager.getMicropost(postId)

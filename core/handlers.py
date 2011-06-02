@@ -71,8 +71,18 @@ class NewebeHandler(RequestHandler):
 
 
 class NewebeAuthHandler(NewebeHandler):
+    '''
+    Base handler for every services that needs authentication. 
+    For each request to this kind of handler, if user 
+    is not logged in, it is directly redirected to login page. If no user
+    exists, it is redirected to register page.
+    '''
 
     def get_current_user(self):
+        '''
+        With tornado, authentication is handled in this method.
+        '''
+
         user = UserManager.getUser()
 
         if user:
@@ -92,7 +102,13 @@ class NewebeAuthHandler(NewebeHandler):
 
 
 class LoginHandler(RequestHandler):
-
+    '''
+    * GET:  displaying page for logging in.
+    * POST: Get password via a form. Set a secure cookie if password is OK 
+    then redirects to .
+    Else it redirects to login page.
+    TODO: Make password encryption via sha1
+    '''
 
     def get(self):        
         self.render("../templates/core/login.html")
@@ -111,11 +127,13 @@ class LoginHandler(RequestHandler):
 
 
 class LoginJsonHandler(NewebeHandler):
+    '''
+    * POST: Get password via a json object.  Sets a secure cookie if password 
+    is OK. Else it returns an error response. 
 
+    '''
 
     def post(self):
-        
-
         data = self.request.body
 
         if data:
@@ -137,6 +155,10 @@ class LoginJsonHandler(NewebeHandler):
 
 
 class LogoutHandler(RequestHandler):
+    '''
+    Remove secure cookie for password then redirects to login page.
+    '''
+
     def get(self):
         self.clear_cookie("password")
         self.redirect("/login/")
@@ -148,6 +170,12 @@ global sending_data
 sending_data= False
 
 def send_profile_to_contacts():
+     '''
+     External methods to not send too much times the changed profile. 
+     A timer is set to wait for other modifications before running this
+     function that sends modification requests to every contacts.
+     '''
+
      client = HTTPClient()
      global sending_data
      sending_data = False
@@ -172,6 +200,7 @@ def send_profile_to_contacts():
          client.fetch(request)
 
 def forward_profile():
+
     t = Timer(5.0, send_profile_to_contacts)
     global sending_data
     if not sending_data:
@@ -184,13 +213,14 @@ class UserHandler(NewebeAuthHandler):
     This is the main resource of the application. It allows :
      * GET : retrieve current user (newebe owner) data.
      * POST : create a new user (if user exists, error response is returned).
-     * PUT : modify current user data.
+     * PUT : modify current user data. Send profile to every contacts
+     after a pre-defined time.
     '''
 
 
     def get(self):
         '''
-        Retrieve current user (newebe owner) data at JSON format.
+        Retrieves current user (newebe owner) data at JSON format.
         '''
 
         users = list()
@@ -202,7 +232,8 @@ class UserHandler(NewebeAuthHandler):
 
     def put(self):
         '''
-        Modify current user data with sent data (user object at JSON format).
+        Modifies current user data with sent data (user object at JSON format).
+        Then forwards it to contacts after a pre-defined time.
         '''
 
         user = UserManager.getUser()
@@ -224,10 +255,91 @@ class UserHandler(NewebeAuthHandler):
 
 
 
+class RegisterPasswordTHandler(NewebeHandler):
+
+    def get(self):
+
+        user = UserManager.getUser()
+        if user and user.password:
+           self.redirect("/") 
+        else:
+            self.render("../templates/core/password.html")
+
+        self.render("../templates/core/password.html")
+
+    def post(self):
+
+        user = UserManager.getUser()
+
+        if user is None:
+            self.returnFailure("User does not exist.")
+
+        if user.password is not None:
+            self.returnFailure("Password is already set.")
+
+        data = self.request.body
+
+        if data:
+            postedPassword = json.loads(data)
+            user.password = postedPassword['password']
+            user.save()
+
+            self.returnJson(user.toJson())
+
+        else:
+            self.returnFailure(
+                    "Data are not correct. User password is not set.", 400)
+
+
+
+
+
+class RegisterTHandler(NewebeHandler):
+
+
+    def get(self):
+
+        if UserManager.getUser():
+           self.redirect("/") 
+        else:
+            self.render("../templates/core/register.html")
+
+
+    def post(self):
+        '''
+        Create a new user (if user exists, error response is returned) from
+        sent data (user object at JSON format).
+        '''      
+
+        if UserManager.getUser():
+            self.returnFailure("User already exists.")
+
+        data = self.request.body
+
+        if data:
+            postedUser = json.loads(data)
+            user = User()
+            user.name = postedUser['name']
+            user.save()
+
+            user.key = user._id
+            user.save()
+
+            self.set_status(201)
+            self.returnJson(user.toJson())
+
+        else:
+            self.returnFailure(
+                    "Data are not correct. User has not been created.", 400)
+
+
+
 class ContactUpdateHandler(NewebeHandler):
+
 
     def put(self):
         '''
+        
         '''      
 
         data = self.request.body
@@ -275,6 +387,7 @@ class ContactsPendingHandler(NewebeAuthHandler):
         '''
         Retrieve whole contact list at JSON format.
         '''
+
         contacts = ContactManager.getPendingContacts()
 
         self.return_documents(contacts)
@@ -291,6 +404,7 @@ class ContactsRequestedHandler(NewebeAuthHandler):
         '''
         Retrieve whole contact list at JSON format.
         '''
+
         contacts = ContactManager.getRequestedContacts()
 
         self.return_documents(contacts)
@@ -370,14 +484,14 @@ class ContactHandler(NewebeAuthHandler):
 class ContactsHandler(NewebeAuthHandler):
     '''
     This is the resource for contact data management. It allows :
-     * GET : retrieve all contacts data.
-     * POST : create a new contact.
+     * GET : retrieves all contacts data.
+     * POST : creates a new contact.
     '''
 
 
     def get(self):
         '''
-        Retrieve whole contact list at JSON format.
+        Retrieves whole contact list at JSON format.
         '''
         contacts = ContactManager.getContacts()
 
@@ -386,8 +500,9 @@ class ContactsHandler(NewebeAuthHandler):
 
     def post(self):
         '''
-        Create a new contact from web client data 
-        (contact object at JSON format).
+        Creates a new contact from web client data 
+        (contact object at JSON format). And send a contact request to the
+        newly created contact. State of contact is set to PENDING.
         '''
 
         logger = logging.getLogger("newebe.contact")
@@ -505,105 +620,27 @@ class ContactConfirmHandler(NewebeAuthHandler):
 
 class ContactRenderTHandler(NewebeAuthHandler):
     '''
-    * GET
+    * GET: returns an HTML representation of contact corresponding to given
+    ID. If ID is equal to null Newebe owner representation is returned.
     '''
     
     def get(self, key):
-        '''        
+        '''
+
         '''
 
         contact = ContactManager.getTrustedContact(key)
         if key == "null":
+             contact = UserManager.getUser().getContact()
+
+        if contact: 
             self.render("../templates/core/contact/contact_render.html", 
-                        contact=UserManager.getUser())
-
-        else:
-            if contact: 
-                self.render("../templates/core/contact/contact_render.html", 
                             contact=contact)            
-            else:
-                return self.returnFailure("Contact not found.", 404)
-
-
-
-class RegisterPasswordTHandler(NewebeHandler):
-
-    def get(self):
-
-        user = UserManager.getUser()
-        if user and user.password:
-           self.redirect("/") 
         else:
-            self.render("../templates/core/password.html")
-
-        self.render("../templates/core/password.html")
-
-    def post(self):
-
-        user = UserManager.getUser()
-
-        if user is None:
-            self.returnFailure("User does not exist.")
-
-        if user.password is not None:
-            self.returnFailure("Password is already set.")
-
-        data = self.request.body
-
-        if data:
-            postedPassword = json.loads(data)
-            user.password = postedPassword['password']
-            user.save()
-
-            self.returnJson(user.toJson())
-
-        else:
-            self.returnFailure(
-                    "Data are not correct. User password is not set.", 400)
+            return self.returnFailure("Contact not found.", 404)
 
 
-
-
-
-class RegisterTHandler(NewebeHandler):
-
-
-    def get(self):
-
-        if UserManager.getUser():
-           self.redirect("/") 
-        else:
-            self.render("../templates/core/register.html")
-
-
-    def post(self):
-        '''
-        Create a new user (if user exists, error response is returned) from
-        sent data (user object at JSON format).
-        '''      
-
-        if UserManager.getUser():
-            self.returnFailure("User already exists.")
-
-        data = self.request.body
-
-        if data:
-            postedUser = json.loads(data)
-            user = User()
-            user.name = postedUser['name']
-            user.save()
-
-            user.key = user._id
-            user.save()
-
-            self.set_status(201)
-            self.returnJson(user.toJson())
-
-        else:
-            self.returnFailure(
-                    "Data are not correct. User has not been created.", 400)
-
-
+# Template handlers.
 
 class RegisterPasswordContentTHandler(NewebeHandler):
 

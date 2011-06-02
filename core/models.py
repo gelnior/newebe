@@ -10,6 +10,7 @@ class NewebeDocument(Document):
     '''
     Base class for document used by newebe apps. Contains some utility methods.
     '''
+
     authorKey = StringProperty()
     date = DateTimeProperty(required=True, default=datetime.datetime.now())
     password = StringProperty()
@@ -19,6 +20,7 @@ class NewebeDocument(Document):
         '''
         Return a dict representation of the document (copy).
         '''
+
         docDict = self.__dict__["_doc"].copy()
         if "_rev" in docDict:
             del docDict["_rev"]
@@ -29,13 +31,13 @@ class NewebeDocument(Document):
         '''
         Return json representation of the document.
         '''
+
         docDict = self.toDict()
-        #if "_id" in docDict:
-        #    del docDict["_id"]
         return json.dumps(docDict)
 
 
 # User document
+
 class UserManager():
     '''
     Methods to easily retrieve owner of current Newebe from database.
@@ -47,6 +49,7 @@ class UserManager():
         '''
         Returns first user found (normally user is unique).
         '''
+
         users = User.view("core/user")
 
         if users:
@@ -59,6 +62,7 @@ class User(NewebeDocument):
     '''
     Users object used to handle owner data.
     '''
+
     name = StringProperty(required=True)
     description = StringProperty()
     url = StringProperty()
@@ -66,12 +70,21 @@ class User(NewebeDocument):
 
 
     def save(self):
-        super(NewebeDocument, self).save()
+        '''
+        Before being saved, if no key is set, couchdb id is set as key for
+        current user.
+        '''
+
         if not self.key:
             self.key = self.get_id
+        super(NewebeDocument, self).save()
 
 
     def toContact(self):
+        '''
+        Return current user data as a Contact object.
+        '''
+
         contact = Contact()
         contact.url = self.url
         contact.key = self.key
@@ -101,6 +114,7 @@ class ContactManager():
         '''
         Returns whole contact list.
         '''
+
         contacts = Contact.view("core/contact")
  
         return contacts 
@@ -111,6 +125,7 @@ class ContactManager():
         '''
         Returns contacts of which state is equal to *pending* or *error*.
         '''
+
         contacts = Contact.view("core/pending")
  
         return contacts 
@@ -121,6 +136,7 @@ class ContactManager():
         '''
         Returns contacts of which state is equal to *requested*.
         '''
+
         contacts = Contact.view("core/requested")
  
         return contacts 
@@ -131,6 +147,7 @@ class ContactManager():
         '''
         Returns contacts of which state is equal to *trusted*.
         '''
+
         contacts = Contact.view("core/trusted")
  
         return contacts 
@@ -141,6 +158,7 @@ class ContactManager():
         '''
         Returns trusted contact corresponding to key
         '''
+
         contacts = Contact.view("core/trusted", key=key)
       
         contact = None
@@ -155,6 +173,7 @@ class ContactManager():
         '''
         Returns contact corresponding to slug.
         '''
+
         contacts = Contact.view("core/contact", key=slug)
       
         contact = None
