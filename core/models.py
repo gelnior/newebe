@@ -156,7 +156,7 @@ class ContactManager():
     @staticmethod
     def getTrustedContact(key):
         '''
-        Returns trusted contact corresponding to key
+        Returns trusted contact corresponding to *key*.
         '''
 
         contacts = Contact.view("core/trusted", key=key)

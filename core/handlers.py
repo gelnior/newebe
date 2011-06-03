@@ -1,5 +1,6 @@
 import datetime
 import logging
+import hashlib
 
 from threading import Timer
 
@@ -78,6 +79,7 @@ class NewebeAuthHandler(NewebeHandler):
     exists, it is redirected to register page.
     '''
 
+
     def get_current_user(self):
         '''
         With tornado, authentication is handled in this method.
@@ -107,7 +109,6 @@ class LoginHandler(RequestHandler):
     * POST: Get password via a form. Set a secure cookie if password is OK 
     then redirects to .
     Else it redirects to login page.
-    TODO: Make password encryption via sha1
     '''
 
     def get(self):        
@@ -118,7 +119,7 @@ class LoginHandler(RequestHandler):
         password = self.get_argument("password")
         user = UserManager.getUser()
 
-        if user and user.password == password:
+        if user and user.password == hashlib.sha224(password).hexdigest():
             
             self.set_secure_cookie("password", password)
             self.redirect("/")
@@ -141,7 +142,7 @@ class LoginJsonHandler(NewebeHandler):
             password = postedData["password"]
             user = UserManager.getUser()
     
-            if user and user.password == password:
+            if user and user.password == hashlib.sha224(password).hexdigest():
             
                 self.set_secure_cookie("password", password)
                 self.returnSuccess("You are now logged in.")
@@ -281,7 +282,8 @@ class RegisterPasswordTHandler(NewebeHandler):
 
         if data:
             postedPassword = json.loads(data)
-            user.password = postedPassword['password']
+            password = hashlib.sha224(postedPassword['password']).hexdigest()
+            user.password = password
             user.save()
 
             self.returnJson(user.toJson())

@@ -76,7 +76,7 @@ class MicropostHandler(NewebeAuthHandler):
         if micropost:
             self.returnJson(micropost.toJson())
         else:
-            raise HTTPError(404, "Micropost not found.")
+            self.returnFailure("Micropost not found.", 404)
 
 
     @asynchronous
@@ -127,7 +127,7 @@ class MicropostHandler(NewebeAuthHandler):
             self.returnSuccess("Micropost deletion succeeds.")
             
         else:
-            raise HTTPError(404, "Micropost not found.")
+            raise HTTPError("Micropost not found.", 404)
 
 
     def onContactResponse(self, response, **kwargs):
@@ -154,58 +154,6 @@ class MicropostHandler(NewebeAuthHandler):
 
         else: 
             logger.info("Delete post successfully sent.")
-
-
-class MicropostTHandler(NewebeAuthHandler):
-    '''
-    This handler allows to retrieve micropost at HTML format.
-    * GET: Return for given id the HTML representation of corresponding 
-           micropost.
-    '''
-    
-    def get(self, postId):
-        '''
-        Returns for given id the HTML representation of corresponding 
-        micropost.
-        '''
-
-        micropost = MicroPostManager.getMicropost(postId)
-        if micropost:   
-            self.render("../templates/news/micropost.html", micropost=micropost)
-        else:
-            raise HTTPError(404, "Micropost not found.")
-
-
-
-
-class MyNewsHandler(NewebeAuthHandler):
-    '''
-    This handler handles request that retrieve lists of news published by
-    Newebe owner.
-    GET : Retrieve last 10 microposts published before a given date by owner.
-    '''
-
-    def get(self, startKey=None):
-        '''
-        Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
-        is given in URL (it means a date like 2010-10-05-12-30-48), 
-        microposts from this date are returned. Else latest news are returned. 
-        Only microposts published by Newebe owner are returned.
-
-        Arguments:
-            *startKey* The date from where news should be returned.
-        '''
-
-        microposts = list()
-
-        if startKey:
-            dateString = getDbDateFromUrlDate(startKey)
-            microposts = MicroPostManager.getMine(dateString)
-
-        else:
-            microposts = MicroPostManager.getMine()
-
-        self.returnJson(json_util.getJsonFromDocList(microposts))
 
 
 class NewsHandler(NewebeAuthHandler):
@@ -310,7 +258,8 @@ class NewsHandler(NewebeAuthHandler):
     def onContactResponse(self, response, **kwargs):
         '''
         Callback for post request sent to contacts. If error occurs it 
-        marks it inside the activity for which error occurs.
+        marks it inside the activity for which error occurs. Else 
+        it logs that micropost posting succeeds.
         '''
 
         if response.error: 
@@ -339,10 +288,10 @@ class NewsContactHandler(NewebeHandler):
 
     def post(self):
         '''
-        When post request is recieved, micropost content is expected inside
+        When post request is received, micropost content is expected inside
         a string under *content* of JSON object. It is extracted from it
-        then stored inside a new Microposts object. Micropost author is 
-        automatically set with current user and current date is set as date.
+        then stored inside a new Microposts object. Micropost author and date
+        are set from incoming data.
         '''
         data = self.request.body
 
@@ -359,30 +308,51 @@ class NewsContactHandler(NewebeHandler):
             )
             micropost.save()
 
-            # Save corresponding activity
-            activity = Activity(
-                authorKey = micropost.authorKey,
-                author = micropost.author,
-                verb = "writes",
-                docType = "micropost",
-                docId = micropost._id,
-                isMine = False,
-                date = date
-            )
-            activity.save()
-
-            while connections:
-                connection = connections.pop() 
-                connection(micropost.toJson())
-
-            logger.info("Micropost from %s recieved" % micropost.author)
+            self.create_write_activity(micropost, date)
+            self.notify_suscribers(micropost)
+            self.write_create_log(micropost)
             
-            self.set_status(201)
-            self.returnJson(micropost.toJson())
+            self.returnJson(micropost.toJson(), 201)
 
         else:
             raise HTTPError(405, "No data sent.")
 
+
+    def create_write_activity(self, micropost, date):
+        '''
+        Creates an activity telling that a micropost has been written.
+        The activity is linked to *micropost* and its date is set to *date*.
+        '''
+
+        activity = Activity(
+            authorKey = micropost.authorKey,
+            author = micropost.author,
+            verb = "writes",
+            docType = "micropost",
+            docId = micropost._id,
+            isMine = False,
+            date = date
+        )
+        activity.save()
+
+
+    def notify_suscribers(self, micropost):
+        '''
+        Notify suscribed client (long polling requests) that a *micropost*
+        has been saved. It sends them the micropost content.
+        '''
+
+        while connections:
+            connection = connections.pop() 
+            connection(micropost.toJson())
+
+
+    def write_create_log(self, micropost):
+        '''
+        Print a log telling that an incoming micropost has been saved.
+        '''
+
+        logger.info("Micropost from %s recieved" % micropost.author)
 
 
     def put(self):
@@ -391,56 +361,119 @@ class NewsContactHandler(NewebeHandler):
         delete request locally then it creates a new activity corresponding
         to this deletion.
         '''
+
         data = self.request.body
 
         if data:
             deletedMicropost = json.loads(data)
             micropost = MicroPostManager.getContactMicropost(
                  deletedMicropost["authorKey"], deletedMicropost["date"])
-
-            # Save corresponding activity
-            if micropost:
-                activity = Activity(
-                    authorKey = micropost.authorKey,
-                    author = micropost.author,
-                    docId = micropost._id,
-                    verb = "deletes",
-                    isMine = False,
-                    method = "DELETE"
-                )
-                activity.save()
-
-                micropost.delete()
-            logger.info(
-               "Micropost deletion from %s received" % micropost.author)
-            self.set_status(200)
-            self.finish()
             
+            if micropost:
+                self.create_delete_activity(micropost)
+                micropost.delete()
+
+                self.write_delete_log(micropost)
+                self.returnSuccess()
+
+            else:
+                self.returnFailure("Micropost not found", 404)
 
         else:
-            raise HTTPError(405, "No data sent.")
+            self.returnFailure("No data sent.", 405)
 
+
+    def write_delete_log(self, micropost):
+        '''
+        Print a log telling that an incoming micropost has been saved.
+        '''
+
+        logger.info("Micropost deletion from %s received" % micropost.author)
+
+
+    def create_delete_activity(self, micropost):
+        '''
+        Creates an activity telling that a micropost deletion occured.
+        *micropost* data are set in the activity.
+        '''
+
+        activity = Activity(
+            authorKey = micropost.authorKey,
+            author = micropost.author,
+            docId = micropost._id,
+            verb = "deletes",
+            isMine = False,
+            method = "DELETE"
+        )
+        activity.save()
+
+
+class MicropostTHandler(NewebeAuthHandler):
+    '''
+    This handler allows to retrieve micropost at HTML format.
+    * GET: Return for given id the HTML representation of corresponding 
+           micropost.
+    '''
+    
+    def get(self, postId):
+        '''
+        Returns for given id the HTML representation of corresponding 
+        micropost.
+        '''
+
+        micropost = MicroPostManager.getMicropost(postId)
+        if micropost:   
+            self.render("../templates/news/micropost.html", micropost=micropost)
+        else:
+            raise HTTPError("Micropost not found.", 404)
+
+
+class MyNewsHandler(NewebeAuthHandler):
+    '''
+    This handler handles request that retrieve lists of news published by
+    Newebe owner.
+    GET : Retrieve last 10 microposts published before a given date by owner.
+    '''
+
+    def get(self, startKey=None):
+        '''
+        Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
+        is given in URL (it means a date like 2010-10-05-12-30-48), 
+        microposts from this date are returned. Else latest news are returned. 
+        Only microposts published by Newebe owner are returned.
+
+        Arguments:
+            *startKey* The date from where news should be returned.
+        '''
+
+        microposts = list()
+
+        if startKey:
+            dateString = getDbDateFromUrlDate(startKey)
+            microposts = MicroPostManager.getMine(dateString)
+
+        else:
+            microposts = MicroPostManager.getMine()
+
+        self.returnJson(json_util.getJsonFromDocList(microposts))
+    
 
 class NewsTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/news/news.html")
 
 
 class NewsContentTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/news/news_content.html")
 
 
 class NewsTutorial1THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/news/tutorial_1.html")
 
 
 class NewsTutorial2THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/news/tutorial_2.html")
 
