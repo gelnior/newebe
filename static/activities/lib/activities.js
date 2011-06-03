@@ -98,6 +98,10 @@
         urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/");
         this.attributes['urlDate'] = urlDate;
       }
+      this.attributes['errorNumber'] = "";
+      if (activity.errors.length) {
+        this.attributes['errorNumber'] = "(" + activity.errors.length + ")";
+      }
     }
     /* Getters / Setters */
     Activity.prototype.getDisplayDate = function() {
@@ -154,13 +158,14 @@
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
     ActivityRow.prototype.className = "activity-row";
-    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>');
+    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactUrl %> -> \n    <span id="error.contactKey">resend</span>\n</div>\n<% }); %>\n</div>');
     /* Events */
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
       "click .doc-ref": "onDocRefClicked",
-      "click .activity-author": "onActivityAuthorClicked"
+      "click .activity-author": "onActivityAuthorClicked",
+      "click .activity-error-number": "onErrorNumberClicked"
     };
     function ActivityRow(model) {
       this.model = model;
@@ -190,6 +195,9 @@
       });
       event.preventDefault();
       return false;
+    };
+    ActivityRow.prototype.onErrorNumberClicked = function(event) {
+      return $(this.id + ".activity-errors").show();
     };
     /* Functions */
     ActivityRow.prototype.render = function() {

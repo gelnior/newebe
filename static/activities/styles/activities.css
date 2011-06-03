@@ -14,3 +14,11 @@
   border-bottom: 1px solid #aaa;
   padding: 10px 0 10px 0;
 }
+.activity-error-number {
+  color: #f00;
+  cursor: pointer;
+}
+.activity-errors {
+  margin-top: 5px;
+  display: none;
+}

@@ -17,6 +17,18 @@ class ActivityRow extends Backbone.View
     <a href="#" class="doc-ref">
     <span class="activity-verb"><%= docType %></span>
     </a>
+    <span class="activity-error-number">
+    <%= errorNumber %>
+    </span>
+    <div class="activity-errors">
+    Errors :
+    <% _.each(errors, function(error) { %>
+      <div class="activity-error">
+        <%= error.contactUrl %> -> 
+        <span id="error.contactKey">resend</span>
+    </div>
+    <% }); %>
+    </div>
   ''')
 
 
@@ -26,6 +38,7 @@ class ActivityRow extends Backbone.View
     "mouseout" : "onMouseOut"
     "click .doc-ref": "onDocRefClicked"
     "click .activity-author": "onActivityAuthorClicked"
+    "click .activity-error-number": "onErrorNumberClicked"
 
   # Constructor : register view and set HTML element id.
   constructor: (@model) ->
@@ -62,6 +75,9 @@ class ActivityRow extends Backbone.View
     event.preventDefault()
     false
 
+
+  onErrorNumberClicked: (event) ->
+    $(@id + ".activity-errors").show()
 
   ### Functions ###
 

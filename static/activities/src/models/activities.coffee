@@ -26,9 +26,13 @@ class Activity extends Backbone.Model
     @id = activity._id
    
     if activity.date
-        activityDate = Date.parseExact(activity.date, "yyyy-MM-ddTHH:mm:ssZ")
-        urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/")
-        @attributes['urlDate'] = urlDate
+      activityDate = Date.parseExact(activity.date, "yyyy-MM-ddTHH:mm:ssZ")
+      urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/")
+      @attributes['urlDate'] = urlDate
+     
+    @attributes['errorNumber'] = ""
+    if activity.errors.length
+      @attributes['errorNumber'] = "(" + activity.errors.length + ")"
 
 
   ### Getters / Setters ###

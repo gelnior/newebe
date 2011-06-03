@@ -14,8 +14,8 @@ fs     = require 'fs'
 
 # File to compile
 appFiles  = [
-  '../../js/platform/src/views/infodialog'
-  '../../js/platform/src/views/loadingindicator'
+  '../../platform/src/views/infodialog'
+  '../../platform/src/views/loadingindicator'
   'models/activities',
   'views/activity',
   'views/activityview',
