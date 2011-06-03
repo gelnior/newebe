@@ -94,40 +94,43 @@ class MicropostHandler(NewebeAuthHandler):
             self.set_status(200)
 
             user = UserManager.getUser()
-            self.activity = Activity(
-                authorKey = user.key,
-                author = user.name,
-                verb = "deletes",
-                docType = "micropost",
-                docId = micropost._id,
-                method = "DELETE"
-            )
+
+            self.create_delete_activity(user, micropost)
             micropost.delete()
-            self.activity.save()
 
             # Forward delete to contacts
             if micropost.authorKey == user.key:
-                httpClient = AsyncHTTPClient()            
-                for contact in ContactManager.getTrustedContacts():
-                    url = contact.url.encode("utf-8") + CONTACT_PATH
-                    body = micropost.toJson()
-                    request = HTTPRequest(url, method = "PUT", body = body)
-                    self.contacts[request] = (contact, micropost)
-                    try:
-                        httpClient.fetch(request, self.onContactResponse)
-                    except:
-                        activityError = {                    
-                            "contactKey" : contact.key,
-                            "contactUrl" : contact.name,
-                            "extra" : micropost.date
-                        }
-                        self.activity.errors.append(activityError)
-                        self.activity.save()
+                self.forward_to_contacts(micropost)
 
             self.returnSuccess("Micropost deletion succeeds.")
             
         else:
             raise HTTPError("Micropost not found.", 404)
+
+
+    @asynchronous
+    def forward_to_contacts(self, micropost):
+        '''
+        Sends asynchronously delete micropost request to all trusted contacts.
+        If an error occurs, it is registered inside corresponding activity
+        '''
+
+        httpClient = AsyncHTTPClient()            
+        for contact in ContactManager.getTrustedContacts():
+            url = contact.url.encode("utf-8") + CONTACT_PATH
+            body = micropost.toJson()
+            request = HTTPRequest(url, method = "PUT", body = body)
+            self.contacts[request] = (contact, micropost)
+            try:
+                httpClient.fetch(request, self.onContactResponse)
+            except:
+                activityError = {                    
+                    "contactKey" : contact.key,
+                    "contactUrl" : contact.name,
+                    "extra" : micropost.date
+                }
+                self.activity.errors.append(activityError)
+                self.activity.save()
 
 
     def onContactResponse(self, response, **kwargs):
@@ -154,6 +157,24 @@ class MicropostHandler(NewebeAuthHandler):
 
         else: 
             logger.info("Delete post successfully sent.")
+
+
+    def create_delete_activity(self, user, micropost):
+        '''
+        Creates a new activity inside database that describes micropost 
+        deletion.
+        '''
+
+        self.activity = Activity(
+            authorKey = user.key,
+            author = user.name,
+            verb = "deletes",
+            docType = "micropost",
+            docId = micropost._id,
+            method = "DELETE"
+        )
+        self.activity.save()
+
 
 
 class NewsHandler(NewebeAuthHandler):
@@ -220,39 +241,37 @@ class NewsHandler(NewebeAuthHandler):
             )
             micropost.save()
 
-            # Save corresponding activity
-            self.activity = Activity(
-                authorKey = user.key,
-                author = user.name,
-                verb = "writes",
-                docType = "micropost",
-                docId = micropost._id
-            )
-            self.activity.save()
-    
-            # Forward post to contacts
-            httpClient = AsyncHTTPClient()            
-            for contact in ContactManager.getTrustedContacts():
-                url = contact.url.encode("utf-8") + CONTACT_PATH
-                body = micropost.toJson()
-                request = HTTPRequest(url, method="POST", body=body)
-                self.contacts[request] = contact
-                try:
-                    httpClient.fetch(request, self.onContactResponse)
-                except:
-                    activityError = {                    
-                        "contactKey" : contact.key,
-                        "contactUrl" : contact.name
-                    }
-                    self.activity.errors.append(activityError)
-                    self.activity.save()
-
+            self.create_post_activity(user, micropost)
+            self.forward_to_contacts(micropost)
+               
             self.set_status(201)
             self.returnJson(micropost.toJson())
     
         else: 
             raise HTTPError(405,
                     "Sent data were incorrects. No post was created.")
+
+    @asynchronous
+    def forward_to_contacts(self, micropost):
+        '''
+        Sends asynchronously newly created micropost to trusted contacts.
+        '''
+
+        httpClient = AsyncHTTPClient()            
+        for contact in ContactManager.getTrustedContacts():
+            url = contact.url.encode("utf-8") + CONTACT_PATH
+            body = micropost.toJson()
+            request = HTTPRequest(url, method="POST", body=body)
+            self.contacts[request] = contact
+            try:
+                httpClient.fetch(request, self.onContactResponse)
+            except:
+                activityError = {                    
+                    "contactKey" : contact.key,
+                    "contactUrl" : contact.name
+                }
+                self.activity.errors.append(activityError)
+                self.activity.save()
 
 
     def onContactResponse(self, response, **kwargs):
@@ -280,6 +299,24 @@ class NewsHandler(NewebeAuthHandler):
         else: 
             logger.info("Post successfully sent.")
         
+
+    def create_post_activity(self, user, micropost):
+        '''
+        Creates an activity describing micropost creation.
+        '''
+
+        self.activity = Activity(
+            authorKey = user.key,
+            author = user.name,
+            verb = "writes",
+            docType = "micropost",
+            docId = micropost._id
+        )
+        self.activity.save()
+
+
+
+
 
 class NewsContactHandler(NewebeHandler):
     '''
@@ -385,7 +422,7 @@ class NewsContactHandler(NewebeHandler):
 
     def write_delete_log(self, micropost):
         '''
-        Print a log telling that an incoming micropost has been saved.
+        Prints a log telling that an incoming micropost has been saved.
         '''
 
         logger.info("Micropost deletion from %s received" % micropost.author)

@@ -107,15 +107,26 @@ class LoginHandler(RequestHandler):
     '''
     * GET:  displaying page for logging in.
     * POST: Get password via a form. Set a secure cookie if password is OK 
-    then redirects to .
+    then redirects to root page.
     Else it redirects to login page.
     '''
 
-    def get(self):        
+
+    def get(self):
+        '''
+        Displaying page for logging in.
+        '''
+
         self.render("../templates/core/login.html")
 
 
     def post(self):
+        '''
+        Get password via a form. Set a secure cookie if password is OK 
+        then redirects to root page.
+        Else it redirects to login page.
+        '''
+
         password = self.get_argument("password")
         user = UserManager.getUser()
 
@@ -131,10 +142,14 @@ class LoginJsonHandler(NewebeHandler):
     '''
     * POST: Get password via a json object.  Sets a secure cookie if password 
     is OK. Else it returns an error response. 
-
     '''
 
+
     def post(self):
+        '''
+        Get password via a json object.  Sets a secure cookie if password 
+        is OK. Else it returns an error response.
+        '''
         data = self.request.body
 
         if data:
@@ -154,21 +169,23 @@ class LoginJsonHandler(NewebeHandler):
             self.returnFailure("Wrong password.")
 
 
-
 class LogoutHandler(RequestHandler):
     '''
-    Remove secure cookie for password then redirects to login page.
+    GET : Remove secure cookie for password then redirects to login page.
     '''
 
     def get(self):
+        '''
+        Remove secure cookie for password then redirects to login page.
+        '''
+
         self.clear_cookie("password")
         self.redirect("/login/")
 
 
-
-
 global sending_data
 sending_data= False
+
 
 def send_profile_to_contacts():
      '''
@@ -293,9 +310,6 @@ class RegisterPasswordTHandler(NewebeHandler):
                     "Data are not correct. User password is not set.", 400)
 
 
-
-
-
 class RegisterTHandler(NewebeHandler):
 
 
@@ -333,7 +347,6 @@ class RegisterTHandler(NewebeHandler):
         else:
             self.returnFailure(
                     "Data are not correct. User has not been created.", 400)
-
 
 
 class ContactUpdateHandler(NewebeHandler):

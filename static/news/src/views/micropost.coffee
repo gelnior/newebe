@@ -53,6 +53,7 @@ class MicroPostRow extends Backbone.View
           model.delete()
     )
 
+  # When author name is clicked, its data are displayed in the preview zone.
   onAuthorClicked: (event) ->
     $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
       $("#news-preview").html(data)

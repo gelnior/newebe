@@ -145,7 +145,7 @@ class NewsView extends Backbone.View
     @microposts.length
 
    
-  # Append *micropost* to the beginning of current post list (render it).
+  # Appends *micropost* to the beginning of current post list (render it).
   appendOne: (micropost) ->
     row = new MicroPostRow micropost
     el = row.render()
@@ -153,7 +153,7 @@ class NewsView extends Backbone.View
     row
 
    
-  # Prepend *micropost* to the end of current post list (render it).
+  # Prepends *micropost* to the end of current post list (render it).
   # Displays second tutorial of tutorial mode is on.
   prependOne: (micropost) ->
     row = new MicroPostRow micropost
