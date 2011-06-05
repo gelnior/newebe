@@ -91,6 +91,7 @@
       this.set('docType', activity.docType);
       this.set('method', activity.method);
       this.set('errors', activity.errors);
+      this.set('mid', activity._id);
       this.setDisplayDate();
       this.id = activity._id;
       if (activity.date) {
@@ -137,6 +138,9 @@
     Activity.prototype.getAuthorKey = function() {
       return this.get('authorKey');
     };
+    Activity.prototype.getMid = function() {
+      return this.get('mid');
+    };
     return Activity;
   })();
   ActivityCollection = (function() {
@@ -158,7 +162,7 @@
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
     ActivityRow.prototype.className = "activity-row";
-    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactUrl %> -> \n    <span id="error.contactKey">resend</span>\n</div>\n<% }); %>\n</div>');
+    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> -> \n    <span id="error.contactKey">resend</span>\n</div>\n<% }); %>\n</div>');
     /* Events */
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
@@ -182,7 +186,7 @@
     };
     ActivityRow.prototype.onDocRefClicked = function(event) {
       if (this.model.getDocType() === "micropost") {
-        $.get("/news/microposts/" + this.model.getDocId() + "/html/", function(data) {
+        $.get("/news/micropost/" + this.model.getDocId() + "/html/", function(data) {
           return $("#activities-preview").html(data);
         });
       }
@@ -197,7 +201,7 @@
       return false;
     };
     ActivityRow.prototype.onErrorNumberClicked = function(event) {
-      return $(this.id + ".activity-errors").show();
+      return this.$(".activity-errors").show();
     };
     /* Functions */
     ActivityRow.prototype.render = function() {
@@ -205,6 +209,7 @@
         this.model.setDisplayDate();
       }
       $(this.el).html(this.template(this.model.toJSON()));
+      $(".activity-errors").hide();
       return this.el;
     };
     return ActivityRow;

@@ -1,5 +1,6 @@
 import logging
 import datetime
+import markdown
 
 from django.utils import simplejson as json
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
@@ -105,7 +106,7 @@ class MicropostHandler(NewebeAuthHandler):
             self.returnSuccess("Micropost deletion succeeds.")
             
         else:
-            raise HTTPError("Micropost not found.", 404)
+            self.returnFailure("Micropost not found.", 404)
 
 
     @asynchronous
@@ -119,17 +120,14 @@ class MicropostHandler(NewebeAuthHandler):
         for contact in ContactManager.getTrustedContacts():
             url = contact.url.encode("utf-8") + CONTACT_PATH
             body = micropost.toJson()
+
             request = HTTPRequest(url, method = "PUT", body = body)
             self.contacts[request] = (contact, micropost)
+
             try:
                 httpClient.fetch(request, self.onContactResponse)
             except:
-                activityError = {                    
-                    "contactKey" : contact.key,
-                    "contactUrl" : contact.name,
-                    "extra" : micropost.date
-                }
-                self.activity.errors.append(activityError)
+                self.activity.add_error(contact)
                 self.activity.save()
 
 
@@ -140,17 +138,12 @@ class MicropostHandler(NewebeAuthHandler):
         '''
 
         if response.error: 
-            logger.error("Sending delete request to a contact failed, error infos are stored inside activity.")
+            logger.error("Sending delete request to a contact failed" \
+                    ", error infos are stored inside activity.")
 
             (contact, micropost) = self.contacts[response.request]
-            activityError = {                    
-                    "contactKey" : contact.key,
-                    "contactUrl" : contact.name,
-                    "extra" : micropost.date
-            }
-            if not self.activity.errors:
-                self.activity.errors = []
-            self.activity.errors.append(activityError)
+
+            self.activity.add_error(contact, micropost.date)
             self.activity.save()
 
             del self.contacts[response.request]
@@ -248,8 +241,8 @@ class NewsHandler(NewebeAuthHandler):
             self.returnJson(micropost.toJson())
     
         else: 
-            raise HTTPError(405,
-                    "Sent data were incorrects. No post was created.")
+            self.returnFailure(
+                    "Sent data were incorrects. No post was created.", 405)
 
     @asynchronous
     def forward_to_contacts(self, micropost):
@@ -261,16 +254,13 @@ class NewsHandler(NewebeAuthHandler):
         for contact in ContactManager.getTrustedContacts():
             url = contact.url.encode("utf-8") + CONTACT_PATH
             body = micropost.toJson()
-            request = HTTPRequest(url, method="POST", body=body)
+
+            request = HTTPRequest(url, method = "POST", body = body)
             self.contacts[request] = contact
             try:
                 httpClient.fetch(request, self.onContactResponse)
             except:
-                activityError = {                    
-                    "contactKey" : contact.key,
-                    "contactUrl" : contact.name
-                }
-                self.activity.errors.append(activityError)
+                self.activity.add_error(contact)
                 self.activity.save()
 
 
@@ -282,16 +272,10 @@ class NewsHandler(NewebeAuthHandler):
         '''
 
         if response.error: 
-            logger.error("Post to a contact failed, error infos are stored" \
+            logger.error("Post to a contact failed, error infos are stored " \
                     "inside activity.")
             contact = self.contacts[response.request]
-            activityError = {                    
-                    "contactKey" : contact.key,
-                    "contactUrl" : contact.name
-            }
-            if not self.activity.errors:
-                self.activity.errors = []
-            self.activity.errors.append(activityError)
+            self.activity.add_error(contact)
             self.activity.save()
 
             del self.contacts[response.request]
@@ -313,9 +297,6 @@ class NewsHandler(NewebeAuthHandler):
             docId = micropost._id
         )
         self.activity.save()
-
-
-
 
 
 class NewsContactHandler(NewebeHandler):
@@ -411,7 +392,7 @@ class NewsContactHandler(NewebeHandler):
                 micropost.delete()
 
                 self.write_delete_log(micropost)
-                self.returnSuccess()
+                self.returnSuccess("Micropost deleted.")
 
             else:
                 self.returnFailure("Micropost not found", 404)
@@ -440,6 +421,7 @@ class NewsContactHandler(NewebeHandler):
             docId = micropost._id,
             verb = "deletes",
             isMine = False,
+            docType = "Micropost",
             method = "DELETE"
         )
         activity.save()
@@ -459,7 +441,11 @@ class MicropostTHandler(NewebeAuthHandler):
         '''
 
         micropost = MicroPostManager.getMicropost(postId)
-        if micropost:   
+        if micropost:
+
+            if micropost.content:
+                 micropost.content = markdown.markdown(micropost.content)
+
             self.render("../templates/news/micropost.html", micropost=micropost)
         else:
             raise HTTPError("Micropost not found.", 404)

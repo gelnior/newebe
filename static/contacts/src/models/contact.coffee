@@ -17,6 +17,7 @@ class Contact extends Backbone.Model
     super
 
     @set('url', contact.url)
+    @set('name', contact.name)
     @id = contact.slug + "/"
     if contact.state
       @set('state', contact.state)

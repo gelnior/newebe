@@ -55,17 +55,14 @@ class MyActivityHandler(NewebeAuthHandler):
         else:
             activities = ActivityManager.get_mine()
 
-
         self.returnJson(json_util.getJsonFromDocList(activities))
 
 
 class ActivityContentHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/activities/activities_content.html")
 
 class ActivityPageHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/activities/activities.html")
 

@@ -10,7 +10,7 @@ class PlatformView extends Backbone.View
     "click #profile-a": "onProfileClicked"
     "click #contact-a": "onContactClicked"
     "click #activities-a": "onActivitiesClicked"
-    "click #logout-a": "onLogoutClicked"
+    #"click #logout-a": "onLogoutClicked"
 
 
   constructor: (controller) ->
@@ -85,10 +85,6 @@ class PlatformView extends Backbone.View
     @lastPage
 
 
-  onLogoutClicked: (event) ->
-    $("body").fadeOut(@onLogout)
-
-  
 
   # When last page fade out finishes, it fades in *page* or load it from *url* 
   # if page is not yet loaded.

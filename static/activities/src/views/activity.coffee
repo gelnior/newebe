@@ -24,6 +24,7 @@ class ActivityRow extends Backbone.View
     Errors :
     <% _.each(errors, function(error) { %>
       <div class="activity-error">
+        <%= error.contactName %> |
         <%= error.contactUrl %> -> 
         <span id="error.contactKey">resend</span>
     </div>
@@ -59,7 +60,7 @@ class ActivityRow extends Backbone.View
   
   onDocRefClicked: (event) ->
     if @model.getDocType() == "micropost"
-        $.get("/news/microposts/" + @model.getDocId() + "/html/", (data) ->
+        $.get("/news/micropost/" + @model.getDocId() + "/html/", (data) ->
           $("#activities-preview").html(data)
         )
 
@@ -77,7 +78,8 @@ class ActivityRow extends Backbone.View
 
 
   onErrorNumberClicked: (event) ->
-    $(@id + ".activity-errors").show()
+    @$(".activity-errors").show()
+
 
   ### Functions ###
 
@@ -90,6 +92,7 @@ class ActivityRow extends Backbone.View
         @model.setDisplayDate()
 
     $(@el).html(@template(@model.toJSON()))
+    $(".activity-errors").hide()
     @el
 
 

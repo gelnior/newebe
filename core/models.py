@@ -80,7 +80,7 @@ class User(NewebeDocument):
         super(NewebeDocument, self).save()
 
 
-    def toContact(self):
+    def asContact(self):
         '''
         Return current user data as a Contact object.
         '''
@@ -89,6 +89,7 @@ class User(NewebeDocument):
         contact.url = self.url
         contact.key = self.key
         contact.name = self.name
+        contact.description = self.description
 
         return contact
 

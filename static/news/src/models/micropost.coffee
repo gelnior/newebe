@@ -68,7 +68,7 @@ class MicroPost extends Backbone.Model
   # Sends a delete request to services backend then ask view to remove micro 
   # post view.
   delete: ->
-    @url += @id
+    @url = "/news/micropost/" + @id + "/"
     @destroy()
     @view.remove()
 

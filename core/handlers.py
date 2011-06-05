@@ -1,6 +1,7 @@
 import datetime
 import logging
 import hashlib
+import markdown
 
 from threading import Timer
 
@@ -11,7 +12,7 @@ from django.template.defaultfilters import slugify
 
 from newebe.lib import json_util
 from django.utils import simplejson as json
-from newebe.core.models import User, UserManager
+from newebe.core.models import UserManager
 from newebe.core.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED
@@ -70,7 +71,6 @@ class NewebeHandler(RequestHandler):
         self.returnJson(json.dumps({ "error" : text }), statusCode)
 
 
-
 class NewebeAuthHandler(NewebeHandler):
     '''
     Base handler for every services that needs authentication. 
@@ -94,93 +94,12 @@ class NewebeAuthHandler(NewebeHandler):
             else:
                 password = self.get_secure_cookie("password")
 
-                if user.password != password:
+                if user.password != hashlib.sha224(password).hexdigest():
                     self.redirect("/login/")
                 else:
                     return user
         else:
             self.redirect("/register/")
-
-
-
-class LoginHandler(RequestHandler):
-    '''
-    * GET:  displaying page for logging in.
-    * POST: Get password via a form. Set a secure cookie if password is OK 
-    then redirects to root page.
-    Else it redirects to login page.
-    '''
-
-
-    def get(self):
-        '''
-        Displaying page for logging in.
-        '''
-
-        self.render("../templates/core/login.html")
-
-
-    def post(self):
-        '''
-        Get password via a form. Set a secure cookie if password is OK 
-        then redirects to root page.
-        Else it redirects to login page.
-        '''
-
-        password = self.get_argument("password")
-        user = UserManager.getUser()
-
-        if user and user.password == hashlib.sha224(password).hexdigest():
-            
-            self.set_secure_cookie("password", password)
-            self.redirect("/")
-        else:
-            self.redirect("/login/")
-
-
-class LoginJsonHandler(NewebeHandler):
-    '''
-    * POST: Get password via a json object.  Sets a secure cookie if password 
-    is OK. Else it returns an error response. 
-    '''
-
-
-    def post(self):
-        '''
-        Get password via a json object.  Sets a secure cookie if password 
-        is OK. Else it returns an error response.
-        '''
-        data = self.request.body
-
-        if data:
-            postedData = json.loads(data)
-            password = postedData["password"]
-            user = UserManager.getUser()
-    
-            if user and user.password == hashlib.sha224(password).hexdigest():
-            
-                self.set_secure_cookie("password", password)
-                self.returnSuccess("You are now logged in.")
-
-            else:
-                self.returnFailure("Wrong password.")
-
-        else:
-            self.returnFailure("Wrong password.")
-
-
-class LogoutHandler(RequestHandler):
-    '''
-    GET : Remove secure cookie for password then redirects to login page.
-    '''
-
-    def get(self):
-        '''
-        Remove secure cookie for password then redirects to login page.
-        '''
-
-        self.clear_cookie("password")
-        self.redirect("/login/")
 
 
 global sending_data
@@ -216,6 +135,7 @@ def send_profile_to_contacts():
          request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
                       method="PUT", body=jsonbody)
          client.fetch(request)
+
 
 def forward_profile():
 
@@ -272,89 +192,14 @@ class UserHandler(NewebeAuthHandler):
             self.returnFailure("No data were sent.")
 
 
-
-class RegisterPasswordTHandler(NewebeHandler):
-
-    def get(self):
-
-        user = UserManager.getUser()
-        if user and user.password:
-           self.redirect("/") 
-        else:
-            self.render("../templates/core/password.html")
-
-        self.render("../templates/core/password.html")
-
-    def post(self):
-
-        user = UserManager.getUser()
-
-        if user is None:
-            self.returnFailure("User does not exist.")
-
-        if user.password is not None:
-            self.returnFailure("Password is already set.")
-
-        data = self.request.body
-
-        if data:
-            postedPassword = json.loads(data)
-            password = hashlib.sha224(postedPassword['password']).hexdigest()
-            user.password = password
-            user.save()
-
-            self.returnJson(user.toJson())
-
-        else:
-            self.returnFailure(
-                    "Data are not correct. User password is not set.", 400)
-
-
-class RegisterTHandler(NewebeHandler):
-
-
-    def get(self):
-
-        if UserManager.getUser():
-           self.redirect("/") 
-        else:
-            self.render("../templates/core/register.html")
-
-
-    def post(self):
-        '''
-        Create a new user (if user exists, error response is returned) from
-        sent data (user object at JSON format).
-        '''      
-
-        if UserManager.getUser():
-            self.returnFailure("User already exists.")
-
-        data = self.request.body
-
-        if data:
-            postedUser = json.loads(data)
-            user = User()
-            user.name = postedUser['name']
-            user.save()
-
-            user.key = user._id
-            user.save()
-
-            self.set_status(201)
-            self.returnJson(user.toJson())
-
-        else:
-            self.returnFailure(
-                    "Data are not correct. User has not been created.", 400)
-
-
 class ContactUpdateHandler(NewebeHandler):
 
 
     def put(self):
         '''
-        
+        When a put request is received, contact data are expected. If contact
+        key is one of the trusted contact key, its data are updated with 
+        received ones.
         '''      
 
         data = self.request.body
@@ -370,24 +215,33 @@ class ContactUpdateHandler(NewebeHandler):
                 contact.name = putContact["name"]
                 contact.save()
          
-                activity = Activity(
-                     authorKey = contact.key,
-                     author = contact.name,
-                     verb = "modifies",
-                     docType = "profile",
-                     method = "PUT",
-                     docId = "none",
-                     isMine = False
-                )
-                activity.save()
+                self.create_modify_activity(contact)
 
-                self.returnSuccess("Contact successfully Modified.")
+                self.returnSuccess("Contact successfully modified.")
        
             else:
                 self.returnFailure(
                         "No contact found corresponding to given contact", 404)
+        
         else:
             self.returnFailure("Empty data.")
+
+
+    def create_modify_activity(self, contact):
+        '''
+        Creates an activity that describes a contact profile modification.
+        '''
+
+        activity = Activity(
+             authorKey = contact.key,
+             author = contact.name,
+             verb = "modifies",
+             docType = "profile",
+             method = "PUT",
+             docId = "none",
+             isMine = False
+        )
+        activity.save()
 
 
 class ContactsPendingHandler(NewebeAuthHandler):
@@ -583,6 +437,7 @@ class ContactPushHandler(NewebeHandler):
             postedContact = json.loads(data)
             url = postedContact["url"]
             slug = slugify(url)
+
             contact = Contact(
                 name = postedContact["name"], 
                 url = url,
@@ -593,6 +448,7 @@ class ContactPushHandler(NewebeHandler):
                 description = postedContact["description"]
             )
             contact.save()
+
             self.returnSuccess("Request received.")
              
         else:
@@ -639,16 +495,22 @@ class ContactRenderTHandler(NewebeAuthHandler):
     ID. If ID is equal to null Newebe owner representation is returned.
     '''
     
+
     def get(self, key):
         '''
-
+        Returns an HTML representation of contact corresponding to given
+        ID. If ID is equal to null Newebe owner representation is returned.
         '''
 
-        contact = ContactManager.getTrustedContact(key)
-        if key == "null":
-             contact = UserManager.getUser().getContact()
+        if key == "null" or key == UserManager.getUser().key:
+            contact = UserManager.getUser().asContact()
+        else:
+            contact = ContactManager.getTrustedContact(key)
 
-        if contact: 
+        if contact:
+            if contact.description:
+                contact.description = markdown.markdown(contact.description)
+
             self.render("../templates/core/contact/contact_render.html", 
                             contact=contact)            
         else:
@@ -656,54 +518,39 @@ class ContactRenderTHandler(NewebeAuthHandler):
 
 
 # Template handlers.
-
-class RegisterPasswordContentTHandler(NewebeHandler):
-
-    def get(self):
-        self.render("../templates/core/password_content.html")
-
 class ProfileTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/profile/profile.html")
 
 class ProfileContentTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/profile/profile_content.html")
 
 class ProfileMenuContentTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/profile/profile_menu_content.html")
 
 class ProfileTutorial1THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/profile/tutorial_1.html")
 
 class ProfileTutorial2THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/profile/tutorial_2.html")
 
 class ContactTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/contact/contact.html")
 
 class ContactContentTHandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/contact/contact_content.html")
 
 class ContactTutorial1THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/contact/tutorial_1.html")
 
 class ContactTutorial2THandler(NewebeAuthHandler):
-
     def get(self):
         self.render("../templates/core/contact/tutorial_1.html")
 

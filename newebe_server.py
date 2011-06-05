@@ -1,11 +1,9 @@
 import logging
 
-import django.core.handlers.wsgi
 
 from tornado.ioloop import IOLoop
-from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
-from tornado.web import FallbackHandler, Application
+from tornado.web import Application
 
 import sys, os
 sys.path.append("../")
@@ -26,11 +24,12 @@ from newebe.core.handlers import ProfileTHandler, \
                                  ContactHandler, ContactsHandler, \
                                  ContactsPendingHandler, \
                                  ContactsRequestedHandler, \
-                                 ContactRenderTHandler, \
-                                 LoginHandler, LogoutHandler, LoginJsonHandler,\
+                                 ContactRenderTHandler
+
+from newebe.core.auth_handlers import LoginHandler, LogoutHandler, \
+                                 LoginJsonHandler,\
                                  RegisterTHandler, RegisterPasswordTHandler, \
                                  RegisterPasswordContentTHandler
-                                 
 
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler, \
@@ -90,9 +89,9 @@ class Newebe(Application):
             ('/news/microposts/mine/', MyNewsHandler),
             ('/news/microposts/all/([0-9\-]+)/', NewsHandler),
             ('/news/microposts/all/', NewsHandler),
-            ('/news/microposts/([0-9a-z]+)/', MicropostHandler),
-            ('/news/microposts/([0-9a-z]+)/html/', MicropostTHandler),
             ('/news/microposts/contacts/', NewsContactHandler),
+            ('/news/micropost/([0-9a-z]+)/', MicropostHandler),
+            ('/news/micropost/([0-9a-z]+)/html/', MicropostTHandler),
             ('/news/content/', NewsContentTHandler),
             ('/news/tutorial/1/', NewsTutorial1THandler),
             ('/news/tutorial/2/', NewsTutorial2THandler),
@@ -117,6 +116,7 @@ class Newebe(Application):
 PRIVATE_KEY = os.path.join("./", "server.key")
 CERTIFICATE = os.path.join("./", "server.crt")
 
+
 if __name__ == '__main__':
 
     '''
@@ -135,10 +135,12 @@ if __name__ == '__main__':
     if DEBUG:
         try:
             # Server running.
-            http_server = HTTPServer(tornado_app, ssl_options={
-                "certfile": CERTIFICATE,
-                "keyfile": PRIVATE_KEY,
-            })
+            http_server = HTTPServer(tornado_app)
+#                    ,
+#                ssl_options = {
+#                    "certfile": CERTIFICATE,
+#                    "keyfile": PRIVATE_KEY,
+#                })
 
             http_server.listen(TORNADO_PORT)
             logger.info("Starts Newebe on port %d." % TORNADO_PORT)

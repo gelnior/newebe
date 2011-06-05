@@ -17,7 +17,8 @@ class ContactRow extends Backbone.View
     <a class="platform-contact-delete">X</a>    
     </span>
     <p class="platform-contact-url">
-     <a href="<%= url %>"><%= url %></a>
+     <%= name %> | 
+     <%= url %>
      <span class="platform-contact-state"> (<%= state %>)</span>
     </p>
   ''')
@@ -58,7 +59,6 @@ class ContactRow extends Backbone.View
           model.delete()
     )
 
-
   # When a contact is confirmed, it sends a PT request to the confirmation
   # service.
   onConfirmClicked: ->
@@ -74,7 +74,6 @@ class ContactRow extends Backbone.View
   # Refresh displayed data with model data.
   refresh: (state) ->
     @.$(".platform-contact-state").text("(" + state + ")")
-    
 
   # Builds contact row element from template and linked micro post data.
   # It sets the buttons jquery-ui behavior on utility links then it hides 

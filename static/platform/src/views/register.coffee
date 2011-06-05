@@ -21,7 +21,8 @@ class RegisterView extends Backbone.View
 
 
   # When user field key is up, if it is enter key, it posts typed name to 
-  # backend services (commit registration) and displays profile app.
+  # backend services (commit registration) and displays page to set up 
+  # password.
   onUserFieldKeyUp: (event) ->
     if event.keyCode == 13 and not @isPosting
       dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}'
@@ -47,14 +48,17 @@ class RegisterView extends Backbone.View
       )
       
 
+## RegisterPasswordView
 
+# This view is here to let user sets up his password. When he sets its password
+# this view is hidden then the profile application is displayed.
 class RegisterPasswordView extends Backbone.View
   el: $("body")
 
   constructor: ->
     super
 
-  # Clears and focus name field. Registers events.
+  # Clears and focus password field. Registers events.
   initialize: ->
     _.bindAll(this, 'onUserFieldKeyUp')
 
@@ -64,8 +68,8 @@ class RegisterPasswordView extends Backbone.View
     $("#platform-password-text-field").keyup(@onUserFieldKeyUp)
 
 
-  # When user field key is up, if it is enter key, it posts typed name to 
-  # backend services (commit registration) and displays profile app.
+  # When user field key is up, if it is enter key, it posts typed password to 
+  # backend services (commit registration) and displays profile application.
   onUserFieldKeyUp: (event) ->
     if event.keyCode == 13 and not @isPosting
       dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}'
@@ -90,14 +94,17 @@ class RegisterPasswordView extends Backbone.View
       )
 
 
-
+# This view displays a simple field to let user type its password (its Sesame).
+# Password is sent when enter key is typed.
+# If password is wrong, the password field is cleared and uset need to retry.
+# If password is right, the news application is displayed.
 class LoginView extends Backbone.View
   el: $("body")
 
   constructor: ->
     super
 
-  # Clears and focus name field. Registers events.
+  # Clears and focus pasword field. Registers events.
   initialize: ->
     _.bindAll(this, 'onPasswordFieldKeyUp')
 
@@ -106,6 +113,9 @@ class LoginView extends Backbone.View
     $("#login-password-text-field").focus()
     $("#login-password-text-field").keyup(@onPasswordFieldKeyUp)
 
+  # If enter key is typed, the following sequence occurs :
+  # If password is wrong, the password field is cleared and uset need to retry.
+  # If password is right, the news application is displayed.
   onPasswordFieldKeyUp: (event) ->
     if event.keyCode == 13 and not @isPosting
       @isPosting = true
@@ -138,7 +148,4 @@ class LoginView extends Backbone.View
           $("#login-password-text-field").val(null)
           @isPosting = false
       )
-
-
-
 

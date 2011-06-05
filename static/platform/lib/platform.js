@@ -43,8 +43,7 @@
       "click #news-a": "onNewsClicked",
       "click #profile-a": "onProfileClicked",
       "click #contact-a": "onContactClicked",
-      "click #activities-a": "onActivitiesClicked",
-      "click #logout-a": "onLogoutClicked"
+      "click #activities-a": "onActivitiesClicked"
     };
     function PlatformView(controller) {
       this.controller = controller;
@@ -105,9 +104,6 @@
         $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
       }
       return this.lastPage;
-    };
-    PlatformView.prototype.onLogoutClicked = function(event) {
-      return $("body").fadeOut(this.onLogout);
     };
     PlatformView.prototype.onLastPageFadeOut = function(page, url) {
       $(this.lastPage).hide();
@@ -317,9 +313,9 @@
   infoDialog = new InfoDialog;
   platformController = new PlatformController;
   platformView = new PlatformView(platformController);
+  loadingIndicator = new LoadingIndicator;
   registerView = new RegisterView;
   registerPasswordView = new RegisterPasswordView;
   loginView = new LoginView;
-  loadingIndicator = new LoadingIndicator;
   Backbone.history.start();
 }).call(this);

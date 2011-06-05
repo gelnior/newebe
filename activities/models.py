@@ -70,4 +70,22 @@ class Activity(NewebeDocument):
     isMine = BooleanProperty(required=True, default=True)
     errors = ListProperty()
 
+    def add_error(self, contact, extra = None):
+        '''
+        And to the error list an error based on *contact* data.
+        '''
+
+        if not self.errors:
+            self.errors = []
+
+        activityError = {                    
+            "contactKey" : contact.key,
+            "contactName" : contact.name,
+            "contactUrl" : contact.url
+        }
+
+        if extra:
+            activityError["extra"] = extra
+
+        self.errors.append(activityError)
 

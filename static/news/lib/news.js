@@ -131,7 +131,7 @@
       return this.get('content');
     };
     MicroPost.prototype["delete"] = function() {
-      this.url += this.id;
+      this.url = "/news/micropost/" + this.id + "/";
       this.destroy();
       return this.view.remove();
     };

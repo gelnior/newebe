@@ -146,7 +146,7 @@ textarea {
   border: 1px solid #000;
 }
 #menu {
-  margin: 10px 0 10px 0;
+  margin: 10px 5px 20px 0px;
 }
 #menu a {
   font-weight: bold;
@@ -168,6 +168,9 @@ textarea {
   cursor: default;
   text-decoration: none;
   border: none;
+}
+#logout-a {
+  margin-right: 10px;
 }
 h1 {
   font-weight: bold;
@@ -242,7 +245,7 @@ h3 {
   margin-top: 30px;
   font-size: 18px;
 }
-#profile p {
+#profile .app p {
   margin-bottom: 20px;
 }
 #profile input#platform-profile-name {
@@ -318,4 +321,8 @@ h3 {
 }
 h3.tutorial-text {
   font-weight: bold;
+}
+.preview p,
+.preview ul {
+  margin-bottom: 10px;
 }

@@ -21,6 +21,7 @@ class Activity extends Backbone.Model
     @set('docType', activity.docType)
     @set('method', activity.method)
     @set('errors', activity.errors)
+    @set('mid', activity._id)
 
     @setDisplayDate()
     @id = activity._id
@@ -68,6 +69,9 @@ class Activity extends Backbone.Model
 
   getAuthorKey: ->
     @get('authorKey')
+
+  getMid: ->
+    @get('mid')
 
 
 ## Activity collection
