@@ -49,7 +49,7 @@ In your browser, connect to http://localhost:8000/ and check that
 everything is fine.
 
 
-** Client **
+**Client**
 
 To work on client you will need node.js. So first install it:
 
