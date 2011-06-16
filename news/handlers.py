@@ -1,7 +1,6 @@
 import logging
 import datetime
 import markdown
-import string
 
 from django.utils import simplejson as json
 from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
@@ -519,7 +518,6 @@ class NewsRetryHandler(NewebeAuthHandler):
             activityId = ids["activityId"]
             date = ids["extra"]
 
-            print "=========== date : " + date
             contact = ContactManager.getTrustedContact(contactId)
             activity = ActivityManager.get_activity(activityId)
 
