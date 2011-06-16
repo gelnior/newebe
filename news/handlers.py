@@ -1,15 +1,16 @@
 import logging
 import datetime
 import markdown
+import string
 
 from django.utils import simplejson as json
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest
+from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
 from newebe.lib import json_util
 from newebe.lib.date_util import getDateFromDbDate, getDbDateFromUrlDate
 from newebe.news.models import MicroPostManager, MicroPost
-from newebe.activities.models import Activity
+from newebe.activities.models import Activity, ActivityManager
 from newebe.core.models import ContactManager, UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 
@@ -449,6 +450,94 @@ class MicropostTHandler(NewebeAuthHandler):
             self.render("../templates/news/micropost.html", micropost=micropost)
         else:
             raise HTTPError("Micropost not found.", 404)
+
+
+class NewsRetryHandler(NewebeAuthHandler):
+
+
+    def post(self, key):
+
+        micropost = MicroPostManager.getMicropost(key)
+        idInfos = self.request.body
+
+        ids = json.loads(idInfos)
+
+        if micropost and idInfos:
+
+            contactId = ids["contactId"]
+            activityId = ids["activityId"]
+
+            contact = ContactManager.getTrustedContact(contactId)
+            activity = ActivityManager.get_activity(activityId)
+
+            if not contact:
+                self.returnFailure("Contact not found", 404)
+            elif not activity:
+                self.returnFailure("Activity not found", 404)
+            else:           
+                self.forward_to_contact(micropost, contact, activity)
+        else:
+            self.returnFailure("Micropost not found", 404)
+
+
+    def forward_to_contact(self, micropost, contact, activity, method = "POST"):
+        '''
+        '''
+
+        httpClient = HTTPClient()            
+        url = contact.url.encode("utf-8") + CONTACT_PATH
+        body = micropost.toJson()
+
+        request = HTTPRequest(url, method = method, body = body)
+
+        try:
+            response = httpClient.fetch(request)
+            
+            if response.error:
+                self.returnFailure("Posting micropost to contact failed.")
+
+            else:
+                for error in activity.errors:
+                    if error["contactKey"] == contact.key:
+                        activity.errors.remove(error)
+                        activity.save()
+                        self.returnSuccess("Micropost correctly resent.")
+
+        except Exception:
+            self.returnFailure("Posting micropost to contact failed.")
+
+       
+    def put(self, key):
+
+        idInfos = self.request.body
+
+        ids = json.loads(idInfos)
+
+        if ids:
+
+            contactId = ids["contactId"]
+            activityId = ids["activityId"]
+            date = ids["extra"]
+
+            print "=========== date : " + date
+            contact = ContactManager.getTrustedContact(contactId)
+            activity = ActivityManager.get_activity(activityId)
+
+            if not contact:
+                self.returnFailure("Contact not found", 404)
+            elif not activity:
+                self.returnFailure("Activity not found", 404)
+            else:
+
+                user = UserManager.getUser()
+                micropost = MicroPost(authorKey = user.key, 
+                                      date = getDateFromDbDate(date))
+
+                self.forward_to_contact(micropost, contact, activity, 
+                                        method = "PUT")
+
+        else:
+            self.returnFailure("Micropost not found", 404)
 
 
 class MyNewsHandler(NewebeAuthHandler):

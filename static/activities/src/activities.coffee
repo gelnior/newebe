@@ -5,6 +5,7 @@
 
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
+infoDialog = new InfoDialog
 
 activitiesApp = new ActivitiesView
 activitiesApp.setWidgets()

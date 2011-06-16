@@ -1,5 +1,5 @@
 (function() {
-  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, activitiesApp, confirmationDialog, loadingIndicator;
+  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, activitiesApp, confirmationDialog, infoDialog, loadingIndicator;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -92,6 +92,7 @@
       this.set('method', activity.method);
       this.set('errors', activity.errors);
       this.set('mid', activity._id);
+      this.attributes['mid'] = activity._id;
       this.setDisplayDate();
       this.id = activity._id;
       if (activity.date) {
@@ -135,11 +136,17 @@
     Activity.prototype.getDocId = function() {
       return this.get('docId');
     };
+    Activity.prototype.getMethod = function() {
+      return this.get('method');
+    };
     Activity.prototype.getAuthorKey = function() {
       return this.get('authorKey');
     };
     Activity.prototype.getMid = function() {
       return this.get('mid');
+    };
+    Activity.prototype.getErrors = function() {
+      return this.get('errors');
     };
     return Activity;
   })();
@@ -162,14 +169,15 @@
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
     ActivityRow.prototype.className = "activity-row";
-    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> -> \n    <span id="error.contactKey">resend</span>\n</div>\n<% }); %>\n</div>');
+    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> ->\n    <span id="<%= error.contactKey%>"\n          class="activity-error-resend">\n      resend\n    </span>\n</div>\n<% }); %>\n</div>');
     /* Events */
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
       "click .doc-ref": "onDocRefClicked",
       "click .activity-author": "onActivityAuthorClicked",
-      "click .activity-error-number": "onErrorNumberClicked"
+      "click .activity-error-number": "onErrorNumberClicked",
+      "click .activity-error-resend": "onErrorResendClicked"
     };
     function ActivityRow(model) {
       this.model = model;
@@ -203,13 +211,58 @@
     ActivityRow.prototype.onErrorNumberClicked = function(event) {
       return this.$(".activity-errors").show();
     };
+    ActivityRow.prototype.onErrorResendClicked = function(event) {
+      var error, extra, _i, _len, _ref;
+      if (this.model.getDocType() === "micropost") {
+        switch (this.model.getMethod()) {
+          case "POST":
+            $("#" + event.target.id).html("resending...");
+            return $.ajax({
+              type: "POST",
+              url: "/news/micropost/" + this.model.getDocId() + "/retry/",
+              data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '"}',
+              dataType: "json",
+              success: function(data) {
+                return $("#" + event.target.id).html("resending succeeds.");
+              },
+              error: function(data) {
+                infoDialog.display("Sending data fails again.");
+                return $("#" + event.target.id).html("resend");
+              }
+            });
+          case "DELETE":
+            extra = "";
+            _ref = this.model.getErrors();
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              error = _ref[_i];
+              if (error.contactKey && error.contactKey === event.target.id) {
+                extra = error.extra;
+              }
+            }
+            $("#" + event.target.id).html("resending...");
+            return $.ajax({
+              type: "PUT",
+              url: "/news/micropost/" + this.model.getDocId() + "/retry/",
+              data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '", "extra":"' + extra + '"}',
+              dataType: "json",
+              success: function(data) {
+                return $("#" + event.target.id).html("resending succeeds.");
+              },
+              error: function(data) {
+                infoDialog.display("Sending data fails again.");
+                return $("#" + event.target.id).html("resend");
+              }
+            });
+        }
+      }
+    };
     /* Functions */
     ActivityRow.prototype.render = function() {
       if (!this.model.getDisplayDate()) {
         this.model.setDisplayDate();
       }
       $(this.el).html(this.template(this.model.toJSON()));
-      $(".activity-errors").hide();
+      this.$(".activity-errors").hide();
       return this.el;
     };
     return ActivityRow;
@@ -364,6 +417,7 @@
   })();
   loadingIndicator = new LoadingIndicator;
   confirmationDialog = new ConfirmationDialog;
+  infoDialog = new InfoDialog;
   activitiesApp = new ActivitiesView;
   activitiesApp.setWidgets();
   activitiesApp.setListeners();

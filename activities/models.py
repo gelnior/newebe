@@ -12,6 +12,21 @@ class ActivityManager():
 
 
     @staticmethod
+    def get_activity(key):
+        '''
+        Returns activity of which key is equal to *key*/
+        '''
+
+        activities = Activity.view("activities/full", key=key)
+
+        activity = None
+        if activities:
+            activity = activities.first()
+
+        return activity
+
+
+    @staticmethod
     def get_mine(startKey=None, skip=0):
         '''
         Return last 30 activities of newebe owner. If *startKey* (date) 

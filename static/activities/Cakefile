@@ -29,12 +29,19 @@ task 'build', 'Build single application file from source files', ->
   puts 'Start build'
   appContents = new Array remaining = appFiles.length
 
-  # Retrieve file
-  for file, index in appFiles then do (file, index) ->
-    fs.readFile "src/#{file}.coffee", 'utf8', (err, fileContents) ->
-      throw err if err
-      appContents[index] = fileContents
-      process() if --remaining is 0
+  # Compile styles
+  puts 'Building CSS'
+  exec "stylus styles/#{appName}.styl", (err, stdout, stderr) ->
+    throw err if err
+    print stdout + stderr
+
+    puts 'Building JS'
+    # Retrieve file
+    for file, index in appFiles then do (file, index) ->
+      fs.readFile "src/#{file}.coffee", 'utf8', (err, fileContents) ->
+        throw err if err
+        appContents[index] = fileContents
+        process() if --remaining is 0
 
 
   process = ->
@@ -56,7 +63,7 @@ task 'build', 'Build single application file from source files', ->
 task 'minify', 'Minify the resulting application file after build', ->
 
   puts 'Start minify'
-  command = 'java -jar ' + minifier + ' --js lib/news.js --js_output_file '
+  command = 'java -jar ' + minifier + " --js lib/#{appName}.js --js_output_file "
   command += "lib/#{appName}.production.js"
 
   exec command, (err, stdout, stderr) ->

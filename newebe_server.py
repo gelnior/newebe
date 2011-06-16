@@ -36,7 +36,8 @@ from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  MicropostTHandler, \
                                  MyNewsHandler, \
                                  NewsContentTHandler, NewsTHandler, \
-                                 NewsTutorial1THandler, NewsTutorial2THandler
+                                 NewsTutorial1THandler, NewsTutorial2THandler, \
+                                 NewsRetryHandler
 
 from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
                                        ActivityContentHandler, \
@@ -92,6 +93,7 @@ class Newebe(Application):
             ('/news/microposts/contacts/', NewsContactHandler),
             ('/news/micropost/([0-9a-z]+)/', MicropostHandler),
             ('/news/micropost/([0-9a-z]+)/html/', MicropostTHandler),
+            ('/news/micropost/([0-9a-z]+)/retry/', NewsRetryHandler),
             ('/news/content/', NewsContentTHandler),
             ('/news/tutorial/1/', NewsTutorial1THandler),
             ('/news/tutorial/2/', NewsTutorial2THandler),

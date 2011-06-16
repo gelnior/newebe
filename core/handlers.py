@@ -94,7 +94,8 @@ class NewebeAuthHandler(NewebeHandler):
             else:
                 password = self.get_secure_cookie("password")
 
-                if user.password != hashlib.sha224(password).hexdigest():
+                if not password or  \
+                   user.password != hashlib.sha224(password).hexdigest():
                     self.redirect("/login/")
                 else:
                     return user
