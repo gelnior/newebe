@@ -131,7 +131,6 @@ class ActivityRow extends Backbone.View
 
 
   # Builds activity row element from template and linked actvity data.
-  # It sets the button jquery-ui behavior on delete button then it hides it.
   # It does not set element to DOM.
   render: ->
     if not @model.getDisplayDate()

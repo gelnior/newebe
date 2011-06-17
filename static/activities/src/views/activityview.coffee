@@ -117,7 +117,7 @@ class ActivitiesView extends Backbone.View
     @activities.length
 
    
-  # Append *activity* to the beginning of current post list (render it).
+  # Append *activity* to the beginning of current activity list (render it).
   appendOne: (activity) ->
     row = new ActivityRow activity
     el = row.render()
@@ -126,7 +126,7 @@ class ActivitiesView extends Backbone.View
 
    
   # Prepend *activity* to the end of current activity list (render it).
-  # Displays second tutorial of tutorial mode is on.
+  # Displays second tutorial if tutorial mode is on.
   prependOne: (activity) ->
     row = new ActivityRow activity
     el = row.render()

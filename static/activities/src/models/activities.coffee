@@ -2,7 +2,7 @@
 class Activity extends Backbone.Model
 
 
-  #  Url where micro posts lives.
+  #  Url where activities can be retrieved.
   url: '/activities/all/'
 
   # Constructor initializes its field from a javascript raw object.
@@ -10,6 +10,17 @@ class Activity extends Backbone.Model
   #
   # * id : activity id in database.
   # * author : actvity post author.
+  # * date : date where activity occcured.
+  # * docId : Id of the document linked to the activity.
+  # * verb : Verb describing the activity.
+  # * docType : Type of the doc linked to the activity.
+  # * method : HTTP method used by the query from where activity comes.
+  # * errors : list of errors that occurs for this activity (list of contacts
+  #            that did not received the data linked to the activity).
+  # * errorNumber : Number of errors that occured (*errors* length).
+  # * mid : activity id.
+  # * urlDate : date where activity occured transformed at the URL format.
+
   constructor: (activity) ->
     super
 
@@ -23,7 +34,6 @@ class Activity extends Backbone.Model
     @set('errors', activity.errors)
     @set('mid', activity._id)
     @attributes['mid'] = activity._id
-
     @setDisplayDate()
     @id = activity._id
    
@@ -32,9 +42,10 @@ class Activity extends Backbone.Model
       urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/")
       @attributes['urlDate'] = urlDate
      
-    @attributes['errorNumber'] = ""
     if activity.errors.length
       @attributes['errorNumber'] = "(" + activity.errors.length + ")"
+    else
+      @attributes['errorNumber'] = ""
 
 
   ### Getters / Setters ###
@@ -56,6 +67,9 @@ class Activity extends Backbone.Model
   getAuthor: ->
     @get('author')
 
+  getAuthorKey: ->
+    @get('authorKey')
+
   getDate: ->
     @get('date')
 
@@ -71,9 +85,6 @@ class Activity extends Backbone.Model
   getMethod: ->
     @get('method')
 
-  getAuthorKey: ->
-    @get('authorKey')
-
   getMid: ->
     @get('mid')
 
@@ -85,10 +96,10 @@ class Activity extends Backbone.Model
 class ActivityCollection extends Backbone.Collection
   model: Activity
 
-  # Url where micro posts lives.
+  # Url where activities can be retrieved.
   url: '/activities/all/'
 
-  # Collection sorting is based on post publsh date.
+  # Collection sorting is based on activity date.
   comparator: (activity) ->
     activity.getDate()
 
