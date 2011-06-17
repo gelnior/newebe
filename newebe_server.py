@@ -177,9 +177,12 @@ if __name__ == '__main__':
                 http_server = HTTPServer(tornado_app)
                 http_server.listen(TORNADO_PORT)
 
+                logging.getLogger().setLevel(logging.INFO)
                 logger.info("Starts Newebe on port %d." % TORNADO_PORT)
                 ioloop = IOLoop.instance()
                 ioloop.start()
+            except:
+                pass
             finally:
                 # ensure we remove the pidfile
                 pid.remove(pidfile_path)

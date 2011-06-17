@@ -58,6 +58,8 @@ class MyActivityHandler(NewebeAuthHandler):
         self.returnJson(json_util.getJsonFromDocList(activities))
 
 
+# Template handlers
+
 class ActivityContentHandler(NewebeAuthHandler):
     def get(self):
         self.render("../templates/activities/activities_content.html")

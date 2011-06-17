@@ -11,5 +11,6 @@ registerPasswordView = new RegisterPasswordView
 # Build view loaded when logging in is need 
 loginView = new LoginView
 
+# Start controller
 Backbone.history.start()
 

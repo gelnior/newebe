@@ -451,6 +451,7 @@ class MicropostTHandler(NewebeAuthHandler):
             raise HTTPError("Micropost not found.", 404)
 
 
+
 class NewsRetryHandler(NewebeAuthHandler):
 
 
@@ -502,7 +503,7 @@ class NewsRetryHandler(NewebeAuthHandler):
                         activity.save()
                         self.returnSuccess("Micropost correctly resent.")
 
-        except Exception:
+        except:
             self.returnFailure("Posting micropost to contact failed.")
 
        

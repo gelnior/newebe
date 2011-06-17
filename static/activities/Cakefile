@@ -35,8 +35,8 @@ task 'build', 'Build single application file from source files', ->
     throw err if err
     print stdout + stderr
 
+    # Compile to JS
     puts 'Building JS'
-    # Retrieve file
     for file, index in appFiles then do (file, index) ->
       fs.readFile "src/#{file}.coffee", 'utf8', (err, fileContents) ->
         throw err if err
@@ -63,11 +63,19 @@ task 'build', 'Build single application file from source files', ->
 task 'minify', 'Minify the resulting application file after build', ->
 
   puts 'Start minify'
-  command = 'java -jar ' + minifier + " --js lib/#{appName}.js --js_output_file "
-  command += "lib/#{appName}.production.js"
+  command = "uglifyjs lib/#{appName}.js > lib/#{appName}.production.js"
 
   exec command, (err, stdout, stderr) ->
     throw err if err
     print stdout + stderr
     puts 'Minify done.'
 
+
+# Automatically build app when a change occurs
+task 'watch', 'Watch source files and build changes', ->
+
+    for file in appFiles then do (file) ->
+        fs.watchFile "src/#{file}.coffee", (curr, prev) ->
+            if +curr.mtime isnt +prev.mtime
+                puts "Saw change in lib/#{file}.coffee"
+                invoke 'build'

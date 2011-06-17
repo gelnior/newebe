@@ -14,16 +14,15 @@ class ActivityManager():
     @staticmethod
     def get_activity(key):
         '''
-        Returns activity of which key is equal to *key*/
+        Returns activity of which key is equal to *key*.
         '''
 
         activities = Activity.view("activities/full", key=key)
 
-        activity = None
         if activities:
-            activity = activities.first()
-
-        return activity
+            return activities.first()
+        else:
+            return None
 
 
     @staticmethod
@@ -87,7 +86,9 @@ class Activity(NewebeDocument):
 
     def add_error(self, contact, extra = None):
         '''
-        And to the error list an error based on *contact* data.
+        And to the error list an error based on *contact* data. Extra 
+        information can be added to error object. Sometimes linked object
+        does no exist anymore so some extra data are date are needed.
         '''
 
         if not self.errors:
