@@ -72,6 +72,10 @@ Cake, the build tool:
 
      npm install cake
 
+UglifyJS, the minifier:
+
+    npm install uglifyjs
+
 And the Stylus compiler for CSS:
 
      npm install stylus
@@ -80,4 +84,8 @@ Then when you finish to work on client code. At the root of the module you
 worked on, type:
 
      cake build 
+
+or for automatic build:
+
+    cake watch
 
