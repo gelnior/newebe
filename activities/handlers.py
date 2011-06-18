@@ -1,6 +1,5 @@
 from newebe.lib.date_util import getDbDateFromUrlDate
 from newebe.core.handlers import NewebeAuthHandler
-from newebe.lib import json_util
 
 from newebe.activities.models import ActivityManager
 
@@ -28,7 +27,7 @@ class ActivityHandler(NewebeAuthHandler):
         else:
             activities = ActivityManager.get_all()
 
-        self.returnJson(json_util.getJsonFromDocList(activities))
+        self.return_documents(activities)
 
         
 class MyActivityHandler(NewebeAuthHandler):
@@ -55,7 +54,7 @@ class MyActivityHandler(NewebeAuthHandler):
         else:
             activities = ActivityManager.get_mine()
 
-        self.returnJson(json_util.getJsonFromDocList(activities))
+        self.return_documents(activities)
 
 
 # Template handlers
