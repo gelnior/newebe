@@ -342,7 +342,7 @@ class ContactHandler(NewebeAuthHandler):
         contact.save()
 
         user = UserManager.getUser()
-        data = user.toContact().toJson()
+        data = user.asContact().toJson()
 
         try:
              url = contact.url
