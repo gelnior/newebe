@@ -191,6 +191,8 @@ class RegisterTHandler(NewebeHandler):
                     "Data are not correct. User has not been created.", 400)
 
 
+# Template handlers
+
 class RegisterPasswordContentTHandler(NewebeHandler):
     def get(self):
         self.render("../templates/core/password_content.html")

@@ -420,7 +420,7 @@ class ContactsHandler(NewebeAuthHandler):
             contact.save()
         
             try:
-                data = UserManager.getUser().toContact().toJson()
+                data = UserManager.getUser().asContact().toJson()
 
                 client = HTTPClient()
                 request = HTTPRequest("%scontacts/request/" % url, 

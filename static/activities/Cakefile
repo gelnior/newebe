@@ -1,47 +1,54 @@
 # Cafefile for Newebe News application.
 
-# Configuration
-minifier = "/home/gelnior/tools/js/compiler.jar"
+# Name of application to build
+appName = "activities"
 
-
-# Dependencies
+# Dependencies and shortcuts
 sys    = require 'sys'
 print  = sys.print
 puts   = sys.puts
 fs     = require 'fs'
 {exec} = require 'child_process'
 
-
-# File to compile
+# Files to compile
 appFiles  = [
-  '../../platform/src/views/infodialog'
-  '../../platform/src/views/loadingindicator'
-  'models/activities',
-  'views/activity',
-  'views/activityview',
-  'activities'
+  '../platform/src/views/infodialog.coffee'
+  '../platform/src/views/loadingindicator.coffee'
 ]
 
-appName = "activities"
+walk = (dir) ->
+  list = fs.readdirSync(dir)
+  if list
+    for file in list
+      if file
+        filename = dir + '/' + file
+        stat = fs.statSync(filename)
+        if stat and stat.isDirectory()
+          walk (filename)
+        else
+            appFiles.push(filename)
+        
+walk("./src")
+
 
 # Build task
 task 'build', 'Build single application file from source files', ->
   puts 'Start build'
   appContents = new Array remaining = appFiles.length
 
-  # Compile styles
-  puts 'Building CSS'
-  exec "stylus styles/#{appName}.styl", (err, stdout, stderr) ->
-    throw err if err
-    print stdout + stderr
+  # Compile to JS
+  puts 'Building JS'
 
-    # Compile to JS
-    puts 'Building JS'
-    for file, index in appFiles then do (file, index) ->
-      fs.readFile "src/#{file}.coffee", 'utf8', (err, fileContents) ->
-        throw err if err
-        appContents[index] = fileContents
-        process() if --remaining is 0
+  puts "File to Compile"
+  for appFile in appFiles
+    puts appFile
+
+  # Load files in memory then process compilation
+  for file, index in appFiles then do (file, index) ->
+    fs.readFile file, 'utf8', (err, fileContents) ->
+      throw err if err
+      appContents[index] = fileContents
+      process() if --remaining is 0
 
 
   process = ->
@@ -52,14 +59,14 @@ task 'build', 'Build single application file from source files', ->
       # Compile files
       exec "coffee --compile lib/#{appName}.coffee", (err, stdout, stderr) ->
         throw err if err
-        print stdout + stderr
+        puts stdout + stderr
         fs.unlink "lib/#{appName}.coffee", (err) ->
           throw err if err
-          puts 'Build done.'
+          puts "JS Built to lib/#{appName}.js"
           invoke 'minify'
 
 
-# Minify task is based on the minifier you set in configuration file.
+# Minify task makes usage of uglifiyjs.
 task 'minify', 'Minify the resulting application file after build', ->
 
   puts 'Start minify'
@@ -67,8 +74,19 @@ task 'minify', 'Minify the resulting application file after build', ->
 
   exec command, (err, stdout, stderr) ->
     throw err if err
-    print stdout + stderr
-    puts 'Minify done.'
+    puts stdout + stderr
+    puts 'Minify done'
+    invoke 'styles'
+
+
+# Build styles via stylus
+task 'styles', 'Compile styles to CSS', ->
+    
+  puts 'Building CSS'
+  exec "stylus styles/#{appName}.styl", (err, stdout, stderr) ->
+    throw err if err
+    puts stdout + stderr
+    puts 'CSS built'
 
 
 # Automatically build app when a change occurs

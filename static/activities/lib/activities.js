@@ -169,7 +169,7 @@
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
     ActivityRow.prototype.className = "activity-row";
-    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> ->\n    <span id="<%= error.contactKey%>"\n          class="activity-error-resend">\n      resend\n    </span>\n</div>\n<% }); %>\n</div>');
+    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n <div class="activity-error">\n <%= error.contactName %> |\n <%= error.contactUrl %> ->\n <span id="<%= error.contactKey%>"\n class="activity-error-resend">\n resend\n </span>\n</div>\n<% }); %>\n</div>');
     /* Events */
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
@@ -291,7 +291,7 @@
       this.moreActivities.bind('refresh', this.addAllMore);
       return this.currentPath = '/activities/all/';
     };
-    /* Listeners  */
+    /* Listeners */
     ActivitiesView.prototype.onMineClicked = function(event) {
       $("#activities-my-button").button("disable");
       $("#activities-all-button").button("enable");
@@ -317,7 +317,7 @@
       this.clearActivities();
       return this.reloadActivities(sinceDate);
     };
-    /* Functions  */
+    /* Functions */
     ActivitiesView.prototype.clearActivities = function() {
       $("#activity-list").empty();
       return $("#activities-more").show();
@@ -400,7 +400,7 @@
       this.moreActivities.fetch();
       return this.moreActivities;
     };
-    /* UI Builders  */
+    /* UI Builders */
     ActivitiesView.prototype.setListeners = function() {
       return $("input#activities-from-datepicker").datepicker({
         onSelect: this.onDatePicked
@@ -423,3 +423,4 @@
   activitiesApp.setListeners();
   activitiesApp.fetch();
 }).call(this);
+
