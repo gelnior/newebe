@@ -15,7 +15,7 @@ class NoteManager():
     @staticmethod
     def getAll():
         '''
-        Returns all note from newebe owner.
+        Returns all notes from newebe owner, sorted by title.
         '''
         return Note.view("notes/mine_sort_title")
 
@@ -23,7 +23,7 @@ class NoteManager():
     @staticmethod
     def getAllSortedByDate():
         '''
-        Returns all note from newebe owner.
+        Returns all notes from newebe owner, sorted by date.
         '''
         return Note.view("notes/mine_sort_date")
 
