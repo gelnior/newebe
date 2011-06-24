@@ -48,8 +48,7 @@ import newebe.lib.pid as pid
 
 class Newebe(Application):
     '''
-    Main application that wraps Django app and handles
-    real time communications with contacts.
+    Main application that allows access to Newebe data via REST services.
     '''
 
     def __init__(self):
