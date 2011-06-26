@@ -44,11 +44,20 @@ img {
 li {
   list-style-type: square;
 }
+.spacer {
+  clear: both;
+}
 span.step {
   font-weight: bold;
   color: #555;
   font-size: 0.8em;
   margin-right: 10px;
+}
+#logo {
+  float: left;
+}
+#download-text {
+  margin-top: 135px;
 }
 #slogan {
   margin: 0 0 0 0;
@@ -109,10 +118,4 @@ span.step {
 }
 #menu a.selected:hover {
   border: none;
-}
-#logo {
-  float: left;
-}
-#download-text {
-  margin-top: 135px;
 }
