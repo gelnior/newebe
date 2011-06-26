@@ -3,11 +3,14 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+    
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link href="newebe.css" rel="stylesheet"
+      type="text/css" media="screen" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js">
 </script>
 
-<title>Newebe : get the data back home</title>
+<title>Newebe | feel free to share</title>
 <script>
 
 $(function(){
@@ -27,7 +30,6 @@ $(function(){
         lastSelectedMenu.removeClass('selected');
         lastSelectedMenu = $('#menu-home');
         lastSelectedMenu.addClass('selected');
-        event.preventDefault();
     });
     $('#menu-installation').click(function(event) {
         lastSelected.fadeOut(300, function() {
@@ -37,7 +39,6 @@ $(function(){
         lastSelectedMenu.removeClass('selected');
         lastSelectedMenu = $('#menu-installation');
         lastSelectedMenu.addClass('selected');
-        event.preventDefault();
     });
     $('#menu-documentation').click(function(event) {
         lastSelected.fadeOut(300, function() {
@@ -47,7 +48,6 @@ $(function(){
         lastSelectedMenu.removeClass('selected');
         lastSelectedMenu = $('#menu-documentation');
         lastSelectedMenu.addClass('selected');
-        event.preventDefault();
     });
     $('#menu-contact').click(function(event) {
         lastSelected.fadeOut(300, function() {
@@ -57,7 +57,6 @@ $(function(){
         lastSelectedMenu.removeClass('selected');
         lastSelectedMenu = $('#menu-contact');
         lastSelectedMenu.addClass('selected');
-        event.preventDefault();
     });
     $('#menu-developers').click(function(event) {
         lastSelected.fadeOut(300, function() {
@@ -67,81 +66,52 @@ $(function(){
         lastSelectedMenu.removeClass('selected');
         lastSelectedMenu = $('#menu-developers');
         lastSelectedMenu.addClass('selected');
-        event.preventDefault();
     });
 });
 
 </script>
-
-<style type="text/css">
-body {
-   margin-top: 1.0em;
-   font-family: "sans-serif";
-   color: black;
-}
-#container {
-   background-color: white;
-   margin: 0 auto;
-   width: 700px;none }
-h1 { font-size: 3.8em; color: black; margin-bottom: 3px; }
-h2 { font-size: 1.5em; color: black; margin-top: 35px;}
-h3 { color: black; margin-top: 25px;}
-a { color: black; font-weight: bold; text-decoration: none;}
-.download { float: right; }
-pre { background: #DDEFFF; color: black; padding: 15px;}
-hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-.footer { text-align:center; padding-top:30px; font-style: italic; }
-img { border: 0; }
-    
-span.step { font-weight: bold; color: #555; font-size: 0.8em; 
-    margin-right: 10px;}
-#slogan { margin-top: 10px; }
-.description { font-style: italic; }
-#download { float: right; background-color: #DEF; padding: 20px; 
-    font-size: 1em; border: 1px solid black; -moz-border-radius: 1em; }
-#download a { font-size:1.2em; text-decoration: none; font-weight; bold; }
-#download p { padding: 0; margin: 0; }
-#download p#disclaimer { font-size: 0.6em; }
-
-#menu { list-style-type: none; padding: 0; font-size: 1.2em; 
-        border-bottom: 1px solid black; margin-top: 30px; }
-#menu li { display: inline; padding : 20px 10px 0px 0; }
-#menu a:hover { border-bottom: 3px solid black; }
-.selected { color: #888; }
-#menu a.selected:hover  { border: none; }
-</style>
 </head>
 
 <body>
   <a href="http://github.com/gelnior/newebe"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
   <div id="container">
-
+      
+    <h1>
+    <a href="http://newebe.org/">
+        <img id="logo" src="images/newebe_logo_birds.jpg" alt="Newebe"/>
+    </a>
+    </h1>
+      
     <div id="download">
-        <p>download 
-        <a href="https://github.com/downloads/gelnior/newebe/newebe-0.1.0.zip">
-            newebe 0.1.0</a>
-        </p>
-        <p id="disclaimer">warning: newebe is not production ready.</p>
-    </div>
-    <h1><a href="http://github.com/gelnior/newebe">Newebe</a></h1>
-    <h2 id="slogan">Get the data back home</h2>
-    
-    <div class="description">
+        <p>
+        <h2 id="slogan">feel free to share</h2>
+        <div class="description" >
       Growth of web applications has been a huge improvement for social 
       sharing and collaborative work. Unfortunately, to enjoy these new tools,
       we have traded our privacy. Newebe aims to solve this problem
       by providing web applications you host at your home and that connect
       to your contacts.
+  </div>
+      <div id="download-text">
+        Download 
+        <a href="https://github.com/downloads/gelnior/newebe/newebe-0.1.0.zip">
+            newebe 0.1.0</a>
+        </p>
+       </div>
+       <p id="disclaimer">warning: newebe is not production ready.</p>
     </div>
 
+
+    <div style="clear: both; margin: 0; padding: 0"></div>
+
     <ul id="menu">
-        <li><a id="menu-home" href="#home">Home</></li>
-        <li><a id="menu-installation" href="#installation">Installation</a></li>
+        <li><a id="menu-home" href="#home">home</></li>
+        <li><a id="menu-installation" href="#installation">installation</a></li>
         <li><a id="menu-documentation" href="#documentation">
-            Documentation</a></li>
-        <li><a id="menu-contact" href="#contact">Contact</a></li>
-        <li><a id="menu-developers" href="#developers">Developers</a></li>
+            documentation</a></li>
+        <li><a id="menu-contact" href="#contact">contact</a></li>
+        <li><a id="menu-developers" href="#developers">developers</a></li>
     </ul>
 
     <div id="home">
@@ -267,6 +237,9 @@ span.step { font-weight: bold; color: #555; font-size: 0.8em;
 
     <h3>Author</h3>
     <p>Gelnior : gelnior [ at ] free . fr</p>
+
+    <h3>Drawings</h3>
+    <p>Stella :  salumaastella [ at ] gmail . com</p>
     </div>
 
 
