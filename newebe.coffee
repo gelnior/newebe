@@ -52,6 +52,19 @@ $(() ->
         lastSelectedMenu = $('#menu-developers')
         lastSelectedMenu.addClass('selected')
     )
+
+    url = document.location.href
+    if url and url.indexOf("#")
+        path = url.split("#")[1]
+        element = "#" + path
+
+        $('#home').hide()
+        $(element).show()
+        
+        lastSelected = $(element)
+        lastSelectedMenu.removeClass('selected')
+        lastSelectedMenu = $('#menu-' + path)
+        lastSelectedMenu.addClass('selected')
 )
 
 

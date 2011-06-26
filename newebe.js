@@ -1,6 +1,6 @@
 (function() {
   $(function() {
-    var lastSelected, lastSelectedMenu;
+    var element, lastSelected, lastSelectedMenu, path, url;
     $('#installation').hide();
     $('#documentation').hide();
     $('#contact').hide();
@@ -44,7 +44,7 @@
       lastSelectedMenu = $('#menu-contact');
       return lastSelectedMenu.addClass('selected');
     });
-    return $('#menu-developers').click(function(event) {
+    $('#menu-developers').click(function(event) {
       lastSelected.fadeOut(300, function() {
         return $('#developers').fadeIn(300);
       });
@@ -53,5 +53,16 @@
       lastSelectedMenu = $('#menu-developers');
       return lastSelectedMenu.addClass('selected');
     });
+    url = document.location.href;
+    if (url && url.indexOf("#")) {
+      path = url.split("#")[1];
+      element = "#" + path;
+      $('#home').hide();
+      $(element).show();
+      lastSelected = $(element);
+      lastSelectedMenu.removeClass('selected');
+      lastSelectedMenu = $('#menu-' + path);
+      return lastSelectedMenu.addClass('selected');
+    }
   });
 }).call(this);
