@@ -54,7 +54,7 @@ $(() ->
     )
 
     url = document.location.href
-    if url and url.indexOf("#")
+    if url and url.indexOf("#") > 0
         path = url.split("#")[1]
         element = "#" + path
 

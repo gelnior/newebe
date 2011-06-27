@@ -54,7 +54,7 @@
       return lastSelectedMenu.addClass('selected');
     });
     url = document.location.href;
-    if (url && url.indexOf("#")) {
+    if (url && url.indexOf("#") > 0) {
       path = url.split("#")[1];
       element = "#" + path;
       $('#home').hide();
