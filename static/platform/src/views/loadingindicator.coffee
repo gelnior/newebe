@@ -6,10 +6,14 @@ class LoadingIndicator
     
   # Builds loading indicator widget.
   constructor: () ->
-    div = document.createElement('div')
-    div.id = "loading-indicator"
-    div.innerHTML = '<img src="/static/images/clock_32.png" />'
-    $("body").prepend(div)
+
+    if $("#loading-indicator").length == 0
+
+      div = document.createElement('div')
+      div.id = "loading-indicator"
+      div.innerHTML = '<img src="/static/images/clock_32.png" />'
+      $("body").prepend(div)
+
     @element = $("#loading-indicator")
     @element.hide()
 

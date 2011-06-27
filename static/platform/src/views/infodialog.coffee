@@ -6,12 +6,16 @@ class InfoDialog
    
   # Constructor : builds HTML element, then hides it.
   constructor: () ->
-    div = document.createElement('div')
-    div.id = "info-dialog"
-    div.className = "dialog"
-    div.innerHTML = "Test"
 
-    $("body").prepend(div)
+    if $("#info-dialog").length == 0
+
+      div = document.createElement('div')
+      div.id = "info-dialog"
+      div.className = "dialog"
+      div.innerHTML = "Test"
+
+      $("body").prepend(div)
+
     @element = $("#info-dialog")
     @element.hide()
 
@@ -33,16 +37,17 @@ class ConfirmationDialog
   # Constructor : builds HTML element, then hides it.
   constructor: (callback) ->
     
-    div = document.createElement('div')
-    div.id = "confirmation-dialog"
-    div.className = "dialog"
-    div.innerHTML = '<div id="confirmation-text"></div>'
-    div.innerHTML += '<div id="confirmation-buttons">'  \
-      + '<span href="" id="confirmation-yes">Yes</span>' \
-      + '<span href="" id="confirmation-no">No</span>' \
-      + '</div>'
-    
-    $("body").prepend(div)
+    if $("#confirmation-dialog").length == 0
+      div = document.createElement('div')
+      div.id = "confirmation-dialog"
+      div.className = "dialog"
+      div.innerHTML = '<div id="confirmation-text"></div>'
+      div.innerHTML += '<div id="confirmation-buttons">'  \
+        + '<span href="" id="confirmation-yes">Yes</span>' \
+        + '<span href="" id="confirmation-no">No</span>' \
+        + '</div>'
+      $("body").prepend(div)
+
     @element = $("#confirmation-dialog")
     @element.hide()
 

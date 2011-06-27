@@ -11,11 +11,13 @@
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
-      div = document.createElement('div');
-      div.id = "info-dialog";
-      div.className = "dialog";
-      div.innerHTML = "Test";
-      $("body").prepend(div);
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        div.innerHTML = "Test";
+        $("body").prepend(div);
+      }
       this.element = $("#info-dialog");
       this.element.hide();
     }
@@ -30,12 +32,14 @@
   ConfirmationDialog = (function() {
     function ConfirmationDialog(callback) {
       var div;
-      div = document.createElement('div');
-      div.id = "confirmation-dialog";
-      div.className = "dialog";
-      div.innerHTML = '<div id="confirmation-text"></div>';
-      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
-      $("body").prepend(div);
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
       this.element = $("#confirmation-dialog");
       this.element.hide();
       this.setNoButton();
@@ -62,10 +66,12 @@
   LoadingIndicator = (function() {
     function LoadingIndicator() {
       var div;
-      div = document.createElement('div');
-      div.id = "loading-indicator";
-      div.innerHTML = '<img src="/static/images/clock_32.png" />';
-      $("body").prepend(div);
+      if ($("#loading-indicator").length === 0) {
+        div = document.createElement('div');
+        div.id = "loading-indicator";
+        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        $("body").prepend(div);
+      }
       this.element = $("#loading-indicator");
       this.element.hide();
     }
@@ -363,14 +369,17 @@
       return this.microposts;
     };
     NewsView.prototype.postNewPost = function() {
-      var content, regexp, url, urls;
+      var content, regexp, url, urlIndex, urls;
       loadingIndicator.display();
       content = $("#id_content").val();
       regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       urls = content.match(regexp);
       if (urls) {
         url = urls[0];
-        content = content.replace(regexp, "[" + url + "]" + "(" + url + ")");
+        urlIndex = content.indexOf(url);
+        if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
+          content = content.replace(regexp, "[" + url + "]" + "(" + url + ")");
+        }
       }
       this.microposts.create({
         content: content

@@ -57,7 +57,7 @@
       } else if ($("#contact").length !== 0) {
         this.lastPage = "#contact";
       } else if ($("#activities").length !== 0) {
-        this.lastPage = "#activties";
+        this.lastPage = "#activities";
       } else {
         this.lastPage = "#profile";
       }
@@ -244,11 +244,13 @@
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
-      div = document.createElement('div');
-      div.id = "info-dialog";
-      div.className = "dialog";
-      div.innerHTML = "Test";
-      $("body").prepend(div);
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        div.innerHTML = "Test";
+        $("body").prepend(div);
+      }
       this.element = $("#info-dialog");
       this.element.hide();
     }
@@ -263,12 +265,14 @@
   ConfirmationDialog = (function() {
     function ConfirmationDialog(callback) {
       var div;
-      div = document.createElement('div');
-      div.id = "confirmation-dialog";
-      div.className = "dialog";
-      div.innerHTML = '<div id="confirmation-text"></div>';
-      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
-      $("body").prepend(div);
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
       this.element = $("#confirmation-dialog");
       this.element.hide();
       this.setNoButton();
@@ -295,10 +299,12 @@
   LoadingIndicator = (function() {
     function LoadingIndicator() {
       var div;
-      div = document.createElement('div');
-      div.id = "loading-indicator";
-      div.innerHTML = '<img src="/static/images/clock_32.png" />';
-      $("body").prepend(div);
+      if ($("#loading-indicator").length === 0) {
+        div = document.createElement('div');
+        div.id = "loading-indicator";
+        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        $("body").prepend(div);
+      }
       this.element = $("#loading-indicator");
       this.element.hide();
     }

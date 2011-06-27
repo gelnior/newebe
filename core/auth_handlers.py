@@ -64,21 +64,25 @@ class LoginJsonHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            postedData = json.loads(data)
-            password = postedData["password"]
-            user = UserManager.getUser()
-    
-            if user and user.password == hashlib.sha224(password).hexdigest():
+            try:
+                postedData = json.loads(data)
+                password = postedData["password"]
+                user = UserManager.getUser()
+        
+                if user \
+                   and user.password == hashlib.sha224(password).hexdigest():
+                    self.set_secure_cookie("password", password)
+                    self.returnSuccess("You are now logged in.")
+
+                else:
+                    self.returnFailure("Wrong password.", 400)
+
+            except json.JSONDecodeError:
+                self.returnFailure("Wrong password.", 400)
             
-                self.set_secure_cookie("password", password)
-                self.returnSuccess("You are now logged in.")
-
-            else:
-                self.returnFailure("Wrong password.")
-
         else:
-            self.returnFailure("Wrong password.")
-
+            self.returnFailure("Wrong password.", 400)
+        
 
 class LogoutHandler(NewebeHandler):
     '''

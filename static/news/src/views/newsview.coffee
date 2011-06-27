@@ -207,13 +207,15 @@ class NewsView extends Backbone.View
     urls = content.match(regexp)
     if urls
         url = urls[0]
-        content = content.replace(regexp, "[" + url + "]" + "(" + url + ")" )
+        urlIndex = content.indexOf(url)
+        if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
+          content = content.replace(regexp, "[" + url + "]" + "(" + url + ")" )
 
     @microposts.create(content : content,
-                        success : (nextModel, resp) ->
-                            loadingIndicator.hide()
-                            nextModel.view.el.id = resp._id
-                            nextModel.id = resp._id
+                       success : (nextModel, resp) ->
+                         loadingIndicator.hide()
+                         nextModel.view.el.id = resp._id
+                         nextModel.id = resp._id
                       )
     $("#id_content").val(null)
     $("#id_content").focus()

@@ -16,6 +16,7 @@ appFiles  = [
   '../platform/src/views/loadingindicator.coffee'
 ]
 
+srcFiles = []
 walk = (dir) ->
   list = fs.readdirSync(dir)
   if list
@@ -26,10 +27,11 @@ walk = (dir) ->
         if stat and stat.isDirectory()
           walk (filename)
         else
-            appFiles.push(filename)
-        
-walk("./src")
+          srcFiles.push(filename)
 
+walk("./src")
+srcFiles.reverse()
+appFiles = appFiles.concat(srcFiles)
 
 # Build task
 task 'build', 'Build single application file from source files', ->

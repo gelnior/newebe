@@ -11,11 +11,13 @@
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
-      div = document.createElement('div');
-      div.id = "info-dialog";
-      div.className = "dialog";
-      div.innerHTML = "Test";
-      $("body").prepend(div);
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        div.innerHTML = "Test";
+        $("body").prepend(div);
+      }
       this.element = $("#info-dialog");
       this.element.hide();
     }
@@ -30,12 +32,14 @@
   ConfirmationDialog = (function() {
     function ConfirmationDialog(callback) {
       var div;
-      div = document.createElement('div');
-      div.id = "confirmation-dialog";
-      div.className = "dialog";
-      div.innerHTML = '<div id="confirmation-text"></div>';
-      div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
-      $("body").prepend(div);
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
       this.element = $("#confirmation-dialog");
       this.element.hide();
       this.setNoButton();
@@ -62,10 +66,12 @@
   LoadingIndicator = (function() {
     function LoadingIndicator() {
       var div;
-      div = document.createElement('div');
-      div.id = "loading-indicator";
-      div.innerHTML = '<img src="/static/images/clock_32.png" />';
-      $("body").prepend(div);
+      if ($("#loading-indicator").length === 0) {
+        div = document.createElement('div');
+        div.id = "loading-indicator";
+        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        $("body").prepend(div);
+      }
       this.element = $("#loading-indicator");
       this.element.hide();
     }
@@ -100,9 +106,10 @@
         urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/");
         this.attributes['urlDate'] = urlDate;
       }
-      this.attributes['errorNumber'] = "";
       if (activity.errors.length) {
         this.attributes['errorNumber'] = "(" + activity.errors.length + ")";
+      } else {
+        this.attributes['errorNumber'] = "";
       }
     }
     /* Getters / Setters */
@@ -124,6 +131,9 @@
     Activity.prototype.getAuthor = function() {
       return this.get('author');
     };
+    Activity.prototype.getAuthorKey = function() {
+      return this.get('authorKey');
+    };
     Activity.prototype.getDate = function() {
       return this.get('date');
     };
@@ -138,9 +148,6 @@
     };
     Activity.prototype.getMethod = function() {
       return this.get('method');
-    };
-    Activity.prototype.getAuthorKey = function() {
-      return this.get('authorKey');
     };
     Activity.prototype.getMid = function() {
       return this.get('mid');
@@ -169,7 +176,7 @@
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
     ActivityRow.prototype.className = "activity-row";
-    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n <div class="activity-error">\n <%= error.contactName %> |\n <%= error.contactUrl %> ->\n <span id="<%= error.contactKey%>"\n class="activity-error-resend">\n resend\n </span>\n</div>\n<% }); %>\n</div>');
+    ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> ->\n    <span id="<%= error.contactKey%>"\n          class="activity-error-resend">\n      resend\n    </span>\n</div>\n<% }); %>\n</div>');
     /* Events */
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
@@ -291,7 +298,7 @@
       this.moreActivities.bind('refresh', this.addAllMore);
       return this.currentPath = '/activities/all/';
     };
-    /* Listeners */
+    /* Listeners  */
     ActivitiesView.prototype.onMineClicked = function(event) {
       $("#activities-my-button").button("disable");
       $("#activities-all-button").button("enable");
@@ -317,7 +324,7 @@
       this.clearActivities();
       return this.reloadActivities(sinceDate);
     };
-    /* Functions */
+    /* Functions  */
     ActivitiesView.prototype.clearActivities = function() {
       $("#activity-list").empty();
       return $("#activities-more").show();
@@ -400,7 +407,7 @@
       this.moreActivities.fetch();
       return this.moreActivities;
     };
-    /* UI Builders */
+    /* UI Builders  */
     ActivitiesView.prototype.setListeners = function() {
       return $("input#activities-from-datepicker").datepicker({
         onSelect: this.onDatePicked
@@ -423,4 +430,3 @@
   activitiesApp.setListeners();
   activitiesApp.fetch();
 }).call(this);
-

@@ -29,7 +29,7 @@ class PlatformView extends Backbone.View
     else if $("#contact").length != 0
       @lastPage = "#contact"
     else if $("#activities").length != 0
-      @lastPage = "#activties"
+      @lastPage = "#activities"
     else
       @lastPage = "#profile"
 
