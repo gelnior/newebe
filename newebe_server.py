@@ -111,7 +111,7 @@ class Newebe(Application):
           "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
           "login_url": "/login",
         }
-        Application.__init__(self, handlers, **settings)
+        Application.__init__(self, handlers, debug=DEBUG, **settings)
 
 
 PRIVATE_KEY = os.path.join("./", "server.key")
