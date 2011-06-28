@@ -114,7 +114,6 @@ class ProfileUpdater:
 
     def on_profile_sent(self, response, **kwargs):
         if response.error:
-            print response.error
             logger.error("Profile sending to a contact failed, error infos are " \
                     "stored inside activity.")
             contact = self.contact_requests[response.request]
