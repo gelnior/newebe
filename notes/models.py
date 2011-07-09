@@ -1,11 +1,15 @@
 import datetime
 
-from couchdbkit.ext.django.schema import StringProperty, BooleanProperty, \
+from couchdbkit import Server
+from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          DateTimeProperty
 
 from newebe.core.models import NewebeDocument
 
+from newebe.settings import COUCHDB_DB_NAME
 
+server = Server()
+db = server.get_or_create_db(COUCHDB_DB_NAME)
 
 class NoteManager():
     '''
@@ -13,7 +17,7 @@ class NoteManager():
     '''
 
     @staticmethod
-    def getAll():
+    def get_all():
         '''
         Returns all notes from newebe owner, sorted by title.
         '''
@@ -21,16 +25,15 @@ class NoteManager():
 
 
     @staticmethod
-    def getAllSortedByDate():
+    def get_all_sorted_by_Date():
         '''
         Returns all notes from newebe owner, sorted by date.
         '''
         return Note.view("notes/mine_sort_date")
 
 
-
     @staticmethod
-    def getFirst(key):
+    def get_note(key):
         '''
         Returns note correspoding to key. If key does not exist or if note 
         author is not the newebe owner, None is returned.
@@ -65,3 +68,4 @@ class Note(NewebeDocument):
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)
 
+Note.set_db(db)

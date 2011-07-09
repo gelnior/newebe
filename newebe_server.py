@@ -7,7 +7,6 @@ from tornado.web import Application
 
 import sys, os
 sys.path.append("../")
-os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 from newebe.settings import TORNADO_PORT, DEBUG
 
 from newebe.core.handlers import ProfileTHandler, \
@@ -118,6 +117,16 @@ PRIVATE_KEY = os.path.join("./", "server.key")
 CERTIFICATE = os.path.join("./", "server.crt")
 
 
+class NewebeIOLoop(IOLoop):
+
+    def handle_callback_exception(callback):
+        pass
+        #logging.error("Exception in callback", callback, exc_info=False)
+
+FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.INFO)
+logger = logging.getLogger('newebe')
+
 if __name__ == '__main__':
 
     '''
@@ -128,9 +137,6 @@ if __name__ == '__main__':
     # Application server setup
     logger = logging.getLogger("newebe")
     logger.info("Sets up application server.")
-    os.environ["DJANGO_SETTINGS_MODULE"] = 'newebe.settings'
-    #django_application = django.core.handlers.wsgi.WSGIHandler()
-    #django_wsgi = WSGIContainer(django_application)
     tornado_app = Newebe()
 
     if DEBUG:
@@ -144,8 +150,8 @@ if __name__ == '__main__':
 #                })
 
             http_server.listen(TORNADO_PORT)
-            logger.info("Starts Newebe on port %d." % TORNADO_PORT)
-            ioloop = IOLoop.instance()
+            logger.debug("Starts Newebe on port %d." % TORNADO_PORT)
+            ioloop = NewebeIOLoop.instance()
             ioloop.start()
 
         except KeyboardInterrupt, e:

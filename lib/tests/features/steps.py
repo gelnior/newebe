@@ -1,7 +1,7 @@
 import sys
 import os
-import simplejson as json
 
+from tornado.escape import json_decode
 from lettuce import step, world
 
 sys.path.append("../../../")
@@ -37,12 +37,12 @@ def converts_documents_to_json(step):
 
 @step(u'Checks that number of JSON documents is equal to (\d+)')
 def checks_that_number_of_json_documents_is_equal_to_x(step, nb_docs):
-    doc_wrapper = json.loads(world.documents_json)
+    doc_wrapper = json_decode(world.documents_json)
     assert int(nb_docs) == doc_wrapper['total_rows'] 
 
-@step(u'Checks that id of JSON documents are the same as given documents')
+@step(u'Checks that content of JSON documents are the same as given documents')
 def checks_that_content_of_json_documents_are_the_same_as_given_documents(step):
-    doc_wrapper = json.loads(world.documents_json)
+    doc_wrapper = json_decode(world.documents_json)
     json_docs = doc_wrapper["rows"]
     for doc in world.documents:
         is_same_content = False

@@ -1,4 +1,4 @@
-Feature: JSON conversion tools
+mFeature: JSON conversion tools
 
     Scenario: Creates a list of documents as JSON format
         Creates 3 microposts

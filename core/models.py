@@ -1,8 +1,14 @@
 import datetime
 from django.utils import simplejson as json
 
-from couchdbkit.ext.django.schema import Document, StringProperty, \
+from couchdbkit import Server
+from couchdbkit.schema import Document, StringProperty, \
                                          DateTimeProperty
+
+from newebe.settings import COUCHDB_DB_NAME
+
+server = Server()
+db = server.get_or_create_db(COUCHDB_DB_NAME)
 
 # Base document 
 
@@ -75,8 +81,8 @@ class User(NewebeDocument):
         current user.
         '''
 
-        if not self.key:
-            self.key = self.get_id
+        if not self.key and "_id" in self.to_json():
+            self.key = self.to_json()["_id"]
         super(NewebeDocument, self).save()
 
 
@@ -93,7 +99,7 @@ class User(NewebeDocument):
 
         return contact
 
-
+User.set_db(db)
 
 # Contact document
 
@@ -199,3 +205,4 @@ class Contact(NewebeDocument):
     description = StringProperty()
     
 
+Contact.set_db(db)

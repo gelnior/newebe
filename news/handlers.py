@@ -2,7 +2,7 @@ import logging
 import datetime
 import markdown
 
-from django.utils import simplejson as json
+from tornado.escape import json_encode, json_decode
 from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
@@ -223,7 +223,7 @@ class NewsHandler(NewebeAuthHandler):
         if data:
 
             # Save post locally
-            postedMicropost = json.loads(data)
+            postedMicropost = json_decode(data)
 
             user = UserManager.getUser()
             micropost = MicroPost(
@@ -314,7 +314,7 @@ class NewsContactHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            postedMicropost = json.loads(data)
+            postedMicropost = json_decode(data)
             date = getDateFromDbDate(postedMicropost["date"])
 
             micropost = MicroPost(
@@ -383,7 +383,7 @@ class NewsContactHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            deletedMicropost = json.loads(data)
+            deletedMicropost = json_decode(data)
             micropost = MicroPostManager.getContactMicropost(
                  deletedMicropost["authorKey"], deletedMicropost["date"])
             
@@ -460,7 +460,7 @@ class NewsRetryHandler(NewebeAuthHandler):
         micropost = MicroPostManager.getMicropost(key)
         idInfos = self.request.body
 
-        ids = json.loads(idInfos)
+        ids = json_decode(idInfos)
 
         if micropost and idInfos:
 
@@ -511,7 +511,7 @@ class NewsRetryHandler(NewebeAuthHandler):
 
         idInfos = self.request.body
 
-        ids = json.loads(idInfos)
+        ids = json_decode(idInfos)
 
         if ids:
 

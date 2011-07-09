@@ -1,8 +1,13 @@
-from couchdbkit.ext.django.schema import StringProperty, BooleanProperty
+from couchdbkit.schema import StringProperty, BooleanProperty
 
-from newebe.core.models import NewebeDocument, UserManager
+from couchdbkit import Server
+from newebe.core.models import NewebeDocument
 from newebe.news import news_settings
 
+from newebe.settings import COUCHDB_DB_NAME
+
+server = Server()
+db = server.get_or_create_db(COUCHDB_DB_NAME)
 
 class MicroPostManager():
     '''
@@ -122,3 +127,5 @@ class MicroPost(NewebeDocument):
     content = StringProperty(required=True)
     isMine = BooleanProperty(required=True, default=True) 
 
+
+MicroPost.set_db(db)

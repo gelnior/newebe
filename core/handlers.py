@@ -5,13 +5,13 @@ import markdown
 
 from threading import Timer
 
+from tornado.escape import json_decode, json_encode
 from tornado.web import RequestHandler, asynchronous
 from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 
-from django.template.defaultfilters import slugify
+from newebe.lib.slugify import slugify
 
 from newebe.lib import json_util
-from django.utils import simplejson as json
 from newebe.core.models import UserManager
 from newebe.core.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
@@ -61,7 +61,7 @@ class NewebeHandler(RequestHandler):
         the success.
         '''
 
-        self.returnJson(json.dumps({ "success" : text }), statusCode)
+        self.returnJson(json_encode({ "success" : text }), statusCode)
  
 
     def returnFailure(self, text, statusCode=500):
@@ -70,7 +70,7 @@ class NewebeHandler(RequestHandler):
         the error.
         '''
         
-        self.returnJson(json.dumps({ "error" : text }), statusCode)
+        self.returnJson(json_encode({ "error" : text }), statusCode)
 
 
 class NewebeAuthHandler(NewebeHandler):
@@ -114,8 +114,10 @@ class ProfileUpdater:
 
     def on_profile_sent(self, response, **kwargs):
         if response.error:
-            logger.error("Profile sending to a contact failed, error infos are " \
-                    "stored inside activity.")
+            logger.error("""
+              Profile sending to a contact failed, error infos are 
+              stored inside activity.
+            """)
             contact = self.contact_requests[response.request]
             self.activity.add_error(contact)
             self.activity.save()
@@ -152,18 +154,17 @@ class ProfileUpdater:
         for contact in ContactManager.getTrustedContacts():
             request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
                          method="PUT", body=jsonbody)
-            try:
-                response = client.fetch(request)
 
-                if response.error:
-                    raise Exception()
+            response = client.fetch(request)
 
-                logger.info("Profile update successfully sent.")
-            except Exception:                
-                logger.error("Profile sending to a contact failed, error infos are " \
-                        "stored inside activity.")
+            if response.error:
+                logger.error("""
+                    Profile sending to a contact failed, error infos are 
+                    stored inside activity.
+                """)
                 self.activity.add_error(contact)
-                self.activity.save()
+                self.activity.save()    
+            logger.info("Profile update successfully sent.")
 
 
     def forward_profile(self):
@@ -175,9 +176,10 @@ class ProfileUpdater:
 
 profile_updater = ProfileUpdater()
 
+
 class UserHandler(NewebeAuthHandler):
     '''
-    This is the main resource of the application. It allows :
+    This resource allows :
      * GET : retrieve current user (newebe owner) data.
      * POST : create a new user (if user exists, error response is returned).
      * PUT : modify current user data. Send profile to every contacts
@@ -208,7 +210,7 @@ class UserHandler(NewebeAuthHandler):
         data = self.request.body
 
         if data:
-            postedUser = json.loads(data)
+            postedUser = json_decode(data)
             user.name = postedUser["name"]
             user.url = postedUser["url"]
             user.description = postedUser["description"]
@@ -234,7 +236,7 @@ class ContactUpdateHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            putContact = json.loads(data)
+            putContact = json_decode(data)
             key = putContact["key"]            
 
             contact = ContactManager.getTrustedContact(key)
@@ -351,7 +353,7 @@ class ContactHandler(NewebeAuthHandler):
 
              response = client.fetch(request)
              incomingData = response.body
-             newebeResponse = json.loads(incomingData)
+             newebeResponse = json_decode(incomingData)
              if not newebeResponse["success"]:
                  contact.state = STATE_ERROR
                  contact.save()
@@ -408,7 +410,7 @@ class ContactsHandler(NewebeAuthHandler):
         data = self.request.body
 
         if data:
-            postedContact = json.loads(data)
+            postedContact = json_decode(data)
             url = postedContact['url']
             slug = slugify(url)
 
@@ -428,7 +430,7 @@ class ContactsHandler(NewebeAuthHandler):
                 response = client.fetch(request)
                 data = response.body
                 
-                newebeResponse = json.loads(data)
+                newebeResponse = json_decode(data)
                 if not newebeResponse["success"]:
                     contact.state = STATE_ERROR
                     contact.save()
@@ -463,7 +465,7 @@ class ContactPushHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            postedContact = json.loads(data)
+            postedContact = json_decode(data)
             url = postedContact["url"]
             slug = slugify(url)
 
@@ -499,7 +501,7 @@ class ContactConfirmHandler(NewebeAuthHandler):
         data = self.request.body
 
         if data:
-            postedContact = json.loads(data)
+            postedContact = json_decode(data)
             url = postedContact["url"]
             slug = slugify(url)
             key = postedContact["key"]

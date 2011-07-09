@@ -1,9 +1,14 @@
-from couchdbkit.ext.django.schema import StringProperty, BooleanProperty, \
+from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          ListProperty
 
+from couchdbkit import Server
 from newebe.core.models import NewebeDocument
 from newebe.activities import activity_settings
 
+from newebe.settings import COUCHDB_DB_NAME
+
+server = Server()
+db = server.get_or_create_db(COUCHDB_DB_NAME)
 
 class ActivityManager():
     '''
@@ -105,3 +110,5 @@ class Activity(NewebeDocument):
 
         self.errors.append(activityError)
 
+
+Activity.set_db(db)

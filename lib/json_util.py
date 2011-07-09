@@ -1,4 +1,4 @@
-from django.utils import simplejson as json
+from tornado.escape import json_encode
 
 def getJsonFromDocList(docs):
     '''
@@ -20,5 +20,5 @@ def getJsonFromDocList(docs):
         docsDictList.append(doc.toDict())
     response_dict['rows'] = docsDictList
 
-    return json.dumps(response_dict)
+    return json_encode(response_dict)
 

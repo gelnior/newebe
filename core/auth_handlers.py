@@ -1,6 +1,7 @@
 import hashlib
 
 from django.utils import simplejson as json
+from tornado.escape import json_decode
 
 from newebe.core.models import User, UserManager
 from newebe.core.handlers import NewebeHandler
@@ -22,7 +23,13 @@ class LoginHandler(NewebeHandler):
         user = UserManager.getUser()
 
         if user and user.password:
-            self.render("../templates/core/login.html")
+            password = self.get_secure_cookie("password")
+
+            if not password or  \
+               user.password != hashlib.sha224(password).hexdigest():
+                self.render("../templates/core/login.html")
+            else:
+                self.redirect("/")
 
         elif user and not user.password:
             self.redirect("/register/password/")
@@ -65,7 +72,7 @@ class LoginJsonHandler(NewebeHandler):
 
         if data:
             try:
-                postedData = json.loads(data)
+                postedData = json_decode(data)
                 password = postedData["password"]
                 user = UserManager.getUser()
         
@@ -89,6 +96,7 @@ class LogoutHandler(NewebeHandler):
     GET : Removes secure cookie for password then redirects to login page.
     '''
 
+
     def get(self):
         '''
         Remove secure cookie for password then redirects to login page.
@@ -111,7 +119,7 @@ class RegisterPasswordTHandler(NewebeHandler):
 
         user = UserManager.getUser()
         if user and user.password:
-           self.redirect("/") 
+            self.redirect("/") 
         else:
             self.render("../templates/core/password.html")
 
@@ -134,7 +142,7 @@ class RegisterPasswordTHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            postedPassword = json.loads(data)
+            postedPassword = json_decode(data)
             password = hashlib.sha224(postedPassword['password']).hexdigest()
             user.password = password
             user.save()
@@ -177,18 +185,16 @@ class RegisterTHandler(NewebeHandler):
             self.returnFailure("User already exists.")
 
         data = self.request.body
-
+        
         if data:
-            postedUser = json.loads(data)
+            postedUser = json_decode(data)
             user = User()
             user.name = postedUser['name']
             user.save()
-
             user.key = user._id
             user.save()
 
-            self.set_status(201)
-            self.returnJson(user.toJson())
+            self.returnJson(user.toJson(), 201)
 
         else:
             self.returnFailure(
