@@ -7,9 +7,9 @@ from couchdbkit.schema import Document, StringProperty, \
 
 from newebe.settings import COUCHDB_DB_NAME
 
-server = Server()
-db = server.get_or_create_db(COUCHDB_DB_NAME)
-
+#server = Server()
+#db = server.get_or_create_db(COUCHDB_DB_NAME)
+from newebe.settings import DB
 # Base document 
 
 class NewebeDocument(Document):
@@ -99,7 +99,7 @@ class User(NewebeDocument):
 
         return contact
 
-User.set_db(db)
+User.set_db(DB)
 
 # Contact document
 
@@ -205,4 +205,4 @@ class Contact(NewebeDocument):
     description = StringProperty()
     
 
-Contact.set_db(db)
+Contact.set_db(DB)

@@ -1,7 +1,7 @@
 # Global settings
 TORNADO_PORT = 8000
 COUCHDB_DB_NAME = "newebe_test"
-DEBUG = True
+DEBUG = False
 
 # Main variables
 SECRET_KEY = '*=$m*%d4u8gi$ry8#_ez&**3s#8wtv8x^a3_tdrk$snhd-uw_a'
@@ -51,4 +51,8 @@ LOGGING = {
     }
 }
 
+
+from couchdbkit import Server
+SERVER = Server()
+DB = SERVER.get_or_create_db(COUCHDB_DB_NAME)
 

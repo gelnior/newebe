@@ -1,15 +1,11 @@
 import datetime
 
-from couchdbkit import Server
 from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          DateTimeProperty
 
 from newebe.core.models import NewebeDocument
 
-from newebe.settings import COUCHDB_DB_NAME
-
-server = Server()
-db = server.get_or_create_db(COUCHDB_DB_NAME)
+from newebe.settings import DB
 
 
 class NoteManager():
@@ -74,4 +70,5 @@ class Note(NewebeDocument):
         NewebeDocument.save(self)
 
 
-Note.set_db(db)
+Note.set_db(DB)
+

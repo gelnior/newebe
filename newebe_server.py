@@ -42,7 +42,7 @@ from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
                                        ActivityContentHandler, \
                                        ActivityPageHandler
 
-from newebe.notes.handlers import NotesHandler, NotesHandler, \
+from newebe.notes.handlers import NotesHandler, \
                                   NotesByDateHandler, NoteHandler
 
 import newebe.lib.pid as pid
@@ -123,7 +123,6 @@ class Newebe(Application):
 
 PRIVATE_KEY = os.path.join("./", "server.key")
 CERTIFICATE = os.path.join("./", "server.crt")
-
 
 class NewebeIOLoop(IOLoop):
 
