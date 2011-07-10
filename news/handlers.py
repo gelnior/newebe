@@ -333,7 +333,7 @@ class NewsContactHandler(NewebeHandler):
             self.returnJson(micropost.toJson(), 201)
 
         else:
-            raise HTTPError(405, "No data sent.")
+            self.returnFailure("No data sent.", 405)
 
 
     def create_write_activity(self, micropost, date):

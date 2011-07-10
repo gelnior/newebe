@@ -11,6 +11,7 @@ from newebe.settings import COUCHDB_DB_NAME
 server = Server()
 db = server.get_or_create_db(COUCHDB_DB_NAME)
 
+
 class NoteManager():
     '''
     Utility methods to retrieve note data.
@@ -21,14 +22,16 @@ class NoteManager():
         '''
         Returns all notes from newebe owner, sorted by title.
         '''
+
         return Note.view("notes/mine_sort_title")
 
 
     @staticmethod
-    def get_all_sorted_by_Date():
+    def get_all_sorted_by_date():
         '''
         Returns all notes from newebe owner, sorted by date.
         '''
+
         return Note.view("notes/mine_sort_date")
 
 
@@ -38,6 +41,7 @@ class NoteManager():
         Returns note correspoding to key. If key does not exist or if note 
         author is not the newebe owner, None is returned.
         '''
+
         notes = Note.view("notes/mine", key=key)
 
         note = None
@@ -65,7 +69,9 @@ class Note(NewebeDocument):
         When document is saved, the last modified field is updated to 
         make sure it is always correct. 
         '''
+
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)
+
 
 Note.set_db(db)

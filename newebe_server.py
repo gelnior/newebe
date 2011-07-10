@@ -42,6 +42,9 @@ from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
                                        ActivityContentHandler, \
                                        ActivityPageHandler
 
+from newebe.notes.handlers import NotesHandler, NotesHandler, \
+                                  NotesByDateHandler, NoteHandler
+
 import newebe.lib.pid as pid
 
 
@@ -103,6 +106,11 @@ class Newebe(Application):
             ('/activities/all/([0-9\-]+)/', ActivityHandler),
             ('/activities/mine/', MyActivityHandler),
             ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
+
+            ('/notes/all/', NotesHandler),
+            ('/notes/all/order-by-title/', NotesHandler),
+            ('/notes/all/order-by-date/', NotesByDateHandler),
+            ('/notes/([0-9a-z]+)/', NoteHandler),
         ]
         
         settings = {
