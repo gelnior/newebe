@@ -7,9 +7,6 @@ from couchdbkit.schema import Document, StringProperty, \
 
 from newebe.settings import COUCHDB_DB_NAME
 
-#server = Server()
-#db = server.get_or_create_db(COUCHDB_DB_NAME)
-from newebe.settings import DB
 # Base document 
 
 class NewebeDocument(Document):
@@ -40,6 +37,18 @@ class NewebeDocument(Document):
 
         docDict = self.toDict()
         return json.dumps(docDict)
+
+    @classmethod
+    def get_db(cls):
+        '''
+        Set DB for each class
+        '''
+        db = getattr(cls, '_db', None)
+        if db is None:
+            server = Server()
+            db = server.get_or_create_db(COUCHDB_DB_NAME)
+            cls._db = db
+        return db
 
 
 # User document
@@ -99,7 +108,6 @@ class User(NewebeDocument):
 
         return contact
 
-User.set_db(DB)
 
 # Contact document
 
@@ -205,4 +213,3 @@ class Contact(NewebeDocument):
     description = StringProperty()
     
 
-Contact.set_db(DB)

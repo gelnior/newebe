@@ -4,7 +4,6 @@ from couchdbkit.schema import StringProperty, BooleanProperty, \
 from newebe.core.models import NewebeDocument
 from newebe.activities import activity_settings
 
-from newebe.settings import DB
 
 class ActivityManager():
     '''
@@ -107,4 +106,3 @@ class Activity(NewebeDocument):
         self.errors.append(activityError)
 
 
-Activity.set_db(DB)

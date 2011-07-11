@@ -51,8 +51,4 @@ LOGGING = {
     }
 }
 
-
-from couchdbkit import Server
-SERVER = Server()
-DB = SERVER.get_or_create_db(COUCHDB_DB_NAME)
-
+/bin/bash: q : commande introuvable

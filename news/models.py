@@ -3,7 +3,7 @@ from couchdbkit.schema import StringProperty, BooleanProperty
 from newebe.core.models import NewebeDocument
 from newebe.news import news_settings
 
-from newebe.settings import DB
+from newebe.settings import dbhandler
 
 class MicroPostManager():
     '''
@@ -124,4 +124,4 @@ class MicroPost(NewebeDocument):
     isMine = BooleanProperty(required=True, default=True) 
 
 
-MicroPost.set_db(DB)
+

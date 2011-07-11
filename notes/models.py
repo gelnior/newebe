@@ -5,8 +5,6 @@ from couchdbkit.schema import StringProperty, BooleanProperty, \
 
 from newebe.core.models import NewebeDocument
 
-from newebe.settings import DB
-
 
 class NoteManager():
     '''
@@ -40,7 +38,7 @@ class NoteManager():
 
         notes = Note.view("notes/mine", key=key)
 
-        note = None
+/bin/bash: q : commande introuvable
         if notes:        
             note = notes.first()
 
@@ -70,5 +68,5 @@ class Note(NewebeDocument):
         NewebeDocument.save(self)
 
 
-Note.set_db(DB)
+#Note.set_db(dbhandler.get_db())
 
