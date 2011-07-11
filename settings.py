@@ -1,6 +1,6 @@
 # Global settings
 TORNADO_PORT = 8000
-COUCHDB_DB_NAME = "newebe_test"
+COUCHDB_DB_NAME = "newebe"
 DEBUG = False
 
 # Main variables
@@ -50,5 +50,3 @@ LOGGING = {
         }
     }
 }
-
-/bin/bash: q : commande introuvable
