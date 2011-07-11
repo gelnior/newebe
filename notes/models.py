@@ -38,7 +38,6 @@ class NoteManager():
 
         notes = Note.view("notes/mine", key=key)
 
-/bin/bash: q : commande introuvable
         if notes:        
             note = notes.first()
 
