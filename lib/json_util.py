@@ -1,5 +1,6 @@
 from tornado.escape import json_encode
 
+
 def getJsonFromDocList(docs):
     '''
     Converts a whole list of db documents to their JSON format, assuming the
@@ -12,6 +13,7 @@ def getJsonFromDocList(docs):
     Arguments : 
         *docs* List of documents to convert.
     '''
+
     response_dict = {}
     response_dict['total_rows'] = len(docs)
 

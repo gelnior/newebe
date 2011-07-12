@@ -6,8 +6,8 @@ import markdown
 from threading import Timer
 
 from tornado.escape import json_decode, json_encode
-from tornado.web import RequestHandler, asynchronous
-from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
+from tornado.web import RequestHandler
+from tornado.httpclient import HTTPClient, HTTPRequest
 
 from newebe.lib.slugify import slugify
 
@@ -106,25 +106,13 @@ class NewebeAuthHandler(NewebeHandler):
 
 
 class ProfileUpdater:
-    
+    '''
+    Utility class to handle profile forwarding to contacts. Set error
+    log inside acitivity when error occurs.
+    '''
+
     sending_data = False
     contact_requests = {}
-
-    activity = None
-
-    def on_profile_sent(self, response, **kwargs):
-        if response.error:
-            logger.error("""
-              Profile sending to a contact failed, error infos are 
-              stored inside activity.
-            """)
-            contact = self.contact_requests[response.request]
-            self.activity.add_error(contact)
-            self.activity.save()
-
-        else: 
-            logger.info("Profile update successfully sent.")
-        del self.contact_requests[response.request]
 
 
     def send_profile_to_contacts(self):
@@ -140,7 +128,7 @@ class ProfileUpdater:
         user = UserManager.getUser()
         jsonbody = user.toJson()
 
-        self.activity = Activity(
+        activity = Activity(
             authorKey = user.key,
             author = user.name,
             verb = "modifies",
@@ -162,17 +150,22 @@ class ProfileUpdater:
                     Profile sending to a contact failed, error infos are 
                     stored inside activity.
                 """)
-                self.activity.add_error(contact)
-                self.activity.save()    
+                activity.add_error(contact)
+                activity.save()    
             logger.info("Profile update successfully sent.")
 
 
     def forward_profile(self):
-
+        '''
+        Because profile modification occurs a lot in a short time. The 
+        profile is forwarded only every ten minutes. It avoids to create
+        too much activities for this profile modification.
+        '''
         t = Timer(1.0 * 60 * 10, self.send_profile_to_contacts)
         if not self.sending_data:
             self.sending_data = True
             t.start()
+
 
 profile_updater = ProfileUpdater()
 

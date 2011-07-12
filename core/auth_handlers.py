@@ -6,6 +6,7 @@ from tornado.escape import json_decode
 from newebe.core.models import User, UserManager
 from newebe.core.handlers import NewebeHandler
 
+
 class LoginHandler(NewebeHandler):
     '''
     * GET:  displaying page for logging in.
