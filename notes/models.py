@@ -11,6 +11,7 @@ class NoteManager():
     Utility methods to retrieve note data.
     '''
 
+
     @staticmethod
     def get_all():
         '''
@@ -65,7 +66,4 @@ class Note(NewebeDocument):
 
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)
-
-
-#Note.set_db(dbhandler.get_db())
 

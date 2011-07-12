@@ -24,11 +24,13 @@ class CouchdbkitHandler(object):
             _databases = {}
     )   
 
+
     def __init__(self):
         """ initialize couchdbkit handler with COUCHDB_DATABASES
         settings """
 
         self.__dict__ = self.__shared_state__
+
 
     def sync_all_app(self, databases):
         '''

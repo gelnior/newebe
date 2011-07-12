@@ -9,6 +9,7 @@ class MicroPostManager():
     Furnishes static methods for easy news database retreiving.
     '''
 
+
     @staticmethod
     def getMine(startKey=None, skip=0):
         '''
@@ -113,11 +114,11 @@ class MicroPostManager():
         return micropost
 
 
-
 class MicroPost(NewebeDocument):
     '''
     Micropost object for micro blogging.
     '''
+
     author = StringProperty()
     content = StringProperty(required=True)
     isMine = BooleanProperty(required=True, default=True) 

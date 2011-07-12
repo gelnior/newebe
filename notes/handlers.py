@@ -1,5 +1,4 @@
 import logging
-import datetime
 
 from tornado.escape import json_decode
 
@@ -9,7 +8,6 @@ from newebe.activities.models import Activity
 from newebe.notes.models import Note, NoteManager
 
 
-# Logging stuff
 logger = logging.getLogger("newebe.notes")
 
 
@@ -34,6 +32,7 @@ class NotesHandler(NewebeAuthHandler):
         '''
         Creates a new note from received data.
         '''
+
         logger.info("Note creation received.")
 
         data = self.request.body

@@ -13,22 +13,22 @@ from newebe.activities.models import Activity, ActivityManager
 from newebe.core.models import ContactManager, UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 
-# When a new post is created, it is forwarded to contacts. CONTACT_PATH is 
-# the end of the URI to post the data. Full URI is contact UR + CONTACT_PATH
+logger = logging.getLogger("newebe.news")
+
+# When a new post is created, it is forwarded to contacts via POST requests. 
+# CONTACT_PATH is # the end of the URI where data are sent. Full URI is 
+# (contact URI + CONTACT_PATH).
 CONTACT_PATH = 'news/microposts/contacts/'
 
 # Long polling queue
 connections = []
-
-# Logging stuff
-logger = logging.getLogger("newebe.news")
-
 
 
 class NewsSuscribeHandler(NewebeAuthHandler):
     '''
     Handler that managers long polling connections.
     '''
+
 
     @asynchronous
     def get(self):
@@ -58,6 +58,7 @@ class MicropostHandler(NewebeAuthHandler):
     URL. Then send the delete request to contacts.
     '''
     
+
     def __init__(self, application, request, **kwargs):
         '''
         Initialize contacts dictionnary. This dictionary linked a request to
@@ -244,6 +245,7 @@ class NewsHandler(NewebeAuthHandler):
             self.returnFailure(
                     "Sent data were incorrects. No post was created.", 405)
 
+
     @asynchronous
     def forward_to_contacts(self, micropost):
         '''
@@ -304,6 +306,7 @@ class NewsContactHandler(NewebeHandler):
     This resource allows authorized contacts to send their microposts.
     '''
 
+
     def post(self):
         '''
         When post request is received, micropost content is expected inside
@@ -311,6 +314,7 @@ class NewsContactHandler(NewebeHandler):
         then stored inside a new Microposts object. Micropost author and date
         are set from incoming data.
         '''
+
         data = self.request.body
 
         if data:
@@ -434,6 +438,7 @@ class MicropostTHandler(NewebeAuthHandler):
            micropost.
     '''
     
+
     def get(self, postId):
         '''
         Returns for given id the HTML representation of corresponding 
@@ -451,12 +456,15 @@ class MicropostTHandler(NewebeAuthHandler):
             raise HTTPError("Micropost not found.", 404)
 
 
-
 class NewsRetryHandler(NewebeAuthHandler):
 
 
     def post(self, key):
-
+        '''
+        Resend post with *key* as key to the contact given in the posted
+        JSON. Corresponding activity ID is given inside the posted json.
+        Here is the format : {"contactId":"data","activityId":"data"}
+        '''
         micropost = MicroPostManager.getMicropost(key)
         idInfos = self.request.body
 
@@ -482,6 +490,9 @@ class NewsRetryHandler(NewebeAuthHandler):
 
     def forward_to_contact(self, micropost, contact, activity, method = "POST"):
         '''
+        *micropost* is sent to *contact* via a request of which method is set 
+        as *method*. If request succeeds, error linked to this contact
+        is removed. Else nothing is done and error code is returned.
         '''
 
         httpClient = HTTPClient()            
@@ -508,7 +519,12 @@ class NewsRetryHandler(NewebeAuthHandler):
 
        
     def put(self, key):
-
+        '''
+        Resend deletion of micropost with *key* as key to the contact given in 
+        the posted JSON. Corresponding activity ID is given inside the posted 
+        json.
+        Here is the format : {"contactId":"data","activityId":"data"}
+        '''
         idInfos = self.request.body
 
         ids = json_decode(idInfos)
@@ -546,6 +562,7 @@ class MyNewsHandler(NewebeAuthHandler):
     GET : Retrieve last 10 microposts published before a given date by owner.
     '''
 
+
     def get(self, startKey=None):
         '''
         Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
@@ -568,6 +585,8 @@ class MyNewsHandler(NewebeAuthHandler):
 
         self.returnJson(json_util.getJsonFromDocList(microposts))
     
+
+# Template handlers
 
 class NewsTHandler(NewebeAuthHandler):
     def get(self):
