@@ -1,13 +1,14 @@
 import logging
-
+import sys, os
 
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
-import sys, os
 sys.path.append("../")
 from newebe.settings import TORNADO_PORT, DEBUG
+
+import newebe.lib.pid as pid
 
 from newebe.core.handlers import ProfileTHandler, \
                                  ProfileContentTHandler, \
@@ -45,7 +46,15 @@ from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
 from newebe.notes.handlers import NotesHandler, \
                                   NotesByDateHandler, NoteHandler
 
-import newebe.lib.pid as pid
+
+# Set certificate files for HTTPS configuration.
+PRIVATE_KEY = os.path.join("./", "server.key")
+CERTIFICATE = os.path.join("./", "server.crt")
+
+# Set logging configuration
+FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.INFO)
+logger = logging.getLogger('newebe')
 
 
 class Newebe(Application):
@@ -121,24 +130,18 @@ class Newebe(Application):
         Application.__init__(self, handlers, debug=DEBUG, **settings)
 
 
-PRIVATE_KEY = os.path.join("./", "server.key")
-CERTIFICATE = os.path.join("./", "server.crt")
-
 class NewebeIOLoop(IOLoop):
-
+    '''
+    Override of Tornado IO loop to avoid logging when async requests fail.    
+    '''
     def handle_callback_exception(callback):
         pass
-        #logging.error("Exception in callback", callback, exc_info=False)
-
-FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.INFO)
-logger = logging.getLogger('newebe')
 
 if __name__ == '__main__':
 
     '''
-    Main function : it is here where tornado server is configured to
-    wrap django server and then is launched as a Newebe instance.
+    Main function : it is here where tornado server is configured and launched 
+    as a Newebe instance.
     '''
 
     # Application server setup
@@ -169,34 +172,34 @@ if __name__ == '__main__':
 
     else:
         from daemon import daemon
-        # capture stdout/err in logfile
+        # Send log ouptut to a file.
         log_file = 'newebe.%s.log' % TORNADO_PORT
         log = open(os.path.join("./", log_file), 'a+')
+        logging.getLogger().setLevel(logging.INFO)
         
-        # check pidfile
+        # Check pidfile.
         pidfile_path = "./newebe.pid"
         pid.check(pidfile_path)
 
-        # daemonize
+        # Daemonize.
         daemon_context = daemon.DaemonContext(stdout=log, stderr=log, 
                                               working_directory='.')
         with daemon_context:
-            # write the pidfile
+            # Write the pidfile.
             pid.write(pidfile_path)
 
-            # Server running.
+            # Starts server.
             try:
                 http_server = HTTPServer(tornado_app)
                 http_server.listen(TORNADO_PORT)
 
-                logging.getLogger().setLevel(logging.INFO)
                 logger.info("Starts Newebe on port %d." % TORNADO_PORT)
                 ioloop = IOLoop.instance()
                 ioloop.start()
             except:
                 pass
             finally:
-                # ensure we remove the pidfile
+                # Ensure that the pidfile is removed.
                 pid.remove(pidfile_path)
 
 
