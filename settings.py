@@ -1,6 +1,6 @@
 # Global settings
 TORNADO_PORT = 8000
-COUCHDB_DB_NAME = "newebe"
+COUCHDB_DB_NAME = "newebe_toto"
 DEBUG = False
 
 # Couchdb configuration
