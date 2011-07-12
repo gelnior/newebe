@@ -146,6 +146,7 @@ class RegisterPasswordTHandler(NewebeHandler):
             password = hashlib.sha224(postedPassword['password']).hexdigest()
             user.password = password
             user.save()
+            self.set_secure_cookie("password", password)
 
             self.returnJson(user.toJson())
 
