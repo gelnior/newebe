@@ -1,4 +1,6 @@
+import logging
 import datetime
+
 from django.utils import simplejson as json
 
 from couchdbkit import Server
@@ -6,6 +8,8 @@ from couchdbkit.schema import Document, StringProperty, \
                                          DateTimeProperty
 
 from newebe.settings import COUCHDB_DB_NAME
+
+logger = logging.getLogger("newebe.core")
 
 # Base document 
 
@@ -15,7 +19,7 @@ class NewebeDocument(Document):
     '''
 
     authorKey = StringProperty()
-    date = DateTimeProperty(required=True, default=datetime.datetime.now())
+    date = DateTimeProperty(required=True)
     password = StringProperty()
      
 
@@ -37,6 +41,17 @@ class NewebeDocument(Document):
 
         docDict = self.toDict()
         return json.dumps(docDict)
+
+
+    def save(self):
+        '''
+        When document is saved if its date is null, it is set to now. 
+        '''
+
+        if not self.date:
+            self.date = datetime.datetime.now()
+        Document.save(self)
+
 
     @classmethod
     def get_db(cls):
