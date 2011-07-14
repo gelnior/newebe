@@ -85,16 +85,17 @@
     </ul>    
     <h3>Procedure</h3>
     <p>
-    <span class="step"> step 1 </span> Install following packages :
+    <span class="step"> step 1 </span> Install following packages 
+    (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>) :
     </p>
     <pre>
  python python-setuptools python-pycurl python-daemon couchdb git</pre>
     <p>
-        Via easy_install install <em>couchdbkit</em>, <em>django</em> and 
+        Via easy_install install <em>couchdbkit</em>, <em>markdown</em> and 
         <em>tornado</em> :
     </p>
     <pre>
- easy_install couchdbkit django tornado markdown</pre>
+ easy_install couchdbkit tornado markdown</pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
         <em>Github</em> or unpack the downloaded archive:
@@ -107,7 +108,7 @@
         database :
     </p>
     <pre>
-  python manage.py sync_couchdb</pre>
+  python syncdb.py</pre>
     <p>
         <span class="step"> step 4 </span>  Update deployment file 
         (<em>deploy/newebe</em>) by changing 
