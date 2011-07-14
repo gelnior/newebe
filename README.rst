@@ -16,6 +16,7 @@ Dependencies
 * daemon >= 1.0.0
 * pycurl >= 1.0.0
 * markdown >= 2.0.0
+* lettuce >= 0.1.9
 
 
 Set up a development environment (Ubuntu 10.4)
@@ -29,7 +30,7 @@ Install following packages:
 
 Then via easy_install:
 
-    easy_install couchdbkit django tornado markdown
+    easy_install couchdbkit django tornado markdown lettuce
 
 Retrieve Newebe project:
 
@@ -39,7 +40,7 @@ In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
 Then, still in Newebe directory set DB by running:
 
-   python manage.py sync_couchdb
+   python syncdb.py
 
 and, at last run the server:
 
