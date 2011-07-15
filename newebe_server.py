@@ -24,7 +24,7 @@ from newebe.core.handlers import ProfileTHandler, \
                                  ContactHandler, ContactsHandler, \
                                  ContactsPendingHandler, \
                                  ContactsRequestedHandler, \
-                                 ContactRenderTHandler
+                                 ContactRenderTHandler, ContactRetryHandler
 
 from newebe.core.auth_handlers import LoginHandler, LogoutHandler, \
                                  LoginJsonHandler,\
@@ -88,6 +88,7 @@ class Newebe(Application):
             ('/contacts/request/$', ContactPushHandler),
             ('/contacts/render/([0-9A-Za-z-]+)/$', ContactRenderTHandler),
             ('/contacts/([0-9A-Za-z-]+)/$', ContactHandler),
+            ('/contacts/([0-9A-Za-z-]+)/retry/$', ContactRetryHandler),
 
             ('/contact/$', ContactTHandler),
             ('/contact/content/$', ContactContentTHandler),

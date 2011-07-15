@@ -1,7 +1,12 @@
+import logging
+
 from newebe.lib.date_util import getDbDateFromUrlDate
 from newebe.core.handlers import NewebeAuthHandler
 
 from newebe.activities.models import ActivityManager
+
+
+logger = logging.getLogger("newebe.activities")
 
 
 class ActivityHandler(NewebeAuthHandler):

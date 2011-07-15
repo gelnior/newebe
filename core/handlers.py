@@ -21,6 +21,7 @@ from newebe.activities.models import Activity
 
 logger = logging.getLogger("newebe.core")
 
+
 class NewebeHandler(RequestHandler):
     '''
     NewebeHandler is a base class to provide utility methods for handlers used 
@@ -325,7 +326,7 @@ class ContactHandler(NewebeAuthHandler):
         else:
             self.returnFailure("Contact does not exist.")
 
-    
+ 
     def put(self, slug):
         '''
         Modifies contact with data coming from request.
@@ -405,27 +406,91 @@ class ContactsHandler(NewebeAuthHandler):
         if data:
             postedContact = json_decode(data)
             url = postedContact['url']
-            slug = slugify(url)
 
-            contact = Contact(
-              url = url,
-              slug = slug
-            )
-            contact.save()
-        
+
+            owner = UserManager.getUser()
+
+            if owner.url != url:
+
+                slug = slugify(url)
+
+                contact = Contact(
+                  url = url,
+                  slug = slug
+                )
+                contact.save()
+            
+                try:
+                    data = UserManager.getUser().asContact().toJson()
+
+                    client = HTTPClient()
+                    request = HTTPRequest("%scontacts/request/" % url, 
+                                          method="POST", body=data)
+
+                    response = client.fetch(request)
+                    data = response.body
+                    
+                    newebeResponse = json_decode(data)
+                    if not newebeResponse["success"]:
+                        contact.state = STATE_ERROR
+                        contact.save()
+
+                except Exception:
+                    import traceback
+                    logger.error("Error on adding contact:\n %s" % 
+                            traceback.format_exc())
+
+                    contact.state = STATE_ERROR
+                    contact.save()
+
+                return self.returnJson(contact.toJson(), 201)
+
+            else:
+                return self.returnFailure(
+                        "Wrong data. Url is same as owner URL.", 400)
+        else:
+            return self.returnFailure(
+                    "Wrong data. Contact has not been created.", 400)
+
+class ContactRetryHandler(NewebeAuthHandler):
+    '''
+    This handler allows to resend contact request to a contact that have
+    already received contact request.
+    * POST: Send a new contact request to given contact if its state is
+    set as Pending or Error.
+    '''
+
+
+    def post(self, slug):
+        '''
+        When post request is received, contact of which slug is equal to
+        slug is retrieved. If its state is Pending or Error, the contact
+        request is send again.
+        '''
+
+        logger = logging.getLogger("newebe.contact")
+
+        contact = ContactManager.getContact(slug)
+        owner = UserManager.getUser()
+
+        if contact and contact.url != owner.url:
             try:
-                data = UserManager.getUser().asContact().toJson()
+                data = owner.asContact().toJson()
 
                 client = HTTPClient()
+                url = contact.url 
                 request = HTTPRequest("%scontacts/request/" % url, 
                                       method="POST", body=data)
 
                 response = client.fetch(request)
                 data = response.body
                 
-                newebeResponse = json_decode(data)
-                if not newebeResponse["success"]:
+                if response.code != 200:
                     contact.state = STATE_ERROR
+                    contact.save()
+
+                else:
+                    contact.state = STATE_WAIT_APPROVAL
                     contact.save()
 
             except Exception:
@@ -436,11 +501,9 @@ class ContactsHandler(NewebeAuthHandler):
                 contact.state = STATE_ERROR
                 contact.save()
 
-            return self.returnJson(contact.toJson(), 201)
-
+            return self.returnJson(contact.toJson(), 200)
         else:
-            return self.returnFailure(
-                    "Wrong data. Contact has not been created.", 400)
+            self.returnFailure("Contact does not exist", 404)
 
 
 class ContactPushHandler(NewebeHandler):
@@ -460,21 +523,34 @@ class ContactPushHandler(NewebeHandler):
         if data:
             postedContact = json_decode(data)
             url = postedContact["url"]
-            slug = slugify(url)
+            owner = UserManager.getUser()
 
-            contact = Contact(
-                name = postedContact["name"], 
-                url = url,
-                slug = slug,
-                key = postedContact["key"],
-                state = STATE_WAIT_APPROVAL,
-                requestDate = datetime.datetime.now(),
-                description = postedContact["description"]
-            )
-            contact.save()
+            if url is not None and owner.url != url:
+                slug = slugify(url)
 
-            self.returnSuccess("Request received.")
-             
+                contact = ContactManager.getContact(slug)
+                owner = UserManager.getUser()
+
+                if contact is None:
+                    contact = Contact(
+                        name = postedContact["name"], 
+                        url = url,
+                        slug = slug,
+                        key = postedContact["key"],
+                        state = STATE_WAIT_APPROVAL,
+                        requestDate = datetime.datetime.now(),
+                        description = postedContact["description"]
+                    )
+                    contact.save()
+
+                contact.state = STATE_WAIT_APPROVAL
+                contact.save()
+
+                self.returnSuccess("Request received.")
+
+            else:
+                self.returnFailure("Sent data are incorrects.")
+
         else:
             self.returnFailure("Sent data are incorrects.")
 

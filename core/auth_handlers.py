@@ -1,6 +1,5 @@
 import hashlib
 
-from django.utils import simplejson as json
 from tornado.escape import json_decode
 
 from newebe.core.models import User, UserManager
@@ -72,20 +71,16 @@ class LoginJsonHandler(NewebeHandler):
         data = self.request.body
 
         if data:
-            try:
-                postedData = json_decode(data)
-                password = postedData["password"]
-                user = UserManager.getUser()
-        
-                if user \
-                   and user.password == hashlib.sha224(password).hexdigest():
-                    self.set_secure_cookie("password", password)
-                    self.returnSuccess("You are now logged in.")
+            postedData = json_decode(data)
+            password = postedData["password"]
+            user = UserManager.getUser()
+    
+            if user \
+               and user.password == hashlib.sha224(password).hexdigest():
+                self.set_secure_cookie("password", password)
+                self.returnSuccess("You are now logged in.")
 
-                else:
-                    self.returnFailure("Wrong password.", 400)
-
-            except json.JSONDecodeError:
+            else:
                 self.returnFailure("Wrong password.", 400)
             
         else:

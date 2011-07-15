@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from django.utils import simplejson as json
+from tornado.escape import json_encode
 
 from couchdbkit import Server
 from couchdbkit.schema import Document, StringProperty, \
@@ -40,7 +40,7 @@ class NewebeDocument(Document):
         '''
 
         docDict = self.toDict()
-        return json.dumps(docDict)
+        return json_encode(docDict)
 
 
     def save(self):

@@ -14,6 +14,7 @@ class ContactRow extends Backbone.View
     <% if (state === "Wait for approval") { %>
       <a class="platform-contact-wap">Confim</a>
     <% } %>
+    <a class="platform-contact-retry">Retry</a>
     <a class="platform-contact-delete">X</a>    
     </span>
     <p class="platform-contact-url">
@@ -28,8 +29,9 @@ class ContactRow extends Backbone.View
   events:
     "click .platform-contact-delete": "onDeleteClicked"
     "click .platform-contact-wap": "onConfirmClicked"
-    "mouseover" : "onMouseOver"
-    "mouseout" : "onMouseOut"
+    "click .platform-contact-retry": "onRetryClicked"
+    "mouseover": "onMouseOver"
+    "mouseout": "onMouseOut"
 
   constructor: (@model) ->
     super
@@ -59,6 +61,21 @@ class ContactRow extends Backbone.View
           model.delete()
     )
 
+  # When retry button is clicked, adding contact request is sent to server.
+  # On success, contact state is set to pending.
+  onRetryClicked: ->
+    $.ajax(
+      type: "POST"
+      url: "/contacts/" + @model.id + "retry/"
+      data: '{"slug":"' + @model.slug + '"}'
+      dataType : "json"
+      success: (data) =>
+        @model.state = "PENDING"
+        @$(".platform-contact-state").html("(Pending)")
+      error: (data) ->
+        infoDialog.display "Contact request failed."
+    )
+
   # When a contact is confirmed, it sends a PT request to the confirmation
   # service.
   onConfirmClicked: ->
@@ -78,11 +95,16 @@ class ContactRow extends Backbone.View
   # Builds contact row element from template and linked micro post data.
   # It sets the buttons jquery-ui behavior on utility links then it hides 
   # them. It does not set element to DOM.
+  # It hides retry button when it is not needed.
   render: ->
     $(@el).html(@template(@model.toJSON()))
     @$(".platform-contact-delete").button()
+    @$(".platform-contact-retry").button()
     @$(".platform-contact-wap").button()
     @$(".platform-contact-row-buttons").hide()
+    state = @model.getState()
+    if state != "Error" and state != "pending"
+      @$(".platform-contact-retry").hide()
     @el
 
 

@@ -58,14 +58,16 @@ class ActivityRow extends Backbone.View
 
   # When mouse is over...
   onMouseOver: ->
-    @
+    @el.addClass("hover-line")
 
 
   # When mouse is out...
   onMouseOut: ->
-    @
-  
-
+    @el.removeClass("hover-line")
+    
+      
+  # When doc ref is clicked, if it is a micropost, micropost is displayed 
+  # in the preview section.
   onDocRefClicked: (event) ->
     if @model.getDocType() == "micropost"
         $.get("/news/micropost/" + @model.getDocId() + "/html/", (data) ->
@@ -76,6 +78,7 @@ class ActivityRow extends Backbone.View
     false
 
 
+  # When activity author is clicked, the author profile is displayed.
   onActivityAuthorClicked: (event) ->
     $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
       $("#activities-preview").html(data)
@@ -85,13 +88,19 @@ class ActivityRow extends Backbone.View
     false
 
 
+  # When user click on number of errors, it displayed the list of errorfs
+  # inside the activity line.
   onErrorNumberClicked: (event) ->
     @$(".activity-errors").show()
 
 
+  # When error resend button is clicked it requests server to resend data 
+  # to the contact. If it it succeeds it marks the error as solved else  
+  # it displays an error message.
   onErrorResendClicked: (event) ->
     if @model.getDocType() is "micropost"
       switch @model.getMethod()
+
         when "POST"
           $("#" + event.target.id).html("resending...")
           $.ajax(
@@ -105,8 +114,8 @@ class ActivityRow extends Backbone.View
               infoDialog.display "Sending data fails again."
               $("#" + event.target.id).html("resend")
           )
+
         when "DELETE"
-          
           extra = ""
           for error in @model.getErrors()
             if error.contactKey and error.contactKey is event.target.id

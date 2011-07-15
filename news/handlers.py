@@ -37,6 +37,7 @@ class NewsSuscribeHandler(NewebeAuthHandler):
         handler callback will be called then a response with new post 
         will be sent to client that made this request.
         '''
+
         logger.info("Long polling incoming")
         connections.append(self.async_callback(self.on_new_post))
 
@@ -46,6 +47,7 @@ class NewsSuscribeHandler(NewebeAuthHandler):
         When new post arrives, it sends it to client requesting for new
         posts.
         '''
+
         self.write(response_data)
         self.finish()
 
@@ -64,6 +66,7 @@ class MicropostHandler(NewebeAuthHandler):
         Initialize contacts dictionnary. This dictionary linked a request to
         a contact to handle error if request fails.
         '''
+
         NewebeHandler.__init__(self, application, request, **kwargs)
         self.contacts = dict()
 

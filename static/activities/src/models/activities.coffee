@@ -9,7 +9,7 @@ class Activity extends Backbone.Model
   # Fields:
   #
   # * id : activity id in database.
-  # * author : actvity post author.
+  # * author : actvity author.
   # * date : date where activity occcured.
   # * docId : Id of the document linked to the activity.
   # * verb : Verb describing the activity.

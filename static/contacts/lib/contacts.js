@@ -7,7 +7,7 @@
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  };
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
@@ -151,10 +151,11 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= name %> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= name %> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
       "click .platform-contact-wap": "onConfirmClicked",
+      "click .platform-contact-retry": "onRetryClicked",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut"
     };
@@ -177,6 +178,21 @@
         return model["delete"]();
       });
     };
+    ContactRow.prototype.onRetryClicked = function() {
+      return $.ajax({
+        type: "POST",
+        url: "/contacts/" + this.model.id + "retry/",
+        data: '{"slug":"' + this.model.slug + '"}',
+        dataType: "json",
+        success: __bind(function(data) {
+          this.model.state = "PENDING";
+          return this.$(".platform-contact-state").html("(Pending)");
+        }, this),
+        error: function(data) {
+          return infoDialog.display("Contact request failed.");
+        }
+      });
+    };
     ContactRow.prototype.onConfirmClicked = function() {
       return this.model.saveToDb();
     };
@@ -187,10 +203,16 @@
       return this.$(".platform-contact-state").text("(" + state + ")");
     };
     ContactRow.prototype.render = function() {
+      var state;
       $(this.el).html(this.template(this.model.toJSON()));
       this.$(".platform-contact-delete").button();
+      this.$(".platform-contact-retry").button();
       this.$(".platform-contact-wap").button();
       this.$(".platform-contact-row-buttons").hide();
+      state = this.model.getState();
+      if (state !== "Error" && state !== "pending") {
+        this.$(".platform-contact-retry").hide();
+      }
       return this.el;
     };
     return ContactRow;
