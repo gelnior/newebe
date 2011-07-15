@@ -48,9 +48,10 @@ class NewebeDocument(Document):
         When document is saved if its date is null, it is set to now. 
         '''
 
-        if not self.date:
+        logger.info("fuck ********************")
+        if self.date is None:            
             self.date = datetime.datetime.now()
-        Document.save(self)
+        super(Document, self).save()
 
 
     @classmethod
@@ -107,6 +108,10 @@ class User(NewebeDocument):
 
         if not self.key and "_id" in self.to_json():
             self.key = self.to_json()["_id"]
+            
+        if not self.date: 
+            self.date = datetime.datetime.now()
+
         super(NewebeDocument, self).save()
 
 

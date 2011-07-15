@@ -64,6 +64,9 @@ class Note(NewebeDocument):
         make sure it is always correct. 
         '''
 
+        if not self.date:
+            self.date = datetime.dateime.now()
+
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)
 
