@@ -41,13 +41,15 @@ class NotesView extends Backbone.View
   # When new note button is clicked, a new note is created, saved, displayed
   # and finally selected.
   onNewNoteClicked: (event) ->
+    now = new Date().toString("yyyy-MM-ddTHH:mm:ssZ")
     noteObject =
       "title": "New Note"
-      "date": new Date().toString("yyyy-MM-ddTHH:mm:ssZ")
+      "date": now
+      "lastModified": now
       "content": ""
 
     note = new Note noteObject
-    note.save(success: (model, response) ->
+    note.save("", success: (model, response) ->
         model.id = response._id
       )
     row = @prependOne(note)
@@ -121,7 +123,7 @@ class NotesView extends Backbone.View
   # When sort date button is clicked, it disable then notes are reloaded
   # from the service that sorts them by date.
   onSortDateClicked: () ->
-    if @dateButton.button("option", "disabled") == false
+    if not(@dateButton.button("option", "disabled") == true)
       @dateButton.button("disable")
       @titleButton.button("enable")
       @notePreviewer.html(null)
@@ -173,12 +175,12 @@ class NotesView extends Backbone.View
   setWidgets: ->
     @titleButton = $("#notes-sort-title-button")
     @dateButton = $("#notes-sort-date-button")
-    @newButton = $("#notes-new-button")    
+    @newButton = $("#notes-new-button")
     @notePreviewer = $("#notes-preview")
 
     @titleButton.button()
     @dateButton.button()
-    @dateButton.button("disable")
+    @titleButton.button("disable")
     @newButton.button()
 
     $("#notes-a").addClass("disabled")

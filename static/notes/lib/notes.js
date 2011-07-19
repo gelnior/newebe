@@ -95,9 +95,10 @@
       this.set('title', note.title);
       this.set('date', note.date);
       this.set('content', note.content);
-      this.set('date', note.lastModified);
+      this.set('lastModified', note.lastModified);
       content = note.content.replace(/<(?:.|\s)*?>/g, "");
       this.attributes['content'] = content;
+      this.attributes['lastModified'] = note.lastModified;
       this.setDisplayDate();
       if (this.id) {
         this.url = "/notes/" + this.id + "/";
@@ -115,11 +116,11 @@
       return this.setDisplayDateFromDbDate(dateToSet);
     };
     Note.prototype.setDisplayDateFromDbDate = function(date) {
-      var postDate, stringDate;
-      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-      stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+      var displayDate, stringDate;
+      displayDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+      stringDate = displayDate.toString("dd MMM yyyy, HH:mm");
       this.attributes['displayDate'] = stringDate;
-      return postDate;
+      return stringDate;
     };
     Note.prototype.getAuthor = function() {
       return this.get('author');
@@ -194,14 +195,16 @@
     };
     /* Listeners  */
     NotesView.prototype.onNewNoteClicked = function(event) {
-      var note, noteObject, row;
+      var note, noteObject, now, row;
+      now = new Date().toString("yyyy-MM-ddTHH:mm:ssZ");
       noteObject = {
         "title": "New Note",
-        "date": new Date().toString("yyyy-MM-ddTHH:mm:ssZ"),
+        "date": now,
+        "lastModified": now,
         "content": ""
       };
       note = new Note(noteObject);
-      note.save({
+      note.save("", {
         success: function(model, response) {
           return model.id = response._id;
         }
@@ -265,7 +268,7 @@
       });
     };
     NotesView.prototype.onSortDateClicked = function() {
-      if (this.dateButton.button("option", "disabled") === false) {
+      if (!(this.dateButton.button("option", "disabled") === true)) {
         this.dateButton.button("disable");
         this.titleButton.button("enable");
         this.notePreviewer.html(null);
@@ -314,7 +317,7 @@
       this.notePreviewer = $("#notes-preview");
       this.titleButton.button();
       this.dateButton.button();
-      this.dateButton.button("disable");
+      this.titleButton.button("disable");
       this.newButton.button();
       return $("#notes-a").addClass("disabled");
     };

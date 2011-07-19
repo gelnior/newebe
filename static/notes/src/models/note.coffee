@@ -21,10 +21,11 @@ class Note extends Backbone.Model
     @set('title', note.title)
     @set('date', note.date)
     @set('content', note.content)
-    @set('date', note.lastModified)
+    @set('lastModified', note.lastModified)
 
     content = note.content.replace(/<(?:.|\s)*?>/g, "")
     @attributes['content'] = content
+    @attributes['lastModified'] = note.lastModified
     
     @setDisplayDate()
 
@@ -46,10 +47,10 @@ class Note extends Backbone.Model
   
   # Convert raw *date* to human readable date.
   setDisplayDateFromDbDate: (date) ->
-    postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
-    stringDate = postDate.toString("dd MMM yyyy, HH:mm")
+    displayDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
+    stringDate = displayDate.toString("dd MMM yyyy, HH:mm")
     @attributes['displayDate'] = stringDate
-    postDate
+    stringDate
 
   getAuthor: ->
     @get('author')
@@ -73,7 +74,7 @@ class Note extends Backbone.Model
   setContent: (content) ->
     @attributes['content'] = content
     @set('content', content)
-
+  
 
   # Sends a delete request to services backend then ask view to remove note 
   # from DOM.
