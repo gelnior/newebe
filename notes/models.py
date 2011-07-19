@@ -3,7 +3,7 @@ import datetime
 from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          DateTimeProperty
 
-from newebe.core.models import NewebeDocument
+from newebe.core.models import NewebeDocument, UserManager
 
 
 class NoteManager():
@@ -27,7 +27,7 @@ class NoteManager():
         Returns all notes from newebe owner, sorted by date.
         '''
 
-        return Note.view("notes/mine_sort_date")
+        return Note.view("notes/mine_sort_date", descending=True)
 
 
     @staticmethod
@@ -64,8 +64,14 @@ class Note(NewebeDocument):
         make sure it is always correct. 
         '''
 
+        if not self.authorKey:
+            user = UserManager.getUser()
+            self.authorKey = user.key
+            self.author = user.name
+
+
         if not self.date:
-            self.date = datetime.dateime.now()
+            self.date = datetime.datetime.now()
 
         self.lastModified = datetime.datetime.now()
         NewebeDocument.save(self)

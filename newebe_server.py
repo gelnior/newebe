@@ -44,7 +44,8 @@ from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
                                        ActivityPageHandler
 
 from newebe.notes.handlers import NotesHandler, \
-                                  NotesByDateHandler, NoteHandler
+                                  NotesByDateHandler, NoteHandler, \
+                                  NotesPageTHandler, NotesContentTHandler
 
 
 # Set certificate files for HTTPS configuration.
@@ -117,6 +118,8 @@ class Newebe(Application):
             ('/activities/mine/', MyActivityHandler),
             ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
 
+            ('/notes/', NotesPageTHandler),
+            ('/notes/content/', NotesContentTHandler),
             ('/notes/all/', NotesHandler),
             ('/notes/all/order-by-title/', NotesHandler),
             ('/notes/all/order-by-date/', NotesByDateHandler),

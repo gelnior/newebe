@@ -17,7 +17,8 @@
       "contact": "displayContact",
       "news": "displayNews",
       "activities": "displayActivities",
-      "profile": "displayProfile"
+      "profile": "displayProfile",
+      "notes": "displayNotes"
     };
     PlatformController.prototype.displayContact = function() {
       return this.view.onContactClicked();
@@ -31,6 +32,9 @@
     PlatformController.prototype.displayActivities = function() {
       return this.view.onActivitiesClicked();
     };
+    PlatformController.prototype.displayNotes = function() {
+      return this.view.onNotesClicked();
+    };
     PlatformController.prototype.registerView = function(view) {
       return this.view = view;
     };
@@ -43,7 +47,8 @@
       "click #news-a": "onNewsClicked",
       "click #profile-a": "onProfileClicked",
       "click #contact-a": "onContactClicked",
-      "click #activities-a": "onActivitiesClicked"
+      "click #activities-a": "onActivitiesClicked",
+      "click #notes-a": "onNotesClicked"
     };
     function PlatformView(controller) {
       this.controller = controller;
@@ -58,6 +63,8 @@
         this.lastPage = "#contact";
       } else if ($("#activities").length !== 0) {
         this.lastPage = "#activities";
+      } else if ($("#notes").length !== 0) {
+        this.lastPage = "#notes";
       } else {
         this.lastPage = "#profile";
       }
@@ -94,6 +101,14 @@
       }
       document.title = "Newebe | Activities";
       this.switchTo("#activities", '/activities/content/');
+      return false;
+    };
+    PlatformView.prototype.onNotesClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Notes";
+      this.switchTo("#notes", '/notes/content/');
       return false;
     };
     PlatformView.prototype.switchTo = function(page, url) {

@@ -168,3 +168,14 @@ class NoteHandler(NewebeAuthHandler):
         activity.save()
 
 
+# Template handlers
+
+class NotesContentTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("../templates/notes/notes_content.html")
+
+class NotesPageTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("../templates/notes/notes.html")
+
+

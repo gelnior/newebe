@@ -20,7 +20,6 @@ class NewebeDocument(Document):
 
     authorKey = StringProperty()
     date = DateTimeProperty(required=True)
-    password = StringProperty()
      
 
     def toDict(self):
@@ -48,7 +47,6 @@ class NewebeDocument(Document):
         When document is saved if its date is null, it is set to now. 
         '''
 
-        logger.info("fuck ********************")
         if self.date is None:            
             self.date = datetime.datetime.now()
         super(Document, self).save()
@@ -98,6 +96,7 @@ class User(NewebeDocument):
     description = StringProperty()
     url = StringProperty()
     key = StringProperty()
+    password = StringProperty()
 
 
     def save(self):

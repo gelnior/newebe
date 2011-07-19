@@ -9,6 +9,7 @@ class PlatformController extends Backbone.Controller
       "news":  "displayNews",
       "activities":  "displayActivities",
       "profile":  "displayProfile",
+      "notes":  "displayNotes",
     }
 
     displayContact: () ->
@@ -23,6 +24,9 @@ class PlatformController extends Backbone.Controller
     displayActivities: () ->
       @view.onActivitiesClicked()
       
+    displayNotes: () ->
+      @view.onNotesClicked()
+
     registerView: (view) ->
       @view = view
 
