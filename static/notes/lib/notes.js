@@ -107,6 +107,10 @@
       }
     }
     /* Getters / Setters */
+    Note.prototype.setId = function(id) {
+      this.id = id;
+      return this.url = "/notes/" + this.id + "/";
+    };
     Note.prototype.getDisplayDate = function() {
       return this.attributes['displayDate'];
     };
@@ -206,7 +210,7 @@
       note = new Note(noteObject);
       note.save("", {
         success: function(model, response) {
-          return model.id = response._id;
+          return model.setId(response._id);
         }
       });
       row = this.prependOne(note);

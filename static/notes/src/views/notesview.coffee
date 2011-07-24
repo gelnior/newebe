@@ -50,7 +50,7 @@ class NotesView extends Backbone.View
 
     note = new Note noteObject
     note.save("", success: (model, response) ->
-        model.id = response._id
+        model.setId(response._id)
       )
     row = @prependOne(note)
 

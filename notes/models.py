@@ -40,9 +40,9 @@ class NoteManager():
         notes = Note.view("notes/mine", key=key)
 
         if notes:        
-            note = notes.first()
+            return notes.first()
 
-        return note
+        return None
 
 
 class Note(NewebeDocument):

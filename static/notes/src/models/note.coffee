@@ -37,6 +37,10 @@ class Note extends Backbone.Model
     
   ### Getters / Setters ###
 
+  setId: (id) ->
+    @id = id
+    @url = "/notes/" + @id + "/"
+
   getDisplayDate: ->
     @attributes['displayDate']
 
