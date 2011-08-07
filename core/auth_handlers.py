@@ -78,13 +78,13 @@ class LoginJsonHandler(NewebeHandler):
             if user \
                and user.password == hashlib.sha224(password).hexdigest():
                 self.set_secure_cookie("password", password)
-                self.returnSuccess("You are now logged in.")
+                self.return_success("You are now logged in.")
 
             else:
-                self.returnFailure("Wrong password.", 400)
+                self.return_failure("Wrong password.", 400)
             
         else:
-            self.returnFailure("Wrong password.", 400)
+            self.return_failure("Wrong password.", 400)
         
 
 class LogoutHandler(NewebeHandler):
@@ -130,10 +130,10 @@ class RegisterPasswordTHandler(NewebeHandler):
         user = UserManager.getUser()
 
         if user is None:
-            self.returnFailure("User does not exist.")
+            self.return_failure("User does not exist.")
 
         if user.password is not None:
-            self.returnFailure("Password is already set.")
+            self.return_failure("Password is already set.")
 
         data = self.request.body
 
@@ -144,10 +144,10 @@ class RegisterPasswordTHandler(NewebeHandler):
             user.save()
             self.set_secure_cookie("password", password)
 
-            self.returnJson(user.toJson())
+            self.return_json(user.toJson())
 
         else:
-            self.returnFailure(
+            self.return_failure(
                     "Data are not correct. User password is not set.", 400)
 
 
@@ -179,7 +179,7 @@ class RegisterTHandler(NewebeHandler):
         '''      
 
         if UserManager.getUser():
-            self.returnFailure("User already exists.")
+            self.return_failure("User already exists.")
 
         data = self.request.body
         
@@ -191,10 +191,10 @@ class RegisterTHandler(NewebeHandler):
             user.key = user._id
             user.save()
 
-            self.returnJson(user.toJson(), 201)
+            self.return_json(user.toJson(), 201)
 
         else:
-            self.returnFailure(
+            self.return_failure(
                     "Data are not correct. User has not been created.", 400)
 
 

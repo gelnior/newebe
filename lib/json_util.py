@@ -1,7 +1,7 @@
 from tornado.escape import json_encode
 
 
-def getJsonFromDocList(docs):
+def get_json_from_doc_list(docs):
     '''
     Converts a whole list of db documents to their JSON format, assuming the
     fact that they have toDict() method to convert them as dict object for

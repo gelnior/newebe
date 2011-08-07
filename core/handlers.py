@@ -29,7 +29,7 @@ class NewebeHandler(RequestHandler):
     '''
 
 
-    def returnJson(self, json, statusCode=200):
+    def return_json(self, json, statusCode=200):
         '''
         Return a response containig json (content-type already set).
         '''
@@ -45,7 +45,7 @@ class NewebeHandler(RequestHandler):
         Return a response containing a list of newebe documents at json format. 
         '''
 
-        self.returnJson(json_util.getJsonFromDocList(documents), statusCode)
+        self.return_json(json_util.getJsonFromDocList(documents), statusCode)
 
 
     def return_document(self, document, statusCode=200):
@@ -53,25 +53,25 @@ class NewebeHandler(RequestHandler):
         Return a response containing a list of newebe documents at json format. 
         '''
 
-        self.returnJson(json_util.getJsonFromDocList([document]), statusCode)
+        self.return_json(json_util.getJsonFromDocList([document]), statusCode)
 
 
-    def returnSuccess(self, text, statusCode=200):
+    def return_success(self, text, statusCode=200):
         '''
         Return a success response containing a JSON object that describes
         the success.
         '''
 
-        self.returnJson(json_encode({ "success" : text }), statusCode)
+        self.return_json(json_encode({ "success" : text }), statusCode)
  
 
-    def returnFailure(self, text, statusCode=500):
+    def return_failure(self, text, statusCode=500):
         '''
         Return an error response containing a JSON object that describes
         the error.
         '''
         
-        self.returnJson(json_encode({ "error" : text }), statusCode)
+        self.return_json(json_encode({ "error" : text }), statusCode)
 
 
 class NewebeAuthHandler(NewebeHandler):
@@ -212,9 +212,9 @@ class UserHandler(NewebeAuthHandler):
 
             profile_updater.forward_profile()
 
-            self.returnSuccess("User successfully Modified.")
+            self.return_success("User successfully Modified.")
         else:
-            self.returnFailure("No data were sent.")
+            self.return_failure("No data were sent.")
 
 
 class ContactUpdateHandler(NewebeHandler):
@@ -242,14 +242,14 @@ class ContactUpdateHandler(NewebeHandler):
          
                 self.create_modify_activity(contact)
 
-                self.returnSuccess("Contact successfully modified.")
+                self.return_success("Contact successfully modified.")
        
             else:
-                self.returnFailure(
+                self.return_failure(
                         "No contact found corresponding to given contact", 404)
         
         else:
-            self.returnFailure("Empty data.")
+            self.return_failure("Empty data.")
 
 
     def create_modify_activity(self, contact):
@@ -324,7 +324,7 @@ class ContactHandler(NewebeAuthHandler):
             self.return_document(contact)
 
         else:
-            self.returnFailure("Contact does not exist.")
+            self.return_failure("Contact does not exist.")
 
  
     def put(self, slug):
@@ -351,15 +351,15 @@ class ContactHandler(NewebeAuthHandler):
              if not newebeResponse["success"]:
                  contact.state = STATE_ERROR
                  contact.save()
-                 self.returnFailure("Error occurs while confirming contact.")
+                 self.return_failure("Error occurs while confirming contact.")
 
         except:
             contact.state = STATE_ERROR
             contact.save()
-            self.returnFailure("Error occurs while confirming contact.")
+            self.return_failure("Error occurs while confirming contact.")
 
 
-        self.returnSuccess("Contact trusted.")
+        self.return_success("Contact trusted.")
 
 
     def delete(self, slug):
@@ -370,9 +370,9 @@ class ContactHandler(NewebeAuthHandler):
         contact = ContactManager.getContact(slug)
         if contact:
             contact.delete()
-            return self.returnSuccess("Contact has been deleted.")
+            return self.return_success("Contact has been deleted.")
         else:
-            self.returnFailure("Contact does not exist.")
+            self.return_failure("Contact does not exist.")
 
 
 class ContactsHandler(NewebeAuthHandler):
@@ -443,13 +443,13 @@ class ContactsHandler(NewebeAuthHandler):
                     contact.state = STATE_ERROR
                     contact.save()
 
-                return self.returnJson(contact.toJson(), 201)
+                return self.return_json(contact.toJson(), 201)
 
             else:
-                return self.returnFailure(
+                return self.return_failure(
                         "Wrong data. Url is same as owner URL.", 400)
         else:
-            return self.returnFailure(
+            return self.return_failure(
                     "Wrong data. Contact has not been created.", 400)
 
 class ContactRetryHandler(NewebeAuthHandler):
@@ -501,9 +501,9 @@ class ContactRetryHandler(NewebeAuthHandler):
                 contact.state = STATE_ERROR
                 contact.save()
 
-            return self.returnJson(contact.toJson(), 200)
+            return self.return_json(contact.toJson(), 200)
         else:
-            self.returnFailure("Contact does not exist", 404)
+            self.return_failure("Contact does not exist", 404)
 
 
 class ContactPushHandler(NewebeHandler):
@@ -546,13 +546,13 @@ class ContactPushHandler(NewebeHandler):
                 contact.state = STATE_WAIT_APPROVAL
                 contact.save()
 
-                self.returnSuccess("Request received.")
+                self.return_success("Request received.")
 
             else:
-                self.returnFailure("Sent data are incorrects.")
+                self.return_failure("Sent data are incorrects.")
 
         else:
-            self.returnFailure("Sent data are incorrects.")
+            self.return_failure("Sent data are incorrects.")
 
 
 class ContactConfirmHandler(NewebeAuthHandler):
@@ -583,10 +583,10 @@ class ContactConfirmHandler(NewebeAuthHandler):
             contact.save()
             
 
-            self.returnSuccess("Contact trusted.")
+            self.return_success("Contact trusted.")
              
         else:
-            self.returnFailure("Sent data are incorrects.", 400)
+            self.return_failure("Sent data are incorrects.", 400)
 
 
 class ContactRenderTHandler(NewebeAuthHandler):
@@ -614,7 +614,7 @@ class ContactRenderTHandler(NewebeAuthHandler):
             self.render("../templates/core/contact/contact_render.html", 
                             contact=contact)            
         else:
-            return self.returnFailure("Contact not found.", 404)
+            return self.return_failure("Contact not found.", 404)
 
 
 # Template handlers.

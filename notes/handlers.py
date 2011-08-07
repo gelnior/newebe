@@ -50,7 +50,7 @@ class NotesHandler(NewebeAuthHandler):
             self.create_write_activity(note)
             self.returnJson(note.toJson(), 201)
         else:
-            self.returnError("No data sent", 400)
+            self.return_failure("No data sent", 400)
 
 
 
@@ -107,7 +107,7 @@ class NoteHandler(NewebeAuthHandler):
             self.return_document(note)
 
         else:
-            self.returnError("No note exist for this id.", 404)
+            self.return_failure("No note exist for this id.", 404)
 
 
     def put(self, noteid):
@@ -127,10 +127,10 @@ class NoteHandler(NewebeAuthHandler):
             
             note.save()
 
-            self.returnSuccess("Note successfully modified.")
+            self.return_success("Note successfully modified.")
 
         else:
-            self.returnError("No note exist for this id.", 404)
+            self.return_failure("No note exist for this id.", 404)
 
 
     def delete(self, noteid):
@@ -145,10 +145,10 @@ class NoteHandler(NewebeAuthHandler):
         if note:
             self.create_delete_activity(note)
             note.delete()
-            self.returnSuccess("Note deleted.")
+            self.return_success("Note deleted.")
 
         else:
-            self.returnError("No note to delete.", 404)
+            self.return_failure("No note to delete.", 404)
 
 
     def create_delete_activity(self, note):

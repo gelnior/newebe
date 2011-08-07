@@ -7,7 +7,8 @@ from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
 from newebe.lib import json_util
-from newebe.lib.date_util import getDateFromDbDate, getDbDateFromUrlDate
+from newebe.lib.date_util import get_date_from_db_date, \
+                                 get_db_date_from_url_date
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity, ActivityManager
 from newebe.core.models import ContactManager, UserManager
@@ -79,9 +80,9 @@ class MicropostHandler(NewebeAuthHandler):
 
         micropost = MicroPostManager.getMicropost(postId)
         if micropost:
-            self.returnJson(micropost.toJson())
+            self.return_json(micropost.toJson())
         else:
-            self.returnFailure("Micropost not found.", 404)
+            self.return_failure("Micropost not found.", 404)
 
 
     @asynchronous
@@ -110,7 +111,7 @@ class MicropostHandler(NewebeAuthHandler):
             self.returnSuccess("Micropost deletion succeeds.")
             
         else:
-            self.returnFailure("Micropost not found.", 404)
+            self.return_failure("Micropost not found.", 404)
 
 
     @asynchronous
@@ -201,13 +202,13 @@ class NewsHandler(NewebeAuthHandler):
         microposts = list()
 
         if startKey:
-            dateString = getDbDateFromUrlDate(startKey)
+            dateString = get_db_date_from_url_date(startKey)
             microposts = MicroPostManager.getList(dateString)
 
         else:
             microposts = MicroPostManager.getList()
 
-        self.returnJson(json_util.getJsonFromDocList(microposts))
+        self.return_json(json_util.getJsonFromDocList(microposts))
 
 
     @asynchronous
@@ -242,10 +243,10 @@ class NewsHandler(NewebeAuthHandler):
             self.forward_to_contacts(micropost)
                
             self.set_status(201)
-            self.returnJson(micropost.toJson())
+            self.return_json(micropost.toJson())
     
         else: 
-            self.returnFailure(
+            self.return_failure(
                     "Sent data were incorrects. No post was created.", 405)
 
 
@@ -322,7 +323,7 @@ class NewsContactHandler(NewebeHandler):
 
         if data:
             postedMicropost = json_decode(data)
-            date = getDateFromDbDate(postedMicropost["date"])
+            date = get_date_from_db_date(postedMicropost["date"])
 
             micropost = MicroPost(
                 authorKey = postedMicropost["authorKey"],
@@ -337,10 +338,10 @@ class NewsContactHandler(NewebeHandler):
             self.notify_suscribers(micropost)
             self.write_create_log(micropost)
             
-            self.returnJson(micropost.toJson(), 201)
+            self.return_json(micropost.toJson(), 201)
 
         else:
-            self.returnFailure("No data sent.", 405)
+            self.return_failure("No data sent.", 405)
 
 
     def create_write_activity(self, micropost, date):
@@ -402,10 +403,10 @@ class NewsContactHandler(NewebeHandler):
                 self.returnSuccess("Micropost deleted.")
 
             else:
-                self.returnFailure("Micropost not found", 404)
+                self.return_failure("Micropost not found", 404)
 
         else:
-            self.returnFailure("No data sent.", 405)
+            self.return_failure("No data sent.", 405)
 
 
     def write_delete_log(self, micropost):
@@ -482,13 +483,13 @@ class NewsRetryHandler(NewebeAuthHandler):
             activity = ActivityManager.get_activity(activityId)
 
             if not contact:
-                self.returnFailure("Contact not found", 404)
+                self.return_failure("Contact not found", 404)
             elif not activity:
-                self.returnFailure("Activity not found", 404)
+                self.return_failure("Activity not found", 404)
             else:           
                 self.forward_to_contact(micropost, contact, activity)
         else:
-            self.returnFailure("Micropost not found", 404)
+            self.return_failure("Micropost not found", 404)
 
 
     def forward_to_contact(self, micropost, contact, activity, method = "POST"):
@@ -508,7 +509,7 @@ class NewsRetryHandler(NewebeAuthHandler):
             response = httpClient.fetch(request)
             
             if response.error:
-                self.returnFailure("Posting micropost to contact failed.")
+                self.return_failure("Posting micropost to contact failed.")
 
             else:
                 for error in activity.errors:
@@ -518,7 +519,7 @@ class NewsRetryHandler(NewebeAuthHandler):
                         self.returnSuccess("Micropost correctly resent.")
 
         except:
-            self.returnFailure("Posting micropost to contact failed.")
+            self.return_failure("Posting micropost to contact failed.")
 
        
     def put(self, key):
@@ -542,20 +543,20 @@ class NewsRetryHandler(NewebeAuthHandler):
             activity = ActivityManager.get_activity(activityId)
 
             if not contact:
-                self.returnFailure("Contact not found", 404)
+                self.return_failure("Contact not found", 404)
             elif not activity:
-                self.returnFailure("Activity not found", 404)
+                self.return_failure("Activity not found", 404)
             else:
 
                 user = UserManager.getUser()
                 micropost = MicroPost(authorKey = user.key, 
-                                      date = getDateFromDbDate(date))
+                                      date = get_date_from_db_date(date))
 
                 self.forward_to_contact(micropost, contact, activity, 
                                         method = "PUT")
 
         else:
-            self.returnFailure("Micropost not found", 404)
+            self.return_failure("Micropost not found", 404)
 
 
 class MyNewsHandler(NewebeAuthHandler):
@@ -580,13 +581,13 @@ class MyNewsHandler(NewebeAuthHandler):
         microposts = list()
 
         if startKey:
-            dateString = getDbDateFromUrlDate(startKey)
+            dateString = get_db_date_from_url_date(startKey)
             microposts = MicroPostManager.getMine(dateString)
 
         else:
             microposts = MicroPostManager.getMine()
 
-        self.returnJson(json_util.getJsonFromDocList(microposts))
+        self.return_json(json_util.getJsonFromDocList(microposts))
     
 
 # Template handlers

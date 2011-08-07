@@ -1,7 +1,11 @@
 # Global settings
-TORNADO_PORT = 8000
-COUCHDB_DB_NAME = "newebe"
-DEBUG = False
+
+try:
+    from newebe.local_settings import *
+except:
+    TORNADO_PORT = 8000
+    COUCHDB_DB_NAME = "newebe"
+    DEBUG = False
 
 # Couchdb configuration
 COUCHDB_DATABASES = (

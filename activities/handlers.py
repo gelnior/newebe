@@ -1,6 +1,6 @@
 import logging
 
-from newebe.lib.date_util import getDbDateFromUrlDate
+from newebe.lib.date_util import get_db_date_from_url_date
 from newebe.core.handlers import NewebeAuthHandler
 
 from newebe.activities.models import ActivityManager
@@ -27,7 +27,7 @@ class ActivityHandler(NewebeAuthHandler):
         '''
 
         if startKey:
-            dateString = getDbDateFromUrlDate(startKey)
+            dateString = get_db_date_from_url_date(startKey)
             activities = ActivityManager.get_all(dateString)
         else:
             activities = ActivityManager.get_all()
@@ -54,7 +54,7 @@ class MyActivityHandler(NewebeAuthHandler):
         '''
 
         if startKey:
-            dateString = getDbDateFromUrlDate(startKey)
+            dateString = get_db_date_from_url_date(startKey)
             activities = ActivityManager.get_mine(dateString)
         else:
             activities = ActivityManager.get_mine()

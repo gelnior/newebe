@@ -5,7 +5,7 @@ URL_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
 DISPLAY_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-def getDbDateFromUrlDate(urlDate):
+def get_db_date_from_url_date(urlDate):
     ''' 
     Convert date from url format to database format (%Y-%m-%d-%H-%M-%S to 
     %Y-%m-%dT%H:%M:%SZ)
@@ -18,7 +18,7 @@ def getDbDateFromUrlDate(urlDate):
     return date.strftime(DB_DATETIME_FORMAT)
 
 
-def getDateFromDbDate(date):
+def get_date_from_db_date(date):
     '''
     Convert string date at database format (%Y-%m-%d-%H-%M-%S) to date object 
     '''
