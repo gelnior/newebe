@@ -48,7 +48,7 @@ class NotesHandler(NewebeAuthHandler):
             note.save()
             
             self.create_write_activity(note)
-            self.returnJson(note.toJson(), 201)
+            self.return_json(note.toJson(), 201)
         else:
             self.return_failure("No data sent", 400)
 
