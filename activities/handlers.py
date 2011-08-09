@@ -66,11 +66,11 @@ class MyActivityHandler(NewebeAuthHandler):
 
 class ActivityContentHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/activities/activities_content.html")
+        self.render("templates/activities_content.html")
 
 class ActivityPageHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/activities/activities.html")
+        self.render("templates/activities.html")
 
 
 

@@ -108,7 +108,7 @@ class MicropostHandler(NewebeAuthHandler):
             if micropost.authorKey == user.key:
                 self.forward_to_contacts(micropost)
 
-            self.returnSuccess("Micropost deletion succeeds.")
+            self.return_success("Micropost deletion succeeds.")
             
         else:
             self.return_failure("Micropost not found.", 404)
@@ -208,7 +208,7 @@ class NewsHandler(NewebeAuthHandler):
         else:
             microposts = MicroPostManager.getList()
 
-        self.return_json(json_util.getJsonFromDocList(microposts))
+        self.return_json(json_util.get_json_from_doc_list(microposts))
 
 
     @asynchronous
@@ -400,7 +400,7 @@ class NewsContactHandler(NewebeHandler):
                 micropost.delete()
 
                 self.write_delete_log(micropost)
-                self.returnSuccess("Micropost deleted.")
+                self.return_success("Micropost deleted.")
 
             else:
                 self.return_failure("Micropost not found", 404)
@@ -516,7 +516,7 @@ class NewsRetryHandler(NewebeAuthHandler):
                     if error["contactKey"] == contact.key:
                         activity.errors.remove(error)
                         activity.save()
-                        self.returnSuccess("Micropost correctly resent.")
+                        self.return_success("Micropost correctly resent.")
 
         except:
             self.return_failure("Posting micropost to contact failed.")
@@ -594,17 +594,17 @@ class MyNewsHandler(NewebeAuthHandler):
 
 class NewsTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/news/news.html")
+        self.render("templates/news.html")
 
 
 class NewsContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/news/news_content.html")
+        self.render("templates/news_content.html")
 
 
 class NewsTutorial1THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/news/tutorial_1.html")
+        self.render("templates/tutorial_1.html")
 
 
 class NewsTutorial2THandler(NewebeAuthHandler):

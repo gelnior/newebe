@@ -45,7 +45,8 @@ class NewebeHandler(RequestHandler):
         Return a response containing a list of newebe documents at json format. 
         '''
 
-        self.return_json(json_util.getJsonFromDocList(documents), statusCode)
+        self.return_json(
+                json_util.get_json_from_doc_list(documents), statusCode)
 
 
     def return_document(self, document, statusCode=200):
@@ -618,39 +619,35 @@ class ContactRenderTHandler(NewebeAuthHandler):
 
 
 # Template handlers.
-class ProfileTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("../templates/core/profile/profile.html")
-
 class ProfileContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/profile/profile_content.html")
+        self.render("templates/core/profile/profile_content.html")
 
 class ProfileMenuContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/profile/profile_menu_content.html")
+        self.render("templates/core/profile/profile_menu_content.html")
 
 class ProfileTutorial1THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/profile/tutorial_1.html")
+        self.render("templates/core/profile/tutorial_1.html")
 
 class ProfileTutorial2THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/profile/tutorial_2.html")
+        self.render("templates/core/profile/tutorial_2.html")
 
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/contact/contact.html")
+        self.render("templates/core/contact/contact.html")
 
 class ContactContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/contact/contact_content.html")
+        self.render("templates/core/contact/contact_content.html")
 
 class ContactTutorial1THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/contact/tutorial_1.html")
+        self.render("templates/core/contact/tutorial_1.html")
 
 class ContactTutorial2THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/core/contact/tutorial_1.html")
+        self.render("templates/core/contact/tutorial_1.html")
 

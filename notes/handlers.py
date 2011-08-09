@@ -172,10 +172,10 @@ class NoteHandler(NewebeAuthHandler):
 
 class NotesContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/notes/notes_content.html")
+        self.render("templates/notes_content.html")
 
 class NotesPageTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/notes/notes.html")
+        self.render("templates/notes.html")
 
 
