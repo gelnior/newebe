@@ -6,3 +6,7 @@ class ProfileTHandler(NewebeAuthHandler):
         self.render("templates/profile.html")
 
 
+class ProfileMenuContentTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("templates/profile_menu_content.html")
+

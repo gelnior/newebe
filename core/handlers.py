@@ -578,13 +578,16 @@ class ContactConfirmHandler(NewebeAuthHandler):
             name = postedContact["name"]
 
             contact = ContactManager.getContact(slug)
-            contact.state = STATE_TRUSTED
-            contact.key = key
-            contact.name = name
-            contact.save()
-            
 
-            self.return_success("Contact trusted.")
+            if contact:
+                contact.state = STATE_TRUSTED
+                contact.key = key
+                contact.name = name
+                contact.save()
+                self.return_success("Contact trusted.")
+            
+            else:
+                self.return_failure("No contact for this slug.", 400)
              
         else:
             self.return_failure("Sent data are incorrects.", 400)

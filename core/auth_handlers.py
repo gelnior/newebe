@@ -27,7 +27,7 @@ class LoginHandler(NewebeHandler):
 
             if not password or  \
                user.password != hashlib.sha224(password).hexdigest():
-                self.render("../templates/core/login.html")
+                self.render("../auth/templates/login.html")
             else:
                 self.redirect("/")
 
@@ -104,7 +104,11 @@ class LogoutHandler(NewebeHandler):
 
 class RegisterPasswordTHandler(NewebeHandler):
     '''
-    GET: Return does not have password it displayes password registration page.
+    Handler for handling user password registration.
+
+    * GET: If user does not have password it displays password registration 
+           page.
+    * POST: Sets given password as user password (after sha-224 encryption).
     '''
 
 
@@ -117,9 +121,9 @@ class RegisterPasswordTHandler(NewebeHandler):
         if user and user.password:
             self.redirect("/") 
         else:
-            self.render("../templates/core/password.html")
+            self.render("../auth/templates/password.html")
 
-        self.render("../templates/core/password.html")
+        self.render("../auth/templates/password.html")
 
 
     def post(self):
@@ -169,7 +173,7 @@ class RegisterTHandler(NewebeHandler):
         if UserManager.getUser():
            self.redirect("/") 
         else:
-            self.render("../templates/core/register.html")
+            self.render("../auth/templates/register.html")
 
 
     def post(self):
@@ -202,6 +206,6 @@ class RegisterTHandler(NewebeHandler):
 
 class RegisterPasswordContentTHandler(NewebeHandler):
     def get(self):
-        self.render("../templates/core/password_content.html")
+        self.render("../auth/templates/password_content.html")
 
 

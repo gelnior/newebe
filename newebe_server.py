@@ -12,7 +12,6 @@ import newebe.lib.pid as pid
 
 
 from newebe.core.handlers import ProfileContentTHandler, \
-                                 ProfileMenuContentTHandler, \
                                  ProfileTutorial1THandler, \
                                  ProfileTutorial2THandler, \
                                  ContactUpdateHandler, \
@@ -28,7 +27,8 @@ from newebe.core.handlers import ProfileContentTHandler, \
 
 from newebe.contacts.handlers import ContactTHandler
 
-from newebe.profile.handlers import ProfileTHandler
+from newebe.profile.handlers import ProfileTHandler, \
+                                    ProfileMenuContentTHandler
 
 from newebe.core.auth_handlers import LoginHandler, LogoutHandler, \
                                  LoginJsonHandler,\
