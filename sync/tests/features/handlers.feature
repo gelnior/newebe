@@ -11,3 +11,4 @@ Feature: Manage notes through handlers
         Modify first newebe profile directly to DB
         When I ask for synchronization
         Check that profile saved on second newebe is the one set on first one
+
