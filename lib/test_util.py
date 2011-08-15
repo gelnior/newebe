@@ -4,20 +4,36 @@ from tornado.httpclient import HTTPClient
 
 from newebe.settings import TORNADO_PORT
 
-client = HTTPClient()
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
-def fetch_documents_from_url(url):
+class NewebeClient(HTTPClient):
     '''
-    Retrieve newebe documents from a givent url
+    Tornado client wrapper to write POST, PUT and delete request faster.
     '''
-    response = client.fetch(url)
 
-    assert response.code == 200
-    assert response.headers["Content-Type"] == "application/json"
+    def get(self, url):
+        return HTTPClient.fetch(self, url)
+
+    def post(self, url, body):
+        return HTTPClient.fetch(self, url, method="POST", body=body)
+
+    def put(self, url, body):
+        return HTTPClient.fetch(self, url, method="PUT", body=body)
+
+    def delete(self, url):
+        return HTTPClient.fetch(self, url, method="DELETE")
+
+    def fetch_documents_from_url(self, url):
+        '''
+        Retrieve newebe documents from a givent url
+        '''
+        response = self.get(url)
+
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "application/json"
  
-    world.data = json_decode(response.body)
-    return world.data["rows"]
+        world.data = json_decode(response.body)
+        return world.data["rows"]
 
-def fetch_documents(path):
-    fetch_documents_from_url(ROOT_URL + path)
+    def fetch_documents(self, path):
+        self.fetch_documents_from_url(ROOT_URL + path)    
