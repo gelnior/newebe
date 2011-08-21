@@ -107,7 +107,7 @@ def creates_x_activities(step, nb_activities, nb_owner_activities, date):
             isMine = i < int(nb_owner_activities),
             errors = [],
             docType = "micropost",
-            date = date_util.getDateFromDbDate(date)
+            date = date_util.get_date_from_db_date(date)
         )
         activity.save()
 
