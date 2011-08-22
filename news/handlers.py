@@ -614,5 +614,5 @@ class NewsTutorial1THandler(NewebeAuthHandler):
 
 class NewsTutorial2THandler(NewebeAuthHandler):
     def get(self):
-        self.render("../templates/news/tutorial_2.html")
+        self.render("templates/tutorial_2.html")
 
