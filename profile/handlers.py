@@ -14,10 +14,6 @@ class ProfileTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/profile.html")
 
-class ProfileMenuContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/profile_menu_content.html")
-
 class ProfileTutorial1THandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/tutorial_1.html")
