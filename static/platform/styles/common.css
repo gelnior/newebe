@@ -219,6 +219,7 @@ h3 {
   right: 30px;
   top: 30px;
 }
+#platform-login-disclaimer,
 #platform-register-disclaimer {
   font-weight: bold;
   font-size: 38px;
