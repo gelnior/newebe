@@ -11,10 +11,7 @@ from newebe.settings import TORNADO_PORT, DEBUG
 import newebe.lib.pid as pid
 
 
-from newebe.core.handlers import ProfileContentTHandler, \
-                                 ProfileTutorial1THandler, \
-                                 ProfileTutorial2THandler, \
-                                 ContactUpdateHandler, \
+from newebe.core.handlers import ContactUpdateHandler, \
                                  ContactContentTHandler, \
                                  ContactTutorial1THandler, \
                                  ContactTutorial2THandler, \
@@ -28,7 +25,11 @@ from newebe.core.handlers import ProfileContentTHandler, \
 from newebe.contacts.handlers import ContactTHandler
 
 from newebe.profile.handlers import ProfileTHandler, \
-                                    ProfileMenuContentTHandler
+                                    ProfileContentTHandler, \
+                                    ProfileMenuContentTHandler,  \
+                                    ProfileTutorial1THandler, \
+                                    ProfileTutorial2THandler
+
 
 from newebe.core.auth_handlers import LoginHandler, LogoutHandler, \
                                  LoginJsonHandler,\
