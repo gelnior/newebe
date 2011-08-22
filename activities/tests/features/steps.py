@@ -4,11 +4,9 @@ import datetime
 import simplejson as json
 
 from lettuce import step, world
+from tornado.httpclient import HTTPClient
 
 sys.path.append("../../../")
-os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
-
-from tornado.httpclient import HTTPClient
 
 from newebe.lib import date_util
 from newebe.activities.models import Activity, ActivityManager
