@@ -54,7 +54,8 @@ class NewebeHandler(RequestHandler):
         Return a response containing a list of newebe documents at json format. 
         '''
 
-        self.return_json(json_util.getJsonFromDocList([document]), statusCode)
+        self.return_json(json_util.get_json_from_doc_list([document]), 
+                                                          statusCode)
 
 
     def return_success(self, text, statusCode=200):
@@ -73,6 +74,31 @@ class NewebeHandler(RequestHandler):
         '''
         
         self.return_json(json_encode({ "error" : text }), statusCode)
+
+
+    def get_body_as_dict(self):
+        '''
+        Return request body as a dict if body is written in JSON. Else None
+        is returned.
+        '''
+
+        data = self.request.body
+        if data:
+            dataDict = json_decode(data)
+            return dataDict
+        else:
+            return None
+
+    def get_json_from_response(self, response):
+
+        data = response.body
+        if data:
+            dataDict = json_decode(data)
+            return dataDict
+        else:
+            return None
+
+
 
 
 class NewebeAuthHandler(NewebeHandler):
