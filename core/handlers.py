@@ -648,21 +648,6 @@ class ContactRenderTHandler(NewebeAuthHandler):
 
 
 # Template handlers.
-class ProfileContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/core/profile/profile_content.html")
-
-class ProfileMenuContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/core/profile/profile_menu_content.html")
-
-class ProfileTutorial1THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/core/profile/tutorial_1.html")
-
-class ProfileTutorial2THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/core/profile/tutorial_2.html")
 
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
