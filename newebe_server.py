@@ -51,6 +51,7 @@ from newebe.notes.handlers import NotesHandler, \
                                   NotesByDateHandler, NoteHandler, \
                                   NotesPageTHandler, NotesContentTHandler
 
+from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
 # Set certificate files for HTTPS configuration.
 PRIVATE_KEY = os.path.join("./", "server.key")
@@ -128,6 +129,10 @@ class Newebe(Application):
             ('/notes/all/order-by-title/', NotesHandler),
             ('/notes/all/order-by-date/', NotesByDateHandler),
             ('/notes/([0-9a-z]+)/', NoteHandler),
+
+            ('/synchronize/', SynchronizeHandler),
+            ('/synchronize/contact/', SynchronizeContactHandler),
+
         ]
         
         settings = {
