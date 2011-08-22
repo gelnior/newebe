@@ -9,13 +9,13 @@ sys.path.append("../../../")
 
 from newebe.notes.models import Note, NoteManager
 from newebe.activities.models import ActivityManager
-from newebe.lib.date_util import getDateFromDbDate
-from newebe.lib import test_util
-from newebe.settings import TORNADO_PORT
+from newebe.lib.date_util import get_date_from_db_date
+from newebe.lib.test_util import NewebeClient
 
+from newebe.settings import TORNADO_PORT
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
-client = HTTPClient()
+client = NewebeClient()
 
 @before.each_scenario
 def delete_all_notes(scenario):
@@ -108,15 +108,15 @@ def checks_that_notes_are_sorted_by_date(step):
 
 @step(u'Retrieve, through handler, all notes')
 def retrieve_through_handler_all_notes(step):
-    world.test_notes = test_util.fetch_documents("notes/all/")
+    world.test_notes = client.fetch_documents("notes/all/")
 
 @step(u'Retrieve, sorted by date, through handler, all notes')
 def retrieve_sorted_by_date_through_handler_all_notes(step):
-    world.test_notes = test_util.fetch_documents("notes/all/order-by-date/")
+    world.test_notes = client.fetch_documents("notes/all/order-by-date/")
 
 @step(u'Retrieve, sorted by title, through handler, all notes')
 def retrieve_sorted_by_title_through_handler_all_notes(step):
-    world.test_notes = test_util.fetch_documents("notes/all/order-by-title/")
+    world.test_notes = client.fetch_documents("notes/all/order-by-title/")
 
 @step(u'Checks that notes are sorted by title')
 def checks_that_notes_are_sorted_by_title(step):
@@ -127,13 +127,13 @@ def checks_that_notes_are_sorted_by_title(step):
 
 @step(u'Retrieve, through handler, the note with note id')
 def retrieve_through_handler_the_note_with_note_id(step):
-    notes = test_util.fetch_documents("notes/" + world.note._id + "/")
+    notes = client.fetch_documents("notes/" + world.note._id + "/")
     assert len(notes) == 1
     world.test_note = Note(
         author = notes[0]["author"],
         title = notes[0]["title"],
         content = notes[0]["content"],
-        lastModified = getDateFromDbDate(notes[0]["lastModified"]),
+        lastModified = get_date_from_db_date(notes[0]["lastModified"]),
         isMine = notes[0]["isMine"],
     )
 
@@ -160,7 +160,7 @@ def create_through_handler_a_note(step):
         author = noteDict["author"],
         title = noteDict["title"],
         content = noteDict["content"],
-        lastModified = getDateFromDbDate(noteDict["lastModified"]),
+        lastModified = get_date_from_db_date(noteDict["lastModified"]),
         isMine = noteDict["isMine"],
     )
     world.note._id = noteDict["_id"]
