@@ -11,7 +11,8 @@ class MicroPostManager():
 
 
     @staticmethod
-    def getMine(startKey=None, skip=0):
+    def getMine(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
+                endKey=None):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
@@ -29,13 +30,13 @@ class MicroPostManager():
             return MicroPost.view("news/mine", 
                              startkey = startKey, 
                              descending = True, 
-                             limit = news_settings.NEWS_LIMIT+1, 
+                             limit = limit+1,
+                             endKey = endKey, 
                              skip = 0)
         else:
             return MicroPost.view("news/mine", 
                              descending=True, 
-                             limit = news_settings.NEWS_LIMIT)
-
+                             limit = limit)
 
     @staticmethod
     def getList(startKey=None, skip=0):
@@ -52,7 +53,7 @@ class MicroPostManager():
         '''
         if startKey:
             return MicroPost.view("news/all", 
-                             startkey = startKey, 
+                             startkey=startKey, 
                              descending=True, 
                              limit=news_settings.NEWS_LIMIT+1, 
                              skip=0)

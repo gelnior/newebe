@@ -221,7 +221,6 @@ class ResourceTest(TestCase):
         '''
         Tests that a micropost from a trusted contact is well stored in the DB.
         '''
-        
 
         contact = Contact(
             name = "John Doe",

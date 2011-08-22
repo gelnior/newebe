@@ -1,1 +1,3 @@
-# This module gives features for news managemenet (micro blogging for now).
+'''
+This module gives features for micro blogging.
+'''

@@ -2,7 +2,7 @@ import logging
 import datetime
 import markdown
 
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
@@ -17,7 +17,7 @@ from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 logger = logging.getLogger("newebe.news")
 
 # When a new post is created, it is forwarded to contacts via POST requests. 
-# CONTACT_PATH is # the end of the URI where data are sent. Full URI is 
+# CONTACT_PATH is the end of the URI where data are sent. Full URI is 
 # (contact URI + CONTACT_PATH).
 CONTACT_PATH = 'news/microposts/contacts/'
 
@@ -323,20 +323,25 @@ class NewsContactHandler(NewebeHandler):
 
         if data:
             postedMicropost = json_decode(data)
-            date = get_date_from_db_date(postedMicropost["date"])
+            db_date = postedMicropost.get("date", "")
+            date = get_date_from_db_date(db_date)
+            authorKey = postedMicropost["authorKey"]
 
-            micropost = MicroPost(
-                authorKey = postedMicropost["authorKey"],
-                author = postedMicropost["author"],
-                content = postedMicropost['content'],
-                date = date,
-                isMine = False
-            )
-            micropost.save()
+            micropost = MicroPostManager.getContactMicropost(db_date, authorKey)
 
-            self.create_write_activity(micropost, date)
-            self.notify_suscribers(micropost)
-            self.write_create_log(micropost)
+            if not micropost:
+                micropost = MicroPost(
+                    authorKey = authorKey,
+                    author = postedMicropost["author"],
+                    content = postedMicropost['content'],
+                    date = date,
+                    isMine = False
+                )
+                micropost.save()
+
+                self.create_write_activity(micropost, date)
+                self.notify_suscribers(micropost)
+                self.write_create_log(micropost)
             
             self.return_json(micropost.toJson(), 201)
 
@@ -587,7 +592,7 @@ class MyNewsHandler(NewebeAuthHandler):
         else:
             microposts = MicroPostManager.getMine()
 
-        self.return_json(json_util.getJsonFromDocList(microposts))
+        self.return_json(json_util.get_json_from_doc_list(microposts))
     
 
 # Template handlers
