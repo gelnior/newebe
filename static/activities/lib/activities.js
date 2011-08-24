@@ -194,10 +194,10 @@
     }
     /* Listeners */
     ActivityRow.prototype.onMouseOver = function() {
-      return this;
+      return this.el.addClass("hover-line");
     };
     ActivityRow.prototype.onMouseOut = function() {
-      return this;
+      return this.el.removeClass("hover-line");
     };
     ActivityRow.prototype.onDocRefClicked = function(event) {
       if (this.model.getDocType() === "micropost") {
@@ -281,6 +281,7 @@
     ActivitiesView.prototype.events = {
       "click #activities-my-button": "onMineClicked",
       "click #activities-all-button": "onAllClicked",
+      "click #activities-sync-button": "onSyncClicked",
       "click #activities-more": "onMoreActivitiesClicked"
     };
     function ActivitiesView() {
@@ -315,6 +316,18 @@
       $("#activities-from-datepicker").val(null);
       this.currentPath = '/activities/all/';
       this.reloadActivities(null);
+      return event;
+    };
+    ActivitiesView.prototype.onSyncClicked = function(event) {
+      $.ajax({
+        url: "/synchronize/",
+        success: function() {
+          return infoDialog.display("Synchronization process started, check back your data in a few minutes.");
+        },
+        error: function() {
+          return infoDialog.display("Synchronize process failed.");
+        }
+      });
       return event;
     };
     ActivitiesView.prototype.onDatePicked = function(dateText, event) {
@@ -416,6 +429,7 @@
     ActivitiesView.prototype.setWidgets = function() {
       $("#activities-my-button").button();
       $("#activities-all-button").button();
+      $("#activities-sync-button").button();
       $("#activities-all-button").button("disable");
       $("#activities-more").button();
       return $("#activities-from-datepicker").val(null);

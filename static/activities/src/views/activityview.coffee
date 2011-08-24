@@ -10,6 +10,7 @@ class ActivitiesView extends Backbone.View
   events:
     "click #activities-my-button" : "onMineClicked"
     "click #activities-all-button" : "onAllClicked"
+    "click #activities-sync-button" : "onSyncClicked"
     "click #activities-more" : "onMoreActivitiesClicked"
 
 
@@ -60,6 +61,22 @@ class ActivitiesView extends Backbone.View
     @reloadActivities(null)
     event
 
+  # When sync button is clicked, the sync service is called, then user is
+  # notified that sync process started.
+  onSyncClicked: (event) ->
+
+    $.ajax(
+      url: "/synchronize/"
+      success: () ->
+        infoDialog.display """
+        Synchronization process started, check back your data in a few minutes.
+        """
+      error: () ->
+        infoDialog.display """
+        Synchronize process failed.
+        """
+    )
+    event
   
   # When a date is picked it loads all activities from current user since 
   # this date.
@@ -190,6 +207,7 @@ class ActivitiesView extends Backbone.View
   setWidgets: ->
     $("#activities-my-button").button()
     $("#activities-all-button").button()
+    $("#activities-sync-button").button()
     $("#activities-all-button").button("disable")
     $("#activities-more").button()
     $("#activities-from-datepicker").val(null)
