@@ -55,13 +55,13 @@ def set_default_user():
     )
     world.user.save()
 
-@before.all
-def delete_all_contacts():
+@before.each_scenario
+def delete_all_contacts(scenario):
     delete_all_contacts_from_url(ROOT_URL)
     delete_all_contacts_from_url(ROOT_URL_2)
 
-@before.all
-def delete_all_posts():
+@before.each_scenario
+def delete_all_posts(scenario):
     delete_all_posts_from_url(ROOT_URL)
     delete_all_posts_from_url(ROOT_URL_2)
 
@@ -74,6 +74,7 @@ def creates_5_posts_on_first_newebe(step):
             content = "content %s" % i,
             date = datetime.datetime.now()
         )
+        time.sleep(2)
         client.post(ROOT_URL + "news/microposts/", micropost.toJson())
 
 @step(u'Set trusted contacts on both newebe')
@@ -96,7 +97,7 @@ def when_i_ask_for_synchronization(step):
 @step(u'Check that 5 posts from first newebe are stored in second newebe')
 def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
     posts = world.browser.fetch_documents_from_url(ROOT_URL_2 + "news/microposts/")
-    assert 5 == len(posts)
+    assert 5 == len(posts), posts
 
 @step(u'Modify first newebe profile directly to DB')
 def modify_first_newebe_profile_directly_to_db(step):
@@ -108,7 +109,7 @@ def check_that_profile_saved_on_second_newebe_is_the_one_set_on_first_one(step):
     contacts = world.browser.fetch_documents_from_url(ROOT_URL_2 + "contacts/")
     assert 1 == len(contacts)
     contact = contacts[0]
-    assert world.user.name == contact.name
+    assert world.user.name == contact.get("name", "")
 
 @step(u'Wait for 3 seconds')
 def wait_for_3_seconds(step):
