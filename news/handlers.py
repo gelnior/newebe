@@ -327,7 +327,7 @@ class NewsContactHandler(NewebeHandler):
             date = get_date_from_db_date(db_date)
             authorKey = postedMicropost["authorKey"]
 
-            micropost = MicroPostManager.getContactMicropost(db_date, authorKey)
+            micropost = MicroPostManager.getContactMicropost(authorKey, db_date)
 
             if not micropost:
                 micropost = MicroPost(
