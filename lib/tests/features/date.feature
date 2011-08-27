@@ -5,4 +5,6 @@ Feature: Date conversion tools
 
     Scenario: Convert db date to date
         Assert that 2011-02-01T12:45:32Z is well converted to date
-        
+
+    Scenario: Convert date to db date
+        Assert that date is well converted to 2011-02-01T12:45:32Z                 
