@@ -2,7 +2,6 @@ import sys
 import time
 
 from lettuce import step, world, before
-from tornado.httpclient import HTTPClient
 from tornado.escape import json_decode
 
 sys.path.append("../../../")
@@ -78,8 +77,8 @@ def checks_that_the_x_notes_are_the_created_notes(step, nb_notes):
         else:
             assert world.test_notes[i]._id == world.notes[i]._id
 
-@step(u'Create at different times (\d+) notes')
-def create_at_different_times_x_notes(step, nb_notes):
+@step(u'Creates at different times (\d+) notes')
+def creates_at_different_times_x_notes(step, nb_notes):
     world.notes = []
     for i in range(int(nb_notes)):
         note = Note(
@@ -89,7 +88,7 @@ def create_at_different_times_x_notes(step, nb_notes):
         )
         note.save()
         world.notes.append(note)
-        time.sleep(1)
+        time.sleep(2)
 
 @step(u'Retrieve, sorted by date, all notes')
 def retrieve_sorted_by_date_all_notes(step):    
@@ -100,8 +99,8 @@ def checks_that_notes_are_sorted_by_date(step):
     for i in range(len(world.notes)):
         if i > 0:
             if isinstance(world.test_notes[i], dict):
-                assert world.test_notes[i - 1]["lastModified"] < \
-                      world.test_notes[i]["lastModified"]
+                assert get_date_from_db_date(world.test_notes[i - 1]["lastModified"]).time()  > \
+                      get_date_from_db_date(world.test_notes[i]["lastModified"]).time(),  (world.test_notes[i - 1]["lastModified"]) + u" " + (world.test_notes[i]["lastModified"])
             else:
                 assert world.test_notes[i - 1].lastModified.time() > \
                       world.test_notes[i].lastModified.time() 
@@ -167,8 +166,7 @@ def create_through_handler_a_note(step):
 
 @step(u'Delete, through handler, the note')
 def delete_through_handler_the_note(step):
-    response = client.fetch(ROOT_URL + "notes/" + world.note._id + "/",
-            method="DELETE", body=world.note.toJson())
+    response = client.delete(ROOT_URL + "notes/" + world.note._id + "/")
     assert response.code == 200
 
 @step(u'Checks that note is deleted')

@@ -11,6 +11,7 @@ class NewebeClient(HTTPClient):
     Tornado client wrapper to write requests to Newebe faster.
     '''
 
+
     def get(self, url):
         '''
         Perform a GET request.
@@ -26,12 +27,14 @@ class NewebeClient(HTTPClient):
 
         return HTTPClient.fetch(self, url, method="POST", body=body)
 
+
     def put(self, url, body):
         '''
         Perform a PUT request.
         '''
 
         return HTTPClient.fetch(self, url, method="PUT", body=body)
+
 
     def delete(self, url):
         '''
@@ -60,4 +63,5 @@ class NewebeClient(HTTPClient):
         Retrieve documents from path located on localhost server.
         '''
 
-        self.fetch_documents_from_url(ROOT_URL + path)    
+        return self.fetch_documents_from_url(ROOT_URL + path)    
+        

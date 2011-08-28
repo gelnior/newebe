@@ -4,13 +4,12 @@ import datetime
 import hashlib
 
 from lettuce import step, world, before
-from tornado.escape import json_encode
 
 sys.path.append("../../../")
 
 from newebe.lib.test_util import NewebeClient
 
-from newebe.core.models import User, Contact, UserManager, ContactManager
+from newebe.core.models import User, UserManager
 from newebe.news.models import MicroPost
 from newebe.lib.slugify import slugify
 

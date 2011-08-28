@@ -10,7 +10,7 @@ sys.path.append("../../../")
 
 from newebe.lib import date_util
 from newebe.activities.models import Activity, ActivityManager
-from newebe.core.models import Contact
+from newebe.contacts.models import Contact
 from newebe.settings import TORNADO_PORT
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT

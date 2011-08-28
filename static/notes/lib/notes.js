@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesView, confirmationDialog, loadingIndicator, notesApp;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesView, PlatformController, confirmationDialog, loadingIndicator, notesApp, notesController;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -180,7 +180,9 @@
       "click #notes-sort-date-button": "onSortDateClicked",
       "click #notes-sort-title-button": "onSortTitleClicked"
     };
-    function NotesView() {
+    function NotesView(controller) {
+      this.controller = controller;
+      controller.registerView(this);
       NotesView.__super__.constructor.apply(this, arguments);
     }
     NotesView.prototype.initialize = function() {
@@ -230,6 +232,9 @@
       return this.displayText(this.selection);
     };
     NotesView.prototype.onSortDateClicked = function() {
+      return window.location.hash = "#sort-date";
+    };
+    NotesView.prototype.sortNotesByDate = function() {
       if (this.dateButton.button("option", "disabled") === false) {
         this.dateButton.button("disable");
         this.titleButton.button("enable");
@@ -238,6 +243,9 @@
       }
     };
     NotesView.prototype.onSortTitleClicked = function() {
+      return window.location.hash = "#sort-title";
+    };
+    NotesView.prototype.sortNotesByTitle = function() {
       if (!(this.titleButton.button("option", "disabled") === true)) {
         this.titleButton.button("disable");
         this.dateButton.button("enable");
@@ -431,10 +439,34 @@
     };
     return NoteRow;
   })();
-  notesApp = new NotesView;
+  PlatformController = (function() {
+    function PlatformController() {
+      PlatformController.__super__.constructor.apply(this, arguments);
+    }
+    __extends(PlatformController, Backbone.Controller);
+    PlatformController.prototype.routes = {
+      "sort-date/": "sortByDate",
+      "sort-title/": "sortByTitle",
+      "sort-date/:slug": "sortByDateAndDisplayNote",
+      "sort-title/:slug": "sortByTitleAndDisplayNote"
+    };
+    PlatformController.prototype.sortByDate = function() {
+      return this.view.sortNotesByDate();
+    };
+    PlatformController.prototype.sortByTitle = function() {
+      return this.view.sortNotesByTitle();
+    };
+    PlatformController.prototype.registerView = function(view) {
+      return this.view = view;
+    };
+    return PlatformController;
+  })();
+  notesController = new NotesController;
+  notesApp = new NotesView(notesController);
   loadingIndicator = new LoadingIndicator;
   confirmationDialog = new ConfirmationDialog;
   notesApp.setWidgets();
   notesApp.setListeners();
   notesApp.reloadNotes();
+  Backbone.history.start();
 }).call(this);

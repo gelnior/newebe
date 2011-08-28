@@ -1,0 +1,155 @@
+import sys
+import hashlib
+
+from lettuce import step, world, before
+from lxml import html
+
+from tornado.httpclient import HTTPRequest, HTTPError
+
+sys.path.append("../../../")
+
+from newebe.lib.test_util import NewebeClient
+from newebe.settings import TORNADO_PORT
+
+from newebe.profile.models import User, UserManager
+
+ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
+
+
+
+
+# Auth steps
+
+
+
+@before.all
+def set_browser():
+    world.browser = NewebeClient()
+
+@before.each_scenario
+def clear_cookie(scenario):
+    world.cookie = ""
+
+@step('Set default user')
+def set_default_user(step):
+    world.user = User(
+        name = "John Doe",
+        password = hashlib.sha224("password").hexdigest(),
+        key = "key",
+        authorKey = "authorKey",
+        url = "url",
+        description = "my description"        
+    )
+    world.user._id = "userid"
+
+@step(u'Delete current user')
+def delete_current_user(step):        
+    user = UserManager.getUser()
+    while user:
+        user.delete()
+        user = UserManager.getUser()
+
+@step(u'Save default user')
+def save_default_user(step):
+    world.user.key = None
+    world.user.save()
+
+
+@step(u'Open root url')
+def open_root_url(step):
+    request = HTTPRequest(ROOT_URL)
+    if world.cookie:
+        request.headers["Cookie"] = world.cookie
+    world.response = world.browser.fetch(request)
+
+@step(u'Checks that response is login page')
+def checks_that_response_is_login_page(step):
+    world.dom = html.fromstring(world.response.body)
+    title = world.dom.cssselect('title')[0]
+    assert "Login" in title.text
+
+@step(u'Send login request with (\w+) as password')
+def send_login_request(step, password):
+    try:
+        world.response = world.browser.fetch(ROOT_URL + "login/json/", 
+                method="POST", body='{"password":"%s"}' % password)
+    except HTTPError:
+        pass
+
+@step(u'Checks that secure cookie is set')
+def checks_that_secure_cookie_is_set(step):
+    assert world.response.headers
+    assert "Set-Cookie" in world.response.headers
+    
+    world.cookie = world.response.headers["Set-Cookie"]
+    assert world.response.headers["Set-Cookie"].startswith("password=")
+
+@step(u'Checks that response is root page')
+def checks_that_response_is_root_page(step):
+    world.dom = html.fromstring(world.response.body)
+    title = world.dom.cssselect('title')[0]
+    assert "Login" not in title.text
+    assert "News" in title.text
+
+@step(u'Checks that secure cookie is not set')
+def checks_that_secure_cookie_is_not_set(step):
+    assert world.response.headers
+    assert "Set-Cookie" not in world.response.headers
+
+@step(u'Send logout request')
+def send_logout_request(step):
+    request = HTTPRequest(ROOT_URL+ "logout/",)
+    if world.cookie:
+        request.headers["Cookie"] = world.cookie
+    world.response = world.browser.fetch(request)
+    if world.response.code == 200:
+        world.cookie = ""
+
+
+@step(u'Open register url')
+def open_register_url(step):
+    request = HTTPRequest(ROOT_URL + "register/")
+    world.response = world.browser.fetch(request)
+
+@step(u'Checks that response is register page')
+def checks_that_response_is_register_page(step):
+    world.dom = html.fromstring(world.response.body)
+    title = world.dom.cssselect('title')[0]
+    assert "Register" in title.text
+
+    
+
+@step(u'Send creation request for (\w+) as user name')
+def send_creation_request(step, name):    
+    try:
+        world.response = world.browser.fetch(ROOT_URL + "register/", 
+                method="POST", body='{"name":"%s"}' % name)
+        assert world.response.code == 201
+    except HTTPError:
+        pass
+
+@step(u'Checks that newebe owner is called (\w+)')
+def checks_that_newebe_owner_is_called_jhon(step, name):
+    user = UserManager.getUser()
+    assert user.name == name
+    assert user.key is not None
+
+@step(u'Open password registration url')
+def open_password_registration_url(step):
+    request = HTTPRequest(ROOT_URL + "register/password/")
+    world.response = world.browser.fetch(request)
+
+@step(u'Checks that response is password registration page')
+def checks_that_response_is_password_registration_page(step):
+    world.dom = html.fromstring(world.response.body)
+    title = world.dom.cssselect('title')[0]
+    assert "Register" in title.text, world.response.body
+
+@step(u'Send password creation request with password as password')
+def send_password_creation_request_with_password_as_password(step):
+    world.response = world.browser.fetch(ROOT_URL + "register/password/", 
+        method="POST", body='{"password":"%s"}' % "password")
+    assert world.response.code == 200
+
+

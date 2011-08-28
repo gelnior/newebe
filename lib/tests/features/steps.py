@@ -57,3 +57,4 @@ def checks_that_content_of_json_documents_are_the_same_as_given_documents(step):
             if doc.content == json_doc["content"]:
                 is_same_content = True
         assert is_same_content
+

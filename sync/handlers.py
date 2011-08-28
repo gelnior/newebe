@@ -1,18 +1,18 @@
 import datetime
+import logging
 
-from newebe.lib import date_util
 from tornado.web import asynchronous
-#from tornado.httpserver import HTTPRequest
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.lib import date_util
 
-from newebe.core.models import UserManager, ContactManager
+from newebe.profile.models import UserManager
+from newebe.contacts.models import ContactManager
 from newebe.news.models import MicroPostManager
+from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.news.handlers import CONTACT_PATH as MICROPOST_PATH
 
-import logging
 logger = logging.getLogger("newebe.sync")
 
 

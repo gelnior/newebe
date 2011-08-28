@@ -2,8 +2,8 @@ import logging
 
 from tornado.escape import json_decode
 
-from newebe.core.models import UserManager
-from newebe.core.handlers import NewebeAuthHandler
+from newebe.profile.models import UserManager
+from newebe.contacts.handlers import NewebeAuthHandler
 from newebe.activities.models import Activity
 from newebe.notes.models import Note, NoteManager
 
@@ -51,7 +51,6 @@ class NotesHandler(NewebeAuthHandler):
             self.return_json(note.toJson(), 201)
         else:
             self.return_failure("No data sent", 400)
-
 
 
     def create_write_activity(self, note):

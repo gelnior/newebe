@@ -11,7 +11,8 @@ from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_url_date
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import Activity, ActivityManager
-from newebe.core.models import ContactManager, UserManager
+from newebe.contacts.models import ContactManager
+from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 
 logger = logging.getLogger("newebe.news")

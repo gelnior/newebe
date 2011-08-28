@@ -2,7 +2,9 @@
 
 # Builds notess app view, inits widgets and listeners, retrieves last notes
 # and displays them.
-notesApp = new NotesView
+
+notesController = new NotesController
+notesApp = new NotesView(notesController)
 
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
@@ -12,4 +14,5 @@ notesApp.setListeners()
 
 notesApp.reloadNotes()
 
-
+# Start controller
+Backbone.history.start()

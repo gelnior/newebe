@@ -2,8 +2,8 @@ import hashlib
 
 from tornado.escape import json_decode
 
-from newebe.core.models import User, UserManager
-from newebe.core.handlers import NewebeHandler
+from newebe.profile.models import User, UserManager
+from newebe.contacts.handlers import NewebeHandler
 
 
 class LoginHandler(NewebeHandler):
@@ -206,6 +206,6 @@ class RegisterTHandler(NewebeHandler):
 
 class RegisterPasswordContentTHandler(NewebeHandler):
     def get(self):
-        self.render("../auth/templates/password_content.html")
+        self.render("templates/password_content.html")
 
 

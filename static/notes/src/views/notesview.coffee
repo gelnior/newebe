@@ -14,8 +14,11 @@ class NotesView extends Backbone.View
     "click #notes-sort-title-button" : "onSortTitleClicked"
 
 
-  constructor: ->
+  constructor: (controller) ->
+    @controller = controller
+    controller.registerView(@)
     super
+
 
   # Bind functions to view, initialize displayed collection and markdown
   # converter
@@ -72,7 +75,10 @@ class NotesView extends Backbone.View
         
   # When sort date button is clicked, it disable then notes are reloaded
   # from the service that sorts them by date.
-  onSortDateClicked: () ->
+  onSortDateClicked: ->
+    window.location.hash = "#sort-date"
+  
+  sortNotesByDate: ->
     if @dateButton.button("option", "disabled") == false
       
       @dateButton.button("disable")
@@ -82,7 +88,10 @@ class NotesView extends Backbone.View
    
   # When sort title button is clicked, it disable then notes are reloaded
   # from the service that sorts them by title.
-  onSortTitleClicked: () ->
+  onSortTitleClicked: ->
+    window.location.hash = "#sort-title"
+
+  sortNotesByTitle: ->
     if not(@titleButton.button("option", "disabled") == true)
       @titleButton.button("disable")
       @dateButton.button("enable")

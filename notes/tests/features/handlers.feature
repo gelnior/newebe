@@ -5,10 +5,10 @@ Feature: Manage notes through handlers
         Retrieve, through handler, all notes
         Checks that the 5 notes are the created notes
 
-#    Scenario: Get all notes sorted by date
-#        Creates 5 notes
-#        Retrieve, sorted by date, through handler, all notes
-#        Checks that notes are sorted by date
+    Scenario: Get all notes sorted by date
+        Creates at different times 5 notes
+        Retrieve, sorted by date, through handler, all notes
+        Checks that notes are sorted by date
 
     Scenario: Get all notes sorted by title
         Creates 5 notes
@@ -40,6 +40,6 @@ Feature: Manage notes through handlers
         Save the note
         Delete, through handler, the note
         Checks that note is deleted
-        #        Checks that deletion activity was created
+        Checks that deletion activity was created
 
         

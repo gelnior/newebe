@@ -1,0 +1,90 @@
+import sys
+import hashlib
+
+from lettuce import step, world
+
+
+sys.path.append("../../../")
+
+
+from newebe.profile.models import User, UserManager
+from newebe.contacts.models import Contact, ContactManager
+from newebe.settings import TORNADO_PORT
+
+
+ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
+
+
+
+@step('Set default user')
+def set_default_user(step):
+    world.user = User(
+        name = "John Doe",
+        password = hashlib.sha224("password").hexdigest(),
+        key = "key",
+        authorKey = "authorKey",
+        url = "url",
+        description = "my description"        
+    )
+    world.user._id = "userid"
+
+@step(u'Convert user to dict')
+def convert_user_to_dict(step):
+    world.dict_user = world.user.toDict()
+
+@step(u'Check that dict conversion is correct')
+def check_that_dict_conversion_is_correct(step):
+    assert world.user.name == world.dict_user["name"]
+    assert world.user.password == world.dict_user["password"]
+    assert world.user.key == world.dict_user["key"]
+    assert world.user.authorKey == world.dict_user["authorKey"]
+    assert world.user.url == world.dict_user["url"]
+    assert world.user.description == world.dict_user["description"]
+    assert "_rev" not in world.dict_user
+
+@step('Convert user to json')
+def convert_user_to_json(step):
+    world.json_user = world.user.toJson()
+
+@step(u'Check that JSON conversion is correct')
+def check_that_json_conversion_is_correct(step):
+    expectedJson = '{"doc_type": "User", "password": "password", "description": "my description", "authorKey": "authorKey", "url": "url", "key": "key", "date": "2011-06-19T02:20:53Z", "_id": "userid", "name": "John Doe"}\n'
+    assert expectedJson == world.json_user, "%s" % world.json_user
+
+@step(u'Delete current user')
+def delete_current_user(step):        
+    user = UserManager.getUser()
+    while user:
+        user.delete()
+        user = UserManager.getUser()
+
+@step(u'Save default user')
+def save_default_user(step):
+    world.user.key = None
+    world.user.save()
+
+@step(u'Get current user')
+def get_current_user(step):        
+    world.current_user = UserManager.getUser()
+
+@step(u'Check that current user is the same as saved user')
+def check_that_current_user_is_the_same_as_saved_user(step):
+    assert world.current_user.key == world.user.key
+
+@step(u'Check that user key is properly set')
+def check_that_key_is_properly_set(step):
+    assert world.user._id == world.user.key
+
+@step(u'Convert default user to contact')
+def convert_default_user_to_contact(step):
+    world.contact = world.user.asContact()
+
+@step(u'Check that contact has same properties as default user')
+def check_that_contact_has_same_properties_as_default_user(step):
+    assert world.user.url == world.contact.url
+    assert world.user.key == world.contact.key
+    assert world.user.name == world.contact.name
+    assert world.user.description == world.contact.description
+
+

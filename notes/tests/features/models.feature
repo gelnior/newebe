@@ -13,7 +13,7 @@ Feature: Retrieve Notes
         Checks that the 5 notes are the created notes
 
     Scenario: Retrieve all notes sorted by date
-        Create at different times 5 notes
+        Creates at different times 5 notes
         Retrieve, sorted by date, all notes
         Checks that notes are sorted by date
 
