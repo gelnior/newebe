@@ -415,7 +415,7 @@ class ContactRenderTHandler(NewebeAuthHandler):
             if contact.description:
                 contact.description = markdown.markdown(contact.description)
 
-            self.render("../templates/core/contact/contact_render.html", 
+            self.render("templates/contact_render.html", 
                             contact=contact)            
         else:
             return self.return_failure("Contact not found.", 404)
