@@ -11,7 +11,7 @@ Dependencies
 * python >= 2.6
 * django >= 1.2
 * couchdb >= 0.11.0
-* coucdbkit >= 0.4.8
+* couchdbkit >= 0.4.8
 * tornado >= 1.2.0
 * daemon >= 1.0.0
 * pycurl >= 1.0.0
