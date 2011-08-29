@@ -231,13 +231,15 @@
       }
       return this.displayText(this.selection);
     };
-    NotesView.prototype.onSortDateClicked = function() {
-      this.controller.navigate("sort-date/");
-      return this.sortNotesByDate();
+    NotesView.prototype.onSortDateClicked = function(event) {
+      this.controller.navigate("notes/sort-date");
+      this.sortNotesByDate();
+      return false;
     };
     NotesView.prototype.onSortTitleClicked = function() {
       this.controller.navigate("notes/sort-title/");
-      return this.sortNotesByTitle();
+      this.sortNotesByTitle();
+      return false;
     };
     /* Functions  */
     NotesView.prototype.addAll = function() {
@@ -431,15 +433,16 @@
     }
     __extends(NotesController, Backbone.Router);
     NotesController.prototype.routes = {
-      "sort-date/": "sortByDate",
-      "sort-title/": "sortByTitle",
-      "sort-date/:slug": "sortByDateAndDisplayNote",
-      "sort-title/:slug": "sortByTitleAndDisplayNote"
+      "notes/sort-date/": "sortByDate",
+      "notes/sort-title/": "sortByTitle",
+      "notes/sort-date/:slug": "sortByDateAndDisplayNote",
+      "notes/sort-title/:slug": "sortByTitleAndDisplayNote"
     };
     NotesController.prototype.registerView = function(view) {
       return this.view = view;
     };
     NotesController.prototype.sortByDate = function() {
+      alert("ok");
       return this.view.sortNotesByDate();
     };
     NotesController.prototype.sortByTitle = function() {

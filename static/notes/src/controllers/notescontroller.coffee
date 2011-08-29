@@ -5,16 +5,17 @@
 class NotesController extends Backbone.Router
 
    routes:
-    "sort-date/":  "sortByDate"
-    "sort-title/":  "sortByTitle"
-    "sort-date/:slug":  "sortByDateAndDisplayNote"
-    "sort-title/:slug":  "sortByTitleAndDisplayNote"
+    "notes/sort-date/":  "sortByDate"
+    "notes/sort-title/":  "sortByTitle"
+    "notes/sort-date/:slug":  "sortByDateAndDisplayNote"
+    "notes/sort-title/:slug":  "sortByTitleAndDisplayNote"
    
       
    registerView: (view) ->
      @view = view
 
    sortByDate: ->
+     alert "ok"
      @view.sortNotesByDate()
       
    sortByTitle: ->

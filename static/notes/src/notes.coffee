@@ -16,4 +16,4 @@ notesApp.setListeners()
 notesApp.reloadNotes()
 
 # Start controller
-#Backbone.history.start()
+Backbone.history.start()

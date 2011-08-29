@@ -461,7 +461,7 @@ class MicropostTHandler(NewebeAuthHandler):
             if micropost.content:
                  micropost.content = markdown.markdown(micropost.content)
 
-            self.render("../templates/news/micropost.html", micropost=micropost)
+            self.render("templates/micropost.html", micropost=micropost)
         else:
             raise HTTPError("Micropost not found.", 404)
 

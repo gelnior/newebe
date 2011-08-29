@@ -75,15 +75,17 @@ class NotesView extends Backbone.View
         
   # When sort date button is clicked, it disable then notes are reloaded
   # from the service that sorts them by date.
-  onSortDateClicked: =>
-    @controller.navigate("sort-date/")
+  onSortDateClicked: (event) =>
+    @controller.navigate("notes/sort-date")
     @sortNotesByDate()
+    false
      
   # When sort title button is clicked, it disable then notes are reloaded
   # from the service that sorts them by title.
   onSortTitleClicked: ->
     @controller.navigate("notes/sort-title/")
     @sortNotesByTitle()
+    false
 
 
   ### Functions  ###
