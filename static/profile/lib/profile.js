@@ -61,12 +61,12 @@
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
-      ProfileView.__super__.constructor.apply(this, arguments);
+      ProfileView.__super__.constructor.call(this);
     }
     ProfileView.prototype.initialize = function() {
       _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll');
       this.users = new UserCollection;
-      return this.users.bind('refresh', this.addAll);
+      return this.users.bind('reset', this.addAll);
     };
     /* Events */
     ProfileView.prototype.onKeyUp = function(event) {

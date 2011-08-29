@@ -116,10 +116,13 @@
     };
     MicroPost.prototype.setDisplayDateFromDbDate = function(date) {
       var postDate, stringDate;
-      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-      stringDate = postDate.toString("dd MMM yyyy, HH:mm");
-      this.attributes['displayDate'] = stringDate;
-      return postDate;
+      if (date) {
+        postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+        this.attributes['displayDate'] = stringDate;
+        postDate;
+      }
+      return date;
     };
     MicroPost.prototype.getUrlDate = function() {
       return this.attributes['urlDate'];
@@ -175,7 +178,7 @@
     };
     function MicroPostRow(model) {
       this.model = model;
-      MicroPostRow.__super__.constructor.apply(this, arguments);
+      MicroPostRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
     }
@@ -229,7 +232,7 @@
       "click #news-more": "onMoreNewsClicked"
     };
     function NewsView() {
-      NewsView.__super__.constructor.apply(this, arguments);
+      NewsView.__super__.constructor.call(this);
     }
     NewsView.prototype.initialize = function() {
       _.bindAll(this, 'postNewPost', 'appendOne', 'prependOne', 'addAll');
@@ -238,9 +241,9 @@
       this.tutorialOn = true;
       this.microposts = new MicroPostCollection;
       this.microposts.bind('add', this.prependOne);
-      this.microposts.bind('refresh', this.addAll);
+      this.microposts.bind('reset', this.addAll);
       this.moreMicroposts = new MicroPostCollection;
-      this.moreMicroposts.bind('refresh', this.addAllMore);
+      this.moreMicroposts.bind('reset', this.addAllMore);
       return this.currentPath = '/news/microposts/all/';
     };
     /* Listeners  */

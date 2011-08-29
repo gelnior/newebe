@@ -89,7 +89,7 @@ class PlatformView extends Backbone.View
   switchTo: (page, url) ->
     $(@lastPage + "-a").removeClass("disabled")
     $(page + "-a").addClass("disabled")
-    @controller.saveLocation(page)
+    @controller.navigate(page)
 
     if @lastPage != page
       $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))

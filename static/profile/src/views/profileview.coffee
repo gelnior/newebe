@@ -6,7 +6,7 @@ class ProfileView extends Backbone.View
   el: $("#profile")
 
   constructor: ->
-    super
+    super()
   
   # Initiliaze bind functions to this view, sets up user collection
   # behaviour.
@@ -15,7 +15,7 @@ class ProfileView extends Backbone.View
 
     @users = new UserCollection
     
-    @users.bind('refresh', @addAll)
+    @users.bind('reset', @addAll)
         
 
   ### Events ###

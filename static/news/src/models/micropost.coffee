@@ -28,9 +28,9 @@ class MicroPost extends Backbone.Model
     
 
     if microPost.date
-        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")
-        urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
-        @attributes['urlDate'] = urlDate
+      postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")
+      urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
+      @attributes['urlDate'] = urlDate
 
 
     
@@ -45,10 +45,12 @@ class MicroPost extends Backbone.Model
   
   # Convert raw *date* to human readable date.
   setDisplayDateFromDbDate: (date) ->
-    postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
-    stringDate = postDate.toString("dd MMM yyyy, HH:mm")
-    @attributes['displayDate'] = stringDate
-    postDate
+    if date
+      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
+      stringDate = postDate.toString("dd MMM yyyy, HH:mm")
+      @attributes['displayDate'] = stringDate
+      postDate
+    date
   
   getUrlDate: ->
     @attributes['urlDate']

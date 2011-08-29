@@ -34,7 +34,7 @@ class ContactRow extends Backbone.View
     "mouseout": "onMouseOut"
 
   constructor: (@model) ->
-    super
+    super()
          
     @model.view = @
 

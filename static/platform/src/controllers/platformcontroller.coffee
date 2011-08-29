@@ -2,7 +2,7 @@
 
 # Platform controller Handle URL routes, it allows to display applications
 # set in the URL.
-class PlatformController extends Backbone.Controller
+class PlatformController extends Backbone.Router
 
     routes: {
       "contact":  "displayContact",

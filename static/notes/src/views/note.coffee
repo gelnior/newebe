@@ -31,7 +31,7 @@ class NoteRow extends Backbone.View
 
   # Constructor : register view and set HTML element id.
   constructor: (@model) ->
-    super
+    super()
     @id = @model.id
          
     @model.view = @

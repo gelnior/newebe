@@ -5,6 +5,7 @@
 
 notesController = new NotesController
 notesApp = new NotesView(notesController)
+#notesApp = new NotesView
 
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
@@ -15,4 +16,4 @@ notesApp.setListeners()
 notesApp.reloadNotes()
 
 # Start controller
-Backbone.history.start()
+#Backbone.history.start()

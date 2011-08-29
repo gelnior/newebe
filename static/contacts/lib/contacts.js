@@ -161,7 +161,7 @@
     };
     function ContactRow(model) {
       this.model = model;
-      ContactRow.__super__.constructor.apply(this, arguments);
+      ContactRow.__super__.constructor.call(this);
       this.model.view = this;
     }
     ContactRow.prototype.onMouseOver = function() {
@@ -229,7 +229,7 @@
       "click #contact-request-button": "onRequestedClicked"
     };
     function ContactView() {
-      ContactView.__super__.constructor.apply(this, arguments);
+      ContactView.__super__.constructor.call(this);
     }
     ContactView.prototype.initialize = function() {
       _.bindAll(this, 'postNewContact', 'appendOne', 'prependOne', 'addAll');
@@ -237,7 +237,7 @@
       this.contacts = new ContactCollection;
       this.tutorialOn = true;
       this.contacts.bind('add', this.prependOne);
-      return this.contacts.bind('refresh', this.addAll);
+      return this.contacts.bind('reset', this.addAll);
     };
     ContactView.prototype.onPostClicked = function(event) {
       event.preventDefault();

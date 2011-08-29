@@ -14,7 +14,7 @@ class ContactView extends Backbone.View
     "click #contact-request-button" : "onRequestedClicked"
 
   constructor: ->
-    super
+    super()
 
   initialize: ->
     _.bindAll(this, 'postNewContact', 'appendOne', 'prependOne', 'addAll')
@@ -25,7 +25,7 @@ class ContactView extends Backbone.View
     @tutorialOn = true
 
     @contacts.bind('add', @prependOne)
-    @contacts.bind('refresh', @addAll)
+    @contacts.bind('reset', @addAll)
         
 
   ## Event listeners ##

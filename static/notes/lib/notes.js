@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesView, PlatformController, confirmationDialog, loadingIndicator, notesApp, notesController;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesController, NotesView, confirmationDialog, loadingIndicator, notesApp, notesController;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -181,9 +181,9 @@
       "click #notes-sort-title-button": "onSortTitleClicked"
     };
     function NotesView(controller) {
+      this.onSortDateClicked = __bind(this.onSortDateClicked, this);;      NotesView.__super__.constructor.call(this);
       this.controller = controller;
       controller.registerView(this);
-      NotesView.__super__.constructor.apply(this, arguments);
     }
     NotesView.prototype.initialize = function() {
       _.bindAll(this, 'onNewNoteClicked');
@@ -197,7 +197,7 @@
       this.notes = new NoteCollection;
       this.converter = new Showdown.converter();
       this.notes.bind('add', this.prependOne);
-      return this.notes.bind('refresh', this.addAll);
+      return this.notes.bind('reset', this.addAll);
     };
     /* Listeners  */
     NotesView.prototype.onNewNoteClicked = function(event) {
@@ -232,26 +232,12 @@
       return this.displayText(this.selection);
     };
     NotesView.prototype.onSortDateClicked = function() {
-      return window.location.hash = "#sort-date";
-    };
-    NotesView.prototype.sortNotesByDate = function() {
-      if (this.dateButton.button("option", "disabled") === false) {
-        this.dateButton.button("disable");
-        this.titleButton.button("enable");
-        this.notes.url = "/notes/all/order-by-date/";
-        return this.reloadNotes();
-      }
+      this.controller.navigate("sort-date/");
+      return this.sortNotesByDate();
     };
     NotesView.prototype.onSortTitleClicked = function() {
-      return window.location.hash = "#sort-title";
-    };
-    NotesView.prototype.sortNotesByTitle = function() {
-      if (!(this.titleButton.button("option", "disabled") === true)) {
-        this.titleButton.button("disable");
-        this.dateButton.button("enable");
-        this.notes.url = "/notes/all/order-by-title/";
-        return this.reloadNotes();
-      }
+      this.controller.navigate("notes/sort-title/");
+      return this.sortNotesByTitle();
     };
     /* Functions  */
     NotesView.prototype.addAll = function() {
@@ -279,7 +265,7 @@
         return $("#tutorial-news").html(data);
       });
     };
-    NotesView.prototype.onSortDateClicked = function() {
+    NotesView.prototype.sortNotesByDate = function() {
       if (!(this.dateButton.button("option", "disabled") === true)) {
         this.dateButton.button("disable");
         this.titleButton.button("enable");
@@ -288,7 +274,7 @@
         return this.reloadNotes();
       }
     };
-    NotesView.prototype.onSortTitleClicked = function() {
+    NotesView.prototype.sortNotesByTitle = function() {
       if (!(this.titleButton.button("option", "disabled") === true)) {
         this.titleButton.button("disable");
         this.dateButton.button("enable");
@@ -351,7 +337,7 @@
     };
     function NoteRow(model) {
       this.model = model;
-      NoteRow.__super__.constructor.apply(this, arguments);
+      NoteRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
     }
@@ -439,27 +425,33 @@
     };
     return NoteRow;
   })();
-  PlatformController = (function() {
-    function PlatformController() {
-      PlatformController.__super__.constructor.apply(this, arguments);
+  NotesController = (function() {
+    function NotesController() {
+      NotesController.__super__.constructor.apply(this, arguments);
     }
-    __extends(PlatformController, Backbone.Controller);
-    PlatformController.prototype.routes = {
+    __extends(NotesController, Backbone.Router);
+    NotesController.prototype.routes = {
       "sort-date/": "sortByDate",
       "sort-title/": "sortByTitle",
       "sort-date/:slug": "sortByDateAndDisplayNote",
       "sort-title/:slug": "sortByTitleAndDisplayNote"
     };
-    PlatformController.prototype.sortByDate = function() {
-      return this.view.sortNotesByDate();
-    };
-    PlatformController.prototype.sortByTitle = function() {
-      return this.view.sortNotesByTitle();
-    };
-    PlatformController.prototype.registerView = function(view) {
+    NotesController.prototype.registerView = function(view) {
       return this.view = view;
     };
-    return PlatformController;
+    NotesController.prototype.sortByDate = function() {
+      return this.view.sortNotesByDate();
+    };
+    NotesController.prototype.sortByTitle = function() {
+      return this.view.sortNotesByTitle();
+    };
+    NotesController.prototype.sortByDateAndDisplayNote = function(slug) {
+      return this.view.sortNotesByDate();
+    };
+    NotesController.prototype.sortByTitleAndDisplayNote = function(slug) {
+      return this.view.sortNotesByTitle();
+    };
+    return NotesController;
   })();
   notesController = new NotesController;
   notesApp = new NotesView(notesController);
@@ -468,5 +460,4 @@
   notesApp.setWidgets();
   notesApp.setListeners();
   notesApp.reloadNotes();
-  Backbone.history.start();
 }).call(this);

@@ -12,7 +12,7 @@
     function PlatformController() {
       PlatformController.__super__.constructor.apply(this, arguments);
     }
-    __extends(PlatformController, Backbone.Controller);
+    __extends(PlatformController, Backbone.Router);
     PlatformController.prototype.routes = {
       "contact": "displayContact",
       "news": "displayNews",
@@ -114,7 +114,7 @@
     PlatformView.prototype.switchTo = function(page, url) {
       $(this.lastPage + "-a").removeClass("disabled");
       $(page + "-a").addClass("disabled");
-      this.controller.saveLocation(page);
+      this.controller.navigate(page);
       if (this.lastPage !== page) {
         $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
       }

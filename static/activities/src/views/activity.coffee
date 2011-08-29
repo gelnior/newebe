@@ -48,7 +48,7 @@ class ActivityRow extends Backbone.View
 
   # Constructor : register view and set HTML element id.
   constructor: (@model) ->
-    super
+    super()
     @id = @model.id
          
     @model.view = @
@@ -58,12 +58,12 @@ class ActivityRow extends Backbone.View
 
   # When mouse is over...
   onMouseOver: ->
-    @el.addClass("hover-line")
+    $(@el).addClass("hover-line")
 
 
   # When mouse is out...
   onMouseOut: ->
-    @el.removeClass("hover-line")
+    $(@el).removeClass("hover-line")
     
       
   # When doc ref is clicked, if it is a micropost, micropost is displayed 

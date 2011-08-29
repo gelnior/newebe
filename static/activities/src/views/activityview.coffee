@@ -28,10 +28,10 @@ class ActivitiesView extends Backbone.View
     @activities = new ActivityCollection
     
     @activities.bind('add', @prependOne)
-    @activities.bind('refresh', @addAll)
+    @activities.bind('reset', @addAll)
         
     @moreActivities = new ActivityCollection
-    @moreActivities.bind('refresh', @addAllMore)
+    @moreActivities.bind('reset', @addAllMore)
 
     @currentPath = '/activities/all/'
 

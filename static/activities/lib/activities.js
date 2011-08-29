@@ -188,16 +188,16 @@
     };
     function ActivityRow(model) {
       this.model = model;
-      ActivityRow.__super__.constructor.apply(this, arguments);
+      ActivityRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
     }
     /* Listeners */
     ActivityRow.prototype.onMouseOver = function() {
-      return this.el.addClass("hover-line");
+      return $(this.el).addClass("hover-line");
     };
     ActivityRow.prototype.onMouseOut = function() {
-      return this.el.removeClass("hover-line");
+      return $(this.el).removeClass("hover-line");
     };
     ActivityRow.prototype.onDocRefClicked = function(event) {
       if (this.model.getDocType() === "micropost") {
@@ -294,9 +294,9 @@
       this.tutorialOn = true;
       this.activities = new ActivityCollection;
       this.activities.bind('add', this.prependOne);
-      this.activities.bind('refresh', this.addAll);
+      this.activities.bind('reset', this.addAll);
       this.moreActivities = new ActivityCollection;
-      this.moreActivities.bind('refresh', this.addAllMore);
+      this.moreActivities.bind('reset', this.addAllMore);
       return this.currentPath = '/activities/all/';
     };
     /* Listeners  */

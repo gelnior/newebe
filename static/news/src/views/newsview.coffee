@@ -21,7 +21,7 @@ class NewsView extends Backbone.View
 
 
   constructor: ->
-    super
+    super()
 
   # Initiliaze binds functions to this view, sets up micropost colleciton
   # behaviours.
@@ -34,10 +34,10 @@ class NewsView extends Backbone.View
     @microposts = new MicroPostCollection
     
     @microposts.bind('add', @prependOne)
-    @microposts.bind('refresh', @addAll)
+    @microposts.bind('reset', @addAll)
         
     @moreMicroposts = new MicroPostCollection
-    @moreMicroposts.bind('refresh', @addAllMore)
+    @moreMicroposts.bind('reset', @addAllMore)
 
     @currentPath = '/news/microposts/all/'
 
@@ -156,7 +156,7 @@ class NewsView extends Backbone.View
   # Prepends *micropost* to the end of current post list (render it).
   # Displays second tutorial of tutorial mode is on.
   prependOne: (micropost) ->
-    row = new MicroPostRow micropost
+    row = new MicroPostRow(micropost)
     el = row.render()
     $("#micro-posts").prepend(el)
     loadingIndicator.hide()

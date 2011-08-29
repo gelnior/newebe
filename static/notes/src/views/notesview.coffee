@@ -15,9 +15,9 @@ class NotesView extends Backbone.View
 
 
   constructor: (controller) ->
+    super()
     @controller = controller
     controller.registerView(@)
-    super
 
 
   # Bind functions to view, initialize displayed collection and markdown
@@ -36,7 +36,7 @@ class NotesView extends Backbone.View
     @converter = new Showdown.converter()
     
     @notes.bind('add', @prependOne)
-    @notes.bind('refresh', @addAll)
+    @notes.bind('reset', @addAll)
 
 
   ### Listeners  ###
@@ -75,28 +75,15 @@ class NotesView extends Backbone.View
         
   # When sort date button is clicked, it disable then notes are reloaded
   # from the service that sorts them by date.
-  onSortDateClicked: ->
-    window.location.hash = "#sort-date"
-  
-  sortNotesByDate: ->
-    if @dateButton.button("option", "disabled") == false
-      
-      @dateButton.button("disable")
-      @titleButton.button("enable")
-      @notes.url = "/notes/all/order-by-date/"
-      @reloadNotes()
-   
+  onSortDateClicked: =>
+    @controller.navigate("sort-date/")
+    @sortNotesByDate()
+     
   # When sort title button is clicked, it disable then notes are reloaded
   # from the service that sorts them by title.
   onSortTitleClicked: ->
-    window.location.hash = "#sort-title"
-
-  sortNotesByTitle: ->
-    if not(@titleButton.button("option", "disabled") == true)
-      @titleButton.button("disable")
-      @dateButton.button("enable")
-      @notes.url = "/notes/all/order-by-title/"
-      @reloadNotes()
+    @controller.navigate("notes/sort-title/")
+    @sortNotesByTitle()
 
 
   ### Functions  ###
@@ -131,7 +118,7 @@ class NotesView extends Backbone.View
 
   # When sort date button is clicked, it disable then notes are reloaded
   # from the service that sorts them by date.
-  onSortDateClicked: () ->
+  sortNotesByDate: () ->
     if not(@dateButton.button("option", "disabled") == true)
       @dateButton.button("disable")
       @titleButton.button("enable")
@@ -142,7 +129,7 @@ class NotesView extends Backbone.View
    
   # When sort title button is clicked, it disable then notes are reloaded
   # from the service that sorts them by title.
-  onSortTitleClicked: () ->
+  sortNotesByTitle: () ->
     if not(@titleButton.button("option", "disabled") == true)
       @titleButton.button("disable")
       @dateButton.button("enable")
