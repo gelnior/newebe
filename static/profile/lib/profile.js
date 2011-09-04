@@ -7,7 +7,7 @@
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  };
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   User = (function() {
     __extends(User, Backbone.Model);
     User.prototype.url = '/user/';
@@ -61,17 +61,50 @@
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
-      ProfileView.__super__.constructor.call(this);
+      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);;
+      this.onMouseOut = __bind(this.onMouseOut, this);;
+      this.onMouseOver = __bind(this.onMouseOver, this);;      ProfileView.__super__.constructor.call(this);
     }
     ProfileView.prototype.initialize = function() {
       _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll');
       this.users = new UserCollection;
+      this.isEditing = false;
       return this.users.bind('reset', this.addAll);
     };
     /* Events */
+    ProfileView.prototype.events = {
+      "click #profile-description-edit": "onDescriptionEditClicked",
+      "mouseover #profile div.app": "onMouseOver",
+      "mouseout #profile div.app": "onMouseOut"
+    };
     ProfileView.prototype.onKeyUp = function(event) {
       this.postUserInfo();
       return event;
+    };
+    ProfileView.prototype.onMouseOver = function(event) {
+      return $("#profile-description-edit").show();
+    };
+    ProfileView.prototype.onMouseOut = function(event) {
+      return $("#profile-description-edit").hide();
+    };
+    ProfileView.prototype.onDescriptionEditClicked = function(event) {
+      if (!this.isEditing) {
+        this.isEditing = true;
+        $("#profile-description-display").fadeOut(function() {
+          $("#profile-description-display").hide();
+          return $("#profile-description").slideDown(function() {
+            return $("#profile-preview").fadeIn();
+          });
+        });
+      } else {
+        this.isEditing = false;
+        $("#profile-preview").fadeOut(function() {
+          return $("#profile-description").slideUp(function() {
+            return $("#profile-description-display").fadeIn();
+          });
+        });
+      }
+      return false;
     };
     /* Functions */
     ProfileView.prototype.addAll = function() {
@@ -129,6 +162,7 @@
       desc = $("#profile-description").val();
       converter = new Showdown.converter();
       desc = converter.makeHtml(desc);
+      $("#profile-description-display").html(desc);
       $("#profile-render").html(renderer({
         name: $("#platform-profile-name").val(),
         url: $("#platform-profile-url").val(),
@@ -150,7 +184,11 @@
     };
     ProfileView.prototype.setWidgets = function() {
       $("#profile input").val(null);
-      return $("#profile-a").addClass("disabled");
+      $("#profile-a").addClass("disabled");
+      $("#profile-description").hide();
+      $("#profile-preview").hide();
+      $("#profile-description-edit").button();
+      return $("#profile-description-edit").hide();
     };
     return ProfileView;
   })();

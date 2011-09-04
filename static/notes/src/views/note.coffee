@@ -117,7 +117,7 @@ class NoteRow extends Backbone.View
   # Set listeners on current note row.
   render: ->
     if not @model.getDisplayDate()
-        @model.setDisplayDate()
+      @model.setDisplayDate()
 
     $(@el).html(@template(@model.toJSON()))
     @deleteButton = @$(".notes-note-delete")

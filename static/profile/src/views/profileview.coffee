@@ -14,17 +14,45 @@ class ProfileView extends Backbone.View
     _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll')
 
     @users = new UserCollection
+    @isEditing = false
     
     @users.bind('reset', @addAll)
         
 
   ### Events ###
 
+  events:
+    "click #profile-description-edit" : "onDescriptionEditClicked"
+    "mouseover #profile div.app" : "onMouseOver"
+    "mouseout #profile div.app" : "onMouseOut"
+
   # When key control is up it set is ctrl pressed variable to false.
   onKeyUp: (event) ->
     @postUserInfo()
     event
 
+  onMouseOver: (event) =>
+    $("#profile-description-edit").show()
+
+  onMouseOut: (event) =>
+    $("#profile-description-edit").hide()
+
+  onDescriptionEditClicked: (event) =>
+    
+    if not @isEditing
+      @isEditing = true
+      $("#profile-description-display").fadeOut(->
+        $("#profile-description-display").hide()
+        $("#profile-description").slideDown ->
+          $("#profile-preview").fadeIn()
+      )
+    else
+      @isEditing = false
+      $("#profile-preview").fadeOut ->
+        $("#profile-description").slideUp ->
+          $("#profile-description-display").fadeIn()
+
+    false
 
   ### Functions ###
 
@@ -98,6 +126,7 @@ class ProfileView extends Backbone.View
     converter = new Showdown.converter()
     desc = converter.makeHtml(desc)
 
+    $("#profile-description-display").html(desc)
     $("#profile-render").html(renderer(
         name : $("#platform-profile-name").val()
         url : $("#platform-profile-url").val()
@@ -118,4 +147,10 @@ class ProfileView extends Backbone.View
   setWidgets: ->
     $("#profile input").val(null)
     $("#profile-a").addClass("disabled")
+    $("#profile-description").hide()
+    $("#profile-preview").hide()
+    $("#profile-description-edit").button()
+    $("#profile-description-edit").hide()
+
+
 

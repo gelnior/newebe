@@ -78,6 +78,7 @@ class NewebeHandler(RequestHandler):
         else:
             return None
 
+
     def get_json_from_response(self, response):
         '''
         Extracts json from response and convert it as a dict.
