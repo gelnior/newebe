@@ -12,7 +12,7 @@ Dependencies
 * django >= 1.2
 * couchdb >= 0.11.0
 * couchdbkit >= 0.4.8
-* tornado >= 1.2.0
+* tornado >= 2.0.0
 * daemon >= 1.0.0
 * pycurl >= 1.0.0
 * markdown >= 2.0.0
