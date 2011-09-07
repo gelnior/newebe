@@ -50,7 +50,8 @@ from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
 
 from newebe.notes.handlers import NotesHandler, \
                                   NotesByDateHandler, NoteHandler, \
-                                  NotesPageTHandler, NotesContentTHandler
+                                  NotesPageTHandler, NotesContentTHandler, \
+                                  NoteTHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
@@ -130,6 +131,7 @@ class Newebe(Application):
             ('/notes/all/order-by-title/', NotesHandler),
             ('/notes/all/order-by-date/', NotesByDateHandler),
             ('/notes/([0-9a-z]+)/', NoteHandler),
+            ('/notes/([0-9a-z]+)/html/', NoteTHandler),
 
             ('/synchronize/', SynchronizeHandler),
             ('/synchronize/contact/', SynchronizeContactHandler),

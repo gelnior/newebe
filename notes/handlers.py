@@ -1,4 +1,5 @@
 import logging
+import markdown
 
 from tornado.escape import json_decode
 
@@ -165,6 +166,32 @@ class NoteHandler(NewebeAuthHandler):
             method = "DELETE"        
         )
         activity.save()
+
+
+class NoteTHandler(NewebeAuthHandler):
+    '''
+    This handler allows to retrieve note at HTML format.
+    * GET: Return for given id the HTML representation of corresponding note.
+    '''
+
+
+    def get(self, noteId):
+        '''
+        Returns for given id the HTML representation of corresponding 
+        note.
+        '''
+
+        note = NoteManager.get_note(noteId)
+        if note:
+
+            if note.content:
+                 note.content = markdown.markdown(note.content)
+
+            self.render("templates/note.html", note=note)
+        else:
+            self.return_failure("Note not found.", 404)
+
+
 
 
 # Template handlers

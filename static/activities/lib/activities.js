@@ -7,7 +7,7 @@
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  };
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
@@ -204,6 +204,10 @@
         $.get("/news/micropost/" + this.model.getDocId() + "/html/", function(data) {
           return $("#activities-preview").html(data);
         });
+      } else if (this.model.getDocType() === "note") {
+        $.get("/notes/" + (this.model.getDocId()) + "/html/", function(data) {
+          return $("#activities-preview").html(data);
+        });
       }
       event.preventDefault();
       return false;
@@ -220,22 +224,23 @@
     };
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
+      alert(event.target.id);
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
-            $("#" + event.target.id).html("resending...");
+            $(event.target).html("resending...");
             return $.ajax({
               type: "POST",
               url: "/news/micropost/" + this.model.getDocId() + "/retry/",
               data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '"}',
               dataType: "json",
-              success: function(data) {
-                return $("#" + event.target.id).html("resending succeeds.");
-              },
-              error: function(data) {
+              success: __bind(function(data) {
+                return $(event.target).html("resending succeeds.");
+              }, this),
+              error: __bind(function(data) {
                 infoDialog.display("Sending data fails again.");
-                return $("#" + event.target.id).html("resend");
-              }
+                return $(event.target).html("resend");
+              }, this)
             });
           case "DELETE":
             extra = "";

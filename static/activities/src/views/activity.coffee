@@ -67,10 +67,14 @@ class ActivityRow extends Backbone.View
     
       
   # When doc ref is clicked, if it is a micropost, micropost is displayed 
-  # in the preview section.
+  # in the preview section, same for notes.
   onDocRefClicked: (event) ->
     if @model.getDocType() == "micropost"
         $.get("/news/micropost/" + @model.getDocId() + "/html/", (data) ->
+          $("#activities-preview").html(data)
+        )
+    else if @model.getDocType() == "note"
+        $.get("/notes/#{@model.getDocId()}/html/", (data) ->
           $("#activities-preview").html(data)
         )
 
@@ -98,21 +102,22 @@ class ActivityRow extends Backbone.View
   # to the contact. If it it succeeds it marks the error as solved else  
   # it displays an error message.
   onErrorResendClicked: (event) ->
+    alert event.target.id
     if @model.getDocType() is "micropost"
       switch @model.getMethod()
 
         when "POST"
-          $("#" + event.target.id).html("resending...")
+          $(event.target).html("resending...")
           $.ajax(
             type: "POST"
             url: "/news/micropost/" + @model.getDocId()  + "/retry/"
             data: '{"contactId": "' + event.target.id + '", "activityId":"' + @model.id + '"}'
             dataType : "json"
-            success: (data) ->
-              $("#" + event.target.id).html("resending succeeds.")
-            error: (data) ->
+            success: (data) =>
+              $(event.target).html("resending succeeds.")
+            error: (data) =>
               infoDialog.display "Sending data fails again."
-              $("#" + event.target.id).html("resend")
+              $(event.target).html("resend")
           )
 
         when "DELETE"
