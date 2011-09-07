@@ -199,7 +199,6 @@
       return this.model.saveToDb();
     };
     ContactRow.prototype.onNameClicked = function(event) {
-      alert("ok");
       $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
         return $("#contact-preview").html(data);
       });
