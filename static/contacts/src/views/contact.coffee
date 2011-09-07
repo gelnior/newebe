@@ -18,7 +18,7 @@ class ContactRow extends Backbone.View
     <a class="platform-contact-delete">X</a>    
     </span>
     <p class="platform-contact-url">
-     <%= name %> | 
+     <a class="contact-name" href=""><%= name %></a> | 
      <%= url %>
      <span class="platform-contact-state"> (<%= state %>)</span>
     </p>
@@ -30,6 +30,7 @@ class ContactRow extends Backbone.View
     "click .platform-contact-delete": "onDeleteClicked"
     "click .platform-contact-wap": "onConfirmClicked"
     "click .platform-contact-retry": "onRetryClicked"
+    "click .contact-name": "onNameClicked"
     "mouseover": "onMouseOver"
     "mouseout": "onMouseOut"
 
@@ -81,6 +82,13 @@ class ContactRow extends Backbone.View
   onConfirmClicked: ->
     @model.saveToDb()
 
+  # When author name is clicked, its data are displayed in the preview zone.
+  onNameClicked: (event) ->
+    $.get("/contacts/render/#{@model.get("key")}/", (data) ->
+      $("#contact-preview").html(data)
+    )
+    event.preventDefault()
+    false
 
   ## Functions
 

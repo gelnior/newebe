@@ -90,6 +90,7 @@
       Contact.__super__.constructor.apply(this, arguments);
       this.set('url', contact.url);
       this.set('name', contact.name);
+      this.set('cid', contact.key);
       this.id = contact.slug + "/";
       if (contact.state) {
         this.set('state', contact.state);
@@ -151,11 +152,12 @@
     __extends(ContactRow, Backbone.View);
     ContactRow.prototype.tagName = "div";
     ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <%= name %> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a class="contact-name" href=""><%= name %></a> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
       "click .platform-contact-wap": "onConfirmClicked",
       "click .platform-contact-retry": "onRetryClicked",
+      "click .contact-name": "onNameClicked",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut"
     };
@@ -195,6 +197,14 @@
     };
     ContactRow.prototype.onConfirmClicked = function() {
       return this.model.saveToDb();
+    };
+    ContactRow.prototype.onNameClicked = function(event) {
+      alert("ok");
+      $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
+        return $("#contact-preview").html(data);
+      });
+      event.preventDefault();
+      return false;
     };
     ContactRow.prototype.remove = function() {
       return $(this.el).remove();

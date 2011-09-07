@@ -1,0 +1,8 @@
+a.contact-name {
+  font-weight: bold;
+  text-decoration: none;
+  color: #000;
+}
+a.contact-name:active {
+  color: #000;
+}
