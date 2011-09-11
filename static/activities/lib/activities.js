@@ -224,7 +224,6 @@
     };
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
-      alert(event.target.id);
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
