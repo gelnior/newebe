@@ -102,7 +102,6 @@ class ActivityRow extends Backbone.View
   # to the contact. If it it succeeds it marks the error as solved else  
   # it displays an error message.
   onErrorResendClicked: (event) ->
-    alert event.target.id
     if @model.getDocType() is "micropost"
       switch @model.getMethod()
 
