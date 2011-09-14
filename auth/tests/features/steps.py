@@ -152,4 +152,8 @@ def send_password_creation_request_with_password_as_password(step):
         method="POST", body='{"password":"%s"}' % "password")
     assert world.response.code == 200
 
+@step(u'Change password with (\w+)')
+def change_password_with_password2(step, password):
+    world.browser.put(ROOT_URL + "user/password/", 
+                      '{"password":"' + password + '"}')
 
