@@ -34,7 +34,8 @@ from newebe.profile.handlers import UserHandler, \
 from newebe.auth.handlers import LoginHandler, LogoutHandler, \
                                  LoginJsonHandler,\
                                  RegisterTHandler, RegisterPasswordTHandler, \
-                                 RegisterPasswordContentTHandler
+                                 RegisterPasswordContentTHandler, \
+                                 UserPasswordHandler
 
 from newebe.news.handlers import NewsHandler, NewsContactHandler, \
                                  NewsSuscribeHandler, MicropostHandler, \
@@ -80,6 +81,7 @@ class Newebe(Application):
             ('/register/', RegisterTHandler),
             ('/register/password/', RegisterPasswordTHandler),
             ('/register/password/content/', RegisterPasswordContentTHandler),
+            ('/user/password/', UserPasswordHandler),
             
             ('/user/$', UserHandler),
             ('/profile/$', ProfileTHandler),
