@@ -4,6 +4,7 @@ from tornado.escape import json_decode
 
 from newebe.profile.models import User, UserManager
 from newebe.contacts.handlers import NewebeHandler
+from newebe.core.handlers import NewebeAuthHandler
 
 
 class LoginHandler(NewebeHandler):
@@ -200,6 +201,29 @@ class RegisterTHandler(NewebeHandler):
         else:
             self.return_failure(
                     "Data are not correct. User has not been created.", 400)
+
+
+class UserPasswordHandler(NewebeAuthHandler):
+    '''
+    Handler made to allow user to change password.
+    '''
+
+    def put(self):
+        '''
+        If user exists, it changes his password. 
+        '''
+
+        user = UserManager.getUser()
+
+        if user:
+
+           data = self.request.body
+        
+           if data:
+               postedPassword = json_decode(data)
+               user.password =  \
+                   hashlib.sha224(postedPassword['password']).hexdigest()
+               user.save()
 
 
 # Template handlers

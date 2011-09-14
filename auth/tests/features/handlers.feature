@@ -51,3 +51,16 @@ Feature: Authenticate, create user and set password
         Send login request with password as password
         Checks that secure cookie is set
 
+    Scenario: Change password
+        Delete current user
+        Set default user
+        Save default user
+        Send login request with password as password
+        Change password with password2
+        Send logout request
+        Send login request with password2 as password
+        Checks that secure cookie is set
+
+
+
+
