@@ -372,18 +372,10 @@
       return this.microposts;
     };
     NewsView.prototype.postNewPost = function() {
-      var content, regexp, url, urlIndex, urls;
+      var content;
       loadingIndicator.display();
       content = $("#id_content").val();
-      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-      urls = content.match(regexp);
-      if (urls) {
-        url = urls[0];
-        urlIndex = content.indexOf(url);
-        if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
-          content = content.replace(regexp, "[" + url + "]" + "(" + url + ")");
-        }
-      }
+      content = this.convertUrlToMarkdownLink(content);
       this.microposts.create({
         content: content
       }, {
@@ -396,6 +388,23 @@
       $("#id_content").val(null);
       $("#id_content").focus();
       return false;
+    };
+    NewsView.prototype.convertUrlToMarkdownLink = function(content) {
+      var regexp, url, urlIndex, urls;
+      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+      urls = content.match(regexp);
+      if (urls) {
+        url = urls[0];
+        urlIndex = content.indexOf(url);
+        if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
+          content = content.replace(url, "[" + url + "]" + "(" + url + ")");
+          urls = content.match(regexp);
+          if (urls) {
+            content = this.convertUrlToMarkdownLink(content);
+          }
+        }
+      }
+      return content;
     };
     NewsView.prototype.onMoreNewsClicked = function() {
       loadingIndicator.display();

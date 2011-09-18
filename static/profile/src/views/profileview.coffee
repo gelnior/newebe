@@ -33,12 +33,14 @@ class ProfileView extends Backbone.View
 
   onMouseOver: (event) =>
     $("#profile-description-edit").show()
+    $("#profile-change-password").show()
 
   onMouseOut: (event) =>
     $("#profile-description-edit").hide()
+    $("#profile-change-password").hide()
 
   onDescriptionEditClicked: (event) =>
-    
+
     if not @isEditing
       @isEditing = true
       $("#profile-description-display").fadeOut(->
@@ -151,6 +153,7 @@ class ProfileView extends Backbone.View
     $("#profile-preview").hide()
     $("#profile-description-edit").button()
     $("#profile-description-edit").hide()
-
+    $("#profile-change-password").button()
+    $("#profile-change-password").hide()
 
 
