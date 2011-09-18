@@ -46,7 +46,7 @@ class ProfileUpdater:
             docId = "none",
             isMine = True
         )
-        self.activity.save()     
+        activity.save()     
 
         for contact in ContactManager.getTrustedContacts():
             request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
