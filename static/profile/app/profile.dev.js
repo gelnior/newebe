@@ -33,10 +33,12 @@
       return event;
     };
     ProfileView.prototype.onMouseOver = function(event) {
-      return $("#profile-description-edit").show();
+      $("#profile-description-edit").show();
+      return $("#profile-change-password").show();
     };
     ProfileView.prototype.onMouseOut = function(event) {
-      return $("#profile-description-edit").hide();
+      $("#profile-description-edit").hide();
+      return $("#profile-change-password").hide();
     };
     ProfileView.prototype.onDescriptionEditClicked = function(event) {
       if (!this.isEditing) {
@@ -139,7 +141,9 @@
       $("#profile-description").hide();
       $("#profile-preview").hide();
       $("#profile-description-edit").button();
-      return $("#profile-description-edit").hide();
+      $("#profile-description-edit").hide();
+      $("#profile-change-password").button();
+      return $("#profile-change-password").hide();
     };
     return ProfileView;
   })();

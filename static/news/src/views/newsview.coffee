@@ -233,13 +233,7 @@ class NewsView extends Backbone.View
   postNewPost: ()->
     loadingIndicator.display()
     content = $("#id_content").val()
-    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-    urls = content.match(regexp)
-    if urls
-        url = urls[0]
-        urlIndex = content.indexOf(url)
-        if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
-          content = content.replace(regexp, "[" + url + "]" + "(" + url + ")" )
+    content = @convertUrlToMarkdownLink(content)
 
     @microposts.create(content : content,
                        success : (nextModel, resp) ->
@@ -250,6 +244,46 @@ class NewsView extends Backbone.View
     $("#id_content").val(null)
     $("#id_content").focus()
     false
+
+  convertUrlToMarkdownLink: (content) ->
+    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
+
+    urls = content.match(regexp)
+    if urls
+      url = urls[0]
+      urlIndex = content.indexOf(url)
+      if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
+        content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
+        urls = content.match(regexp)
+        if urls
+          content = @convertUrlToMarkdownLink(content)
+    content
+
+    #if urls and typeof urls == "string"
+    #  url = urls
+    #  urlIndex = content.indexOf(url)
+    #  if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
+    #    content = content.replace(url, "[" + url.substring(1, url.length) + "]" + "(" + url.substring(1, url.length) + ")" )
+   # else if urls
+   #   for url in urls
+   #     urlIndex = content.indexOf(url)
+   #     if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
+   #       content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
+
+
+
+  # When more news is clicked, GET URL is updated with last register date,
+  # (because /news/news-item/*date* returns 10 last micro posts until *date*).
+  # Then it retrieves posts and display it at the follown of current post list.
+  onMoreNewsClicked: ->
+    loadingIndicator.display()
+    if @lastDate
+      @moreMicroposts.url = @currentPath + @lastDate
+    else
+      @moreMicroposts.url = @currentPath
+
+    @moreMicroposts.fetch()
+    @moreMicroposts
 
 
   ### UI Builders  ###

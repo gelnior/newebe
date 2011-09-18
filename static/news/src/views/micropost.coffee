@@ -87,7 +87,7 @@ class MicroPostRow extends Backbone.View
   # It does not set element to DOM.
   render: ->
     if not @model.getDisplayDate()
-        @model.setDisplayDate()
+      @model.setDisplayDate()
 
     $(@el).html(@template(@model.toJSON()))
     @$(".news-micropost-delete").button()
