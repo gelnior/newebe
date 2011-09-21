@@ -116,7 +116,6 @@ task 'build', 'Build single application file from source files', ->
             if --remaining is 0
               process appContents, "dev", () ->
                 puts 'Build done'
-                invoke 'minify'
 
 
 # Make JS file lighter
@@ -182,7 +181,6 @@ task 'build-tests', 'Compile coffee script tests to JS', ->
       if err
         print "Read file caught exception: \n" + err
       else
-        print stdout + stderr
         appContents[index] = fileContents
         if --remaining is 0
           process appContents, "tests", ->
