@@ -180,7 +180,6 @@ task 'build-tests', 'Compile coffee script tests to JS', ->
       if err
         print "Read file caught exception: \n" + err
       else
-        print stdout + stderr
         appContents[index] = fileContents
         if --remaining is 0
           process appContents, "tests", ->
