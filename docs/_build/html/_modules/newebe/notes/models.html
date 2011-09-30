@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>newebe.notes.models &mdash; Newebe v0.3.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Newebe v0.3.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Newebe v0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for newebe.notes.models</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">couchdbkit.schema</span> <span class="kn">import</span> <span class="n">StringProperty</span><span class="p">,</span> <span class="n">BooleanProperty</span><span class="p">,</span> \
+                                         <span class="n">DateTimeProperty</span>
+
+<span class="kn">from</span> <span class="nn">newebe.core.models</span> <span class="kn">import</span> <span class="n">NewebeDocument</span>
+<span class="kn">from</span> <span class="nn">newebe.profile.models</span> <span class="kn">import</span> <span class="n">UserManager</span>
+
+
+<span class="k">class</span> <span class="nc">NoteManager</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="NoteManager"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.NoteManager">[docs]</a><span class="sd">    Utility methods to retrieve note data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_all</span><span class="p">():</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="NoteManager.get_all"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.NoteManager.get_all">[docs]</a><span class="sd">        Returns all notes from newebe owner, sorted by title.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">Note</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s">&quot;notes/mine_sort_title&quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_all_sorted_by_date</span><span class="p">():</span></div>
+        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="NoteManager.get_all_sorted_by_date"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.NoteManager.get_all_sorted_by_date">[docs]</a><span class="sd">        Returns all notes from newebe owner, sorted by date.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">Note</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s">&quot;notes/mine_sort_date&quot;</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_note</span><span class="p">(</span><span class="n">key</span><span class="p">):</span></div>
+        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="NoteManager.get_note"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.NoteManager.get_note">[docs]</a><span class="sd">        Returns note correspoding to key. If key does not exist or if note </span>
+<span class="sd">        author is not the newebe owner, None is returned.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">notes</span> <span class="o">=</span> <span class="n">Note</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s">&quot;notes/mine&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">notes</span><span class="p">:</span>        
+            <span class="k">return</span> <span class="n">notes</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="n">NewebeDocument</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span></div></div>
+<div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.Note">[docs]</a><span class="sd">    Note document for note storage.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">author</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>    
+    <span class="n">content</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">lastModified</span> <span class="o">=</span> <span class="n">DateTimeProperty</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> 
+                                    <span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+    <span class="n">isMine</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Note.save"><a class="viewcode-back" href="../../../index.html#newebe.notes.models.Note.save">[docs]</a><span class="sd">        When document is saved, the last modified field is updated to </span>
+<span class="sd">        make sure it is always correct. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorKey</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserManager</span><span class="o">.</span><span class="n">getUser</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authorKey</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">key</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span>
+
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastModified</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">NewebeDocument</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Newebe v0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gelnior.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

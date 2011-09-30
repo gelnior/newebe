@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Newebe’s documentation! &mdash; Newebe v0.3.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Newebe v0.3.0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Newebe v0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-newebe-s-documentation">
+<h1>Welcome to Newebe&#8217;s documentation!<a class="headerlink" href="#welcome-to-newebe-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+<div class="section" id="module-newebe.notes.models">
+<span id="code"></span><h1>Code<a class="headerlink" href="#module-newebe.notes.models" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="newebe.notes.models.Note">
+<em class="property">class </em><tt class="descclassname">newebe.notes.models.</tt><tt class="descname">Note</tt><big>(</big><em>_d=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/models.html#Note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.Note" title="Permalink to this definition">¶</a></dt>
+<dd><p>Note document for note storage.</p>
+<dl class="attribute">
+<dt id="newebe.notes.models.Note.author">
+<tt class="descname">author</tt><a class="headerlink" href="#newebe.notes.models.Note.author" title="Permalink to this definition">¶</a></dt>
+<dd><p>string property str or unicode property</p>
+<p><em>Value type</em>: unicode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="newebe.notes.models.Note.content">
+<tt class="descname">content</tt><a class="headerlink" href="#newebe.notes.models.Note.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>string property str or unicode property</p>
+<p><em>Value type</em>: unicode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="newebe.notes.models.Note.isMine">
+<tt class="descname">isMine</tt><a class="headerlink" href="#newebe.notes.models.Note.isMine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean property, map to python bool</p>
+<p><em>ValueType</em>: bool</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="newebe.notes.models.Note.lastModified">
+<tt class="descname">lastModified</tt><a class="headerlink" href="#newebe.notes.models.Note.lastModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>DateTime property. It convert iso3339 string
+to python and vice-versa. Map to datetime.datetime
+object.</p>
+<p><em>ValueType</em>: datetime.datetime</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="newebe.notes.models.Note.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/models.html#Note.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.Note.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>When document is saved, the last modified field is updated to 
+make sure it is always correct.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="newebe.notes.models.Note.title">
+<tt class="descname">title</tt><a class="headerlink" href="#newebe.notes.models.Note.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>string property str or unicode property</p>
+<p><em>Value type</em>: unicode</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="newebe.notes.models.NoteManager">
+<em class="property">class </em><tt class="descclassname">newebe.notes.models.</tt><tt class="descname">NoteManager</tt><a class="reference internal" href="_modules/newebe/notes/models.html#NoteManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.NoteManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility methods to retrieve note data.</p>
+<dl class="staticmethod">
+<dt id="newebe.notes.models.NoteManager.get_all">
+<em class="property">static </em><tt class="descname">get_all</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/models.html#NoteManager.get_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.NoteManager.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notes from newebe owner, sorted by title.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="newebe.notes.models.NoteManager.get_all_sorted_by_date">
+<em class="property">static </em><tt class="descname">get_all_sorted_by_date</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/models.html#NoteManager.get_all_sorted_by_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.NoteManager.get_all_sorted_by_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notes from newebe owner, sorted by date.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="newebe.notes.models.NoteManager.get_note">
+<em class="property">static </em><tt class="descname">get_note</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/models.html#NoteManager.get_note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.models.NoteManager.get_note" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns note correspoding to key. If key does not exist or if note 
+author is not the newebe owner, None is returned.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-newebe.notes.handlers"></span><dl class="class">
+<dt id="newebe.notes.handlers.NoteHandler">
+<em class="property">class </em><tt class="descclassname">newebe.notes.handlers.</tt><tt class="descname">NoteHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler used to work on a given note.</p>
+<ul class="simple">
+<li>GET: Retrieves given note.</li>
+<li>PUT: Modifies given note.</li>
+<li>DELETE: Deletes given note.</li>
+</ul>
+<dl class="method">
+<dt id="newebe.notes.handlers.NoteHandler.create_delete_activity">
+<tt class="descname">create_delete_activity</tt><big>(</big><em>note</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteHandler.create_delete_activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteHandler.create_delete_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and save a new delete activity for current user.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="newebe.notes.handlers.NoteHandler.delete">
+<tt class="descname">delete</tt><big>(</big><em>noteid</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteHandler.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteHandler.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes note that has an ID equal to noteid with received data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="newebe.notes.handlers.NoteHandler.get">
+<tt class="descname">get</tt><big>(</big><em>noteid</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notes at JSON format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="newebe.notes.handlers.NoteHandler.put">
+<tt class="descname">put</tt><big>(</big><em>noteid</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteHandler.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteHandler.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies note that has an ID equal to noteid with received data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="newebe.notes.handlers.NoteTHandler">
+<em class="property">class </em><tt class="descclassname">newebe.notes.handlers.</tt><tt class="descname">NoteTHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteTHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteTHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This handler allows to retrieve note at HTML format.</p>
+<ul class="simple">
+<li>GET: Return for given id the HTML representation of corresponding note.</li>
+</ul>
+<dl class="method">
+<dt id="newebe.notes.handlers.NoteTHandler.get">
+<tt class="descname">get</tt><big>(</big><em>noteId</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NoteTHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NoteTHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns for given id the HTML representation of corresponding 
+note.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="newebe.notes.handlers.NotesByDateHandler">
+<em class="property">class </em><tt class="descclassname">newebe.notes.handlers.</tt><tt class="descname">NotesByDateHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NotesByDateHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NotesByDateHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This handler handles requests that retrieve lists of notes ordered by date.</p>
+<ul class="simple">
+<li>GET: Retrieves all notes ordered by date.</li>
+</ul>
+<dl class="method">
+<dt id="newebe.notes.handlers.NotesByDateHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NotesByDateHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NotesByDateHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notes ordered by date at JSON format.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="newebe.notes.handlers.NotesHandler">
+<em class="property">class </em><tt class="descclassname">newebe.notes.handlers.</tt><tt class="descname">NotesHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NotesHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NotesHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This handler handles requests that retrieve lists of notes ordered by title.</p>
+<ul class="simple">
+<li>GET: Retrieves all notes ordered by title.</li>
+<li>POST: Create a new note.</li>
+</ul>
+<dl class="method">
+<dt id="newebe.notes.handlers.NotesHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NotesHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NotesHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notes ordered by title at JSON format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="newebe.notes.handlers.NotesHandler.post">
+<tt class="descname">post</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/newebe/notes/handlers.html#NotesHandler.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#newebe.notes.handlers.NotesHandler.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new note from received data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Newebe&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#module-newebe.notes.models">Code</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">Newebe v0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gelnior.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
