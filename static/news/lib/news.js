@@ -174,20 +174,28 @@
       "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
+      "click": "onClick",
       "click .news-micropost-author": "onAuthorClicked"
     };
-    function MicroPostRow(model) {
+    function MicroPostRow(model, mainView) {
       this.model = model;
+      this.mainView = mainView;
       MicroPostRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
+      this.selected = false;
     }
     /* Listeners */
     MicroPostRow.prototype.onMouseOver = function() {
-      return this.$(".news-micropost-delete").show();
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
     };
     MicroPostRow.prototype.onMouseOut = function() {
-      return this.$(".news-micropost-delete").hide();
+      return $(this.el).removeClass("mouseover");
+    };
+    MicroPostRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
     };
     MicroPostRow.prototype.onDeleteClicked = function() {
       var model;
@@ -201,7 +209,9 @@
       $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
         return $("#news-preview").html(data);
       });
-      event.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       return false;
     };
     /* Functions */
@@ -216,6 +226,17 @@
       this.$(".news-micropost-delete").button();
       this.$(".news-micropost-delete").hide();
       return this.el;
+    };
+    MicroPostRow.prototype.select = function() {
+      this.$(".news-micropost-delete").show();
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      return this.onAuthorClicked(null);
+    };
+    MicroPostRow.prototype.deselect = function() {
+      this.$(".news-micropost-delete").hide();
+      $(this.el).removeClass("selected");
+      return $("#news-preview").html(null);
     };
     return MicroPostRow;
   })();
@@ -244,7 +265,8 @@
       this.microposts.bind('reset', this.addAll);
       this.moreMicroposts = new MicroPostCollection;
       this.moreMicroposts.bind('reset', this.addAllMore);
-      return this.currentPath = '/news/microposts/all/';
+      this.currentPath = '/news/microposts/all/';
+      return this.selectedRow = null;
     };
     /* Listeners  */
     NewsView.prototype.onKeyUp = function(event) {
@@ -293,6 +315,25 @@
       this.clearNews();
       return this.reloadMicroPosts(sinceDate);
     };
+    NewsView.prototype.onRowClicked = function(row) {
+      if (row !== this.selectedRow) {
+        if (this.selectedRow) {
+          this.selectedRow.deselect();
+        }
+        row.select();
+        return this.selectedRow = row;
+      }
+    };
+    NewsView.prototype.onMoreNewsClicked = function() {
+      loadingIndicator.display();
+      if (this.lastDate) {
+        this.moreMicroposts.url = this.currentPath + this.lastDate;
+      } else {
+        this.moreMicroposts.url = this.currentPath;
+      }
+      this.moreMicroposts.fetch();
+      return this.moreMicroposts;
+    };
     /* Functions  */
     NewsView.prototype.clearNews = function() {
       $("#micro-posts").empty();
@@ -331,14 +372,14 @@
     };
     NewsView.prototype.appendOne = function(micropost) {
       var el, row;
-      row = new MicroPostRow(micropost);
+      row = new MicroPostRow(micropost, this);
       el = row.render();
       $("#micro-posts").append(el);
       return row;
     };
     NewsView.prototype.prependOne = function(micropost) {
       var el, row;
-      row = new MicroPostRow(micropost);
+      row = new MicroPostRow(micropost, this);
       el = row.render();
       $("#micro-posts").prepend(el);
       loadingIndicator.hide();
@@ -360,6 +401,7 @@
     };
     NewsView.prototype.reloadMicroPosts = function(date, path) {
       loadingIndicator.display();
+      this.selectedRow = null;
       this.microposts.url = this.currentPath;
       if (date) {
         this.microposts.url = this.currentPath + date + '-23-59-00/';
@@ -368,6 +410,7 @@
       return this.microposts;
     };
     NewsView.prototype.fetch = function() {
+      this.selectedRow = null;
       this.microposts.fetch();
       return this.microposts;
     };
@@ -396,16 +439,6 @@
       $("#id_content").val(null);
       $("#id_content").focus();
       return false;
-    };
-    NewsView.prototype.onMoreNewsClicked = function() {
-      loadingIndicator.display();
-      if (this.lastDate) {
-        this.moreMicroposts.url = this.currentPath + this.lastDate;
-      } else {
-        this.moreMicroposts.url = this.currentPath;
-      }
-      this.moreMicroposts.fetch();
-      return this.moreMicroposts;
     };
     /* UI Builders  */
     NewsView.prototype.setListeners = function() {

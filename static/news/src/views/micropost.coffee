@@ -22,24 +22,34 @@ class MicroPostRow extends Backbone.View
     "click .news-micropost-delete": "onDeleteClicked"
     "mouseover" : "onMouseOver"
     "mouseout" : "onMouseOut"
+    "click" : "onClick"
     "click .news-micropost-author": "onAuthorClicked"
 
   # Constructor : register view and set HTML element id.
-  constructor: (@model) ->
+  constructor: (@model, @mainView) ->
     super()
     @id = @model.id
          
     @model.view = @
+    @selected = false
     
   ### Listeners ###
 
-  # When mouse is over delete button is shown.
+  # When mouse is over background changes.
   onMouseOver: ->
-    @$(".news-micropost-delete").show()
+    if not @selected
+      $(@el).addClass("mouseover")
 
-  # When mouse is out delete button is hidden.
+  # When mouse is out background come back to normal.
   onMouseOut: ->
-    @$(".news-micropost-delete").hide()
+    $(@el).removeClass("mouseover")
+
+  # When row is clicked, it is selected : background changes and delete
+  # button is displayed. Previously selected row is deselected.
+  # This is handled by the main view.
+  onClick: ->
+    @mainView.onRowClicked(@)
+
 
   # When delete button is clicked, it displays a confirmation dialog box.
   # When deletion is confirmed, delete request is sent to server and micropost
@@ -59,7 +69,8 @@ class MicroPostRow extends Backbone.View
       $("#news-preview").html(data)
     )
 
-    event.preventDefault()
+    if event
+      event.preventDefault()
     false
 
   ### Functions ###
@@ -81,4 +92,16 @@ class MicroPostRow extends Backbone.View
     @$(".news-micropost-delete").hide()
     @el
 
-
+  # Show delete button and set "selected" style.
+  select: ->
+    @$(".news-micropost-delete").show()
+    $(@el).removeClass("mouseover")
+    $(@el).addClass("selected")
+    @onAuthorClicked(null)
+    
+  # Hide delete button and remove "selected" style.
+  deselect: ->
+    @$(".news-micropost-delete").hide()
+    $(@el).removeClass("selected")
+    $("#news-preview").html(null)
+    
