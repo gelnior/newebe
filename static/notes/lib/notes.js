@@ -342,13 +342,22 @@
       NoteRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
+      this.selected = false;
     }
     /* Listeners */
     NoteRow.prototype.onRowClicked = function(event) {
       return this.view.onRowClicked(this);
     };
-    NoteRow.prototype.onMouseOver = function() {};
-    NoteRow.prototype.onMouseOut = function() {};
+    NoteRow.prototype.onMouseOver = function() {
+      if (!this.selected) {
+        this.titleField.addClass("mouseover");
+        return $(this.el).addClass("mouseover");
+      }
+    };
+    NoteRow.prototype.onMouseOut = function() {
+      this.titleField.removeClass("mouseover");
+      return $(this.el).removeClass("mouseover");
+    };
     NoteRow.prototype.onTitleKeyUp = function(event) {
       this.model.setTitle(this.titleField.val());
       return this.model.save();
@@ -377,13 +386,15 @@
       $(this.el).addClass("selected");
       this.titleField.addClass("selected");
       this.deleteButton.show();
-      return this.editButton.show();
+      this.editButton.show();
+      return this.selected = true;
     };
     NoteRow.prototype.unselect = function() {
       $(this.el).removeClass("selected");
       this.titleField.removeClass("selected");
       this.deleteButton.hide();
-      return this.editButton.hide();
+      this.editButton.hide();
+      return this.selected = false;
     };
     NoteRow.prototype.focusTitle = function() {
       return this.titleField.focus();
@@ -463,4 +474,5 @@
   notesApp.setWidgets();
   notesApp.setListeners();
   notesApp.reloadNotes();
+  Backbone.history.start();
 }).call(this);
