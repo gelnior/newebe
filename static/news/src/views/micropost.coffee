@@ -40,7 +40,7 @@ class MicroPostRow extends Backbone.View
     if not @selected
       $(@el).addClass("mouseover")
 
-  # When mouse is out background come back to normal.
+  # When mouse is out background comes back to normal.
   onMouseOut: ->
     $(@el).removeClass("mouseover")
 
