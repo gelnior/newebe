@@ -82,6 +82,7 @@ class NewsView extends Backbone.View
     @reloadMicroPosts(null)
     event
 
+
   # When all news is clicked it reloads news from contacts and user since today.
   onAllClicked: (event) ->
     $("#news-all-button").button("disable")

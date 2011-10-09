@@ -203,7 +203,8 @@
       return confirmationDialog.display("Are you sure you want to delete this post ?", __bind(function() {
         confirmationDialog.hide();
         model["delete"]();
-        return this.mainView.selectedRow = null;
+        this.mainView.selectedRow = null;
+        return $("#news-preview").html(null);
       }, this));
     };
     MicroPostRow.prototype.onAuthorClicked = function(event) {
