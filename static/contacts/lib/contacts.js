@@ -90,7 +90,7 @@
       Contact.__super__.constructor.apply(this, arguments);
       this.set('url', contact.url);
       this.set('name', contact.name);
-      this.set('cid', contact.key);
+      this.set('key', contact.key);
       this.id = contact.slug + "/";
       if (contact.state) {
         this.set('state', contact.state);
@@ -158,27 +158,36 @@
       "click .platform-contact-wap": "onConfirmClicked",
       "click .platform-contact-retry": "onRetryClicked",
       "click .contact-name": "onNameClicked",
+      "click": "onClick",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut"
     };
-    function ContactRow(model) {
+    function ContactRow(model, mainView) {
       this.model = model;
+      this.mainView = mainView;
       ContactRow.__super__.constructor.call(this);
       this.model.view = this;
     }
     ContactRow.prototype.onMouseOver = function() {
-      return this.$(".platform-contact-row-buttons").show();
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
     };
     ContactRow.prototype.onMouseOut = function() {
-      return this.$(".platform-contact-row-buttons").hide();
+      return $(this.el).removeClass("mouseover");
+    };
+    ContactRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
     };
     ContactRow.prototype.onDeleteClicked = function() {
       var model;
       model = this.model;
-      return confirmationDialog.display("Are you sure you want to delete this contact ?", function() {
+      return confirmationDialog.display("Are you sure you want to delete this contact ?", __bind(function() {
         confirmationDialog.hide();
-        return model["delete"]();
-      });
+        model["delete"]();
+        this.mainView.selectedRow = null;
+        return $("#contact-preview").html(null);
+      }, this));
     };
     ContactRow.prototype.onRetryClicked = function() {
       return $.ajax({
@@ -202,7 +211,9 @@
       $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
         return $("#contact-preview").html(data);
       });
-      event.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       return false;
     };
     ContactRow.prototype.remove = function() {
@@ -223,6 +234,17 @@
         this.$(".platform-contact-retry").hide();
       }
       return this.el;
+    };
+    ContactRow.prototype.select = function() {
+      this.$(".platform-contact-row-buttons").show();
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      return this.onNameClicked(null);
+    };
+    ContactRow.prototype.deselect = function() {
+      this.$(".platform-contact-row-buttons").hide();
+      $(this.el).removeClass("selected");
+      return $("#contact-preview").html(null);
     };
     return ContactRow;
   })();
@@ -246,7 +268,8 @@
       this.contacts = new ContactCollection;
       this.tutorialOn = true;
       this.contacts.bind('add', this.prependOne);
-      return this.contacts.bind('reset', this.addAll);
+      this.contacts.bind('reset', this.addAll);
+      return this.selectedRow = null;
     };
     ContactView.prototype.onPostClicked = function(event) {
       event.preventDefault();
@@ -267,10 +290,20 @@
     };
     ContactView.prototype.onFilterClicked = function(filterClicked, path) {
       if (this.lastFilterClicked !== filterClicked) {
+        this.selectedRow = null;
         $(filterClicked).button("option", "disabled", true);
         $(this.lastFilterClicked).button("option", "disabled", false);
         this.lastFilterClicked = filterClicked;
         return this.reloadContacts(path);
+      }
+    };
+    ContactView.prototype.onRowClicked = function(row) {
+      if (row !== this.selectedRow) {
+        if (this.selectedRow) {
+          this.selectedRow.deselect();
+        }
+        row.select();
+        return this.selectedRow = row;
       }
     };
     /* Functions */
@@ -300,14 +333,18 @@
     };
     ContactView.prototype.appendOne = function(contact) {
       var el, row;
-      row = new ContactRow(contact);
+      row = new ContactRow(contact, this);
       el = row.render();
       $("#contacts").append(el);
+      if (this.tutorialOn) {
+        this.displayTutorial(2);
+        this.tutorialOn = false;
+      }
       return row;
     };
     ContactView.prototype.prependOne = function(contact) {
       var el, row;
-      row = new ContactRow(contact);
+      row = new ContactRow(contact, this);
       el = row.render();
       $("#contacts").prepend(el);
       loadingIndicator.hide();

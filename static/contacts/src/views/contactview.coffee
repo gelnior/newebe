@@ -26,9 +26,12 @@ class ContactView extends Backbone.View
 
     @contacts.bind('add', @prependOne)
     @contacts.bind('reset', @addAll)
-        
+       
+    @selectedRow = null
+
 
   ## Event listeners ##
+
 
   # When post button is clicked the contact request is posted.
   onPostClicked: (event) ->
@@ -36,10 +39,12 @@ class ContactView extends Backbone.View
     @postNewContact()
     event
 
+
   # When all button is clicked, list is refreshed with the whole contact list.
   onAllClicked: (event) ->
     event.preventDefault()
     @onFilterClicked("#contact-all-button", "/contacts/")
+
 
   # When pending button is clicked, list is refreshed with the list of contacts
   # that are waiting for an answer.
@@ -47,24 +52,38 @@ class ContactView extends Backbone.View
     event.preventDefault()
     @onFilterClicked("#contact-pending-button", "/contacts/pending/")
 
+
   # When requested button is clicked, list is refreshed with the list of 
   # contacts that needs a confirmation.
   onRequestedClicked: (event) ->
     event.preventDefault()
     @onFilterClicked("#contact-request-button", "/contacts/requested/")
 
+
   # When a filter button is clicked, it checks which button has been
   # clicked last time : enables this button then disable button thats has
   # been clicked before.
   onFilterClicked: (filterClicked, path) ->
     if(@lastFilterClicked != filterClicked)
+      @selectedRow = null
       $(filterClicked).button( "option", "disabled", true )
       $(@lastFilterClicked).button( "option", "disabled", false )
       @lastFilterClicked = filterClicked
       @reloadContacts(path)
 
 
+  # Select clicked row and deselect previously clicked row.
+  onRowClicked: (row) ->
+
+    if row != @selectedRow
+      if @selectedRow
+        @selectedRow.deselect()
+      row.select()
+      @selectedRow = row
+
+
   ### Functions ###
+
 
   # Reloads contact list (whole list).
   reloadContacts: (url) ->
@@ -73,6 +92,7 @@ class ContactView extends Backbone.View
     @contacts.url = url
     @contacts.fetch()
     @contacts
+
 
   # Clears contact list then display more news button.
   clearContacts: ->
@@ -92,16 +112,21 @@ class ContactView extends Backbone.View
     loadingIndicator.hide()
     @contacts
 
+
   # Append *contact* to the beginning of current contact list (render it).
   appendOne: (contact) ->
-    row = new ContactRow contact
+    row = new ContactRow contact, @
     el = row.render()
     $("#contacts").append(el)
+    if @tutorialOn
+       @displayTutorial(2)
+       @tutorialOn = false
     row
+
 
   # Prepend *contact* to the end of current contact list (render it).
   prependOne: (contact) ->
-    row = new ContactRow contact
+    row = new ContactRow contact, @
     el = row.render()
     $("#contacts").prepend(el)
     loadingIndicator.hide()
@@ -109,9 +134,11 @@ class ContactView extends Backbone.View
        @displayTutorial(2)
        @tutorialOn = false
 
+
   # Clears contact list then display more news button.
   clearContacts: ->
     $("#contacts").empty()
+
 
   # Clears post field and focus it.
   clearPostField: () ->
@@ -119,16 +146,19 @@ class ContactView extends Backbone.View
     $("#contact-url-field").focus()
     $("#contact-url-field")
 
+
   # Clears url field and focus it.
   clearPostField: () ->
     $("#contact-url-field").val(null)
     $("#contact-url-field").focus()
     $("#contact-url-field")
 
+
   # Reloads contact list.
   fetch: () ->
     @contacts.fetch()
     @contacts
+
 
   # Send a post request to server and add current at the beginning of current 
   # contact list.
@@ -151,6 +181,7 @@ class ContactView extends Backbone.View
     
     false
 
+
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get(
@@ -158,7 +189,10 @@ class ContactView extends Backbone.View
       (data) -> $("#tutorial-contact").html(data)
     )
 
+
   ### UI Builders ###
+
+
 
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
@@ -170,6 +204,7 @@ class ContactView extends Backbone.View
         contactApp.onPendingClicked(event))
     $("#contact-request-button").click((event) ->
         contactApp.onRequestedClicked(event))
+
 
   # Build JQuery widgets.
   setWidgets: ->
