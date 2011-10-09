@@ -101,6 +101,7 @@ class NewsView extends Backbone.View
     @clearNews()
     @reloadMicroPosts(sinceDate)
 
+
   # Select clicked row and deselect previously clicked row.
   onRowClicked: (row) ->
 
@@ -109,18 +110,6 @@ class NewsView extends Backbone.View
         @selectedRow.deselect()
       row.select()
       @selectedRow = row
-
-
-  #  if @selectedRow and row != @selectedRow
-  #    @selectedRow.deselect()
-  #    row.select()
-  #    @selectedRow = row
-
-  #  if not @selectedRow
-  #    row.select()
-  #    @selectedRow = row
-    
-
 
   
   # When more news is clicked, GET URL is updated with last register date,
