@@ -11,17 +11,8 @@ fs = require 'fs'
 {exec} = require 'child_process'
 
 
-<<<<<<< HEAD
-# File to compile
-appFiles  = [
-  '../../platform/src/views/formdialog'
-  'models/profile',
-  'views/profileview',
-  'profile'
-=======
 # Additional files to add to file that can be found in source directory.:
 appFiles = [
->>>>>>> 5f3d1060a7e5a7bd622367cdccf5b21b7eb94af2
 ]
 # Source files (automatically filled)
 srcFiles = []
