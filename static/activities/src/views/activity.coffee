@@ -37,9 +37,12 @@ class ActivityRow extends Backbone.View
 
 
   ### Events ###
+
+
   events:
     "mouseover" : "onMouseOver"
     "mouseout" : "onMouseOut"
+    "click" : "onClick"
     "click .doc-ref": "onDocRefClicked"
     "click .activity-author": "onActivityAuthorClicked"
     "click .activity-error-number": "onErrorNumberClicked"
@@ -47,29 +50,40 @@ class ActivityRow extends Backbone.View
 
 
   # Constructor : register view and set HTML element id.
-  constructor: (@model) ->
+  constructor: (@model, @mainView) ->
     super()
     @id = @model.id
          
     @model.view = @
+    @selected = false
+    @authorDisplayed = false
+
     
   ### Listeners ###
 
 
-  # When mouse is over...
+  # When mouse is over, background changes.
   onMouseOver: ->
-    $(@el).addClass("hover-line")
+    if not @selected
+      $(@el).addClass("mouseover")
 
 
-  # When mouse is out...
+  # When mouse is out, background comes back to normal.
   onMouseOut: ->
-    $(@el).removeClass("hover-line")
+    $(@el).removeClass("mouseover")
     
+
+  # When row is clicked, it is selected : background changes. 
+  # Previously selected row is deselected.
+  # This is handled by the main view.
+  onClick: ->
+    @mainView.onRowClicked(@)
       
+
   # When doc ref is clicked, if it is a micropost, micropost is displayed 
   # in the preview section, same for notes.
   onDocRefClicked: (event) ->
-    if @model.getDocType() == "micropost"
+    if @model.getDocType() == "micropost" and @model.getMethod() == "POST"
         $.get("/news/micropost/" + @model.getDocId() + "/html/", (data) ->
           $("#activities-preview").html(data)
         )
@@ -78,15 +92,20 @@ class ActivityRow extends Backbone.View
           $("#activities-preview").html(data)
         )
 
-    event.preventDefault()
+    if event
+        event.preventDefault()
     false
 
 
   # When activity author is clicked, the author profile is displayed.
   onActivityAuthorClicked: (event) ->
-    $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
-      $("#activities-preview").html(data)
-    )
+    if not @authorDisplayed
+      $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) =>
+        $("#activities-preview").append("<p>&nbsp;</p>")
+        $("#activities-preview").append("<p>Author profile: </p>")
+        $("#activities-preview").append(data)
+        @authorDisplayed = true
+      )
 
     event.preventDefault()
     false
@@ -153,4 +172,18 @@ class ActivityRow extends Backbone.View
     @$(".activity-errors").hide()
     @el
 
+
+  # Set "selected" style and displays activities data if needed.
+  select: ->
+    $(@el).removeClass("mouseover")
+    $(@el).addClass("selected")
+    $("#activities-preview").empty()
+    @onDocRefClicked(null)
+    
+    
+  # Hide delete button and remove "selected" style.
+  deselect: ->
+    $(@el).removeClass("selected")
+    $("#news-preview").html(null)
+    @authorDisplayed = false
 

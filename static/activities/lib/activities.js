@@ -181,26 +181,35 @@
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
+      "click": "onClick",
       "click .doc-ref": "onDocRefClicked",
       "click .activity-author": "onActivityAuthorClicked",
       "click .activity-error-number": "onErrorNumberClicked",
       "click .activity-error-resend": "onErrorResendClicked"
     };
-    function ActivityRow(model) {
+    function ActivityRow(model, mainView) {
       this.model = model;
+      this.mainView = mainView;
       ActivityRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
+      this.selected = false;
+      this.authorDisplayed = false;
     }
     /* Listeners */
     ActivityRow.prototype.onMouseOver = function() {
-      return $(this.el).addClass("hover-line");
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
     };
     ActivityRow.prototype.onMouseOut = function() {
-      return $(this.el).removeClass("hover-line");
+      return $(this.el).removeClass("mouseover");
+    };
+    ActivityRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
     };
     ActivityRow.prototype.onDocRefClicked = function(event) {
-      if (this.model.getDocType() === "micropost") {
+      if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
         $.get("/news/micropost/" + this.model.getDocId() + "/html/", function(data) {
           return $("#activities-preview").html(data);
         });
@@ -209,13 +218,20 @@
           return $("#activities-preview").html(data);
         });
       }
-      event.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       return false;
     };
     ActivityRow.prototype.onActivityAuthorClicked = function(event) {
-      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
-        return $("#activities-preview").html(data);
-      });
+      if (!this.authorDisplayed) {
+        $.get("/contacts/render/" + this.model.getAuthorKey() + "/", __bind(function(data) {
+          $("#activities-preview").append("<p>&nbsp;</p>");
+          $("#activities-preview").append("<p>Author profile: </p>");
+          $("#activities-preview").append(data);
+          return this.authorDisplayed = true;
+        }, this));
+      }
       event.preventDefault();
       return false;
     };
@@ -276,6 +292,17 @@
       this.$(".activity-errors").hide();
       return this.el;
     };
+    ActivityRow.prototype.select = function() {
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      $("#activities-preview").empty();
+      return this.onDocRefClicked(null);
+    };
+    ActivityRow.prototype.deselect = function() {
+      $(this.el).removeClass("selected");
+      $("#news-preview").html(null);
+      return this.authorDisplayed = false;
+    };
     return ActivityRow;
   })();
   ActivitiesView = (function() {
@@ -289,11 +316,13 @@
       "click #activities-more": "onMoreActivitiesClicked"
     };
     function ActivitiesView() {
-      ActivitiesView.__super__.constructor.apply(this, arguments);
+      this.prependOne = __bind(this.prependOne, this);;
+      this.appendOne = __bind(this.appendOne, this);;
+      this.addAll = __bind(this.addAll, this);;
+      this.addAllMore = __bind(this.addAllMore, this);;      ActivitiesView.__super__.constructor.apply(this, arguments);
     }
     ActivitiesView.prototype.initialize = function() {
-      _.bindAll(this, 'appendOne', 'prependOne', 'addAll');
-      _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked', 'addAllMore');
+      _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked');
       _.bindAll(this, 'onDatePicked');
       this.tutorialOn = true;
       this.activities = new ActivityCollection;
@@ -301,7 +330,8 @@
       this.activities.bind('reset', this.addAll);
       this.moreActivities = new ActivityCollection;
       this.moreActivities.bind('reset', this.addAllMore);
-      return this.currentPath = '/activities/all/';
+      this.currentPath = '/activities/all/';
+      return this.selectedRow = null;
     };
     /* Listeners  */
     ActivitiesView.prototype.onMineClicked = function(event) {
@@ -341,6 +371,15 @@
       this.clearActivities();
       return this.reloadActivities(sinceDate);
     };
+    ActivitiesView.prototype.onRowClicked = function(row) {
+      if (row !== this.selectedRow) {
+        if (this.selectedRow) {
+          this.selectedRow.deselect();
+        }
+        row.select();
+        return this.selectedRow = row;
+      }
+    };
     /* Functions  */
     ActivitiesView.prototype.clearActivities = function() {
       $("#activity-list").empty();
@@ -379,14 +418,14 @@
     };
     ActivitiesView.prototype.appendOne = function(activity) {
       var el, row;
-      row = new ActivityRow(activity);
+      row = new ActivityRow(activity, this);
       el = row.render();
       $("#activity-list").append(el);
       return row;
     };
     ActivitiesView.prototype.prependOne = function(activity) {
       var el, row;
-      row = new ActivityRow(activity);
+      row = new ActivityRow(activity, this);
       el = row.render();
       $("#activity-list").prepend(el);
       loadingIndicator.hide();
@@ -403,6 +442,7 @@
     };
     ActivitiesView.prototype.reloadActivities = function(date, path) {
       loadingIndicator.display();
+      this.selectedRow = null;
       this.activities.url = this.currentPath;
       if (date) {
         this.activities.url = this.currentPath + date + '-23-59-00/';

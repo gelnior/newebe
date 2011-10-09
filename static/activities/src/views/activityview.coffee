@@ -20,8 +20,7 @@ class ActivitiesView extends Backbone.View
   # Initiliaze binds functions to this view, sets up activities colleciton
   # behaviours.
   initialize: ->
-    _.bindAll(this, 'appendOne', 'prependOne', 'addAll')
-    _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked', 'addAllMore')
+    _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked')
     _.bindAll(this, 'onDatePicked')
 
     @tutorialOn = true
@@ -35,6 +34,7 @@ class ActivitiesView extends Backbone.View
 
     @currentPath = '/activities/all/'
 
+    @selectedRow = null
 
   ### Listeners  ###
 
@@ -64,7 +64,6 @@ class ActivitiesView extends Backbone.View
   # When sync button is clicked, the sync service is called, then user is
   # notified that sync process started.
   onSyncClicked: (event) ->
-
     $.ajax(
       url: "/synchronize/"
       success: () ->
@@ -88,6 +87,16 @@ class ActivitiesView extends Backbone.View
     @reloadActivities(sinceDate)
 
 
+  # Select clicked row and deselect previously clicked row.
+  onRowClicked: (row) ->
+
+    if row != @selectedRow
+      if @selectedRow
+        @selectedRow.deselect()
+      row.select()
+      @selectedRow = row
+
+
   ### Functions  ###
 
   
@@ -100,7 +109,7 @@ class ActivitiesView extends Backbone.View
   # Add more activties to current list. It skips first result to not display 
   # again last post. If less thant 30 rows are returned, 
   # it means that there are no more posts, so more button is hidden.
-  addAllMore: ->
+  addAllMore: =>
     activitiesArray = @moreActivities.toArray().reverse()
     activitiesArray = _.rest(activitiesArray)
     _.each(activitiesArray, @appendOne)
@@ -116,7 +125,7 @@ class ActivitiesView extends Backbone.View
   
   # Add activities to current list. If less than 30 rows are returned, 
   # it means that there are no more activities, so more button is hidden.
-  addAll: ->
+  addAll: =>
     if @activities.length > 0
       @tutorialOn = false
       @lastDate = @activities.first().getUrlDate()
@@ -135,8 +144,8 @@ class ActivitiesView extends Backbone.View
 
    
   # Append *activity* to the beginning of current activity list (render it).
-  appendOne: (activity) ->
-    row = new ActivityRow activity
+  appendOne: (activity) =>
+    row = new ActivityRow activity, @
     el = row.render()
     $("#activity-list").append(el)
     row
@@ -144,8 +153,8 @@ class ActivitiesView extends Backbone.View
    
   # Prepend *activity* to the end of current activity list (render it).
   # Displays second tutorial if tutorial mode is on.
-  prependOne: (activity) ->
-    row = new ActivityRow activity
+  prependOne: (activity) =>
+    row = new ActivityRow activity, @
     el = row.render()
     $("#activity-list").prepend(el)
     loadingIndicator.hide()
@@ -165,6 +174,8 @@ class ActivitiesView extends Backbone.View
   # Clears activity lists and reload activities until *date*.
   reloadActivities: (date, path) ->
     loadingIndicator.display()
+
+    @selectedRow = null
     @activities.url = @currentPath
     if date
       @activities.url = @currentPath + date + '-23-59-00/'

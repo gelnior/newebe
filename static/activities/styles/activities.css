@@ -1,6 +1,7 @@
 #activity-list {
   margin: 20px 0 20px 0;
   font-size: 13px;
+  border-top: 1px solid #ccc;
 }
 #activity-list a {
   text-decoration: none;
@@ -11,7 +12,7 @@
   text-decoration: underline;
 }
 .activity-row {
-  border-bottom: 1px solid #aaa;
+  border-bottom: 1px solid #ccc;
   padding: 10px 0 10px 0;
 }
 .activity-error-number {
@@ -27,7 +28,4 @@
 }
 span.activity-error-resend:hover {
   text-decoration: underline;
-}
-.hover-line {
-  background-color: #def;
 }
