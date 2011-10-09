@@ -62,6 +62,7 @@ class MicroPostRow extends Backbone.View
           confirmationDialog.hide()
           model.delete()
           @mainView.selectedRow = null
+          $("#news-preview").html(data)
     )
 
   # When author name is clicked, its data are displayed in the preview zone.
