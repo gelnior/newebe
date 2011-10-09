@@ -83,6 +83,35 @@
     };
     return LoadingIndicator;
   })();
+  NotesController = (function() {
+    function NotesController() {
+      NotesController.__super__.constructor.apply(this, arguments);
+    }
+    __extends(NotesController, Backbone.Router);
+    NotesController.prototype.routes = {
+      "notes/sort-date/": "sortByDate",
+      "notes/sort-title/": "sortByTitle",
+      "notes/sort-date/:slug": "sortByDateAndDisplayNote",
+      "notes/sort-title/:slug": "sortByTitleAndDisplayNote"
+    };
+    NotesController.prototype.registerView = function(view) {
+      return this.view = view;
+    };
+    NotesController.prototype.sortByDate = function() {
+      alert("ok");
+      return this.view.sortNotesByDate();
+    };
+    NotesController.prototype.sortByTitle = function() {
+      return this.view.sortNotesByTitle();
+    };
+    NotesController.prototype.sortByDateAndDisplayNote = function(slug) {
+      return this.view.sortNotesByDate();
+    };
+    NotesController.prototype.sortByTitleAndDisplayNote = function(slug) {
+      return this.view.sortNotesByTitle();
+    };
+    return NotesController;
+  })();
   NoteRow = (function() {
     __extends(NoteRow, Backbone.View);
     NoteRow.prototype.tagName = "div";
@@ -102,13 +131,22 @@
       NoteRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
+      this.selected = false;
     }
     /* Listeners */
     NoteRow.prototype.onRowClicked = function(event) {
       return this.view.onRowClicked(this);
     };
-    NoteRow.prototype.onMouseOver = function() {};
-    NoteRow.prototype.onMouseOut = function() {};
+    NoteRow.prototype.onMouseOver = function() {
+      if (!this.selected) {
+        this.titleField.addClass("mouseover");
+        return $(this.el).addClass("mouseover");
+      }
+    };
+    NoteRow.prototype.onMouseOut = function() {
+      this.titleField.removeClass("mouseover");
+      return $(this.el).removeClass("mouseover");
+    };
     NoteRow.prototype.onTitleKeyUp = function(event) {
       this.model.setTitle(this.titleField.val());
       return this.model.save();
@@ -137,13 +175,15 @@
       $(this.el).addClass("selected");
       this.titleField.addClass("selected");
       this.deleteButton.show();
-      return this.editButton.show();
+      this.editButton.show();
+      return this.selected = true;
     };
     NoteRow.prototype.unselect = function() {
       $(this.el).removeClass("selected");
       this.titleField.removeClass("selected");
       this.deleteButton.hide();
-      return this.editButton.hide();
+      this.editButton.hide();
+      return this.selected = false;
     };
     NoteRow.prototype.focusTitle = function() {
       return this.titleField.focus();
@@ -197,7 +237,7 @@
       "click #notes-sort-title-button": "onSortTitleClicked"
     };
     function NotesView(controller) {
-      this.onSortDateClicked = __bind(this.onSortDateClicked, this);      NotesView.__super__.constructor.call(this);
+      this.onSortDateClicked = __bind(this.onSortDateClicked, this);;      NotesView.__super__.constructor.call(this);
       this.controller = controller;
       controller.registerView(this);
     }
@@ -416,45 +456,16 @@
     return Note;
   })();
   NoteCollection = (function() {
-    __extends(NoteCollection, Backbone.Collection);
     function NoteCollection() {
       NoteCollection.__super__.constructor.apply(this, arguments);
     }
+    __extends(NoteCollection, Backbone.Collection);
     NoteCollection.prototype.model = Note;
     NoteCollection.prototype.url = '/notes/all/';
     NoteCollection.prototype.parse = function(response) {
       return response.rows;
     };
     return NoteCollection;
-  })();
-  NotesController = (function() {
-    __extends(NotesController, Backbone.Router);
-    function NotesController() {
-      NotesController.__super__.constructor.apply(this, arguments);
-    }
-    NotesController.prototype.routes = {
-      "notes/sort-date/": "sortByDate",
-      "notes/sort-title/": "sortByTitle",
-      "notes/sort-date/:slug": "sortByDateAndDisplayNote",
-      "notes/sort-title/:slug": "sortByTitleAndDisplayNote"
-    };
-    NotesController.prototype.registerView = function(view) {
-      return this.view = view;
-    };
-    NotesController.prototype.sortByDate = function() {
-      alert("ok");
-      return this.view.sortNotesByDate();
-    };
-    NotesController.prototype.sortByTitle = function() {
-      return this.view.sortNotesByTitle();
-    };
-    NotesController.prototype.sortByDateAndDisplayNote = function(slug) {
-      return this.view.sortNotesByDate();
-    };
-    NotesController.prototype.sortByTitleAndDisplayNote = function(slug) {
-      return this.view.sortNotesByTitle();
-    };
-    return NotesController;
   })();
   notesController = new NotesController;
   notesApp = new NotesView(notesController);

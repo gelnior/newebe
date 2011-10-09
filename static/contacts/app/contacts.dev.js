@@ -83,6 +83,106 @@
     };
     return LoadingIndicator;
   })();
+  ContactRow = (function() {
+    __extends(ContactRow, Backbone.View);
+    ContactRow.prototype.tagName = "div";
+    ContactRow.prototype.className = "platform-contact-row";
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a class="contact-name" href=""><%= name %></a> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.events = {
+      "click .platform-contact-delete": "onDeleteClicked",
+      "click .platform-contact-wap": "onConfirmClicked",
+      "click .platform-contact-retry": "onRetryClicked",
+      "click .contact-name": "onNameClicked",
+      "click": "onClick",
+      "mouseover": "onMouseOver",
+      "mouseout": "onMouseOut"
+    };
+    function ContactRow(model, mainView) {
+      this.model = model;
+      this.mainView = mainView;
+      ContactRow.__super__.constructor.call(this);
+      this.model.view = this;
+    }
+    ContactRow.prototype.onMouseOver = function() {
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
+    };
+    ContactRow.prototype.onMouseOut = function() {
+      return $(this.el).removeClass("mouseover");
+    };
+    ContactRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
+    };
+    ContactRow.prototype.onDeleteClicked = function() {
+      var model;
+      model = this.model;
+      return confirmationDialog.display("Are you sure you want to delete this contact ?", __bind(function() {
+        confirmationDialog.hide();
+        model["delete"]();
+        this.mainView.selectedRow = null;
+        return $("#contact-preview").html(null);
+      }, this));
+    };
+    ContactRow.prototype.onRetryClicked = function() {
+      return $.ajax({
+        type: "POST",
+        url: "/contacts/" + this.model.id + "retry/",
+        data: '{"slug":"' + this.model.slug + '"}',
+        dataType: "json",
+        success: __bind(function(data) {
+          this.model.state = "PENDING";
+          return this.$(".platform-contact-state").html("(Pending)");
+        }, this),
+        error: function(data) {
+          return infoDialog.display("Contact request failed.");
+        }
+      });
+    };
+    ContactRow.prototype.onConfirmClicked = function() {
+      return this.model.saveToDb();
+    };
+    ContactRow.prototype.onNameClicked = function(event) {
+      $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
+        return $("#contact-preview").html(data);
+      });
+      if (event) {
+        event.preventDefault();
+      }
+      return false;
+    };
+    ContactRow.prototype.remove = function() {
+      return $(this.el).remove();
+    };
+    ContactRow.prototype.refresh = function(state) {
+      return this.$(".platform-contact-state").text("(" + state + ")");
+    };
+    ContactRow.prototype.render = function() {
+      var state;
+      $(this.el).html(this.template(this.model.toJSON()));
+      this.$(".platform-contact-delete").button();
+      this.$(".platform-contact-retry").button();
+      this.$(".platform-contact-wap").button();
+      this.$(".platform-contact-row-buttons").hide();
+      state = this.model.getState();
+      if (state !== "Error" && state !== "pending") {
+        this.$(".platform-contact-retry").hide();
+      }
+      return this.el;
+    };
+    ContactRow.prototype.select = function() {
+      this.$(".platform-contact-row-buttons").show();
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      return this.onNameClicked(null);
+    };
+    ContactRow.prototype.deselect = function() {
+      this.$(".platform-contact-row-buttons").hide();
+      $(this.el).removeClass("selected");
+      return $("#contact-preview").html(null);
+    };
+    return ContactRow;
+  })();
   /* Main view for contact application */
   ContactView = (function() {
     __extends(ContactView, Backbone.View);
@@ -103,7 +203,8 @@
       this.contacts = new ContactCollection;
       this.tutorialOn = true;
       this.contacts.bind('add', this.prependOne);
-      return this.contacts.bind('reset', this.addAll);
+      this.contacts.bind('reset', this.addAll);
+      return this.selectedRow = null;
     };
     ContactView.prototype.onPostClicked = function(event) {
       event.preventDefault();
@@ -124,10 +225,20 @@
     };
     ContactView.prototype.onFilterClicked = function(filterClicked, path) {
       if (this.lastFilterClicked !== filterClicked) {
+        this.selectedRow = null;
         $(filterClicked).button("option", "disabled", true);
         $(this.lastFilterClicked).button("option", "disabled", false);
         this.lastFilterClicked = filterClicked;
         return this.reloadContacts(path);
+      }
+    };
+    ContactView.prototype.onRowClicked = function(row) {
+      if (row !== this.selectedRow) {
+        if (this.selectedRow) {
+          this.selectedRow.deselect();
+        }
+        row.select();
+        return this.selectedRow = row;
       }
     };
     /* Functions */
@@ -157,14 +268,18 @@
     };
     ContactView.prototype.appendOne = function(contact) {
       var el, row;
-      row = new ContactRow(contact);
+      row = new ContactRow(contact, this);
       el = row.render();
       $("#contacts").append(el);
+      if (this.tutorialOn) {
+        this.displayTutorial(2);
+        this.tutorialOn = false;
+      }
       return row;
     };
     ContactView.prototype.prependOne = function(contact) {
       var el, row;
-      row = new ContactRow(contact);
+      row = new ContactRow(contact, this);
       el = row.render();
       $("#contacts").prepend(el);
       loadingIndicator.hide();
@@ -249,84 +364,6 @@
     };
     return ContactView;
   })();
-  ContactRow = (function() {
-    __extends(ContactRow, Backbone.View);
-    ContactRow.prototype.tagName = "div";
-    ContactRow.prototype.className = "platform-contact-row";
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a class="contact-name" href=""><%= name %></a> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
-    ContactRow.prototype.events = {
-      "click .platform-contact-delete": "onDeleteClicked",
-      "click .platform-contact-wap": "onConfirmClicked",
-      "click .platform-contact-retry": "onRetryClicked",
-      "click .contact-name": "onNameClicked",
-      "mouseover": "onMouseOver",
-      "mouseout": "onMouseOut"
-    };
-    function ContactRow(model) {
-      this.model = model;
-      ContactRow.__super__.constructor.call(this);
-      this.model.view = this;
-    }
-    ContactRow.prototype.onMouseOver = function() {
-      return this.$(".platform-contact-row-buttons").show();
-    };
-    ContactRow.prototype.onMouseOut = function() {
-      return this.$(".platform-contact-row-buttons").hide();
-    };
-    ContactRow.prototype.onDeleteClicked = function() {
-      var model;
-      model = this.model;
-      return confirmationDialog.display("Are you sure you want to delete this contact ?", function() {
-        confirmationDialog.hide();
-        return model["delete"]();
-      });
-    };
-    ContactRow.prototype.onRetryClicked = function() {
-      return $.ajax({
-        type: "POST",
-        url: "/contacts/" + this.model.id + "retry/",
-        data: '{"slug":"' + this.model.slug + '"}',
-        dataType: "json",
-        success: __bind(function(data) {
-          this.model.state = "PENDING";
-          return this.$(".platform-contact-state").html("(Pending)");
-        }, this),
-        error: function(data) {
-          return infoDialog.display("Contact request failed.");
-        }
-      });
-    };
-    ContactRow.prototype.onConfirmClicked = function() {
-      return this.model.saveToDb();
-    };
-    ContactRow.prototype.onNameClicked = function(event) {
-      $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
-        return $("#contact-preview").html(data);
-      });
-      event.preventDefault();
-      return false;
-    };
-    ContactRow.prototype.remove = function() {
-      return $(this.el).remove();
-    };
-    ContactRow.prototype.refresh = function(state) {
-      return this.$(".platform-contact-state").text("(" + state + ")");
-    };
-    ContactRow.prototype.render = function() {
-      var state;
-      $(this.el).html(this.template(this.model.toJSON()));
-      this.$(".platform-contact-delete").button();
-      this.$(".platform-contact-retry").button();
-      this.$(".platform-contact-wap").button();
-      this.$(".platform-contact-row-buttons").hide();
-      state = this.model.getState();
-      if (state !== "Error" && state !== "pending") {
-        this.$(".platform-contact-retry").hide();
-      }
-      return this.el;
-    };
-    return ContactRow;
-  })();
   Contact = (function() {
     __extends(Contact, Backbone.Model);
     Contact.prototype.url = '/contacts/';
@@ -378,10 +415,10 @@
   })();
   /* Model for a Micro Post collection */
   ContactCollection = (function() {
-    __extends(ContactCollection, Backbone.Collection);
     function ContactCollection() {
       ContactCollection.__super__.constructor.apply(this, arguments);
     }
+    __extends(ContactCollection, Backbone.Collection);
     ContactCollection.prototype.model = Contact;
     ContactCollection.prototype.url = '/contacts/';
     ContactCollection.prototype.comparator = function(contact) {

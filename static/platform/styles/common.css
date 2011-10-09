@@ -187,6 +187,12 @@ h3 {
   font-weight: bold;
   margin-bottom: 6px;
 }
+.selected {
+  background-color: #def;
+}
+.mouseover {
+  background-color: #eef;
+}
 .dialog {
   background-color: #000;
   color: #fff;

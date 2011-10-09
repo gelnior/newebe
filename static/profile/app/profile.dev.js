@@ -12,9 +12,9 @@
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
-      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);
-      this.onMouseOut = __bind(this.onMouseOut, this);
-      this.onMouseOver = __bind(this.onMouseOver, this);      ProfileView.__super__.constructor.call(this);
+      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);;
+      this.onMouseOut = __bind(this.onMouseOut, this);;
+      this.onMouseOver = __bind(this.onMouseOver, this);;      ProfileView.__super__.constructor.call(this);
     }
     ProfileView.prototype.initialize = function() {
       _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll');
@@ -181,10 +181,10 @@
   })();
   /* Model for a User collection */
   UserCollection = (function() {
-    __extends(UserCollection, Backbone.Collection);
     function UserCollection() {
       UserCollection.__super__.constructor.apply(this, arguments);
     }
+    __extends(UserCollection, Backbone.Collection);
     UserCollection.prototype.model = User;
     UserCollection.prototype.url = '/user/';
     UserCollection.prototype.parse = function(response) {

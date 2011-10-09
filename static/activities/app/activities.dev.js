@@ -1,13 +1,13 @@
 (function() {
   var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, activitiesApp, confirmationDialog, infoDialog, loadingIndicator;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  };
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
@@ -83,6 +83,181 @@
     };
     return LoadingIndicator;
   })();
+  ActivitiesView = (function() {
+    __extends(ActivitiesView, Backbone.View);
+    ActivitiesView.prototype.el = $("#activities");
+    /* Events */
+    ActivitiesView.prototype.events = {
+      "click #activities-my-button": "onMineClicked",
+      "click #activities-all-button": "onAllClicked",
+      "click #activities-sync-button": "onSyncClicked",
+      "click #activities-more": "onMoreActivitiesClicked"
+    };
+    function ActivitiesView() {
+      this.prependOne = __bind(this.prependOne, this);;
+      this.appendOne = __bind(this.appendOne, this);;
+      this.addAll = __bind(this.addAll, this);;
+      this.addAllMore = __bind(this.addAllMore, this);;      ActivitiesView.__super__.constructor.apply(this, arguments);
+    }
+    ActivitiesView.prototype.initialize = function() {
+      _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked');
+      _.bindAll(this, 'onDatePicked');
+      this.tutorialOn = true;
+      this.activities = new ActivityCollection;
+      this.activities.bind('add', this.prependOne);
+      this.activities.bind('reset', this.addAll);
+      this.moreActivities = new ActivityCollection;
+      this.moreActivities.bind('reset', this.addAllMore);
+      this.currentPath = '/activities/all/';
+      return this.selectedRow = null;
+    };
+    /* Listeners  */
+    ActivitiesView.prototype.onMineClicked = function(event) {
+      $("#activities-my-button").button("disable");
+      $("#activities-all-button").button("enable");
+      this.clearActivities(null);
+      $("#activities-from-datepicker").val(null);
+      this.currentPath = '/activities/mine/';
+      this.reloadActivities(null);
+      return event;
+    };
+    ActivitiesView.prototype.onAllClicked = function(event) {
+      $("#activities-all-button").button("disable");
+      $("#activities-my-button").button("enable");
+      this.clearActivities(null);
+      $("#activities-from-datepicker").val(null);
+      this.currentPath = '/activities/all/';
+      this.reloadActivities(null);
+      return event;
+    };
+    ActivitiesView.prototype.onSyncClicked = function(event) {
+      $.ajax({
+        url: "/synchronize/",
+        success: function() {
+          return infoDialog.display("Synchronization process started, check back your data in a few minutes.");
+        },
+        error: function() {
+          return infoDialog.display("Synchronize process failed.");
+        }
+      });
+      return event;
+    };
+    ActivitiesView.prototype.onDatePicked = function(dateText, event) {
+      var d, sinceDate;
+      d = Date.parse(dateText);
+      sinceDate = d.toString("yyyy-MM-dd");
+      this.clearActivities();
+      return this.reloadActivities(sinceDate);
+    };
+    ActivitiesView.prototype.onRowClicked = function(row) {
+      if (row !== this.selectedRow) {
+        if (this.selectedRow) {
+          this.selectedRow.deselect();
+        }
+        row.select();
+        return this.selectedRow = row;
+      }
+    };
+    /* Functions  */
+    ActivitiesView.prototype.clearActivities = function() {
+      $("#activity-list").empty();
+      return $("#activities-more").show();
+    };
+    ActivitiesView.prototype.addAllMore = function() {
+      var activitiesArray;
+      activitiesArray = this.moreActivities.toArray().reverse();
+      activitiesArray = _.rest(activitiesArray);
+      _.each(activitiesArray, this.appendOne);
+      this.lastDate = this.moreActivities.last().getUrlDate();
+      if (activitiesArray.length < 30) {
+        $("#activities-more").hide();
+      }
+      loadingIndicator.hide();
+      return this.lastDate;
+    };
+    ActivitiesView.prototype.addAll = function() {
+      if (this.activities.length > 0) {
+        this.tutorialOn = false;
+        this.lastDate = this.activities.first().getUrlDate();
+        if (this.activities.length < 30) {
+          $("#activities-more").hide();
+        }
+      } else {
+        if (this.tutorialOn) {
+          this.displayTutorial(1);
+        } else {
+          $("#tutorial").html(null);
+        }
+        $("#activities-more").hide();
+      }
+      this.activities.each(this.prependOne);
+      loadingIndicator.hide();
+      return this.activities.length;
+    };
+    ActivitiesView.prototype.appendOne = function(activity) {
+      var el, row;
+      row = new ActivityRow(activity, this);
+      el = row.render();
+      $("#activity-list").append(el);
+      return row;
+    };
+    ActivitiesView.prototype.prependOne = function(activity) {
+      var el, row;
+      row = new ActivityRow(activity, this);
+      el = row.render();
+      $("#activity-list").prepend(el);
+      loadingIndicator.hide();
+      if (this.tutorialOn) {
+        this.displayTutorial(2);
+        this.tutorialOn = false;
+      }
+      return row;
+    };
+    ActivitiesView.prototype.displayTutorial = function(index) {
+      return $.get("/activities/tutorial/" + index + "/", function(data) {
+        return $("#tutorial-activities").html(data);
+      });
+    };
+    ActivitiesView.prototype.reloadActivities = function(date, path) {
+      loadingIndicator.display();
+      this.selectedRow = null;
+      this.activities.url = this.currentPath;
+      if (date) {
+        this.activities.url = this.currentPath + date + '-23-59-00/';
+      }
+      this.activities.fetch();
+      return this.activities;
+    };
+    ActivitiesView.prototype.fetch = function() {
+      this.activities.fetch();
+      return this.activties;
+    };
+    ActivitiesView.prototype.onMoreActivitiesClicked = function() {
+      loadingIndicator.display();
+      if (this.lastDate) {
+        this.moreActivities.url = this.currentPath + this.lastDate;
+      } else {
+        this.moreActivities.url = this.currentPath;
+      }
+      this.moreActivities.fetch();
+      return this.moreActivities;
+    };
+    /* UI Builders  */
+    ActivitiesView.prototype.setListeners = function() {
+      return $("input#activities-from-datepicker").datepicker({
+        onSelect: this.onDatePicked
+      });
+    };
+    ActivitiesView.prototype.setWidgets = function() {
+      $("#activities-my-button").button();
+      $("#activities-all-button").button();
+      $("#activities-sync-button").button();
+      $("#activities-all-button").button("disable");
+      $("#activities-more").button();
+      return $("#activities-from-datepicker").val(null);
+    };
+    return ActivitiesView;
+  })();
   ActivityRow = (function() {
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
@@ -92,26 +267,35 @@
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
+      "click": "onClick",
       "click .doc-ref": "onDocRefClicked",
       "click .activity-author": "onActivityAuthorClicked",
       "click .activity-error-number": "onErrorNumberClicked",
       "click .activity-error-resend": "onErrorResendClicked"
     };
-    function ActivityRow(model) {
+    function ActivityRow(model, mainView) {
       this.model = model;
+      this.mainView = mainView;
       ActivityRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
+      this.selected = false;
+      this.authorDisplayed = false;
     }
     /* Listeners */
     ActivityRow.prototype.onMouseOver = function() {
-      return $(this.el).addClass("hover-line");
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
     };
     ActivityRow.prototype.onMouseOut = function() {
-      return $(this.el).removeClass("hover-line");
+      return $(this.el).removeClass("mouseover");
+    };
+    ActivityRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
     };
     ActivityRow.prototype.onDocRefClicked = function(event) {
-      if (this.model.getDocType() === "micropost") {
+      if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
         $.get("/news/micropost/" + this.model.getDocId() + "/html/", function(data) {
           return $("#activities-preview").html(data);
         });
@@ -120,13 +304,20 @@
           return $("#activities-preview").html(data);
         });
       }
-      event.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       return false;
     };
     ActivityRow.prototype.onActivityAuthorClicked = function(event) {
-      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
-        return $("#activities-preview").html(data);
-      });
+      if (!this.authorDisplayed) {
+        $.get("/contacts/render/" + this.model.getAuthorKey() + "/", __bind(function(data) {
+          $("#activities-preview").append("<p>&nbsp;</p>");
+          $("#activities-preview").append("<p>Author profile: </p>");
+          $("#activities-preview").append(data);
+          return this.authorDisplayed = true;
+        }, this));
+      }
       event.preventDefault();
       return false;
     };
@@ -187,169 +378,18 @@
       this.$(".activity-errors").hide();
       return this.el;
     };
+    ActivityRow.prototype.select = function() {
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      $("#activities-preview").empty();
+      return this.onDocRefClicked(null);
+    };
+    ActivityRow.prototype.deselect = function() {
+      $(this.el).removeClass("selected");
+      $("#news-preview").html(null);
+      return this.authorDisplayed = false;
+    };
     return ActivityRow;
-  })();
-  ActivitiesView = (function() {
-    __extends(ActivitiesView, Backbone.View);
-    ActivitiesView.prototype.el = $("#activities");
-    /* Events */
-    ActivitiesView.prototype.events = {
-      "click #activities-my-button": "onMineClicked",
-      "click #activities-all-button": "onAllClicked",
-      "click #activities-sync-button": "onSyncClicked",
-      "click #activities-more": "onMoreActivitiesClicked"
-    };
-    function ActivitiesView() {
-      ActivitiesView.__super__.constructor.apply(this, arguments);
-    }
-    ActivitiesView.prototype.initialize = function() {
-      _.bindAll(this, 'appendOne', 'prependOne', 'addAll');
-      _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked', 'addAllMore');
-      _.bindAll(this, 'onDatePicked');
-      this.tutorialOn = true;
-      this.activities = new ActivityCollection;
-      this.activities.bind('add', this.prependOne);
-      this.activities.bind('reset', this.addAll);
-      this.moreActivities = new ActivityCollection;
-      this.moreActivities.bind('reset', this.addAllMore);
-      return this.currentPath = '/activities/all/';
-    };
-    /* Listeners  */
-    ActivitiesView.prototype.onMineClicked = function(event) {
-      $("#activities-my-button").button("disable");
-      $("#activities-all-button").button("enable");
-      this.clearActivities(null);
-      $("#activities-from-datepicker").val(null);
-      this.currentPath = '/activities/mine/';
-      this.reloadActivities(null);
-      return event;
-    };
-    ActivitiesView.prototype.onAllClicked = function(event) {
-      $("#activities-all-button").button("disable");
-      $("#activities-my-button").button("enable");
-      this.clearActivities(null);
-      $("#activities-from-datepicker").val(null);
-      this.currentPath = '/activities/all/';
-      this.reloadActivities(null);
-      return event;
-    };
-    ActivitiesView.prototype.onSyncClicked = function(event) {
-      $.ajax({
-        url: "/synchronize/",
-        success: function() {
-          return infoDialog.display("Synchronization process started, check back your data in a few minutes.");
-        },
-        error: function() {
-          return infoDialog.display("Synchronize process failed.");
-        }
-      });
-      return event;
-    };
-    ActivitiesView.prototype.onDatePicked = function(dateText, event) {
-      var d, sinceDate;
-      d = Date.parse(dateText);
-      sinceDate = d.toString("yyyy-MM-dd");
-      this.clearActivities();
-      return this.reloadActivities(sinceDate);
-    };
-    /* Functions  */
-    ActivitiesView.prototype.clearActivities = function() {
-      $("#activity-list").empty();
-      return $("#activities-more").show();
-    };
-    ActivitiesView.prototype.addAllMore = function() {
-      var activitiesArray;
-      activitiesArray = this.moreActivities.toArray().reverse();
-      activitiesArray = _.rest(activitiesArray);
-      _.each(activitiesArray, this.appendOne);
-      this.lastDate = this.moreActivities.last().getUrlDate();
-      if (activitiesArray.length < 30) {
-        $("#activities-more").hide();
-      }
-      loadingIndicator.hide();
-      return this.lastDate;
-    };
-    ActivitiesView.prototype.addAll = function() {
-      if (this.activities.length > 0) {
-        this.tutorialOn = false;
-        this.lastDate = this.activities.first().getUrlDate();
-        if (this.activities.length < 30) {
-          $("#activities-more").hide();
-        }
-      } else {
-        if (this.tutorialOn) {
-          this.displayTutorial(1);
-        } else {
-          $("#tutorial").html(null);
-        }
-        $("#activities-more").hide();
-      }
-      this.activities.each(this.prependOne);
-      loadingIndicator.hide();
-      return this.activities.length;
-    };
-    ActivitiesView.prototype.appendOne = function(activity) {
-      var el, row;
-      row = new ActivityRow(activity);
-      el = row.render();
-      $("#activity-list").append(el);
-      return row;
-    };
-    ActivitiesView.prototype.prependOne = function(activity) {
-      var el, row;
-      row = new ActivityRow(activity);
-      el = row.render();
-      $("#activity-list").prepend(el);
-      loadingIndicator.hide();
-      if (this.tutorialOn) {
-        this.displayTutorial(2);
-        this.tutorialOn = false;
-      }
-      return row;
-    };
-    ActivitiesView.prototype.displayTutorial = function(index) {
-      return $.get("/activities/tutorial/" + index + "/", function(data) {
-        return $("#tutorial-activities").html(data);
-      });
-    };
-    ActivitiesView.prototype.reloadActivities = function(date, path) {
-      loadingIndicator.display();
-      this.activities.url = this.currentPath;
-      if (date) {
-        this.activities.url = this.currentPath + date + '-23-59-00/';
-      }
-      this.activities.fetch();
-      return this.activities;
-    };
-    ActivitiesView.prototype.fetch = function() {
-      this.activities.fetch();
-      return this.activties;
-    };
-    ActivitiesView.prototype.onMoreActivitiesClicked = function() {
-      loadingIndicator.display();
-      if (this.lastDate) {
-        this.moreActivities.url = this.currentPath + this.lastDate;
-      } else {
-        this.moreActivities.url = this.currentPath;
-      }
-      this.moreActivities.fetch();
-      return this.moreActivities;
-    };
-    /* UI Builders  */
-    ActivitiesView.prototype.setListeners = function() {
-      return $("input#activities-from-datepicker").datepicker({
-        onSelect: this.onDatePicked
-      });
-    };
-    ActivitiesView.prototype.setWidgets = function() {
-      $("#activities-my-button").button();
-      $("#activities-all-button").button();
-      $("#activities-sync-button").button();
-      $("#activities-all-button").button("disable");
-      $("#activities-more").button();
-      return $("#activities-from-datepicker").val(null);
-    };
-    return ActivitiesView;
   })();
   Activity = (function() {
     __extends(Activity, Backbone.Model);
@@ -426,10 +466,10 @@
     return Activity;
   })();
   ActivityCollection = (function() {
-    __extends(ActivityCollection, Backbone.Collection);
     function ActivityCollection() {
       ActivityCollection.__super__.constructor.apply(this, arguments);
     }
+    __extends(ActivityCollection, Backbone.Collection);
     ActivityCollection.prototype.model = Activity;
     ActivityCollection.prototype.url = '/activities/all/';
     ActivityCollection.prototype.comparator = function(activity) {

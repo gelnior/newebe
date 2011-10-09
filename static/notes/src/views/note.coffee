@@ -35,6 +35,7 @@ class NoteRow extends Backbone.View
     @id = @model.id
          
     @model.view = @
+    @selected = false
     
 
   ### Listeners ###
@@ -45,9 +46,14 @@ class NoteRow extends Backbone.View
 
   # When mouse is over...
   onMouseOver: ->
+    if not @selected
+      @titleField.addClass("mouseover")
+      $(@el).addClass("mouseover")
 
   # When mouse is out...
   onMouseOut: ->
+    @titleField.removeClass("mouseover")
+    $(@el).removeClass("mouseover")
 
   # When title is typed, model is updated then saved to services backend.
   onTitleKeyUp: (event) ->
@@ -88,6 +94,7 @@ class NoteRow extends Backbone.View
     @titleField.addClass("selected")
     @deleteButton.show()
     @editButton.show()
+    @selected = true
 
   # Remove selected style on current note. Hide edit and delete button.
   unselect: () ->
@@ -95,6 +102,7 @@ class NoteRow extends Backbone.View
     @titleField.removeClass("selected")
     @deleteButton.hide()
     @editButton.hide()
+    @selected = false
 
   # Focus pointer on current note title.
   focusTitle: () ->

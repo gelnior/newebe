@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
+  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -8,43 +8,60 @@
     child.__super__ = parent.prototype;
     return child;
   }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-  InfoDialog = (function() {
-    function InfoDialog() {
-      var div;
-      if ($("#info-dialog").length === 0) {
-        div = document.createElement('div');
-        div.id = "info-dialog";
-        div.className = "dialog";
-        div.innerHTML = "Test";
-        $("body").prepend(div);
-      }
-      this.element = $("#info-dialog");
-      this.element.hide();
+  PlatformController = (function() {
+    function PlatformController() {
+      PlatformController.__super__.constructor.apply(this, arguments);
     }
-    InfoDialog.prototype.display = function(text) {
-      this.element.empty();
-      this.element.append(text);
-      this.element.show();
-      return this.element.fadeOut(4000);
+    __extends(PlatformController, Backbone.Router);
+    PlatformController.prototype.routes = {
+      "contact": "displayContact",
+      "news": "displayNews",
+      "activities": "displayActivities",
+      "profile": "displayProfile",
+      "notes": "displayNotes"
     };
-    return InfoDialog;
+    PlatformController.prototype.displayContact = function() {
+      return this.view.onContactClicked();
+    };
+    PlatformController.prototype.displayNews = function() {
+      return this.view.onNewsClicked();
+    };
+    PlatformController.prototype.displayProfile = function() {
+      return this.view.onProfileClicked();
+    };
+    PlatformController.prototype.displayActivities = function() {
+      return this.view.onActivitiesClicked();
+    };
+    PlatformController.prototype.displayNotes = function() {
+      return this.view.onNotesClicked();
+    };
+    PlatformController.prototype.registerView = function(view) {
+      return this.view = view;
+    };
+    return PlatformController;
   })();
-  ConfirmationDialog = (function() {
-    function ConfirmationDialog(callback) {
+  FormDialog = (function() {
+    function FormDialog() {
       var div;
-      if ($("#confirmation-dialog").length === 0) {
+      if ($("#form-dialog").length === 0) {
         div = document.createElement('div');
-        div.id = "confirmation-dialog";
+        div.id = "form-dialog";
         div.className = "dialog";
-        div.innerHTML = '<div id="confirmation-text"></div>';
-        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
         $("body").prepend(div);
+        this.element = $("#form-dialog");
+        this.element.html('<div id="form-dialog-text"></div>\n<div id="form-dialog-buttons">\'\n  <span id="form-dialog-yes">Yes</span>\n  <span id="form-dialog-no">No</span>\n</div>');
       }
-      this.element = $("#confirmation-dialog");
+      this.element = $("#form-dialog");
       this.element.hide();
-      this.setNoButton();
+      this.fields = [];
     }
-    ConfirmationDialog.prototype.setNoButton = function() {
+    FormDialog.prototype.addField = function(field) {
+      return this.fields.append(field);
+    };
+    FormDialog.prototype.clearFields = function() {
+      return this.fields = [];
+    };
+    FormDialog.prototype.setNoButton = function() {
       var divElement;
       divElement = this.element;
       return $("#confirmation-no").click(function() {
@@ -52,16 +69,16 @@
         return false;
       });
     };
-    ConfirmationDialog.prototype.display = function(text, callback) {
+    FormDialog.prototype.display = function(text, callback) {
       $("#confirmation-text").empty();
       $("#confirmation-text").append('<span>' + text + '</span>');
       $("#confirmation-yes").click(callback);
       return this.element.show();
     };
-    ConfirmationDialog.prototype.hide = function() {
+    FormDialog.prototype.hide = function() {
       return this.element.fadeOut();
     };
-    return ConfirmationDialog;
+    return FormDialog;
   })();
   RegisterView = (function() {
     __extends(RegisterView, Backbone.View);
@@ -184,6 +201,81 @@
     };
     return LoginView;
   })();
+  LoadingIndicator = (function() {
+    function LoadingIndicator() {
+      var div;
+      if ($("#loading-indicator").length === 0) {
+        div = document.createElement('div');
+        div.id = "loading-indicator";
+        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        $("body").prepend(div);
+      }
+      this.element = $("#loading-indicator");
+      this.element.hide();
+    }
+    LoadingIndicator.prototype.display = function() {
+      return this.element.show();
+    };
+    LoadingIndicator.prototype.hide = function() {
+      return this.element.hide();
+    };
+    return LoadingIndicator;
+  })();
+  InfoDialog = (function() {
+    function InfoDialog() {
+      var div;
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        div.innerHTML = "Test";
+        $("body").prepend(div);
+      }
+      this.element = $("#info-dialog");
+      this.element.hide();
+    }
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
+    };
+    return InfoDialog;
+  })();
+  ConfirmationDialog = (function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
+    }
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return ConfirmationDialog;
+  })();
   PlatformView = (function() {
     __extends(PlatformView, Backbone.View);
     PlatformView.prototype.el = $("body");
@@ -278,58 +370,6 @@
       return false;
     };
     return PlatformView;
-  })();
-  LoadingIndicator = (function() {
-    function LoadingIndicator() {
-      var div;
-      if ($("#loading-indicator").length === 0) {
-        div = document.createElement('div');
-        div.id = "loading-indicator";
-        div.innerHTML = '<img src="/static/images/clock_32.png" />';
-        $("body").prepend(div);
-      }
-      this.element = $("#loading-indicator");
-      this.element.hide();
-    }
-    LoadingIndicator.prototype.display = function() {
-      return this.element.show();
-    };
-    LoadingIndicator.prototype.hide = function() {
-      return this.element.hide();
-    };
-    return LoadingIndicator;
-  })();
-  PlatformController = (function() {
-    __extends(PlatformController, Backbone.Router);
-    function PlatformController() {
-      PlatformController.__super__.constructor.apply(this, arguments);
-    }
-    PlatformController.prototype.routes = {
-      "contact": "displayContact",
-      "news": "displayNews",
-      "activities": "displayActivities",
-      "profile": "displayProfile",
-      "notes": "displayNotes"
-    };
-    PlatformController.prototype.displayContact = function() {
-      return this.view.onContactClicked();
-    };
-    PlatformController.prototype.displayNews = function() {
-      return this.view.onNewsClicked();
-    };
-    PlatformController.prototype.displayProfile = function() {
-      return this.view.onProfileClicked();
-    };
-    PlatformController.prototype.displayActivities = function() {
-      return this.view.onActivitiesClicked();
-    };
-    PlatformController.prototype.displayNotes = function() {
-      return this.view.onNotesClicked();
-    };
-    PlatformController.prototype.registerView = function(view) {
-      return this.view = view;
-    };
-    return PlatformController;
   })();
   infoDialog = new InfoDialog;
   platformController = new PlatformController;

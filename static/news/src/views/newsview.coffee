@@ -41,6 +41,8 @@ class NewsView extends Backbone.View
 
     @currentPath = '/news/microposts/all/'
 
+    @selectedRow = null
+
 
   ### Listeners  ###
 
@@ -80,6 +82,7 @@ class NewsView extends Backbone.View
     @reloadMicroPosts(null)
     event
 
+
   # When all news is clicked it reloads news from contacts and user since today.
   onAllClicked: (event) ->
     $("#news-all-button").button("disable")
@@ -98,6 +101,30 @@ class NewsView extends Backbone.View
 
     @clearNews()
     @reloadMicroPosts(sinceDate)
+
+
+  # Select clicked row and deselect previously clicked row.
+  onRowClicked: (row) ->
+
+    if row != @selectedRow
+      if @selectedRow
+        @selectedRow.deselect()
+      row.select()
+      @selectedRow = row
+
+  
+  # When more news is clicked, GET URL is updated with last register date,
+  # (because /news/news-item/*date* returns 10 last micro posts until *date*).
+  # Then it retrieves posts and display them after current post list.
+  onMoreNewsClicked: ->
+    loadingIndicator.display()
+    if @lastDate
+      @moreMicroposts.url = @currentPath + @lastDate
+    else
+      @moreMicroposts.url = @currentPath
+
+    @moreMicroposts.fetch()
+    @moreMicroposts
 
 
   ### Functions  ###
@@ -147,7 +174,7 @@ class NewsView extends Backbone.View
    
   # Appends *micropost* to the beginning of current post list (render it).
   appendOne: (micropost) ->
-    row = new MicroPostRow micropost
+    row = new MicroPostRow micropost, @
     el = row.render()
     $("#micro-posts").append(el)
     row
@@ -156,7 +183,7 @@ class NewsView extends Backbone.View
   # Prepends *micropost* to the end of current post list (render it).
   # Displays second tutorial of tutorial mode is on.
   prependOne: (micropost) ->
-    row = new MicroPostRow(micropost)
+    row = new MicroPostRow micropost, @
     el = row.render()
     $("#micro-posts").prepend(el)
     loadingIndicator.hide()
@@ -183,6 +210,8 @@ class NewsView extends Backbone.View
   # Clears micro posts lists and reload micro posts until *date*.
   reloadMicroPosts: (date, path) ->
     loadingIndicator.display()
+    @selectedRow = null
+
     @microposts.url = @currentPath
     if date
       @microposts.url = @currentPath + date + '-23-59-00/'
@@ -192,6 +221,7 @@ class NewsView extends Backbone.View
   
   # Reloads micro post list.
   fetch: () ->
+    @selectedRow = null
     @microposts.fetch()
     @microposts
 
@@ -220,20 +250,6 @@ class NewsView extends Backbone.View
     $("#id_content").val(null)
     $("#id_content").focus()
     false
-
-  
-  # When more news is clicked, GET URL is updated with last register date,
-  # (because /news/news-item/*date* returns 10 last micro posts until *date*).
-  # Then it retrieves posts and display it at the follown of current post list.
-  onMoreNewsClicked: ->
-    loadingIndicator.display()
-    if @lastDate
-      @moreMicroposts.url = @currentPath + @lastDate
-    else
-      @moreMicroposts.url = @currentPath
-
-    @moreMicroposts.fetch()
-    @moreMicroposts
 
 
   ### UI Builders  ###
