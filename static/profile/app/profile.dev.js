@@ -25,6 +25,7 @@
     /* Events */
     ProfileView.prototype.events = {
       "click #profile-description-edit": "onDescriptionEditClicked",
+      "click #change-password(": "onDescriptionEditClicked",
       "mouseover #profile div.app": "onMouseOver",
       "mouseout #profile div.app": "onMouseOut"
     };
