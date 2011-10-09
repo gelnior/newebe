@@ -11,6 +11,7 @@ fs     = require 'fs'
 
 # File to compile
 appFiles  = [
+  '../../platform/src/views/formdialog'
   'models/profile',
   'views/profileview',
   'profile'

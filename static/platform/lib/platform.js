@@ -263,7 +263,6 @@
         div = document.createElement('div');
         div.id = "info-dialog";
         div.className = "dialog";
-        div.innerHTML = "Test";
         $("body").prepend(div);
       }
       this.element = $("#info-dialog");
