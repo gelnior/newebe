@@ -83,93 +83,109 @@
     };
     return LoadingIndicator;
   })();
-  Note = (function() {
-    __extends(Note, Backbone.Model);
-    Note.prototype.url = '/notes/all/';
-    function Note(note) {
-      var content;
-      Note.__super__.constructor.apply(this, arguments);
-      this.id = note._id;
-      this.set('noteId', note._id);
-      this.set('author', note.author);
-      this.set('title', note.title);
-      this.set('date', note.date);
-      this.set('content', note.content);
-      this.set('lastModified', note.lastModified);
-      content = note.content.replace(/<(?:.|\s)*?>/g, "");
-      this.attributes['content'] = content;
-      this.attributes['lastModified'] = note.lastModified;
-      this.setDisplayDate();
-      if (this.id) {
-        this.url = "/notes/" + this.id + "/";
+  NoteRow = (function() {
+    __extends(NoteRow, Backbone.View);
+    NoteRow.prototype.tagName = "div";
+    NoteRow.prototype.className = "notes-note-row";
+    NoteRow.prototype.template = _.template('<a class="notes-note-delete">X</a>\n<a class="notes-note-edit">edit</a>\n<input class="notes-note-title" type="text" value="<%= title %>" />\n<p class="news-micropost-date">\n <%= displayDate %> \n</p>\n<div class="spacer"></div>\n<textarea class="notes-note-content"><%= content%> </textarea>');
+    /* Events */
+    NoteRow.prototype.events = {
+      "click .notes-note-delete": "onDeleteClicked",
+      "click .notes-note-edit": "onEditClicked",
+      "keyUp .notes-note-title": "onTitleKeyUp",
+      "mouseover": "onMouseOver",
+      "mouseout": "onMouseOut",
+      "click": "onRowClicked"
+    };
+    function NoteRow(model) {
+      this.model = model;
+      NoteRow.__super__.constructor.call(this);
+      this.id = this.model.id;
+      this.model.view = this;
+    }
+    /* Listeners */
+    NoteRow.prototype.onRowClicked = function(event) {
+      return this.view.onRowClicked(this);
+    };
+    NoteRow.prototype.onMouseOver = function() {};
+    NoteRow.prototype.onMouseOut = function() {};
+    NoteRow.prototype.onTitleKeyUp = function(event) {
+      this.model.setTitle(this.titleField.val());
+      return this.model.save();
+    };
+    NoteRow.prototype.onContentKeyUp = function(event) {
+      this.model.setContent(this.contentField.val());
+      this.view.displayText(this);
+      return this.model.save();
+    };
+    NoteRow.prototype.onEditClicked = function(event) {
+      if (this.contentField.is(":hidden")) {
+        this.contentField.slideDown();
+        return this.contentField.focus();
       } else {
-        this.url = "/notes/all/";
+        return this.contentField.slideUp();
       }
-    }
-    /* Getters / Setters */
-    Note.prototype.setId = function(id) {
-      this.id = id;
-      return this.url = "/notes/" + this.id + "/";
     };
-    Note.prototype.getDisplayDate = function() {
-      return this.attributes['displayDate'];
+    NoteRow.prototype.onDeleteClicked = function() {
+      return confirmationDialog.display("Are you sure you want to delete this note ?", __bind(function() {
+        confirmationDialog.hide();
+        return this.model["delete"]();
+      }, this));
     };
-    Note.prototype.setDisplayDate = function() {
-      var dateToSet;
-      dateToSet = this.attributes["lastModified"];
-      return this.setDisplayDateFromDbDate(dateToSet);
+    /* Functions */
+    NoteRow.prototype.select = function() {
+      $(this.el).addClass("selected");
+      this.titleField.addClass("selected");
+      this.deleteButton.show();
+      return this.editButton.show();
     };
-    Note.prototype.setDisplayDateFromDbDate = function(date) {
-      var displayDate, stringDate;
-      displayDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-      stringDate = displayDate.toString("dd MMM yyyy, HH:mm");
-      this.attributes['displayDate'] = stringDate;
-      return stringDate;
+    NoteRow.prototype.unselect = function() {
+      $(this.el).removeClass("selected");
+      this.titleField.removeClass("selected");
+      this.deleteButton.hide();
+      return this.editButton.hide();
     };
-    Note.prototype.getAuthor = function() {
-      return this.get('author');
+    NoteRow.prototype.focusTitle = function() {
+      return this.titleField.focus();
     };
-    Note.prototype.getTitle = function() {
-      return this.get('title');
+    NoteRow.prototype.registerView = function(view) {
+      return this.view = view;
     };
-    Note.prototype.setTitle = function(title) {
-      this.attributes['title'] = title;
-      return this.set('title', title);
+    NoteRow.prototype.getContent = function() {
+      return this.contentField.val();
     };
-    Note.prototype.getDate = function() {
-      return this.get('date');
+    NoteRow.prototype.remove = function() {
+      return $(this.el).remove();
     };
-    Note.prototype.setDate = function(date) {
-      return this.set('title', date);
+    NoteRow.prototype.render = function() {
+      if (!this.model.getDisplayDate()) {
+        this.model.setDisplayDate();
+      }
+      $(this.el).html(this.template(this.model.toJSON()));
+      this.deleteButton = this.$(".notes-note-delete");
+      this.editButton = this.$(".notes-note-edit");
+      this.titleField = this.$(".notes-note-title");
+      this.contentField = this.$(".notes-note-content");
+      this.deleteButton.button();
+      this.editButton.button();
+      this.deleteButton.hide();
+      this.editButton.hide();
+      this.contentField.hide();
+      return this.setListeners();
     };
-    Note.prototype.getContent = function() {
-      return this.get('content');
+    NoteRow.prototype.setListeners = function() {
+      this.titleField.keyup(__bind(function(event) {
+        return this.onTitleKeyUp(event);
+      }, this));
+      this.contentField.keyup(__bind(function(event) {
+        return this.onContentKeyUp(event);
+      }, this));
+      this.$(".notes-note-row").click(__bind(function(event) {
+        return this.onRowClicked(event);
+      }, this));
+      return this.el;
     };
-    Note.prototype.setContent = function(content) {
-      this.attributes['content'] = content;
-      return this.set('content', content);
-    };
-    Note.prototype["delete"] = function() {
-      this.url = "/notes/" + this.id + "/";
-      this.destroy();
-      return this.view.remove();
-    };
-    Note.prototype.isNew = function() {
-      return !this.id;
-    };
-    return Note;
-  })();
-  NoteCollection = (function() {
-    function NoteCollection() {
-      NoteCollection.__super__.constructor.apply(this, arguments);
-    }
-    __extends(NoteCollection, Backbone.Collection);
-    NoteCollection.prototype.model = Note;
-    NoteCollection.prototype.url = '/notes/all/';
-    NoteCollection.prototype.parse = function(response) {
-      return response.rows;
-    };
-    return NoteCollection;
+    return NoteRow;
   })();
   NotesView = (function() {
     __extends(NotesView, Backbone.View);
@@ -181,7 +197,7 @@
       "click #notes-sort-title-button": "onSortTitleClicked"
     };
     function NotesView(controller) {
-      this.onSortDateClicked = __bind(this.onSortDateClicked, this);;      NotesView.__super__.constructor.call(this);
+      this.onSortDateClicked = __bind(this.onSortDateClicked, this);      NotesView.__super__.constructor.call(this);
       this.controller = controller;
       controller.registerView(this);
     }
@@ -323,115 +339,99 @@
     };
     return NotesView;
   })();
-  NoteRow = (function() {
-    __extends(NoteRow, Backbone.View);
-    NoteRow.prototype.tagName = "div";
-    NoteRow.prototype.className = "notes-note-row";
-    NoteRow.prototype.template = _.template('<a class="notes-note-delete">X</a>\n<a class="notes-note-edit">edit</a>\n<input class="notes-note-title" type="text" value="<%= title %>" />\n<p class="news-micropost-date">\n <%= displayDate %> \n</p>\n<div class="spacer"></div>\n<textarea class="notes-note-content"><%= content%> </textarea>');
-    /* Events */
-    NoteRow.prototype.events = {
-      "click .notes-note-delete": "onDeleteClicked",
-      "click .notes-note-edit": "onEditClicked",
-      "keyUp .notes-note-title": "onTitleKeyUp",
-      "mouseover": "onMouseOver",
-      "mouseout": "onMouseOut",
-      "click": "onRowClicked"
-    };
-    function NoteRow(model) {
-      this.model = model;
-      NoteRow.__super__.constructor.call(this);
-      this.id = this.model.id;
-      this.model.view = this;
-    }
-    /* Listeners */
-    NoteRow.prototype.onRowClicked = function(event) {
-      return this.view.onRowClicked(this);
-    };
-    NoteRow.prototype.onMouseOver = function() {};
-    NoteRow.prototype.onMouseOut = function() {};
-    NoteRow.prototype.onTitleKeyUp = function(event) {
-      this.model.setTitle(this.titleField.val());
-      return this.model.save();
-    };
-    NoteRow.prototype.onContentKeyUp = function(event) {
-      this.model.setContent(this.contentField.val());
-      this.view.displayText(this);
-      return this.model.save();
-    };
-    NoteRow.prototype.onEditClicked = function(event) {
-      if (this.contentField.is(":hidden")) {
-        this.contentField.slideDown();
-        return this.contentField.focus();
+  Note = (function() {
+    __extends(Note, Backbone.Model);
+    Note.prototype.url = '/notes/all/';
+    function Note(note) {
+      var content;
+      Note.__super__.constructor.apply(this, arguments);
+      this.id = note._id;
+      this.set('noteId', note._id);
+      this.set('author', note.author);
+      this.set('title', note.title);
+      this.set('date', note.date);
+      this.set('content', note.content);
+      this.set('lastModified', note.lastModified);
+      content = note.content.replace(/<(?:.|\s)*?>/g, "");
+      this.attributes['content'] = content;
+      this.attributes['lastModified'] = note.lastModified;
+      this.setDisplayDate();
+      if (this.id) {
+        this.url = "/notes/" + this.id + "/";
       } else {
-        return this.contentField.slideUp();
+        this.url = "/notes/all/";
       }
+    }
+    /* Getters / Setters */
+    Note.prototype.setId = function(id) {
+      this.id = id;
+      return this.url = "/notes/" + this.id + "/";
     };
-    NoteRow.prototype.onDeleteClicked = function() {
-      return confirmationDialog.display("Are you sure you want to delete this note ?", __bind(function() {
-        confirmationDialog.hide();
-        return this.model["delete"]();
-      }, this));
+    Note.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
     };
-    /* Functions */
-    NoteRow.prototype.select = function() {
-      $(this.el).addClass("selected");
-      this.titleField.addClass("selected");
-      this.deleteButton.show();
-      return this.editButton.show();
+    Note.prototype.setDisplayDate = function() {
+      var dateToSet;
+      dateToSet = this.attributes["lastModified"];
+      return this.setDisplayDateFromDbDate(dateToSet);
     };
-    NoteRow.prototype.unselect = function() {
-      $(this.el).removeClass("selected");
-      this.titleField.removeClass("selected");
-      this.deleteButton.hide();
-      return this.editButton.hide();
+    Note.prototype.setDisplayDateFromDbDate = function(date) {
+      var displayDate, stringDate;
+      displayDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+      stringDate = displayDate.toString("dd MMM yyyy, HH:mm");
+      this.attributes['displayDate'] = stringDate;
+      return stringDate;
     };
-    NoteRow.prototype.focusTitle = function() {
-      return this.titleField.focus();
+    Note.prototype.getAuthor = function() {
+      return this.get('author');
     };
-    NoteRow.prototype.registerView = function(view) {
-      return this.view = view;
+    Note.prototype.getTitle = function() {
+      return this.get('title');
     };
-    NoteRow.prototype.getContent = function() {
-      return this.contentField.val();
+    Note.prototype.setTitle = function(title) {
+      this.attributes['title'] = title;
+      return this.set('title', title);
     };
-    NoteRow.prototype.remove = function() {
-      return $(this.el).remove();
+    Note.prototype.getDate = function() {
+      return this.get('date');
     };
-    NoteRow.prototype.render = function() {
-      if (!this.model.getDisplayDate()) {
-        this.model.setDisplayDate();
-      }
-      $(this.el).html(this.template(this.model.toJSON()));
-      this.deleteButton = this.$(".notes-note-delete");
-      this.editButton = this.$(".notes-note-edit");
-      this.titleField = this.$(".notes-note-title");
-      this.contentField = this.$(".notes-note-content");
-      this.deleteButton.button();
-      this.editButton.button();
-      this.deleteButton.hide();
-      this.editButton.hide();
-      this.contentField.hide();
-      return this.setListeners();
+    Note.prototype.setDate = function(date) {
+      return this.set('title', date);
     };
-    NoteRow.prototype.setListeners = function() {
-      this.titleField.keyup(__bind(function(event) {
-        return this.onTitleKeyUp(event);
-      }, this));
-      this.contentField.keyup(__bind(function(event) {
-        return this.onContentKeyUp(event);
-      }, this));
-      this.$(".notes-note-row").click(__bind(function(event) {
-        return this.onRowClicked(event);
-      }, this));
-      return this.el;
+    Note.prototype.getContent = function() {
+      return this.get('content');
     };
-    return NoteRow;
+    Note.prototype.setContent = function(content) {
+      this.attributes['content'] = content;
+      return this.set('content', content);
+    };
+    Note.prototype["delete"] = function() {
+      this.url = "/notes/" + this.id + "/";
+      this.destroy();
+      return this.view.remove();
+    };
+    Note.prototype.isNew = function() {
+      return !this.id;
+    };
+    return Note;
+  })();
+  NoteCollection = (function() {
+    __extends(NoteCollection, Backbone.Collection);
+    function NoteCollection() {
+      NoteCollection.__super__.constructor.apply(this, arguments);
+    }
+    NoteCollection.prototype.model = Note;
+    NoteCollection.prototype.url = '/notes/all/';
+    NoteCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+    return NoteCollection;
   })();
   NotesController = (function() {
+    __extends(NotesController, Backbone.Router);
     function NotesController() {
       NotesController.__super__.constructor.apply(this, arguments);
     }
-    __extends(NotesController, Backbone.Router);
     NotesController.prototype.routes = {
       "notes/sort-date/": "sortByDate",
       "notes/sort-title/": "sortByTitle",
@@ -463,4 +463,5 @@
   notesApp.setWidgets();
   notesApp.setListeners();
   notesApp.reloadNotes();
+  Backbone.history.start();
 }).call(this);

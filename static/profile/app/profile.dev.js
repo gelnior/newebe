@@ -1,69 +1,20 @@
 (function() {
   var ProfileView, User, UserCollection, profileApp;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-  User = (function() {
-    __extends(User, Backbone.Model);
-    User.prototype.url = '/user/';
-    function User(user) {
-      User.__super__.constructor.apply(this, arguments);
-      this.id = "";
-      this.set("url", user.url);
-      this.set("name", user.name);
-      this.set("description", user.description);
-    }
-    /* Setters / Accessors */
-    User.prototype.getName = function() {
-      return this.get("name");
-    };
-    User.prototype.setName = function(name) {
-      alert(name);
-      this.set("name", name);
-      return alert(this.getName());
-    };
-    User.prototype.getUrl = function() {
-      return this.get("userUrl");
-    };
-    User.prototype.setUrl = function(url) {
-      return this.set("url", url);
-    };
-    User.prototype.getDescription = function() {
-      return this.get("description");
-    };
-    User.prototype.setDescription = function(description) {
-      return this.set("description", description);
-    };
-    User.prototype.isNew = function() {
-      return false;
-    };
-    return User;
-  })();
-  /* Model for a User collection */
-  UserCollection = (function() {
-    function UserCollection() {
-      UserCollection.__super__.constructor.apply(this, arguments);
-    }
-    __extends(UserCollection, Backbone.Collection);
-    UserCollection.prototype.model = User;
-    UserCollection.prototype.url = '/user/';
-    UserCollection.prototype.parse = function(response) {
-      return response.rows;
-    };
-    return UserCollection;
-  })();
+  };
   ProfileView = (function() {
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
-      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);;
-      this.onMouseOut = __bind(this.onMouseOut, this);;
-      this.onMouseOver = __bind(this.onMouseOver, this);;      ProfileView.__super__.constructor.call(this);
+      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);
+      this.onMouseOut = __bind(this.onMouseOut, this);
+      this.onMouseOver = __bind(this.onMouseOver, this);      ProfileView.__super__.constructor.call(this);
     }
     ProfileView.prototype.initialize = function() {
       _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll');
@@ -191,6 +142,55 @@
       return $("#profile-description-edit").hide();
     };
     return ProfileView;
+  })();
+  User = (function() {
+    __extends(User, Backbone.Model);
+    User.prototype.url = '/user/';
+    function User(user) {
+      User.__super__.constructor.apply(this, arguments);
+      this.id = "";
+      this.set("url", user.url);
+      this.set("name", user.name);
+      this.set("description", user.description);
+    }
+    /* Setters / Accessors */
+    User.prototype.getName = function() {
+      return this.get("name");
+    };
+    User.prototype.setName = function(name) {
+      alert(name);
+      this.set("name", name);
+      return alert(this.getName());
+    };
+    User.prototype.getUrl = function() {
+      return this.get("userUrl");
+    };
+    User.prototype.setUrl = function(url) {
+      return this.set("url", url);
+    };
+    User.prototype.getDescription = function() {
+      return this.get("description");
+    };
+    User.prototype.setDescription = function(description) {
+      return this.set("description", description);
+    };
+    User.prototype.isNew = function() {
+      return false;
+    };
+    return User;
+  })();
+  /* Model for a User collection */
+  UserCollection = (function() {
+    __extends(UserCollection, Backbone.Collection);
+    function UserCollection() {
+      UserCollection.__super__.constructor.apply(this, arguments);
+    }
+    UserCollection.prototype.model = User;
+    UserCollection.prototype.url = '/user/';
+    UserCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+    return UserCollection;
   })();
   profileApp = new ProfileView;
   profileApp.setWidgets();

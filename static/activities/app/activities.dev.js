@@ -83,95 +83,6 @@
     };
     return LoadingIndicator;
   })();
-  Activity = (function() {
-    __extends(Activity, Backbone.Model);
-    Activity.prototype.url = '/activities/all/';
-    function Activity(activity) {
-      var activityDate, urlDate;
-      Activity.__super__.constructor.apply(this, arguments);
-      this.set('author', activity.author);
-      this.set('authorKey', activity.authorKey);
-      this.set('date', activity.date);
-      this.set('docId', activity.docId);
-      this.set('verb', activity.verb);
-      this.set('docType', activity.docType);
-      this.set('method', activity.method);
-      this.set('errors', activity.errors);
-      this.set('mid', activity._id);
-      this.attributes['mid'] = activity._id;
-      this.setDisplayDate();
-      this.id = activity._id;
-      if (activity.date) {
-        activityDate = Date.parseExact(activity.date, "yyyy-MM-ddTHH:mm:ssZ");
-        urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/");
-        this.attributes['urlDate'] = urlDate;
-      }
-      if (activity.errors.length) {
-        this.attributes['errorNumber'] = "(" + activity.errors.length + ")";
-      } else {
-        this.attributes['errorNumber'] = "";
-      }
-    }
-    /* Getters / Setters */
-    Activity.prototype.getDisplayDate = function() {
-      return this.attributes['displayDate'];
-    };
-    Activity.prototype.setDisplayDate = function() {
-      var dateToSet;
-      dateToSet = this.attributes["date"];
-      return this.setDisplayDateFromDbDate(dateToSet);
-    };
-    Activity.prototype.setDisplayDateFromDbDate = function(date) {
-      var postDate, stringDate;
-      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-      stringDate = postDate.toString("dd MMM yyyy, HH:mm");
-      this.attributes['displayDate'] = stringDate;
-      return postDate;
-    };
-    Activity.prototype.getAuthor = function() {
-      return this.get('author');
-    };
-    Activity.prototype.getAuthorKey = function() {
-      return this.get('authorKey');
-    };
-    Activity.prototype.getDate = function() {
-      return this.get('date');
-    };
-    Activity.prototype.getUrlDate = function() {
-      return this.attributes['urlDate'];
-    };
-    Activity.prototype.getDocType = function() {
-      return this.attributes['docType'];
-    };
-    Activity.prototype.getDocId = function() {
-      return this.get('docId');
-    };
-    Activity.prototype.getMethod = function() {
-      return this.get('method');
-    };
-    Activity.prototype.getMid = function() {
-      return this.get('mid');
-    };
-    Activity.prototype.getErrors = function() {
-      return this.get('errors');
-    };
-    return Activity;
-  })();
-  ActivityCollection = (function() {
-    function ActivityCollection() {
-      ActivityCollection.__super__.constructor.apply(this, arguments);
-    }
-    __extends(ActivityCollection, Backbone.Collection);
-    ActivityCollection.prototype.model = Activity;
-    ActivityCollection.prototype.url = '/activities/all/';
-    ActivityCollection.prototype.comparator = function(activity) {
-      return activity.getDate();
-    };
-    ActivityCollection.prototype.parse = function(response) {
-      return response.rows;
-    };
-    return ActivityCollection;
-  })();
   ActivityRow = (function() {
     __extends(ActivityRow, Backbone.View);
     ActivityRow.prototype.tagName = "div";
@@ -439,6 +350,95 @@
       return $("#activities-from-datepicker").val(null);
     };
     return ActivitiesView;
+  })();
+  Activity = (function() {
+    __extends(Activity, Backbone.Model);
+    Activity.prototype.url = '/activities/all/';
+    function Activity(activity) {
+      var activityDate, urlDate;
+      Activity.__super__.constructor.apply(this, arguments);
+      this.set('author', activity.author);
+      this.set('authorKey', activity.authorKey);
+      this.set('date', activity.date);
+      this.set('docId', activity.docId);
+      this.set('verb', activity.verb);
+      this.set('docType', activity.docType);
+      this.set('method', activity.method);
+      this.set('errors', activity.errors);
+      this.set('mid', activity._id);
+      this.attributes['mid'] = activity._id;
+      this.setDisplayDate();
+      this.id = activity._id;
+      if (activity.date) {
+        activityDate = Date.parseExact(activity.date, "yyyy-MM-ddTHH:mm:ssZ");
+        urlDate = activityDate.toString("yyyy-MM-dd-HH-mm-ss/");
+        this.attributes['urlDate'] = urlDate;
+      }
+      if (activity.errors.length) {
+        this.attributes['errorNumber'] = "(" + activity.errors.length + ")";
+      } else {
+        this.attributes['errorNumber'] = "";
+      }
+    }
+    /* Getters / Setters */
+    Activity.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
+    };
+    Activity.prototype.setDisplayDate = function() {
+      var dateToSet;
+      dateToSet = this.attributes["date"];
+      return this.setDisplayDateFromDbDate(dateToSet);
+    };
+    Activity.prototype.setDisplayDateFromDbDate = function(date) {
+      var postDate, stringDate;
+      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+      stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+      this.attributes['displayDate'] = stringDate;
+      return postDate;
+    };
+    Activity.prototype.getAuthor = function() {
+      return this.get('author');
+    };
+    Activity.prototype.getAuthorKey = function() {
+      return this.get('authorKey');
+    };
+    Activity.prototype.getDate = function() {
+      return this.get('date');
+    };
+    Activity.prototype.getUrlDate = function() {
+      return this.attributes['urlDate'];
+    };
+    Activity.prototype.getDocType = function() {
+      return this.attributes['docType'];
+    };
+    Activity.prototype.getDocId = function() {
+      return this.get('docId');
+    };
+    Activity.prototype.getMethod = function() {
+      return this.get('method');
+    };
+    Activity.prototype.getMid = function() {
+      return this.get('mid');
+    };
+    Activity.prototype.getErrors = function() {
+      return this.get('errors');
+    };
+    return Activity;
+  })();
+  ActivityCollection = (function() {
+    __extends(ActivityCollection, Backbone.Collection);
+    function ActivityCollection() {
+      ActivityCollection.__super__.constructor.apply(this, arguments);
+    }
+    ActivityCollection.prototype.model = Activity;
+    ActivityCollection.prototype.url = '/activities/all/';
+    ActivityCollection.prototype.comparator = function(activity) {
+      return activity.getDate();
+    };
+    ActivityCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+    return ActivityCollection;
   })();
   loadingIndicator = new LoadingIndicator;
   confirmationDialog = new ConfirmationDialog;

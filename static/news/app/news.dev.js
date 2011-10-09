@@ -83,142 +83,6 @@
     };
     return LoadingIndicator;
   })();
-  MicroPost = (function() {
-    __extends(MicroPost, Backbone.Model);
-    MicroPost.prototype.url = '/news/microposts/';
-    function MicroPost(microPost) {
-      var content, converter, html, postDate, urlDate;
-      MicroPost.__super__.constructor.apply(this, arguments);
-      this.set('author', microPost.author);
-      this.set('authorKey', microPost.authorKey);
-      this.set('micropostId', microPost._id);
-      this.set('content', microPost.content);
-      this.id = microPost._id;
-      content = microPost.content.replace(/<(?:.|\s)*?>/g, "");
-      converter = new Showdown.converter();
-      html = converter.makeHtml(content);
-      this.set('contentHtml', html);
-      this.attributes['contentHtml'] = html;
-      if (microPost.date) {
-        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
-        urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
-        this.attributes['urlDate'] = urlDate;
-      }
-    }
-    /* Getters / Setters */
-    MicroPost.prototype.getDisplayDate = function() {
-      return this.attributes['displayDate'];
-    };
-    MicroPost.prototype.setDisplayDate = function() {
-      var dateToSet;
-      dateToSet = this.attributes["date"];
-      return this.setDisplayDateFromDbDate(dateToSet);
-    };
-    MicroPost.prototype.setDisplayDateFromDbDate = function(date) {
-      var postDate, stringDate;
-      if (date) {
-        postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
-        this.attributes['displayDate'] = stringDate;
-        postDate;
-      }
-      return date;
-    };
-    MicroPost.prototype.getUrlDate = function() {
-      return this.attributes['urlDate'];
-    };
-    MicroPost.prototype.getAuthor = function() {
-      return this.get('author');
-    };
-    MicroPost.prototype.getAuthorKey = function() {
-      return this.get('authorKey');
-    };
-    MicroPost.prototype.getDate = function() {
-      return this.get('date');
-    };
-    MicroPost.prototype.getContent = function() {
-      return this.get('content');
-    };
-    MicroPost.prototype["delete"] = function() {
-      this.url = "/news/micropost/" + this.id + "/";
-      this.destroy();
-      return this.view.remove();
-    };
-    MicroPost.prototype.isNew = function() {
-      return !this.getAuthor();
-    };
-    return MicroPost;
-  })();
-  MicroPostCollection = (function() {
-    function MicroPostCollection() {
-      MicroPostCollection.__super__.constructor.apply(this, arguments);
-    }
-    __extends(MicroPostCollection, Backbone.Collection);
-    MicroPostCollection.prototype.model = MicroPost;
-    MicroPostCollection.prototype.url = '/news/microposts/all/';
-    MicroPostCollection.prototype.comparator = function(microPost) {
-      return microPost.getDate();
-    };
-    MicroPostCollection.prototype.parse = function(response) {
-      return response.rows;
-    };
-    return MicroPostCollection;
-  })();
-  MicroPostRow = (function() {
-    __extends(MicroPostRow, Backbone.View);
-    MicroPostRow.prototype.tagName = "div";
-    MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
-    /* Events */
-    MicroPostRow.prototype.events = {
-      "click .news-micropost-delete": "onDeleteClicked",
-      "mouseover": "onMouseOver",
-      "mouseout": "onMouseOut",
-      "click .news-micropost-author": "onAuthorClicked"
-    };
-    function MicroPostRow(model) {
-      this.model = model;
-      MicroPostRow.__super__.constructor.call(this);
-      this.id = this.model.id;
-      this.model.view = this;
-    }
-    /* Listeners */
-    MicroPostRow.prototype.onMouseOver = function() {
-      return this.$(".news-micropost-delete").show();
-    };
-    MicroPostRow.prototype.onMouseOut = function() {
-      return this.$(".news-micropost-delete").hide();
-    };
-    MicroPostRow.prototype.onDeleteClicked = function() {
-      var model;
-      model = this.model;
-      return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
-        confirmationDialog.hide();
-        return model["delete"]();
-      });
-    };
-    MicroPostRow.prototype.onAuthorClicked = function(event) {
-      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
-        return $("#news-preview").html(data);
-      });
-      event.preventDefault();
-      return false;
-    };
-    /* Functions */
-    MicroPostRow.prototype.remove = function() {
-      return $(this.el).remove();
-    };
-    MicroPostRow.prototype.render = function() {
-      if (!this.model.getDisplayDate()) {
-        this.model.setDisplayDate();
-      }
-      $(this.el).html(this.template(this.model.toJSON()));
-      this.$(".news-micropost-delete").button();
-      this.$(".news-micropost-delete").hide();
-      return this.el;
-    };
-    return MicroPostRow;
-  })();
   NewsView = (function() {
     __extends(NewsView, Backbone.View);
     NewsView.prototype.el = $("#news");
@@ -429,6 +293,142 @@
       return $("#news-a").addClass("disabled");
     };
     return NewsView;
+  })();
+  MicroPostRow = (function() {
+    __extends(MicroPostRow, Backbone.View);
+    MicroPostRow.prototype.tagName = "div";
+    MicroPostRow.prototype.className = "news-micropost-row";
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
+    /* Events */
+    MicroPostRow.prototype.events = {
+      "click .news-micropost-delete": "onDeleteClicked",
+      "mouseover": "onMouseOver",
+      "mouseout": "onMouseOut",
+      "click .news-micropost-author": "onAuthorClicked"
+    };
+    function MicroPostRow(model) {
+      this.model = model;
+      MicroPostRow.__super__.constructor.call(this);
+      this.id = this.model.id;
+      this.model.view = this;
+    }
+    /* Listeners */
+    MicroPostRow.prototype.onMouseOver = function() {
+      return this.$(".news-micropost-delete").show();
+    };
+    MicroPostRow.prototype.onMouseOut = function() {
+      return this.$(".news-micropost-delete").hide();
+    };
+    MicroPostRow.prototype.onDeleteClicked = function() {
+      var model;
+      model = this.model;
+      return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
+        confirmationDialog.hide();
+        return model["delete"]();
+      });
+    };
+    MicroPostRow.prototype.onAuthorClicked = function(event) {
+      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
+        return $("#news-preview").html(data);
+      });
+      event.preventDefault();
+      return false;
+    };
+    /* Functions */
+    MicroPostRow.prototype.remove = function() {
+      return $(this.el).remove();
+    };
+    MicroPostRow.prototype.render = function() {
+      if (!this.model.getDisplayDate()) {
+        this.model.setDisplayDate();
+      }
+      $(this.el).html(this.template(this.model.toJSON()));
+      this.$(".news-micropost-delete").button();
+      this.$(".news-micropost-delete").hide();
+      return this.el;
+    };
+    return MicroPostRow;
+  })();
+  MicroPost = (function() {
+    __extends(MicroPost, Backbone.Model);
+    MicroPost.prototype.url = '/news/microposts/';
+    function MicroPost(microPost) {
+      var content, converter, html, postDate, urlDate;
+      MicroPost.__super__.constructor.apply(this, arguments);
+      this.set('author', microPost.author);
+      this.set('authorKey', microPost.authorKey);
+      this.set('micropostId', microPost._id);
+      this.set('content', microPost.content);
+      this.id = microPost._id;
+      content = microPost.content.replace(/<(?:.|\s)*?>/g, "");
+      converter = new Showdown.converter();
+      html = converter.makeHtml(content);
+      this.set('contentHtml', html);
+      this.attributes['contentHtml'] = html;
+      if (microPost.date) {
+        postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ");
+        urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
+        this.attributes['urlDate'] = urlDate;
+      }
+    }
+    /* Getters / Setters */
+    MicroPost.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
+    };
+    MicroPost.prototype.setDisplayDate = function() {
+      var dateToSet;
+      dateToSet = this.attributes["date"];
+      return this.setDisplayDateFromDbDate(dateToSet);
+    };
+    MicroPost.prototype.setDisplayDateFromDbDate = function(date) {
+      var postDate, stringDate;
+      if (date) {
+        postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
+        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
+        this.attributes['displayDate'] = stringDate;
+        postDate;
+      }
+      return date;
+    };
+    MicroPost.prototype.getUrlDate = function() {
+      return this.attributes['urlDate'];
+    };
+    MicroPost.prototype.getAuthor = function() {
+      return this.get('author');
+    };
+    MicroPost.prototype.getAuthorKey = function() {
+      return this.get('authorKey');
+    };
+    MicroPost.prototype.getDate = function() {
+      return this.get('date');
+    };
+    MicroPost.prototype.getContent = function() {
+      return this.get('content');
+    };
+    MicroPost.prototype["delete"] = function() {
+      this.url = "/news/micropost/" + this.id + "/";
+      this.destroy();
+      return this.view.remove();
+    };
+    MicroPost.prototype.isNew = function() {
+      return !this.getAuthor();
+    };
+    return MicroPost;
+  })();
+  MicroPostCollection = (function() {
+    __extends(MicroPostCollection, Backbone.Collection);
+    function MicroPostCollection() {
+      MicroPostCollection.__super__.constructor.apply(this, arguments);
+    }
+    MicroPostCollection.prototype.model = MicroPost;
+    MicroPostCollection.prototype.url = '/news/microposts/all/';
+    MicroPostCollection.prototype.comparator = function(microPost) {
+      return microPost.getDate();
+    };
+    MicroPostCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+    return MicroPostCollection;
   })();
   newsApp = new NewsView;
   loadingIndicator = new LoadingIndicator;
