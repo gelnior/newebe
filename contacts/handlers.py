@@ -433,7 +433,7 @@ class ContactTutorial1THandler(NewebeAuthHandler):
 
 class ContactTutorial2THandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/tutorial_1.html")
+        self.render("templates/tutorial_2.html")
 
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
