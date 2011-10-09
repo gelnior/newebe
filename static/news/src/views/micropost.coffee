@@ -58,9 +58,10 @@ class MicroPostRow extends Backbone.View
     model = @model
     confirmationDialog.display(
         "Are you sure you want to delete this post ?",
-        ->
+        =>
           confirmationDialog.hide()
           model.delete()
+          @mainView.selectedRow = null
     )
 
   # When author name is clicked, its data are displayed in the preview zone.

@@ -11,6 +11,9 @@ textarea.news-area {
   font-size: 18px;
   padding: 5px;
 }
+#micro-posts {
+  border-bottom: 1px solid #ccc;
+}
 div.news-newss {
   margin-top: 20px;
   margin-left: 2px;

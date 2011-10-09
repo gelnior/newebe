@@ -7,7 +7,7 @@
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  };
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
@@ -200,10 +200,11 @@
     MicroPostRow.prototype.onDeleteClicked = function() {
       var model;
       model = this.model;
-      return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
+      return confirmationDialog.display("Are you sure you want to delete this post ?", __bind(function() {
         confirmationDialog.hide();
-        return model["delete"]();
-      });
+        model["delete"]();
+        return this.mainView.selectedRow = null;
+      }, this));
     };
     MicroPostRow.prototype.onAuthorClicked = function(event) {
       $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
