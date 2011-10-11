@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
+  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -39,6 +39,46 @@
       return this.view = view;
     };
     return PlatformController;
+  })();
+  FormDialog = (function() {
+    function FormDialog() {
+      var div;
+      if ($("#form-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "form-dialog";
+        div.className = "dialog";
+        $("body").prepend(div);
+        this.element = $("#form-dialog");
+        this.element.html('<div id="form-dialog-text"></div>\n<div id="form-dialog-buttons">\'\n  <span id="form-dialog-yes">Yes</span>\n  <span id="form-dialog-no">No</span>\n</div>');
+      }
+      this.element = $("#form-dialog");
+      this.element.hide();
+      this.fields = [];
+    }
+    FormDialog.prototype.addField = function(field) {
+      return this.fields.append(field);
+    };
+    FormDialog.prototype.clearFields = function() {
+      return this.fields = [];
+    };
+    FormDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    FormDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    FormDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return FormDialog;
   })();
   RegisterView = (function() {
     __extends(RegisterView, Backbone.View);
