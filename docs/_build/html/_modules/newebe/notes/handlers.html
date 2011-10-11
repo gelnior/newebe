@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>newebe.notes.handlers &mdash; Newebe v0.3.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Newebe v0.3.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Newebe v0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for newebe.notes.handlers</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">tornado.escape</span> <span class="kn">import</span> <span class="n">json_decode</span>
+
+<span class="kn">from</span> <span class="nn">newebe.profile.models</span> <span class="kn">import</span> <span class="n">UserManager</span>
+<span class="kn">from</span> <span class="nn">newebe.contacts.handlers</span> <span class="kn">import</span> <span class="n">NewebeAuthHandler</span>
+<span class="kn">from</span> <span class="nn">newebe.activities.models</span> <span class="kn">import</span> <span class="n">Activity</span>
+<span class="kn">from</span> <span class="nn">newebe.notes.models</span> <span class="kn">import</span> <span class="n">Note</span><span class="p">,</span> <span class="n">NoteManager</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;newebe.notes&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NotesHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This handler handles requests that retrieve lists of notes ordered by title.</span>
+<div class="viewcode-block" id="NotesHandler"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesHandler">[docs]</a><span class="sd">    GET: Retrieves all notes ordered by title.</span>
+<span class="sd">    POST: Create a new note.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns all notes ordered by title at JSON format.</span>
+<div class="viewcode-block" id="NotesHandler.get"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesHandler.get">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">notes</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_documents</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates a new note from received data.</span></div>
+<div class="viewcode-block" id="NotesHandler.post"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesHandler.post">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Note creation received.&quot;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">jsonNote</span> <span class="o">=</span> <span class="n">json_decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">(</span>
+                <span class="n">author</span> <span class="o">=</span> <span class="n">UserManager</span><span class="o">.</span><span class="n">getUser</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">jsonNote</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">],</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">jsonNote</span><span class="p">[</span><span class="s">&quot;content&quot;</span><span class="p">],</span>
+                <span class="n">isMine</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_write_activity</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_json</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">toJson</span><span class="p">(),</span> <span class="mi">201</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_failure</span><span class="p">(</span><span class="s">&quot;No data sent&quot;</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">create_write_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates and save a new creation activity for current user.</span></div>
+<div class="viewcode-block" id="NotesHandler.create_write_activity"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesHandler.create_write_activity">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+            
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">Activity</span><span class="p">(</span>
+            <span class="n">authorKey</span> <span class="o">=</span> <span class="n">UserManager</span><span class="o">.</span><span class="n">getUser</span><span class="p">()</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">author</span><span class="p">,</span>
+            <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot;writes&quot;</span><span class="p">,</span>
+            <span class="n">docType</span> <span class="o">=</span> <span class="s">&quot;note&quot;</span><span class="p">,</span>
+            <span class="n">docId</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+            <span class="n">isMine</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lastModified</span>
+        <span class="p">)</span>
+        <span class="n">activity</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">NotesByDateHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This handler handles requests that retrieve lists of notes ordered by date.</span></div></div>
+<div class="viewcode-block" id="NotesByDateHandler"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesByDateHandler">[docs]</a><span class="sd">    GET: Retrieves all notes ordered by date.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns all notes ordered by date at JSON format.</span>
+<div class="viewcode-block" id="NotesByDateHandler.get"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NotesByDateHandler.get">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">notes</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_all_sorted_by_date</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_documents</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NoteHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Handler used to work on a given note.</span></div></div>
+<div class="viewcode-block" id="NoteHandler"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteHandler">[docs]</a><span class="sd">    GET: Retrieves given note.</span>
+<span class="sd">    PUT: Modifies given note.</span>
+<span class="sd">    DELETE: Deletes given note.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noteid</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns all notes at JSON format.</span>
+<div class="viewcode-block" id="NoteHandler.get"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteHandler.get">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">note</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_note</span><span class="p">(</span><span class="n">noteid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">note</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_document</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_failure</span><span class="p">(</span><span class="s">&quot;No note exist for this id.&quot;</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noteid</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Modifies note that has an ID equal to noteid with received data.</span></div>
+<div class="viewcode-block" id="NoteHandler.put"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteHandler.put">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Note modificiation received.&quot;</span><span class="p">)</span>
+
+        <span class="n">note</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_note</span><span class="p">(</span><span class="n">noteid</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span>
+        
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">note</span><span class="p">:</span>
+            <span class="n">jsonNote</span> <span class="o">=</span> <span class="n">json_decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">jsonNote</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">]</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">jsonNote</span><span class="p">[</span><span class="s">&quot;content&quot;</span><span class="p">]</span>
+            
+            <span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_success</span><span class="p">(</span><span class="s">&quot;Note successfully modified.&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_failure</span><span class="p">(</span><span class="s">&quot;No note exist for this id.&quot;</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noteid</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Deletes note that has an ID equal to noteid with received data.</span></div>
+<div class="viewcode-block" id="NoteHandler.delete"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteHandler.delete">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Note deletion received.&quot;</span><span class="p">)</span>
+
+        <span class="n">note</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_note</span><span class="p">(</span><span class="n">noteid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">note</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_delete_activity</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_success</span><span class="p">(</span><span class="s">&quot;Note deleted.&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_failure</span><span class="p">(</span><span class="s">&quot;No note to delete.&quot;</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">create_delete_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates and save a new delete activity for current user.</span></div>
+<div class="viewcode-block" id="NoteHandler.create_delete_activity"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteHandler.create_delete_activity">[docs]</a><span class="sd">        &#39;&#39;&#39;</span>
+            
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">Activity</span><span class="p">(</span>
+            <span class="n">authorKey</span> <span class="o">=</span> <span class="n">UserManager</span><span class="o">.</span><span class="n">getUser</span><span class="p">()</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">author</span><span class="p">,</span>
+            <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot;deletes&quot;</span><span class="p">,</span>
+            <span class="n">docType</span> <span class="o">=</span> <span class="s">&quot;note&quot;</span><span class="p">,</span>
+            <span class="n">docId</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+            <span class="n">isMine</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s">&quot;DELETE&quot;</span>        
+        <span class="p">)</span>
+        <span class="n">activity</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">NoteTHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This handler allows to retrieve note at HTML format.</span></div></div>
+<div class="viewcode-block" id="NoteTHandler"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteTHandler">[docs]</a><span class="sd">    * GET: Return for given id the HTML representation of corresponding note.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noteId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns for given id the HTML representation of corresponding </span>
+<div class="viewcode-block" id="NoteTHandler.get"><a class="viewcode-back" href="../../../index.html#newebe.notes.handlers.NoteTHandler.get">[docs]</a><span class="sd">        note.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">note</span> <span class="o">=</span> <span class="n">NoteManager</span><span class="o">.</span><span class="n">get_note</span><span class="p">(</span><span class="n">noteId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">note</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
+                 <span class="n">note</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">markdown</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s">&quot;templates/note.html&quot;</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">return_failure</span><span class="p">(</span><span class="s">&quot;Note not found.&quot;</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+
+
+
+
+<span class="c"># Template handlers</span>
+
+<span class="k">class</span> <span class="nc">NotesContentTHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s">&quot;templates/notes_content.html&quot;</span><span class="p">)</span></div></div>
+
+<span class="k">class</span> <span class="nc">NotesPageTHandler</span><span class="p">(</span><span class="n">NewebeAuthHandler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s">&quot;templates/notes.html&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Newebe v0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gelnior.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

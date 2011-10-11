@@ -8,132 +8,60 @@
     child.__super__ = parent.prototype;
     return child;
   }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-  PlatformController = (function() {
-    function PlatformController() {
-      PlatformController.__super__.constructor.apply(this, arguments);
+  InfoDialog = (function() {
+    function InfoDialog() {
+      var div;
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        div.innerHTML = "Test";
+        $("body").prepend(div);
+      }
+      this.element = $("#info-dialog");
+      this.element.hide();
     }
-    __extends(PlatformController, Backbone.Router);
-    PlatformController.prototype.routes = {
-      "contact": "displayContact",
-      "news": "displayNews",
-      "activities": "displayActivities",
-      "profile": "displayProfile",
-      "notes": "displayNotes"
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
     };
-    PlatformController.prototype.displayContact = function() {
-      return this.view.onContactClicked();
-    };
-    PlatformController.prototype.displayNews = function() {
-      return this.view.onNewsClicked();
-    };
-    PlatformController.prototype.displayProfile = function() {
-      return this.view.onProfileClicked();
-    };
-    PlatformController.prototype.displayActivities = function() {
-      return this.view.onActivitiesClicked();
-    };
-    PlatformController.prototype.displayNotes = function() {
-      return this.view.onNotesClicked();
-    };
-    PlatformController.prototype.registerView = function(view) {
-      return this.view = view;
-    };
-    return PlatformController;
+    return InfoDialog;
   })();
-  PlatformView = (function() {
-    __extends(PlatformView, Backbone.View);
-    PlatformView.prototype.el = $("body");
-    PlatformView.prototype.events = {
-      "click #news-a": "onNewsClicked",
-      "click #profile-a": "onProfileClicked",
-      "click #contact-a": "onContactClicked",
-      "click #activities-a": "onActivitiesClicked",
-      "click #notes-a": "onNotesClicked"
-    };
-    function PlatformView(controller) {
-      this.controller = controller;
-      controller.registerView(this);
-      PlatformView.__super__.constructor.apply(this, arguments);
+  ConfirmationDialog = (function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
     }
-    PlatformView.prototype.initialize = function() {
-      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked', 'onLogoutClicked');
-      if ($("#news").length !== 0) {
-        this.lastPage = "#news";
-      } else if ($("#contact").length !== 0) {
-        this.lastPage = "#contact";
-      } else if ($("#activities").length !== 0) {
-        this.lastPage = "#activities";
-      } else if ($("#notes").length !== 0) {
-        this.lastPage = "#notes";
-      } else {
-        this.lastPage = "#profile";
-      }
-      $("#platform-user-text-field").val(null);
-      return $("#platform-user-text-field").focus();
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
     };
-    PlatformView.prototype.onNewsClicked = function(ev) {
-      if (ev) {
-        ev.preventDefault();
-      }
-      document.title = "Newebe | News";
-      this.switchTo("#news", '/news/content/');
-      return false;
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
     };
-    PlatformView.prototype.onProfileClicked = function(ev) {
-      if (ev) {
-        ev.preventDefault();
-      }
-      document.title = "Newebe | Profile";
-      this.switchTo("#profile", '/profile/content/');
-      return false;
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
     };
-    PlatformView.prototype.onContactClicked = function(ev) {
-      if (ev) {
-        ev.preventDefault();
-      }
-      document.title = "Newebe | Contact";
-      this.switchTo("#contact", '/contact/content/');
-      return false;
-    };
-    PlatformView.prototype.onActivitiesClicked = function(ev) {
-      if (ev) {
-        ev.preventDefault();
-      }
-      document.title = "Newebe | Activities";
-      this.switchTo("#activities", '/activities/content/');
-      return false;
-    };
-    PlatformView.prototype.onNotesClicked = function(ev) {
-      if (ev) {
-        ev.preventDefault();
-      }
-      document.title = "Newebe | Notes";
-      this.switchTo("#notes", '/notes/content/');
-      return false;
-    };
-    PlatformView.prototype.switchTo = function(page, url) {
-      $(this.lastPage + "-a").removeClass("disabled");
-      $(page + "-a").addClass("disabled");
-      this.controller.navigate(page);
-      if (this.lastPage !== page) {
-        $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
-      }
-      return this.lastPage;
-    };
-    PlatformView.prototype.onLastPageFadeOut = function(page, url) {
-      $(this.lastPage).hide();
-      this.lastPage = page;
-      if ($(page).length === 0) {
-        $.get(url, function(data) {
-          $("#apps").prepend(data);
-          return $(page).fadeIn();
-        });
-      } else {
-        $(page).fadeIn();
-      }
-      return false;
-    };
-    return PlatformView;
+    return ConfirmationDialog;
   })();
   RegisterView = (function() {
     __extends(RegisterView, Backbone.View);
@@ -256,6 +184,7 @@
     };
     return LoginView;
   })();
+<<<<<<< HEAD
   InfoDialog = (function() {
     function InfoDialog() {
       var div;
@@ -267,48 +196,102 @@
       }
       this.element = $("#info-dialog");
       this.element.hide();
-    }
-    InfoDialog.prototype.display = function(text) {
-      this.element.empty();
-      this.element.append(text);
-      this.element.show();
-      return this.element.fadeOut(4000);
+=======
+  PlatformView = (function() {
+    __extends(PlatformView, Backbone.View);
+    PlatformView.prototype.el = $("body");
+    PlatformView.prototype.events = {
+      "click #news-a": "onNewsClicked",
+      "click #profile-a": "onProfileClicked",
+      "click #contact-a": "onContactClicked",
+      "click #activities-a": "onActivitiesClicked",
+      "click #notes-a": "onNotesClicked"
     };
-    return InfoDialog;
-  })();
-  ConfirmationDialog = (function() {
-    function ConfirmationDialog(callback) {
-      var div;
-      if ($("#confirmation-dialog").length === 0) {
-        div = document.createElement('div');
-        div.id = "confirmation-dialog";
-        div.className = "dialog";
-        div.innerHTML = '<div id="confirmation-text"></div>';
-        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
-        $("body").prepend(div);
+    function PlatformView(controller) {
+      this.controller = controller;
+      controller.registerView(this);
+      PlatformView.__super__.constructor.apply(this, arguments);
+>>>>>>> 5f3d1060a7e5a7bd622367cdccf5b21b7eb94af2
+    }
+    PlatformView.prototype.initialize = function() {
+      _.bindAll(this, 'onNewsClicked', 'onProfileClicked', 'switchTo', 'onContactClicked', 'onActivitiesClicked', 'onLogoutClicked');
+      if ($("#news").length !== 0) {
+        this.lastPage = "#news";
+      } else if ($("#contact").length !== 0) {
+        this.lastPage = "#contact";
+      } else if ($("#activities").length !== 0) {
+        this.lastPage = "#activities";
+      } else if ($("#notes").length !== 0) {
+        this.lastPage = "#notes";
+      } else {
+        this.lastPage = "#profile";
       }
-      this.element = $("#confirmation-dialog");
-      this.element.hide();
-      this.setNoButton();
-    }
-    ConfirmationDialog.prototype.setNoButton = function() {
-      var divElement;
-      divElement = this.element;
-      return $("#confirmation-no").click(function() {
-        divElement.fadeOut();
-        return false;
-      });
+      $("#platform-user-text-field").val(null);
+      return $("#platform-user-text-field").focus();
     };
-    ConfirmationDialog.prototype.display = function(text, callback) {
-      $("#confirmation-text").empty();
-      $("#confirmation-text").append('<span>' + text + '</span>');
-      $("#confirmation-yes").click(callback);
-      return this.element.show();
+    PlatformView.prototype.onNewsClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | News";
+      this.switchTo("#news", '/news/content/');
+      return false;
     };
-    ConfirmationDialog.prototype.hide = function() {
-      return this.element.fadeOut();
+    PlatformView.prototype.onProfileClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Profile";
+      this.switchTo("#profile", '/profile/content/');
+      return false;
     };
-    return ConfirmationDialog;
+    PlatformView.prototype.onContactClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Contact";
+      this.switchTo("#contact", '/contact/content/');
+      return false;
+    };
+    PlatformView.prototype.onActivitiesClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Activities";
+      this.switchTo("#activities", '/activities/content/');
+      return false;
+    };
+    PlatformView.prototype.onNotesClicked = function(ev) {
+      if (ev) {
+        ev.preventDefault();
+      }
+      document.title = "Newebe | Notes";
+      this.switchTo("#notes", '/notes/content/');
+      return false;
+    };
+    PlatformView.prototype.switchTo = function(page, url) {
+      $(this.lastPage + "-a").removeClass("disabled");
+      $(page + "-a").addClass("disabled");
+      this.controller.navigate(page);
+      if (this.lastPage !== page) {
+        $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
+      }
+      return this.lastPage;
+    };
+    PlatformView.prototype.onLastPageFadeOut = function(page, url) {
+      $(this.lastPage).hide();
+      this.lastPage = page;
+      if ($(page).length === 0) {
+        $.get(url, function(data) {
+          $("#apps").prepend(data);
+          return $(page).fadeIn();
+        });
+      } else {
+        $(page).fadeIn();
+      }
+      return false;
+    };
+    return PlatformView;
   })();
   LoadingIndicator = (function() {
     function LoadingIndicator() {
@@ -329,6 +312,38 @@
       return this.element.hide();
     };
     return LoadingIndicator;
+  })();
+  PlatformController = (function() {
+    __extends(PlatformController, Backbone.Router);
+    function PlatformController() {
+      PlatformController.__super__.constructor.apply(this, arguments);
+    }
+    PlatformController.prototype.routes = {
+      "contact": "displayContact",
+      "news": "displayNews",
+      "activities": "displayActivities",
+      "profile": "displayProfile",
+      "notes": "displayNotes"
+    };
+    PlatformController.prototype.displayContact = function() {
+      return this.view.onContactClicked();
+    };
+    PlatformController.prototype.displayNews = function() {
+      return this.view.onNewsClicked();
+    };
+    PlatformController.prototype.displayProfile = function() {
+      return this.view.onProfileClicked();
+    };
+    PlatformController.prototype.displayActivities = function() {
+      return this.view.onActivitiesClicked();
+    };
+    PlatformController.prototype.displayNotes = function() {
+      return this.view.onNotesClicked();
+    };
+    PlatformController.prototype.registerView = function(view) {
+      return this.view = view;
+    };
+    return PlatformController;
   })();
   infoDialog = new InfoDialog;
   platformController = new PlatformController;
