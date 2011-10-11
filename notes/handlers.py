@@ -15,8 +15,9 @@ logger = logging.getLogger("newebe.notes")
 class NotesHandler(NewebeAuthHandler):
     '''
     This handler handles requests that retrieve lists of notes ordered by title.
-    GET: Retrieves all notes ordered by title.
-    POST: Create a new note.
+    
+    * GET: Retrieves all notes ordered by title.
+    * POST: Create a new note.
     '''
 
 
@@ -54,7 +55,7 @@ class NotesHandler(NewebeAuthHandler):
             self.return_failure("No data sent", 400)
 
 
-    def create_write_activity(self, note):
+    def _create_write_activity(self, note):
         '''
         Creates and save a new creation activity for current user.
         '''
@@ -74,7 +75,8 @@ class NotesHandler(NewebeAuthHandler):
 class NotesByDateHandler(NewebeAuthHandler):
     '''
     This handler handles requests that retrieve lists of notes ordered by date.
-    GET: Retrieves all notes ordered by date.
+    
+    * GET: Retrieves all notes ordered by date.
     '''
 
 
@@ -90,9 +92,10 @@ class NotesByDateHandler(NewebeAuthHandler):
 class NoteHandler(NewebeAuthHandler):
     '''
     Handler used to work on a given note.
-    GET: Retrieves given note.
-    PUT: Modifies given note.
-    DELETE: Deletes given note.
+    
+    * GET: Retrieves given note.
+    * PUT: Modifies given note.
+    * DELETE: Deletes given note.
     '''
 
 
@@ -171,6 +174,7 @@ class NoteHandler(NewebeAuthHandler):
 class NoteTHandler(NewebeAuthHandler):
     '''
     This handler allows to retrieve note at HTML format.
+
     * GET: Return for given id the HTML representation of corresponding note.
     '''
 
