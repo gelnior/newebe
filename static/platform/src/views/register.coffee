@@ -71,7 +71,7 @@ class RegisterPasswordView extends Backbone.View
   # When user field key is up, if it is enter key, it posts typed password to 
   # backend services (commit registration) and displays profile application.
   onUserFieldKeyUp: (event) ->
-    if event.keyCode == 13 and not @isPosting
+    if (event.keyCode == 13 or e.which == 13) and not @isPosting
       dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}'
       @isPosting = true
       url = "/register/password/"
