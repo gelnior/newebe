@@ -104,13 +104,13 @@ type="text/css" media="screen" />
         <li>Daemon &gt;= 1.0.0</li>
         <li>Markdown &gt;= 2.0.0</li>
     </ul>    
-    <h3>Procedure</h3>
+    <h3>Procedure (For Debian 6.0)</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
     (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>) :
     </p>
     <pre>
- python python-setuptools python-pycurl python-daemon couchdb git</pre>
+ apt-get python python-setuptools python-pycurl python-daemon couchdb git</pre>
     <p>
         Via easy_install install <em>couchdbkit</em>, <em>markdown</em> and 
         <em>tornado</em> :
@@ -119,12 +119,31 @@ type="text/css" media="screen" />
  easy_install couchdbkit tornado markdown</pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
-        <em>Github</em> or unpack the downloaded archive:
+        <em>Github</em> or unpack the downloaded archive. In both case
+        it will create a new sub-directory called <em>newebe</em> (NB: It's 
+        important that you don't change the name of this folder) :
     </p>
     <pre>
   git clone git://github.com/gelnior/newebe.git </pre>
     <p>
-        <span class="step"> step 3 </span> Ensure database is started, then in
+    <p>
+        Then go inside newebe directory:
+    </p>
+    <pre>
+  cd newebe </pre>
+    <p>
+      <span class="step"> step 3 </span> Ensure database is started by running
+      this command, if there is more than one line, it's ok :
+    </p>
+    <pre>
+  ps -ef | grep couchdb</pre>
+    <p>
+      If it's not ok, start the database manually :
+    </p>
+    <pre>
+ /etc/init.d/couchdb start</pre>
+    <p>
+        Then in
         <em>Newebe</em> directory execute following command to configure 
         database :
     </p>
@@ -132,8 +151,9 @@ type="text/css" media="screen" />
   python syncdb.py</pre>
     <p>
         <span class="step"> step 4 </span>  Update deployment file 
-        (<em>deploy/newebe</em>) by changing 
-        <em>NEWEBE_PATH</em> and PIDFILE constants to make it point to your 
+        (<em>YOUR_NEWEBE_FOLDER/deploy/newebe</em>) by changing 
+        <em>NEWEBE_PATH</em> and <em>PIDFILE</em> constants to make it point 
+        to your 
         <em>Newebe</em> directory (pid file will be created at first startup).
     </p>
     <p>
