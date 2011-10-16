@@ -15,7 +15,6 @@
         div = document.createElement('div');
         div.id = "info-dialog";
         div.className = "dialog";
-        div.innerHTML = "Test";
         $("body").prepend(div);
       }
       this.element = $("#info-dialog");
@@ -306,27 +305,31 @@
       return this.contacts;
     };
     ContactView.prototype.postNewContact = function() {
-      var contactUrl;
-      contactUrl = $("#contact-url-field").val();
-      if (this.contacts.find(function(contact) {
-        return contactUrl === contact.getUrl();
-      })) {
-        infoDialog.display("Contact is already in your list");
-      } else {
-        loadingIndicator.display();
-        this.contacts.create({
-          url: contactUrl
-        }, {
-          success: function(model, response) {
-            return loadingIndicator.hide();
-          },
-          error: function(model, response) {
-            loadingIndicator.hide();
-            return infoDialog.display("An error occured on server." + "Please refresh the contact list.");
-          }
-        });
+      var contactUrl, regexp;
+      contactUrl = $.trim($("#contact-url-field").val());
+      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+      if (contactUrl.match(regexp)) {
+        if (this.contacts.find(function(contact) {
+          return contactUrl === contact.getUrl();
+        })) {
+          infoDialog.display("Contact is already in your list");
+        } else {
+          loadingIndicator.display();
+          this.contacts.create({
+            url: contactUrl,
+            success: function(model, response) {
+              return loadingIndicator.hide();
+            },
+            error: function(model, response) {
+              loadingIndicator.hide();
+              return infoDialog.display("An error occured on server." + "Please refresh the contact list.");
+            }
+          });
+        }
         $("#contact-url-field").val(null);
         $("#contact-url-field").focus();
+      } else {
+        infoDialog.display("Given URL is not a valid URL.");
       }
       return false;
     };
@@ -415,10 +418,10 @@
   })();
   /* Model for a Micro Post collection */
   ContactCollection = (function() {
+    __extends(ContactCollection, Backbone.Collection);
     function ContactCollection() {
       ContactCollection.__super__.constructor.apply(this, arguments);
     }
-    __extends(ContactCollection, Backbone.Collection);
     ContactCollection.prototype.model = Contact;
     ContactCollection.prototype.url = '/contacts/';
     ContactCollection.prototype.comparator = function(contact) {

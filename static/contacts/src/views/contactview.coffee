@@ -163,22 +163,33 @@ class ContactView extends Backbone.View
   # Send a post request to server and add current at the beginning of current 
   # contact list.
   postNewContact: ()->
-    contactUrl = $("#contact-url-field").val()
-    if @contacts.find((contact) -> contactUrl == contact.getUrl())
-      infoDialog.display("Contact is already in your list")
-    else
-      loadingIndicator.display()
-      @contacts.create(url : contactUrl,
-        success : (model, response) ->  loadingIndicator.hide(),
-        error: (model, response) ->
-         loadingIndicator.hide()
-         infoDialog.display("An error occured on server." + \
-             "Please refresh the contact list.")
+    contactUrl = $.trim($("#contact-url-field").val())
+    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
+
+#    alert contactUrl.match(regexp)
+
+    if contactUrl.match(regexp)
+
+      if @contacts.find((contact) -> contactUrl == contact.getUrl())
+        infoDialog.display("Contact is already in your list")
+
+      else
+        loadingIndicator.display()
+        @contacts.create(
+          url : contactUrl,
+          success : (model, response) ->  loadingIndicator.hide(),
+          error: (model, response) ->
+            loadingIndicator.hide()
+            infoDialog.display "An error occured on server." + \
+                 "Please refresh the contact list."
         )
 
       $("#contact-url-field").val(null)
       $("#contact-url-field").focus()
     
+    else
+      infoDialog.display "Given URL is not a valid URL."
+
     false
 
 
