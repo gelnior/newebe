@@ -13,6 +13,9 @@ fs = require 'fs'
 
 # Additional files to add to file that can be found in source directory.:
 appFiles = [
+  "../platform/src/views/formdialog.coffee"
+  "../platform/src/views/loadingindicator.coffee"
+  "../platform/src/views/infodialog.coffee"
 ]
 # Source files (automatically filled)
 srcFiles = []
@@ -115,7 +118,7 @@ task 'build', 'Build single application file from source files', ->
             if --remaining is 0
               process appContents, "dev", () ->
                 puts 'Build done'
-                invoke 'minify'
+#                invoke 'minify'
 
 
 # Make JS file lighter

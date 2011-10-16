@@ -44,3 +44,26 @@
 .profile-description {
   margin-top: 10px;
 }
+#form-dialog {
+  text-align: center;
+}
+#form-dialog input {
+  background-color: transparent;
+  border: 0;
+  color: #fff;
+  text-align: center;
+}
+#form-dialog div {
+  padding: 10px;
+}
+#form-dialog-buttons {
+  font-weight: bold;
+  cursor: pointer;
+}
+#form-dialog-buttons span {
+  padding: 0 10px;
+}
+#info-dialog {
+  text-align: center;
+  padding: 10px;
+}

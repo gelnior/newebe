@@ -15,42 +15,64 @@ class FormDialog
       @element = $("#form-dialog")
       @element.html('''
         <div id="form-dialog-text"></div>
-        <div id="form-dialog-buttons">'
-          <span id="form-dialog-yes">Yes</span>
-          <span id="form-dialog-no">No</span>
+        <div id="form-dialog-fields">
+        </div>
+        <div id="form-dialog-buttons">
+          <span id="form-dialog-yes">ok</span>
+          <span id="form-dialog-no">cancel</span>
         </div>
       ''')
 
     @element = $("#form-dialog")
+    @setNoButton
     @element.hide()
 
     @fields = []
 
+
   addField: (field) ->
-    @fields.append(field)
+    @fields.push(field)
+    if field.label
+      $("#form-dialog-fields").append(
+          "<label for=\"#{field.name}\"></label>")
+    $("#form-dialog-fields").append(
+        "<input class=\"form-dialog-field\" 
+                id=\"form-dialog-field-#{field.name}\"
+                type=\"text\" 
+                name=\"#{field.name}\" />")
 
-  clearFields: () ->
+  clearFields: ->
     @fields = []
+    $("#form-dialog-fields").html(null)
 
-   # Hide when no button is clicked.
-   setNoButton: ->
-     divElement = @element
-     $("#confirmation-no").click(
-       () ->
-         divElement.fadeOut()
-         false
-     )
 
-   # Displays confirmation dialog with givent *text* and set callback function
-   # on click event.
-   display: (text, callback) ->
-     $("#confirmation-text").empty()
-     $("#confirmation-text").append('<span>' + text + '</span>')
-     $("#confirmation-yes").click(callback)
-     @element.show()
-      
+  # Hide when no button is clicked.
+  setNoButton: ->
+    $("#form-dialog-no").click( =>
+        @element.fadeOut()
+      false
+    )
 
-   # Hide confirmation dialog
-   hide: ->
-     @element.fadeOut()
+
+  # Displays confirmation dialog with givent *text* and set callback function
+  # on click event.
+  display: (text, callback) ->
+    $("#form-dialog-text").empty()
+    $("#form-dialog-text").append '<span>' + text + '</span>'
+    $("#form-dialog-yes").click callback
+    $("#form-dialog-no").click =>
+      @element.hide()
+   
+    @element.show()
+
+    if @fields
+      document.getElementById("form-dialog-field-#{@fields[0].name}").focus()
+
+       
+  getVal: (fieldIndex) ->
+    $("#form-dialog-field-#{@fields[fieldIndex].name}").val()
+
+  # Hide confirmation dialog
+  hide: ->
+    @element.fadeOut()
 

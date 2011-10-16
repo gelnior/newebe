@@ -1,5 +1,5 @@
 (function() {
-  var ProfileView, User, UserCollection, profileApp;
+  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, ProfileView, User, UserCollection, formDialog, infoDialog, loadingIndicator, profileApp;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -8,13 +8,139 @@
     child.__super__ = parent.prototype;
     return child;
   };
+  FormDialog = (function() {
+    function FormDialog() {
+      var div;
+      if ($("#form-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "form-dialog";
+        div.className = "dialog";
+        $("body").prepend(div);
+        this.element = $("#form-dialog");
+        this.element.html('<div id="form-dialog-text"></div>\n<div id="form-dialog-fields">\n</div>\n<div id="form-dialog-buttons">\n  <span id="form-dialog-yes">ok</span>\n  <span id="form-dialog-no">cancel</span>\n</div>');
+      }
+      this.element = $("#form-dialog");
+      this.setNoButton;
+      this.element.hide();
+      this.fields = [];
+    }
+    FormDialog.prototype.addField = function(field) {
+      this.fields.push(field);
+      if (field.label) {
+        $("#form-dialog-fields").append("<label for=\"" + field.name + "\"></label>");
+      }
+      return $("#form-dialog-fields").append("<input class=\"form-dialog-field\"                 id=\"form-dialog-field-" + field.name + "\"                type=\"text\"                 name=\"" + field.name + "\" />");
+    };
+    FormDialog.prototype.clearFields = function() {
+      this.fields = [];
+      return $("#form-dialog-fields").html(null);
+    };
+    FormDialog.prototype.setNoButton = function() {
+      return $("#form-dialog-no").click(__bind(function() {
+        return this.element.fadeOut();
+      }, this), false);
+    };
+    FormDialog.prototype.display = function(text, callback) {
+      $("#form-dialog-text").empty();
+      $("#form-dialog-text").append('<span>' + text + '</span>');
+      $("#form-dialog-yes").click(callback);
+      $("#form-dialog-no").click(__bind(function() {
+        return this.element.hide();
+      }, this));
+      this.element.show();
+      if (this.fields) {
+        return document.getElementById("form-dialog-field-" + this.fields[0].name).focus();
+      }
+    };
+    FormDialog.prototype.getVal = function(fieldIndex) {
+      return $("#form-dialog-field-" + this.fields[fieldIndex].name).val();
+    };
+    FormDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return FormDialog;
+  })();
+  LoadingIndicator = (function() {
+    function LoadingIndicator() {
+      var div;
+      if ($("#loading-indicator").length === 0) {
+        div = document.createElement('div');
+        div.id = "loading-indicator";
+        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        $("body").prepend(div);
+      }
+      this.element = $("#loading-indicator");
+      this.element.hide();
+    }
+    LoadingIndicator.prototype.display = function() {
+      return this.element.show();
+    };
+    LoadingIndicator.prototype.hide = function() {
+      return this.element.hide();
+    };
+    return LoadingIndicator;
+  })();
+  InfoDialog = (function() {
+    function InfoDialog() {
+      var div;
+      if ($("#info-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "info-dialog";
+        div.className = "dialog";
+        $("body").prepend(div);
+      }
+      this.element = $("#info-dialog");
+      this.element.hide();
+    }
+    InfoDialog.prototype.display = function(text) {
+      this.element.empty();
+      this.element.append(text);
+      this.element.show();
+      return this.element.fadeOut(4000);
+    };
+    return InfoDialog;
+  })();
+  ConfirmationDialog = (function() {
+    function ConfirmationDialog(callback) {
+      var div;
+      if ($("#confirmation-dialog").length === 0) {
+        div = document.createElement('div');
+        div.id = "confirmation-dialog";
+        div.className = "dialog";
+        div.innerHTML = '<div id="confirmation-text"></div>';
+        div.innerHTML += '<div id="confirmation-buttons">' + '<span href="" id="confirmation-yes">Yes</span>' + '<span href="" id="confirmation-no">No</span>' + '</div>';
+        $("body").prepend(div);
+      }
+      this.element = $("#confirmation-dialog");
+      this.element.hide();
+      this.setNoButton();
+    }
+    ConfirmationDialog.prototype.setNoButton = function() {
+      var divElement;
+      divElement = this.element;
+      return $("#confirmation-no").click(function() {
+        divElement.fadeOut();
+        return false;
+      });
+    };
+    ConfirmationDialog.prototype.display = function(text, callback) {
+      $("#confirmation-text").empty();
+      $("#confirmation-text").append('<span>' + text + '</span>');
+      $("#confirmation-yes").click(callback);
+      return this.element.show();
+    };
+    ConfirmationDialog.prototype.hide = function() {
+      return this.element.fadeOut();
+    };
+    return ConfirmationDialog;
+  })();
   ProfileView = (function() {
     __extends(ProfileView, Backbone.View);
     ProfileView.prototype.el = $("#profile");
     function ProfileView() {
-      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);;
-      this.onMouseOut = __bind(this.onMouseOut, this);;
-      this.onMouseOver = __bind(this.onMouseOver, this);;      ProfileView.__super__.constructor.call(this);
+      this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);
+      this.onMouseOut = __bind(this.onMouseOut, this);
+      this.onMouseOver = __bind(this.onMouseOver, this);      ProfileView.__super__.constructor.call(this);
     }
     ProfileView.prototype.initialize = function() {
       _.bindAll(this, 'onKeyUp', 'postUserInfo', 'fetch', 'addAll');
@@ -25,7 +151,7 @@
     /* Events */
     ProfileView.prototype.events = {
       "click #profile-description-edit": "onDescriptionEditClicked",
-      "click #change-password(": "onDescriptionEditClicked",
+      "click #profile-change-password": "onChangePasswordClicked",
       "mouseover #profile div.app": "onMouseOver",
       "mouseout #profile div.app": "onMouseOut"
     };
@@ -59,6 +185,29 @@
         });
       }
       return false;
+    };
+    ProfileView.prototype.onChangePasswordClicked = function(event) {
+      formDialog.clearFields();
+      formDialog.addField({
+        name: "new-password"
+      });
+      return formDialog.display("Type your new sesame", function() {
+        if (formDialog.getVal(0)) {
+          loadingIndicator.display();
+          return $.ajax({
+            type: "PUT",
+            url: "/user/password/",
+            data: "{\"password\":\"" + (formDialog.getVal(0)) + "\"}",
+            dataType: "json",
+            success: __bind(function() {
+              formDialog.hide();
+              return loadingIndicator.hide();
+            }, this)
+          });
+        } else {
+          return infoDialog.display("Please enter a sesame");
+        }
+      });
     };
     /* Functions */
     ProfileView.prototype.addAll = function() {
@@ -186,10 +335,10 @@
   })();
   /* Model for a User collection */
   UserCollection = (function() {
+    __extends(UserCollection, Backbone.Collection);
     function UserCollection() {
       UserCollection.__super__.constructor.apply(this, arguments);
     }
-    __extends(UserCollection, Backbone.Collection);
     UserCollection.prototype.model = User;
     UserCollection.prototype.url = '/user/';
     UserCollection.prototype.parse = function(response) {
@@ -198,6 +347,9 @@
     return UserCollection;
   })();
   profileApp = new ProfileView;
+  formDialog = new FormDialog;
+  infoDialog = new InfoDialog;
+  loadingIndicator = new LoadingIndicator;
   profileApp.setWidgets();
   profileApp.setListeners();
   profileApp.fetch();

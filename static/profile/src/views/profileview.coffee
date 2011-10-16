@@ -23,7 +23,7 @@ class ProfileView extends Backbone.View
 
   events:
     "click #profile-description-edit" : "onDescriptionEditClicked"
-    "click #change-password(" : "onDescriptionEditClicked"
+    "click #profile-change-password" : "onChangePasswordClicked"
     "mouseover #profile div.app" : "onMouseOver"
     "mouseout #profile div.app" : "onMouseOut"
 
@@ -44,11 +44,11 @@ class ProfileView extends Backbone.View
 
     if not @isEditing
       @isEditing = true
-      $("#profile-description-display").fadeOut(->
+      $("#profile-description-display").fadeOut ->
         $("#profile-description-display").hide()
         $("#profile-description").slideDown ->
           $("#profile-preview").fadeIn()
-      )
+      
     else
       @isEditing = false
       $("#profile-preview").fadeOut ->
@@ -56,6 +56,21 @@ class ProfileView extends Backbone.View
           $("#profile-description-display").fadeIn()
 
     false
+
+  onChangePasswordClicked: (event) ->
+    formDialog.clearFields()
+    formDialog.addField name: "new-password"
+    formDialog.display "Type your new sesame", () ->
+      if formDialog.getVal(0)
+        loadingIndicator.display()
+        $.ajax (type: "PUT", url: "/user/password/", data: "{\"password\":\"#{formDialog.getVal(0)}\"}", dataType: "json", success: =>
+                 formDialog.hide()
+                 loadingIndicator.hide()
+        )
+      else
+        infoDialog.display "Please enter a sesame"
+        
+
 
   ### Functions ###
 

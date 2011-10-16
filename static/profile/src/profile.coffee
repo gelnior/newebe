@@ -5,8 +5,12 @@
 # and displays it.
 profileApp = new ProfileView
 
+formDialog = new FormDialog
+infoDialog = new InfoDialog
+loadingIndicator = new LoadingIndicator
+
 profileApp.setWidgets()
 profileApp.setListeners()
 
 profileApp.fetch()
-      
+
