@@ -224,6 +224,7 @@ class UserPasswordHandler(NewebeAuthHandler):
                user.password =  \
                    hashlib.sha224(postedPassword['password']).hexdigest()
                user.save()
+               self.set_secure_cookie("password", user.password)
 
 
 # Template handlers
