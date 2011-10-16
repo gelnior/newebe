@@ -9,10 +9,10 @@
     return child;
   }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   PlatformController = (function() {
+    __extends(PlatformController, Backbone.Router);
     function PlatformController() {
       PlatformController.__super__.constructor.apply(this, arguments);
     }
-    __extends(PlatformController, Backbone.Router);
     PlatformController.prototype.routes = {
       "contact": "displayContact",
       "news": "displayNews",
@@ -49,31 +49,55 @@
         div.className = "dialog";
         $("body").prepend(div);
         this.element = $("#form-dialog");
-        this.element.html('<div id="form-dialog-text"></div>\n<div id="form-dialog-buttons">\'\n  <span id="form-dialog-yes">Yes</span>\n  <span id="form-dialog-no">No</span>\n</div>');
+        this.element.html('<div id="form-dialog-text"></div>\n<div id="form-dialog-fields">\n</div>\n<div id="form-dialog-buttons">\n  <span id="form-dialog-yes">ok</span>\n  <span id="form-dialog-no">cancel</span>\n</div>');
       }
       this.element = $("#form-dialog");
+      this.setNoButton;
       this.element.hide();
       this.fields = [];
     }
     FormDialog.prototype.addField = function(field) {
-      return this.fields.append(field);
+      this.fields.push(field);
+      if (field.label) {
+        $("#form-dialog-fields").append("<label for=\"" + field.name + "\"></label>");
+      }
+      return $("#form-dialog-fields").append("<input class=\"form-dialog-field\"                 id=\"form-dialog-field-" + field.name + "\"                type=\"text\"                 name=\"" + field.name + "\" />");
     };
     FormDialog.prototype.clearFields = function() {
-      return this.fields = [];
+      this.fields = [];
+      return $("#form-dialog-fields").html(null);
     };
     FormDialog.prototype.setNoButton = function() {
-      var divElement;
-      divElement = this.element;
-      return $("#confirmation-no").click(function() {
-        divElement.fadeOut();
-        return false;
-      });
+      return $("#form-dialog-no").click(__bind(function() {
+        return this.element.fadeOut();
+      }, this), false);
     };
     FormDialog.prototype.display = function(text, callback) {
-      $("#confirmation-text").empty();
-      $("#confirmation-text").append('<span>' + text + '</span>');
-      $("#confirmation-yes").click(callback);
-      return this.element.show();
+      var field, _i, _len, _ref, _results;
+      $("#form-dialog-text").empty();
+      $("#form-dialog-text").append('<span>' + text + '</span>');
+      $("#form-dialog-yes").click(callback);
+      $("#form-dialog-no").click(__bind(function() {
+        return this.element.hide();
+      }, this));
+      this.element.show();
+      if (this.fields) {
+        document.getElementById("form-dialog-field-" + this.fields[0].name).focus();
+        _ref = this.fields;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          field = _ref[_i];
+          _results.push($("#form-dialog-field-" + field.name).keyup(function(event) {
+            if (event.keyCode === 13) {
+              return callback();
+            }
+          }));
+        }
+        return _results;
+      }
+    };
+    FormDialog.prototype.getVal = function(fieldIndex) {
+      return $("#form-dialog-field-" + this.fields[fieldIndex].name).val();
     };
     FormDialog.prototype.hide = function() {
       return this.element.fadeOut();
@@ -288,6 +312,7 @@
     function PlatformView(controller) {
       this.controller = controller;
       controller.registerView(this);
+      this.isChangingPage = false;
       PlatformView.__super__.constructor.apply(this, arguments);
     }
     PlatformView.prototype.initialize = function() {
@@ -310,61 +335,64 @@
       if (ev) {
         ev.preventDefault();
       }
-      document.title = "Newebe | News";
-      this.switchTo("#news", '/news/content/');
+      this.switchTo("#news", '/news/content/', "News");
       return false;
     };
     PlatformView.prototype.onProfileClicked = function(ev) {
       if (ev) {
         ev.preventDefault();
       }
-      document.title = "Newebe | Profile";
-      this.switchTo("#profile", '/profile/content/');
+      this.switchTo("#profile", '/profile/content/', "Profile");
       return false;
     };
     PlatformView.prototype.onContactClicked = function(ev) {
       if (ev) {
         ev.preventDefault();
       }
-      document.title = "Newebe | Contact";
-      this.switchTo("#contact", '/contact/content/');
+      this.switchTo("#contact", '/contact/content/', "Contact");
       return false;
     };
     PlatformView.prototype.onActivitiesClicked = function(ev) {
       if (ev) {
         ev.preventDefault();
       }
-      document.title = "Newebe | Activities";
-      this.switchTo("#activities", '/activities/content/');
+      this.switchTo("#activities", '/activities/content/', "Activities");
       return false;
     };
     PlatformView.prototype.onNotesClicked = function(ev) {
       if (ev) {
         ev.preventDefault();
       }
-      document.title = "Newebe | Notes";
-      this.switchTo("#notes", '/notes/content/');
+      this.switchTo("#notes", '/notes/content/', "Notes");
       return false;
     };
-    PlatformView.prototype.switchTo = function(page, url) {
-      $(this.lastPage + "-a").removeClass("disabled");
-      $(page + "-a").addClass("disabled");
-      this.controller.navigate(page);
-      if (this.lastPage !== page) {
-        $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
+    PlatformView.prototype.switchTo = function(page, url, title) {
+      if (!this.isChangingPage) {
+        this.isChangingPage = true;
+        document.title = "Newebe | " + title;
+        $(this.lastPage + "-a").removeClass("disabled");
+        $(page + "-a").addClass("disabled");
+        this.controller.navigate(page);
+        if (this.lastPage !== page) {
+          $(this.lastPage).fadeOut(this.onLastPageFadeOut(page, url));
+        } else {
+          this.isChangingPage = false;
+        }
+        return this.lastPage;
       }
-      return this.lastPage;
     };
     PlatformView.prototype.onLastPageFadeOut = function(page, url) {
       $(this.lastPage).hide();
       this.lastPage = page;
       if ($(page).length === 0) {
-        $.get(url, function(data) {
+        $.get(url, __bind(function(data) {
           $("#apps").prepend(data);
-          return $(page).fadeIn();
-        });
+          $(page).fadeIn();
+          return this.isChangingPage = false;
+        }, this));
       } else {
         $(page).fadeIn();
+        this.isChangingPage = false;
       }
       return false;
     };

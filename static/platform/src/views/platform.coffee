@@ -16,6 +16,8 @@ class PlatformView extends Backbone.View
   constructor: (controller) ->
     @controller = controller
     controller.registerView(@)
+
+    @isChangingPage = false
     super
 
   # Initiliaze binds functions to this view.
@@ -42,8 +44,8 @@ class PlatformView extends Backbone.View
   onNewsClicked: (ev) ->
     if ev
       ev.preventDefault()
-    document.title = "Newebe | News"
-    @switchTo("#news", '/news/content/')
+
+    @switchTo("#news", '/news/content/', "News")
     false
 
   # When profile is clicked, current page is hidden and profile
@@ -51,8 +53,8 @@ class PlatformView extends Backbone.View
   onProfileClicked: (ev) ->
     if ev
       ev.preventDefault()
-    document.title = "Newebe | Profile"
-    @switchTo("#profile", '/profile/content/')
+
+    @switchTo("#profile", '/profile/content/', "Profile")
     false
 
   # When contact is clicked, current page is hidden and contact
@@ -60,8 +62,8 @@ class PlatformView extends Backbone.View
   onContactClicked: (ev) ->
     if ev
       ev.preventDefault()
-    document.title = "Newebe | Contact"
-    @switchTo("#contact", '/contact/content/')
+
+    @switchTo("#contact", '/contact/content/', "Contact")
     false
 
   # When activities is clicked, current page is hidden and activities
@@ -69,8 +71,8 @@ class PlatformView extends Backbone.View
   onActivitiesClicked: (ev) ->
     if ev
       ev.preventDefault()
-    document.title = "Newebe | Activities"
-    @switchTo("#activities", '/activities/content/')
+
+    @switchTo("#activities", '/activities/content/', "Activities")
     false
 
   # When notes is clicked, current page is hidden and notes
@@ -78,22 +80,30 @@ class PlatformView extends Backbone.View
   onNotesClicked: (ev) ->
     if ev
       ev.preventDefault()
-    document.title = "Newebe | Notes"
-    @switchTo("#notes", '/notes/content/')
+
+    @switchTo("#notes", '/notes/content/', "Notes")
     false
 
   # Switch to *page*: hides current page and displays *page*. 
   # If has not been loaded it appends html 
   # data retrieved at corresponding *url*. Switching begins by current page 
   # fade out.
-  switchTo: (page, url) ->
-    $(@lastPage + "-a").removeClass("disabled")
-    $(page + "-a").addClass("disabled")
-    @controller.navigate(page)
+  switchTo: (page, url, title) ->
 
-    if @lastPage != page
-      $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))
-    @lastPage
+    if not @isChangingPage
+      @isChangingPage = true
+      document.title = "Newebe | " + title
+
+      $(@lastPage + "-a").removeClass("disabled")
+      $(page + "-a").addClass("disabled")
+      @controller.navigate(page)
+
+      if @lastPage != page
+        $(@lastPage).fadeOut(@onLastPageFadeOut(page, url))
+      else
+        @isChangingPage = false
+
+      @lastPage
 
 
 
@@ -104,11 +114,13 @@ class PlatformView extends Backbone.View
     @lastPage = page
     if($(page).length == 0)
       $.get(url,
-        (data) ->
+        (data) =>
           $("#apps").prepend(data)
           $(page).fadeIn()
+          @isChangingPage = false
       )
     else
       $(page).fadeIn()
+      @isChangingPage = false
     false
 
