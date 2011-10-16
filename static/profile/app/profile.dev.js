@@ -41,6 +41,7 @@
       }, this), false);
     };
     FormDialog.prototype.display = function(text, callback) {
+      var field, _i, _len, _ref, _results;
       $("#form-dialog-text").empty();
       $("#form-dialog-text").append('<span>' + text + '</span>');
       $("#form-dialog-yes").click(callback);
@@ -49,7 +50,18 @@
       }, this));
       this.element.show();
       if (this.fields) {
-        return document.getElementById("form-dialog-field-" + this.fields[0].name).focus();
+        document.getElementById("form-dialog-field-" + this.fields[0].name).focus();
+        _ref = this.fields;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          field = _ref[_i];
+          _results.push($("#form-dialog-field-" + field.name).keyup(function(event) {
+            if (event.keyCode === 13) {
+              return callback();
+            }
+          }));
+        }
+        return _results;
       }
     };
     FormDialog.prototype.getVal = function(fieldIndex) {

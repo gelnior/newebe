@@ -40,6 +40,7 @@ class FormDialog
                 id=\"form-dialog-field-#{field.name}\"
                 type=\"text\" 
                 name=\"#{field.name}\" />")
+  
 
   clearFields: ->
     @fields = []
@@ -67,6 +68,11 @@ class FormDialog
 
     if @fields
       document.getElementById("form-dialog-field-#{@fields[0].name}").focus()
+      for field in @fields
+        $("#form-dialog-field-#{field.name}").keyup (event) ->
+          if event.keyCode == 13
+            callback()
+
 
        
   getVal: (fieldIndex) ->
