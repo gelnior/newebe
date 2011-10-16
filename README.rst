@@ -19,7 +19,7 @@ Dependencies
 * lettuce >= 0.1.9
 
 
-Set up a development environment (Ubuntu 10.4)
+Set up a development environment (Ubuntu and Debian)
 ==============================================
 
 **Server**
