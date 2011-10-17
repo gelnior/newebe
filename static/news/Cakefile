@@ -136,7 +136,6 @@ task 'build', 'Build single application file from source files', ->
             if --remaining is 0
               process appContents, "dev", () ->
                 puts 'Build done'
-                invoke 'minify'
 
 
 # Make JS file lighter

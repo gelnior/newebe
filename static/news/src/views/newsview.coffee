@@ -254,22 +254,7 @@ class NewsView extends Backbone.View
       urlIndex = content.indexOf(url)
       if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
         content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
-        urls = content.match(regexp)
-        if urls
-          content = @convertUrlToMarkdownLink(content)
     content
-
-    #if urls and typeof urls == "string"
-    #  url = urls
-    #  urlIndex = content.indexOf(url)
-    #  if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
-    #    content = content.replace(url, "[" + url.substring(1, url.length) + "]" + "(" + url.substring(1, url.length) + ")" )
-   # else if urls
-   #   for url in urls
-   #     urlIndex = content.indexOf(url)
-   #     if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
-   #       content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
-
 
 
   # When more news is clicked, GET URL is updated with last register date,
