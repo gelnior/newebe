@@ -3,7 +3,7 @@ import hashlib
 
 
 from tornado.escape import json_decode, json_encode
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, HTTPError
 
 from newebe.lib import json_util
 from newebe.profile.models import UserManager
@@ -100,6 +100,11 @@ class NewebeAuthHandler(NewebeHandler):
     exists, it is redirected to register page.
     '''
 
+    def prepare(self):
+        user = self.current_user
+        if not user:
+            self._finished = True
+
 
     def get_current_user(self):
         '''
@@ -109,7 +114,9 @@ class NewebeAuthHandler(NewebeHandler):
         user = UserManager.getUser()
 
         if user:
+
             if user.password is None:
+                logger.error("User has no password registered")
                 self.redirect("/register/password/")
 
             else:
@@ -117,10 +124,13 @@ class NewebeAuthHandler(NewebeHandler):
 
                 if not password or  \
                    user.password != hashlib.sha224(password).hexdigest():
+                    logger.error("User is not authenticated")
                     self.redirect("/login/")
+
                 else:
                     return user
-        else:
-            self.redirect("/register/")
 
+        else:
+            logger.error("User is not authenticated")
+            self.redirect("/register/")
 

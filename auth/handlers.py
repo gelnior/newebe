@@ -137,23 +137,24 @@ class RegisterPasswordTHandler(NewebeHandler):
         if user is None:
             self.return_failure("User does not exist.")
 
-        if user.password is not None:
+        elif user.password is not None:
             self.return_failure("Password is already set.")
 
-        data = self.request.body
-
-        if data:
-            postedPassword = json_decode(data)
-            password = hashlib.sha224(postedPassword['password']).hexdigest()
-            user.password = password
-            user.save()
-            self.set_secure_cookie("password", postedPassword['password'])
-
-            self.return_json(user.toJson())
-
         else:
-            self.return_failure(
-                    "Data are not correct. User password is not set.", 400)
+            data = self.request.body
+
+            if data:
+                postedPassword = json_decode(data)
+                password = hashlib.sha224(postedPassword['password']).hexdigest()
+                user.password = password
+                user.save()
+                self.set_secure_cookie("password", postedPassword['password'])
+
+                self.return_json(user.toJson())
+
+            else:
+                self.return_failure(
+                        "Data are not correct. User password is not set.", 400)
 
 
 class RegisterTHandler(NewebeHandler):
@@ -186,21 +187,22 @@ class RegisterTHandler(NewebeHandler):
         if UserManager.getUser():
             self.return_failure("User already exists.")
 
-        data = self.request.body
-        
-        if data:
-            postedUser = json_decode(data)
-            user = User()
-            user.name = postedUser['name']
-            user.save()
-            user.key = user._id
-            user.save()
-
-            self.return_json(user.toJson(), 201)
-
         else:
-            self.return_failure(
-                    "Data are not correct. User has not been created.", 400)
+            data = self.request.body
+        
+            if data:
+                postedUser = json_decode(data)
+                user = User()
+                user.name = postedUser['name']
+                user.save()
+                user.key = user._id
+                user.save()
+
+                self.return_json(user.toJson(), 201)
+
+            else:
+                self.return_failure(
+                        "Data are not correct. User has not been created.", 400)
 
 
 class UserPasswordHandler(NewebeAuthHandler):
