@@ -1,10 +1,8 @@
 import sys
-import os
 import datetime 
 import simplejson as json
 
-from lettuce import step, world
-from tornado.httpclient import HTTPClient
+from lettuce import step, world, before
 
 sys.path.append("../../../")
 
@@ -12,8 +10,16 @@ from newebe.lib import date_util
 from newebe.activities.models import Activity, ActivityManager
 from newebe.contacts.models import Contact
 from newebe.settings import TORNADO_PORT
+from newebe.lib.test_util import NewebeClient
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
+
+
+@before.all
+def set_browser():
+    world.browser = NewebeClient()
+    world.browser.set_default_user()
+    world.browser.login("password")
 
 @step('Take the default activity')
 def get_default_activity(step):
@@ -132,47 +138,29 @@ def retrieve_owner_activities_from_date(step, date):
 
 @step(u'Get last activities from handler')
 def get_last_activities_from_handler(step):
-    client = HTTPClient()
-    response = client.fetch(ROOT_URL + "activities/all/")
+    world.data = world.browser.fetch_documents_from_url(
+        ROOT_URL + "activities/all/")
 
-    assert response.code == 200
-    assert response.headers["Content-Type"] == "application/json"
- 
-    world.data = json.loads(response.body)
 
 @step(u'Get last activities of owner from handler')
 def get_last_activities_owner_from_handler(step):
-    client = HTTPClient()
-    response = client.fetch(ROOT_URL + "activities/mine/")
+    world.data = world.browser.fetch_documents_from_url(
+        ROOT_URL + "activities/mine/")
 
-    assert response.code == 200
-    assert response.headers["Content-Type"] == "application/json"
- 
-    world.data = json.loads(response.body)
 
 @step(u'Assert that there are, from handler, (\d+) activities retrieved')
 def assert_that_there_are_from_handler_x_activities_retrieved(step, 
                                                               nb_activities):
 
-    assert int(nb_activities) == world.data["total_rows"]
-    assert int(nb_activities) == len(world.data["rows"])
+    assert int(nb_activities) == len(world.data)
 
 @step(u'Get activities until ([0-9-]+) from handler')
 def get_activities_until_date_from_handler(step, url_date):
-    client = HTTPClient()
-    response = client.fetch(ROOT_URL + "activities/all/" + url_date + "/")
-
-    assert response.code == 200
-    assert response.headers["Content-Type"] == "application/json"
- 
-    world.data = json.loads(response.body)
+    world.data = world.browser.fetch_documents_from_url(
+        ROOT_URL + "activities/all/" + url_date + "/")
 
 @step(u'Get owner activities until ([0-9-]+) from handler')
 def get_owner_activities_until_date_from_handler(step, url_date):
-    client = HTTPClient()
-    response = client.fetch(ROOT_URL + "activities/mine/" + url_date + "/")
+    world.data = world.browser.fetch_documents_from_url(
+            ROOT_URL + "activities/mine/" + url_date + "/")
 
-    assert response.code == 200
-    assert response.headers["Content-Type"] == "application/json"
-        
-    world.data = json.loads(response.body)
