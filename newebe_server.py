@@ -19,6 +19,7 @@ from newebe.contacts.handlers import ContactUpdateHandler, \
                                  ContactHandler, ContactsHandler, \
                                  ContactsPendingHandler, \
                                  ContactsRequestedHandler, \
+                                 ContactsTrustedHandler, \
                                  ContactRenderTHandler, ContactRetryHandler
 
 from newebe.contacts.handlers import ContactTHandler
@@ -94,6 +95,7 @@ class Newebe(Application):
             ('/contacts/update-profile/$', ContactUpdateHandler),
             ('/contacts/pending/$', ContactsPendingHandler),
             ('/contacts/requested/$', ContactsRequestedHandler),
+            ('/contacts/trusted/$', ContactsTrustedHandler),
             ('/contacts/confirm/$', ContactConfirmHandler),
             ('/contacts/request/$', ContactPushHandler),
             ('/contacts/render/([0-9A-Za-z-]+)/$', ContactRenderTHandler),
