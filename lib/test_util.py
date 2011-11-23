@@ -1,8 +1,11 @@
+import hashlib
+
 from lettuce import world
 from tornado.escape import json_decode
-from tornado.httpclient import HTTPClient
+from tornado.httpclient import HTTPClient, HTTPRequest
 
 from newebe.settings import TORNADO_PORT
+from newebe.profile.models import UserManager, User
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
@@ -11,13 +14,40 @@ class NewebeClient(HTTPClient):
     Tornado client wrapper to write requests to Newebe faster.
     '''
 
+    def login(self, password):
+        '''
+        Grab authentication cookie from login request.
+        '''
+        response = self.fetch(ROOT_URL + "login/json/", 
+                method="POST", body='{"password":"%s"}' % password)
+        
+        assert response.headers["Set-Cookie"].startswith("password=")
+        self.cookie = response.headers["Set-Cookie"]
+
+
+    def set_default_user(self):
+        user = UserManager.getUser()
+        if user:
+            user.delete()
+        
+        user = User(
+            name = "John Doe",
+            password = hashlib.sha224("password").hexdigest(),
+            key = None,
+            authorKey = "authorKey",
+            url = "url",
+            description = "my description"
+        )
+        user.save()
 
     def get(self, url):
         '''
         Perform a GET request.
         '''
-
-        return HTTPClient.fetch(self, url)
+        request = HTTPRequest(url)
+        if self.cookie:
+            request.headers["Cookie"] = self.cookie
+        return HTTPClient.fetch(self, request)
 
 
     def post(self, url, body):
@@ -25,7 +55,10 @@ class NewebeClient(HTTPClient):
         Perform a POST request.
         '''
 
-        return HTTPClient.fetch(self, url, method="POST", body=body)
+        request = HTTPRequest(url, method="POST", body=body)
+        if self.cookie:
+            request.headers["Cookie"] = self.cookie
+        return HTTPClient.fetch(self, request)
 
 
     def put(self, url, body):
@@ -33,7 +66,10 @@ class NewebeClient(HTTPClient):
         Perform a PUT request.
         '''
 
-        return HTTPClient.fetch(self, url, method="PUT", body=body)
+        request = HTTPRequest(url, method="PUT", body=body)
+        if self.cookie:
+            request.headers["Cookie"] = self.cookie
+        return HTTPClient.fetch(self, request)
 
 
     def delete(self, url):
@@ -41,7 +77,10 @@ class NewebeClient(HTTPClient):
         Perform a DELETE request.
         '''
 
-        return HTTPClient.fetch(self, url, method="DELETE")
+        request = HTTPRequest(url, method="DELETE")
+        if self.cookie:
+            request.headers["Cookie"] = self.cookie
+        return HTTPClient.fetch(self, request)
 
 
     def fetch_documents_from_url(self, url):
