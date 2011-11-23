@@ -45,7 +45,7 @@ class NewebeClient(HTTPClient):
         Perform a GET request.
         '''
         request = HTTPRequest(url)
-        if self.cookie:
+        if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
 
@@ -56,7 +56,7 @@ class NewebeClient(HTTPClient):
         '''
 
         request = HTTPRequest(url, method="POST", body=body)
-        if self.cookie:
+        if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
 
@@ -67,7 +67,7 @@ class NewebeClient(HTTPClient):
         '''
 
         request = HTTPRequest(url, method="PUT", body=body)
-        if self.cookie:
+        if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
 
