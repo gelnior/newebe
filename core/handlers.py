@@ -3,7 +3,7 @@ import hashlib
 
 
 from tornado.escape import json_decode, json_encode
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import RequestHandler
 
 from newebe.lib import json_util
 from newebe.profile.models import UserManager
@@ -61,7 +61,8 @@ class NewebeHandler(RequestHandler):
         Return an error response containing a JSON object that describes
         the error.
         '''
-        
+       
+        logger.error(text)
         self.return_json(json_encode({ "error" : text }), statusCode)
 
 
