@@ -106,10 +106,10 @@ type="text/css" media="screen" />
     <h3>Procedure (For Debian 6.0)</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
-    (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>) :
+    (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>), prefixed it with <em>sudo</em> if needed :
     </p>
     <pre>
- apt-get python python-setuptools python-pycurl python-daemon couchdb git</pre>
+ apt-get install python python-setuptools python-pycurl python-daemon couchdb git</pre>
     <p>
         Via easy_install install <em>couchdbkit</em>, <em>markdown</em> and 
         <em>tornado</em> :
@@ -149,15 +149,15 @@ type="text/css" media="screen" />
     <pre>
   python syncdb.py</pre>
     <p>
-        <span class="step"> step 4 </span>  Update deployment file 
+        <span class="step"> step 4 </span>  Edit deployment file 
         (<em>YOUR_NEWEBE_FOLDER/deploy/newebe</em>) by changing 
         <em>NEWEBE_PATH</em> and <em>PIDFILE</em> constants to make it point 
         to your 
         <em>Newebe</em> directory (pid file will be created at first startup).
     </p>
     <p>
-        <span class="step"> step 4 bis </span> To change database name or port 
-        change constants sets in
+        <span class="step"> step 4 bis </span> To change database name or port,
+        modifiy constants set in
         <em>settings.py</em> file : <em>TORNADO_PORT</em> and 
         <em>COUCHDB_DB_NAME</em>. Default port is
         8000 and default database name is <em>newebe</em>.
