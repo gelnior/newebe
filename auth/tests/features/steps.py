@@ -30,6 +30,7 @@ def set_browser():
 @before.each_scenario
 def clear_cookie(scenario):
     world.cookie = ""
+    world.browser.cookie = ""
 
 @step('Set default user')
 def set_default_user(step):
@@ -83,6 +84,7 @@ def checks_that_secure_cookie_is_set(step):
     assert "Set-Cookie" in world.response.headers
     
     world.cookie = world.response.headers["Set-Cookie"]
+    world.browser.cookie = world.cookie
     assert world.response.headers["Set-Cookie"].startswith("password=")
 
 @step(u'Checks that response is root page')
@@ -105,6 +107,7 @@ def send_logout_request(step):
     world.response = world.browser.fetch(request)
     if world.response.code == 200:
         world.cookie = ""
+        world.browser.cookie = ""
 
 
 @step(u'Open register url')
