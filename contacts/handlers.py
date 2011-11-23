@@ -72,7 +72,6 @@ class ContactUpdateHandler(NewebeHandler):
 
 class ContactsPendingHandler(NewebeAuthHandler):
     '''
-    This is the resource for contact data management. It allows :
      * GET : retrieve only contacts that have not approved your contact 
               request or  contacts that returned an error.
     '''
@@ -90,7 +89,6 @@ class ContactsPendingHandler(NewebeAuthHandler):
 
 class ContactsRequestedHandler(NewebeAuthHandler):
     '''
-    This is the resource for contact data management. It allows :
      * GET : contacts that wait for approval.
     '''
 
@@ -101,6 +99,22 @@ class ContactsRequestedHandler(NewebeAuthHandler):
         '''
 
         contacts = ContactManager.getRequestedContacts()
+
+        self.return_documents(contacts)
+
+
+class ContactsTrustedHandler(NewebeAuthHandler):
+    '''
+     * GET : retrieve only contacts that are trusted by newebe owner
+    '''
+
+
+    def get(self):
+        '''
+        Retrieve whole contact list at JSON format.
+        '''
+
+        contacts = ContactManager.getTrustedContacts()
 
         self.return_documents(contacts)
 
