@@ -7,7 +7,7 @@ from lettuce import step, world
 sys.path.append("../../../")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 
-from newebe.lib import date_util, json_util
+from newebe.lib import date_util, json_util, slugify
 from newebe.news.models import MicroPost
 
 @step(u'Assert that ([0-9-]+) is converted to ([0-9A-Z-:]+)')
@@ -57,4 +57,22 @@ def checks_that_content_of_json_documents_are_the_same_as_given_documents(step):
             if doc.content == json_doc["content"]:
                 is_same_content = True
         assert is_same_content
+
+# Slugify
+
+@step(u'Convert Jhon Doe')
+def convert_jhon_doe(step):
+    world.slug = slugify.slugify(u"Jhon Doe")
+
+@step(u'Get jhon-doe')
+def get_jhon_doe(step):
+    assert "jhon-doe" == world.slug
+
+@step(u'Convert http://www.test.net:13200/')
+def convert_http_www_test_net_13200(step):
+    world.slug = slugify.slugify(u"http://www.test.net:13200/")
+
+@step(u'Get httpwwwtestnet13200')
+def get_httpwwwtestnet13200(step):
+    assert "httpwwwtestnet13200" == world.slug
 
