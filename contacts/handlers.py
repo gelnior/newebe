@@ -123,7 +123,7 @@ class ContactHandler(NewebeAuthHandler):
     '''
     Resource to manage specific contacts.
     GET: Gets a contact for a given slug.
-    PUT: Modifies contact corresponding to given slug.
+    PUT: Confirm contact request.
     DELETE: Deletes contact corresponding to given slug.
     '''
 
@@ -144,7 +144,7 @@ class ContactHandler(NewebeAuthHandler):
  
     def put(self, slug):
         '''
-        Modifies contact with data coming from request.
+        Confirm contact request.
         '''
 
         contact = ContactManager.getContact(slug)
@@ -221,12 +221,9 @@ class ContactsHandler(NewebeAuthHandler):
         if data:
             postedContact = json_decode(data)
             url = postedContact['url']
-
-
             owner = UserManager.getUser()
 
             if owner.url != url:
-
                 slug = slugify(url)
 
                 contact = Contact(
