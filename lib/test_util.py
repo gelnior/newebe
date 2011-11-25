@@ -73,9 +73,13 @@ class NewebeClient(HTTPClient):
         Perform a PUT request.
         '''
 
+        if hasattr(self, "root_url") and self.root_url:
+            url = self.root_url + url
+
         request = HTTPRequest(url, method="PUT", body=body)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
+            
         return HTTPClient.fetch(self, request)
 
 
