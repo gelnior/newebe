@@ -111,7 +111,7 @@ class MicroPostRow extends Backbone.View
     $(@el).removeClass("selected")
     $("#news-preview").html(null)
     
-  # Check if post contains a youtube or a dailymotion link. If it is the case,
+  # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.
   checkForVideo: ->
     youtubeRegExp = /http:\/\/\S+?youtube.com\S+\]/
