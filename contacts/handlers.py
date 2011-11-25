@@ -367,7 +367,7 @@ class ContactPushHandler(NewebeHandler):
             self.return_failure("Sent data are incorrects.")
 
 
-class ContactConfirmHandler(NewebeAuthHandler):
+class ContactConfirmHandler(NewebeHandler):
     '''
     This is the resource for contact confirmation. It allows :
      * POST : confirm a contact and set its state to TRUSTED.
