@@ -11,7 +11,7 @@ from newebe.lib.slugify import slugify
 from newebe.profile.models import UserManager
 from newebe.contacts.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
-                               STATE_TRUSTED
+                               STATE_TRUSTED, STATE_PENDING
 from newebe.activities.models import Activity
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
@@ -302,7 +302,7 @@ class ContactRetryHandler(NewebeAuthHandler):
                     contact.save()
 
                 else:
-                    contact.state = STATE_WAIT_APPROVAL
+                    contact.state = STATE_PENDING
                     contact.save()
 
             except Exception:
