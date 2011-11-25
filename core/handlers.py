@@ -53,6 +53,7 @@ class NewebeHandler(RequestHandler):
         the success.
         '''
 
+        logger.info(text)
         self.return_json(json_encode({ "success" : text }), statusCode)
  
 
