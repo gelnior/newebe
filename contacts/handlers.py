@@ -139,7 +139,7 @@ class ContactHandler(NewebeAuthHandler):
             self.return_document(contact)
 
         else:
-            self.return_failure("Contact does not exist.")
+            self.return_failure("Contact does not exist.", 404)
 
  
     def put(self, slug):
