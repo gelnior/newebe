@@ -14,18 +14,24 @@ class NewebeClient(HTTPClient):
     Tornado client wrapper to write requests to Newebe faster.
     '''
 
+
     def login(self, password):
         '''
         Grab authentication cookie from login request.
         '''
-        response = self.fetch(ROOT_URL + "login/json/", 
+        response = self.fetch(self.root_url + "login/json/", 
                 method="POST", body='{"password":"%s"}' % password)
         
         assert response.headers["Set-Cookie"].startswith("password=")
         self.cookie = response.headers["Set-Cookie"]
 
 
-    def set_default_user(self):
+    def set_default_user(self, url=ROOT_URL):
+        '''
+        Set to DB default user. This is useful for automatic login.
+        '''
+        self.root_url = url
+
         user = UserManager.getUser()
         if user:
             user.delete()
@@ -35,10 +41,11 @@ class NewebeClient(HTTPClient):
             password = hashlib.sha224("password").hexdigest(),
             key = None,
             authorKey = "authorKey",
-            url = "url",
+            url = url,
             description = "my description"
         )
         user.save()
+
 
     def get(self, url):
         '''
@@ -83,9 +90,22 @@ class NewebeClient(HTTPClient):
         return HTTPClient.fetch(self, request)
 
 
+    def fetch_document_from_url(self, url):
+        '''
+        Retrieve newebe document from a givent url
+        '''
+
+        response = self.get(url)
+
+        assert response.code == 200
+        assert response.headers["Content-Type"] == "application/json"
+ 
+        return json_decode(response.body)
+
+
     def fetch_documents_from_url(self, url):
         '''
-        Retrieve newebe documents from a givent url
+        Retrieve newebe document list from a givent url
         '''
 
         response = self.get(url)
@@ -97,10 +117,18 @@ class NewebeClient(HTTPClient):
         return world.data["rows"]
 
 
-    def fetch_documents(self, path):
+    def fetch_document(self, path):
         '''
-        Retrieve documents from path located on localhost server.
+        Retrieve document from path located on localhost server.
         '''
 
-        return self.fetch_documents_from_url(ROOT_URL + path)    
+        return self.fetch_document_from_url(self.root_url + path)
+
+
+    def fetch_documents(self, path):
+        '''
+        Retrieve document list from path located on localhost server.
+        '''
+
+        return self.fetch_documents_from_url(self.root_url + path)    
         
