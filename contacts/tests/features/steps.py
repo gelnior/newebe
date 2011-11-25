@@ -1,6 +1,7 @@
 import sys
 
 from lettuce import step, world, before
+from tornado.httpclient import HTTPError
 
 sys.path.append("../../../")
 
@@ -16,14 +17,18 @@ from newebe.contacts.models import STATE_PENDING
 from newebe.lib.test_util import NewebeClient
 
 
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = u"http://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
 
 @before.all
 def set_browser():
     world.browser = NewebeClient()
     world.browser.set_default_user()
     world.browser.login("password")
+
+    world.browser2 = NewebeClient()
+    world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
+    world.browser2.login("password")
 
 @step(u'Convert default user to contact')
 def convert_default_user_to_contact(step):
@@ -54,13 +59,13 @@ def creates_contacts(step):
     contact.save()
     contact2 = Contact()
     contact2.url = "http://localhost/2/"
-    contact2.slug = slugify(contact.url)
+    contact2.slug = slugify(contact2.url)
     contact2.state = STATE_TRUSTED
     contact2.key = "key2"
     contact2.save()
     contact3 = Contact()
     contact3.url = "http://localhost/3/"
-    contact3.slug = slugify(contact.url)
+    contact3.slug = slugify(contact3.url)
     contact3.state = STATE_WAIT_APPROVAL
     contact.key = "key3"
     contact3.save()
@@ -142,20 +147,19 @@ def checks_that_second_newebe_has_first_newebe_in_contact(step):
 
 @step(u'Through handler retrieve requested contacts')
 def through_handler_retrieve_requested_contacts(step):
-    world.contacts = world.browser.fetch_documents(
-            "contacts/requested/")
+    world.contacts = world.browser.fetch_documents("contacts/requested/")
 
 @step(u'Through handlers retrieve pending contacts')
 def through_handlers_retrieve_pending_contacts(step):
-    world.contacts = world.browser.fetch_documents(
-            "contacts/pending/")
+    world.contacts = world.browser.fetch_documents("contacts/pending/")
 
 @step(u'Through handlers retrieve trusted contacts')
 def through_handlers_retrieve_trusted_contacts(step):
-    world.contacts = world.browser.fetch_documents(
-            "contacts/trusted/")
+    world.contacts = world.browser.fetch_documents("contacts/trusted/")
 
-
+@step(u'Through handlers retrieve all contacts')
+def through_handlers_retrieve_all_contacts(step):
+    world.contacts = world.browser.fetch_documents("contacts/")
 
 @step(u'Create a default contact')
 def create_a_default_contact(step):
@@ -173,7 +177,7 @@ def change_default_contact_data_through_handlers(step):
     contact.description = "desc 2"
     contact.url = u"http://default:8010/"
     contact.name = "default contact 2"
-    world.browser.put(ROOT_URL + "contacts/update-profile/", contact.toJson())
+    world.browser.put("contacts/update-profile/", contact.toJson())
     
 @step(u'Checks that default contact data are updated')
 def checks_that_default_contact_data_are_updated(step):
@@ -189,4 +193,56 @@ def checks_that_contact_update_activity_is_properly_created(step):
     assert "profile" == activity.docType
     assert False == activity.isMine
     assert "default contact 2"  == activity.author
+
+@step(u'Through handler retrieve contact with slug ([0-9a-z-]+)')
+def through_handler_retrieve_contact_with_slug(step, slug):
+    try:
+        contact = world.browser.fetch_document("contacts/" + slug + "/")
+        world.contacts = [contact]
+    except HTTPError:
+        world.contacts = []
+
+@step(u'Through handler delete contact with slug ([0-9a-z-]+)')
+def through_handler_delete_contact_with_slug_http_localhost_1(step, slug):
+    world.contacts = []
+    world.browser.delete(ROOT_URL + "contacts/" + slug + "/")
+    
+
+## Adding contact
+
+@step(u'Deletes seconde newebe contacts')
+def deletes_seconde_newebe_contacts(step):
+    contacts = world.browser2.fetch_documents("contacts/requested/")
+    for contact in contacts:
+        world.browser2.delete(
+                world.browser2.root_url + "contacts/" + contact["slug"] + "/")
+
+@step(u'On first newebe add second newebe as a contact')
+def on_first_newebe_add_second_newebe_as_a_contact(step):
+    world.browser.post(world.browser.root_url + "contacts/",
+                       body='{"url":"%s"}' % world.browser2.root_url)
+
+@step(u'Check that first contact status is pending')
+def check_that_first_contact_status_is_pending(step):
+    assert 1 == len(world.contacts)
+    assert STATE_PENDING == world.contacts[0]["state"]
+
+@step(u'From second newebe retrieve all contacts')
+def from_second_newebe_retrieve_all_contacts(step):
+    world.contacts = world.browser2.fetch_documents("contacts/")
+
+@step(u'Check that first contact status is waiting for approval')
+def check_that_first_contact_status_is_waiting_for_approval(step):
+    assert 1 == len(world.contacts)
+    assert STATE_WAIT_APPROVAL == world.contacts[0]["state"]
+
+@step(u'On seconde newebe confirm first newebe request')
+def on_seconde_newebe_confirm_first_newebe_request(step):
+    world.browser2.put("contacts/%s/" % slugify(ROOT_URL), "")
+
+@step(u'Check that first contact status is trusted')
+def check_that_first_contact_status_is_trusted(step):
+    assert 1 == len(world.contacts)
+    assert STATE_TRUSTED == world.contacts[0]["state"]
+
 
