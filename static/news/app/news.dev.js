@@ -82,6 +82,109 @@
     };
     return LoadingIndicator;
   })();
+  MicroPostRow = (function() {
+    __extends(MicroPostRow, Backbone.View);
+    MicroPostRow.prototype.tagName = "div";
+    MicroPostRow.prototype.className = "news-micropost-row";
+    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
+    /* Events */
+    MicroPostRow.prototype.events = {
+      "click .news-micropost-delete": "onDeleteClicked",
+      "mouseover": "onMouseOver",
+      "mouseout": "onMouseOut",
+      "click": "onClick",
+      "click .news-micropost-author": "onAuthorClicked"
+    };
+    function MicroPostRow(model, mainView) {
+      this.model = model;
+      this.mainView = mainView;
+      MicroPostRow.__super__.constructor.call(this);
+      this.id = this.model.id;
+      this.model.view = this;
+      this.selected = false;
+    }
+    /* Listeners */
+    MicroPostRow.prototype.onMouseOver = function() {
+      if (!this.selected) {
+        return $(this.el).addClass("mouseover");
+      }
+    };
+    MicroPostRow.prototype.onMouseOut = function() {
+      return $(this.el).removeClass("mouseover");
+    };
+    MicroPostRow.prototype.onClick = function() {
+      return this.mainView.onRowClicked(this);
+    };
+    MicroPostRow.prototype.onDeleteClicked = function() {
+      var model;
+      model = this.model;
+      return confirmationDialog.display("Are you sure you want to delete this post ?", __bind(function() {
+        confirmationDialog.hide();
+        model["delete"]();
+        this.mainView.selectedRow = null;
+        return $("#news-preview").html(null);
+      }, this));
+    };
+    MicroPostRow.prototype.onAuthorClicked = function(event) {
+      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
+        $("#news-preview").append("<p>Post written by : </p>");
+        return $("#news-preview").append(data);
+      });
+      if (event) {
+        event.preventDefault();
+      }
+      return false;
+    };
+    /* Functions */
+    MicroPostRow.prototype.remove = function() {
+      return $(this.el).remove();
+    };
+    MicroPostRow.prototype.render = function() {
+      if (!this.model.getDisplayDate()) {
+        this.model.setDisplayDate();
+      }
+      $(this.el).html(this.template(this.model.toJSON()));
+      this.$(".news-micropost-delete").button();
+      this.$(".news-micropost-delete").hide();
+      return this.el;
+    };
+    MicroPostRow.prototype.select = function() {
+      this.$(".news-micropost-delete").show();
+      $(this.el).removeClass("mouseover");
+      $(this.el).addClass("selected");
+      $("#news-preview").html(null);
+      this.checkForVideo();
+      return this.onAuthorClicked(null);
+    };
+    MicroPostRow.prototype.deselect = function() {
+      this.$(".news-micropost-delete").hide();
+      $(this.el).removeClass("selected");
+      return $("#news-preview").html(null);
+    };
+    MicroPostRow.prototype.checkForVideo = function() {
+      var key, res, url, youtubeRegExp;
+      youtubeRegExp = /http:\/\/\S+?youtube.com\S+\]/;
+      url = youtubeRegExp.exec(this.model.get("content"));
+      key = "";
+      if (url) {
+        res = /v=(.+)&/.exec(url[0]);
+        if (res != null) {
+          key = res[0];
+        }
+        if (!key) {
+          res = /v=(.+)]/.exec(url[0]);
+          if (res != null) {
+            key = res[0];
+          }
+        }
+      }
+      if (key) {
+        key = key.substring(2, key.length - 1);
+        return $("#news-preview").html("<p>\n<iframe width=\"100%\" height=\"315\" \n        src=\"http://www.youtube.com/embed/" + key + "\" \n        frameborder=\"0\" allowfullscreen>\n</iframe>\n</p>");
+      }
+    };
+    return MicroPostRow;
+  })();
   NewsView = (function() {
     __extends(NewsView, Backbone.View);
     NewsView.prototype.el = $("#news");
@@ -319,84 +422,6 @@
       return $("#news-a").addClass("disabled");
     };
     return NewsView;
-  })();
-  MicroPostRow = (function() {
-    __extends(MicroPostRow, Backbone.View);
-    MicroPostRow.prototype.tagName = "div";
-    MicroPostRow.prototype.className = "news-micropost-row";
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
-    /* Events */
-    MicroPostRow.prototype.events = {
-      "click .news-micropost-delete": "onDeleteClicked",
-      "mouseover": "onMouseOver",
-      "mouseout": "onMouseOut",
-      "click": "onClick",
-      "click .news-micropost-author": "onAuthorClicked"
-    };
-    function MicroPostRow(model, mainView) {
-      this.model = model;
-      this.mainView = mainView;
-      MicroPostRow.__super__.constructor.call(this);
-      this.id = this.model.id;
-      this.model.view = this;
-      this.selected = false;
-    }
-    /* Listeners */
-    MicroPostRow.prototype.onMouseOver = function() {
-      if (!this.selected) {
-        return $(this.el).addClass("mouseover");
-      }
-    };
-    MicroPostRow.prototype.onMouseOut = function() {
-      return $(this.el).removeClass("mouseover");
-    };
-    MicroPostRow.prototype.onClick = function() {
-      return this.mainView.onRowClicked(this);
-    };
-    MicroPostRow.prototype.onDeleteClicked = function() {
-      var model;
-      model = this.model;
-      return confirmationDialog.display("Are you sure you want to delete this post ?", __bind(function() {
-        confirmationDialog.hide();
-        model["delete"]();
-        this.mainView.selectedRow = null;
-        return $("#news-preview").html(null);
-      }, this));
-    };
-    MicroPostRow.prototype.onAuthorClicked = function(event) {
-      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
-        return $("#news-preview").html(data);
-      });
-      if (event) {
-        event.preventDefault();
-      }
-      return false;
-    };
-    /* Functions */
-    MicroPostRow.prototype.remove = function() {
-      return $(this.el).remove();
-    };
-    MicroPostRow.prototype.render = function() {
-      if (!this.model.getDisplayDate()) {
-        this.model.setDisplayDate();
-      }
-      $(this.el).html(this.template(this.model.toJSON()));
-      this.$(".news-micropost-delete").button();
-      this.$(".news-micropost-delete").hide();
-      return this.el;
-    };
-    MicroPostRow.prototype.select = function() {
-      this.$(".news-micropost-delete").show();
-      $(this.el).removeClass("mouseover");
-      $(this.el).addClass("selected");
-      return this.onAuthorClicked(null);
-    };
-    MicroPostRow.prototype.deselect = function() {
-      this.$(".news-micropost-delete").hide();
-      $(this.el).removeClass("selected");
-      return $("#news-preview").html(null);
-    };
-    return MicroPostRow;
   })();
   MicroPost = (function() {
     __extends(MicroPost, Backbone.Model);

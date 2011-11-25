@@ -68,7 +68,8 @@ class MicroPostRow extends Backbone.View
   # When author name is clicked, its data are displayed in the preview zone.
   onAuthorClicked: (event) ->
     $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
-      $("#news-preview").html(data)
+      $("#news-preview").append("<p>Post written by : </p>")
+      $("#news-preview").append(data)
     )
 
     if event
@@ -99,6 +100,9 @@ class MicroPostRow extends Backbone.View
     @$(".news-micropost-delete").show()
     $(@el).removeClass("mouseover")
     $(@el).addClass("selected")
+
+    $("#news-preview").html(null)
+    @checkForVideo()
     @onAuthorClicked(null)
     
   # Hide delete button and remove "selected" style.
@@ -107,3 +111,31 @@ class MicroPostRow extends Backbone.View
     $(@el).removeClass("selected")
     $("#news-preview").html(null)
     
+  # Check if post contains a youtube or a dailymotion link. If it is the case,
+  # it displays the embedded version of this video in the preview column.
+  checkForVideo: ->
+    youtubeRegExp = /http:\/\/\S+?youtube.com\S+\]/
+    url = youtubeRegExp.exec(@model.get("content"))
+    key = ""
+
+    if url
+      res = /v=(.+)&/.exec(url[0])
+      key = res[0] if res?
+
+      if not key
+        res = /v=(.+)]/.exec(url[0])
+        key = res[0] if res?
+
+    if key
+      key = key.substring(2, key.length - 1)
+  
+      $("#news-preview").html("""
+        <p>
+        <iframe width="100%" height="315" 
+                src="http://www.youtube.com/embed/#{key}" 
+                frameborder="0" allowfullscreen>
+        </iframe>
+        </p>
+      """)
+
+
