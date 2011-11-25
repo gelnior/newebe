@@ -52,6 +52,18 @@ Feature: Retrieve Activities
         Check that there is 1 contacts
         Check that first contact status is trusted
 
+    Scenario: Retry sending a contact a contact request
+        Deletes contacts
+        On first newebe add second newebe as a contact
+        Deletes seconde newebe contacts
+        Set first contact state as error
+        Send a retry request for this contact
+        Through handlers retrieve all contacts
+        Check that there is 1 contacts        
+        Check that first contact status is pending
+        From second newebe retrieve all contacts
+        Check that there is 1 contacts
+        Check that first contact status is waiting for approval
 
         
 

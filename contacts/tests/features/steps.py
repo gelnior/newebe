@@ -12,7 +12,7 @@ from newebe.activities.models import ActivityManager
 from newebe.settings import TORNADO_PORT
 
 from newebe.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
-from newebe.contacts.models import STATE_PENDING
+from newebe.contacts.models import STATE_PENDING, STATE_ERROR
 
 from newebe.lib.test_util import NewebeClient
 
@@ -105,42 +105,6 @@ def check_contact_is_not_null(step):
 @step(u'Get trusted contact with key : ([0-9a-z-]+)')
 def get_trusted_contact_with_key(step, key):
     world.contact = ContactManager.getTrustedContact(key)
-
-
-# Retry
-
-@step(u'Set default contact')
-def set_default_contact(step):
-    world.contact = Contact()
-    world.contact.name = "John Doe"
-    world.contact.url = SECOND_NEWEBE_ROOT_URL       
-    world.contact.slug = slugify(world.contact.url)
-    
-@step(u'Set contact with state as ERROR')
-def set_contact_with_state_as_error(step):
-    world.contact.state = "ERROR"
-    world.contact.save()
-
-@step(u'Send a retry request for this contact')
-def send_a_retry_request_for_this_contact(step):
-    
-    world.response = world.browser.post(ROOT_URL + "contacts/" + \
-                                world.contact._id + "/retry/",
-                                '{"id":"%s"}' % world.contact._id)
-    assert world.response.code == 200
-
-@step(u'Checks that contact state is PENDING')
-def checks_that_contact_state_is_pending(step):
-    contact = ContactManager.getContact(world.contact.slug)
-    assert contact.state == "PENDING"    
-
-@step(u'Checks that second newebe has first newebe in contact')
-def checks_that_second_newebe_has_first_newebe_in_contact(step):
-    contacts = world.browser.fetch_documents_from_url(
-            SECOND_NEWEBE_ROOT_URL + "contacts/pending/")
-    assert len(contacts) == 1
-    second_newebe_contact = contacts[0]
-    assert second_newebe_contact["slug"] == slugify(ROOT_URL)
 
 
 ## Handlers
@@ -244,5 +208,17 @@ def on_seconde_newebe_confirm_first_newebe_request(step):
 def check_that_first_contact_status_is_trusted(step):
     assert 1 == len(world.contacts)
     assert STATE_TRUSTED == world.contacts[0]["state"]
+
+# Retry 
+
+@step(u'Set first contact state as error')
+def set_first_contact_state_as_error(step):
+    contact = ContactManager.getContacts().first()
+    contact.state = STATE_ERROR
+    contact.save()
+
+@step(u'Send a retry request for this contact')
+def send_a_retry_request_for_this_contact(step):
+    world.browser.post(ROOT_URL + "contacts/%s/retry/" % slugify(SECOND_NEWEBE_ROOT_URL), "")
 
 
