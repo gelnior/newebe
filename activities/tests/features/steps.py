@@ -1,6 +1,5 @@
 import sys
 import datetime 
-import simplejson as json
 
 from lettuce import step, world, before
 
@@ -138,14 +137,12 @@ def retrieve_owner_activities_from_date(step, date):
 
 @step(u'Get last activities from handler')
 def get_last_activities_from_handler(step):
-    world.data = world.browser.fetch_documents_from_url(
-        ROOT_URL + "activities/all/")
+    world.data = world.browser.fetch_documents_from_url("activities/all/")
 
 
 @step(u'Get last activities of owner from handler')
 def get_last_activities_owner_from_handler(step):
-    world.data = world.browser.fetch_documents_from_url(
-        ROOT_URL + "activities/mine/")
+    world.data = world.browser.fetch_documents_from_url("activities/mine/")
 
 
 @step(u'Assert that there are, from handler, (\d+) activities retrieved')
@@ -157,10 +154,10 @@ def assert_that_there_are_from_handler_x_activities_retrieved(step,
 @step(u'Get activities until ([0-9-]+) from handler')
 def get_activities_until_date_from_handler(step, url_date):
     world.data = world.browser.fetch_documents_from_url(
-        ROOT_URL + "activities/all/" + url_date + "/")
+            "activities/all/" + url_date + "/")
 
 @step(u'Get owner activities until ([0-9-]+) from handler')
 def get_owner_activities_until_date_from_handler(step, url_date):
     world.data = world.browser.fetch_documents_from_url(
-            ROOT_URL + "activities/mine/" + url_date + "/")
+            "activities/mine/" + url_date + "/")
 

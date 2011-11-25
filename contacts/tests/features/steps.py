@@ -169,7 +169,7 @@ def through_handler_retrieve_contact_with_slug(step, slug):
 @step(u'Through handler delete contact with slug ([0-9a-z-]+)')
 def through_handler_delete_contact_with_slug_http_localhost_1(step, slug):
     world.contacts = []
-    world.browser.delete(ROOT_URL + "contacts/" + slug + "/")
+    world.browser.delete("contacts/" + slug + "/")
     
 
 ## Adding contact
@@ -178,12 +178,11 @@ def through_handler_delete_contact_with_slug_http_localhost_1(step, slug):
 def deletes_seconde_newebe_contacts(step):
     contacts = world.browser2.fetch_documents("contacts/requested/")
     for contact in contacts:
-        world.browser2.delete(
-                world.browser2.root_url + "contacts/" + contact["slug"] + "/")
+        world.browser2.delete("contacts/" + contact["slug"] + "/")
 
 @step(u'On first newebe add second newebe as a contact')
 def on_first_newebe_add_second_newebe_as_a_contact(step):
-    world.browser.post(world.browser.root_url + "contacts/",
+    world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
 
 @step(u'Check that first contact status is pending')
@@ -219,6 +218,6 @@ def set_first_contact_state_as_error(step):
 
 @step(u'Send a retry request for this contact')
 def send_a_retry_request_for_this_contact(step):
-    world.browser.post(ROOT_URL + "contacts/%s/retry/" % slugify(SECOND_NEWEBE_ROOT_URL), "")
+    world.browser.post("contacts/%s/retry/" % slugify(SECOND_NEWEBE_ROOT_URL), "")
 
 

@@ -51,6 +51,10 @@ class NewebeClient(HTTPClient):
         '''
         Perform a GET request.
         '''
+
+        if hasattr(self, "root_url") and self.root_url:
+            url = self.root_url + url
+
         request = HTTPRequest(url)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
@@ -61,6 +65,9 @@ class NewebeClient(HTTPClient):
         '''
         Perform a POST request.
         '''
+
+        if hasattr(self, "root_url") and self.root_url:
+            url = self.root_url + url
 
         request = HTTPRequest(url, method="POST", body=body)
         if hasattr(self, "cookie") and self.cookie:
@@ -87,6 +94,9 @@ class NewebeClient(HTTPClient):
         '''
         Perform a DELETE request.
         '''
+
+        if hasattr(self, "root_url") and self.root_url:
+            url = self.root_url + url
 
         request = HTTPRequest(url, method="DELETE")
         if self.cookie:
@@ -126,7 +136,7 @@ class NewebeClient(HTTPClient):
         Retrieve document from path located on localhost server.
         '''
 
-        return self.fetch_document_from_url(self.root_url + path)
+        return self.fetch_document_from_url(path)
 
 
     def fetch_documents(self, path):
@@ -134,5 +144,5 @@ class NewebeClient(HTTPClient):
         Retrieve document list from path located on localhost server.
         '''
 
-        return self.fetch_documents_from_url(self.root_url + path)    
+        return self.fetch_documents_from_url(path)    
         
