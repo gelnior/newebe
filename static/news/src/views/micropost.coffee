@@ -114,7 +114,7 @@ class MicroPostRow extends Backbone.View
   # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.
   checkForVideo: ->
-    youtubeRegExp = /http:\/\/\S+?youtube.com\S+\]/
+    youtubeRegExp = /(http|https):\/\/\S+?youtube.com\S+\]/
     url = youtubeRegExp.exec(@model.get("content"))
     key = ""
 
