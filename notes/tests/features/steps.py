@@ -16,6 +16,14 @@ ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
 client = NewebeClient()
 
+
+@before.all
+def connec_client():
+    world.browser = client
+    world.browser.set_default_user()
+    world.browser.login("password")
+   
+
 @before.each_scenario
 def delete_all_notes(scenario):
     notes = NoteManager.get_all()
@@ -142,8 +150,8 @@ def modifiy_the_note(step):
 
 @step(u'Save, through handler, the note')
 def save_through_handler_the_note(step):
-    response = client.fetch(ROOT_URL + "notes/" + world.note._id + "/",
-            method="PUT", body=world.note.toJson())
+    response = client.put("notes/" + world.note._id + "/", 
+                          body=world.note.toJson())
     assert response.code == 200
 
 @step(u'Create, through handler, a note')
@@ -152,8 +160,7 @@ def create_through_handler_a_note(step):
         title = "test note creation",
         content = "test content creation",
     )
-    response = client.fetch(ROOT_URL + "notes/all/",
-            method="POST", body=world.note.toJson())
+    response = client.post("notes/all/", body=world.note.toJson())
     noteDict = json_decode(response.body)
     world.note = Note(
         author = noteDict["author"],
@@ -166,7 +173,7 @@ def create_through_handler_a_note(step):
 
 @step(u'Delete, through handler, the note')
 def delete_through_handler_the_note(step):
-    response = client.delete(ROOT_URL + "notes/" + world.note._id + "/")
+    response = client.delete("notes/" + world.note._id + "/")
     assert response.code == 200
 
 @step(u'Checks that note is deleted')
