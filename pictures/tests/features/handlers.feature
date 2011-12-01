@@ -32,7 +32,7 @@ Feature: Share pictures
 
     Scenario: Delete picture
         Clear all pictures
-        From seconde Newbe, clear all pictures        
+        From seconde Newebe, clear all pictures        
         Post a new picture via the dedicated resource
         Through handler delete first picture
         Retrieve last pictures
