@@ -13,6 +13,7 @@ COUCHDB_DATABASES = (
     ('newebe.core', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
     ('newebe.activities', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
     ('newebe.notes', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
+    ('newebe.pictures', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
 )
 
 INSTALLED_APPS = (
@@ -20,5 +21,6 @@ INSTALLED_APPS = (
     'newebe.activities',
     'newebe.news',
     'newebe.notes',
+    'newebe.pictures',
 )
 
