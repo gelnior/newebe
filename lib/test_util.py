@@ -114,7 +114,7 @@ class NewebeClient(HTTPClient):
         assert response.code == 200
         assert response.headers["Content-Type"] == "application/json"
  
-        return json_decode(response.body)
+        return json_decode(response.body)["rows"][0]
 
 
     def fetch_documents_from_url(self, url):

@@ -2,19 +2,27 @@ import sys
 import hashlib
 
 # -*- coding: utf-8 -*-
-from lettuce import step, world
+from lettuce import step, world, before
 
-from tornado.httpclient import HTTPRequest
 from tornado.escape import json_decode
 
 sys.path.append("../../../")
 
 from newebe.settings import TORNADO_PORT
 from newebe.profile.models import UserManager, User
+from newebe.lib.test_util import NewebeClient
+from tornado.httpclient import HTTPError
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
 
+## Before running this test suite, fake server should be started.
+##
+
+@before.all
+def set_browser():
+    world.browser = NewebeClient()
+    world.browser.root_url = "http://localhost:7000/" 
 
 @step(u'Deletes current user')
 def delete_current_user(step):
@@ -56,4 +64,59 @@ def convert_it_to_json(step):
     dic = json_decode(world.user.toJson())
     assert dic.__contains__("name")
     assert dic.__contains__("password")
+
+
+# Handlers
+
+@step(u'When I send a request to Json resource')
+def when_i_send_a_request_to_json_service(step):
+    world.response = world.browser.get("json/")
+
+@step(u'Then I got a response with JSON inside')
+def then_i_got_a_response_with_json_inside(step):
+    try:
+        json_decode(world.response.body)
+        assert world.response.headers["Content-type"] == 'application/json' 
+    except:
+        assert False, 'JSON parsing failed'
+
+    world.response = world.browser.get("document/")
+
+@step(u'When I send a request to document resource')
+def when_i_send_a_request_to_document_resource(step):
+    world.response = world.browser.fetch_document("document/")
+
+@step(u'Then I got the user in response')
+def then_i_got_the_user_in_response(step):
+    assert world.response.get("name", None) is not None
+
+@step(u'When I send a request to documents resource')
+def when_i_send_a_request_to_documents_resource(step):
+    world.response = world.browser.fetch_documents("documents/")
+
+@step(u'Then I got two times the user in response')
+def then_i_got_two_times_the_user_in_response(step):
+    assert 2 == len(world.response)
+    assert world.response[0].get("name", None) is not None
+    assert world.response[1].get("name", None) is not None
+
+@step(u'When I send a request to success resource')
+def when_i_send_a_request_to_success_resource(step):
+    world.response = world.browser.get("success/")
+    
+@step(u'Then I got a json with a success text')
+def then_i_got_a_json_with_a_success_text(step):
+    assert json_decode(world.response.body).get("success", None) is not None 
+
+@step(u'When I send a request to failure resource')
+def when_i_send_a_request_to_failure_resource(step):
+    try:
+        world.response = world.browser.get("failure/")
+        assert False, "No error returned"
+    except HTTPError, e:
+        world.response = e.response
+
+@step(u'Then I got a json with a failure text')
+def then_i_got_a_json_with_a_failure_text(step):
+    assert json_decode(world.response.body).get("error", None) is not None 
 
