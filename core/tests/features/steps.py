@@ -103,7 +103,7 @@ def then_i_got_two_times_the_user_in_response(step):
 @step(u'When I send a request to success resource')
 def when_i_send_a_request_to_success_resource(step):
     world.response = world.browser.get("success/")
-    
+ 
 @step(u'Then I got a json with a success text')
 def then_i_got_a_json_with_a_success_text(step):
     assert json_decode(world.response.body).get("success", None) is not None 
