@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
+import datetime
 
 from lettuce import step, world, before
+from tornado.httpclient import HTTPError
 
 sys.path.append("../../../")
 from newebe.settings import TORNADO_PORT
 from newebe.lib.test_util import NewebeClient
 
-from newebe.pictures.models import PictureManager
+from newebe.pictures.models import PictureManager, Picture
 
 SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
 
@@ -17,16 +19,19 @@ def set_browers():
     world.browser.set_default_user()
     world.browser.login("password")
 
-    world.browser2 = NewebeClient()
-    world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
-    world.browser2.login("password")
+    try: 
+        world.browser2 = NewebeClient()
+        world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
+        world.browser2.login("password")
+    except HTTPError:
+        print "[WARNING] Second newebe instance does not look started"
 
 
 # Models
 
 @step(u'When I get last pictures')
 def when_i_get_last_pictures(step):
-    world.pictures = PictureManager.get_last_pictures()
+    world.pictures = PictureManager.get_last_pictures().all()
 
 @step(u'I have three pictures ordered by date')
 def i_have_three_pictures_ordered_by_date(step):
@@ -36,11 +41,11 @@ def i_have_three_pictures_ordered_by_date(step):
 
 @step(u'When I get first from its id')
 def when_i_get_first_from_its_id(step):
-    world.picture = PictureManager.get_picture(world.createdPictures[0]._id)
+    world.picture = PictureManager.get_picture(world.pictures[0]._id)
 
 @step(u'I have one picture corresponding to id')
 def i_have_one_picture_correponsding_to_id(step):
-    assert world.createdPictures[0]._id == world.picture._id
+    assert world.pictures[0]._id == world.picture._id
 
 
 # Handlers
@@ -99,7 +104,13 @@ def from_second_newebe_retrieve_last_activities(step):
 
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):
-    assert False, 'This step must be implemented'
+    for i in range(1, 4):
+        picture = Picture(
+            title = "Pic 0%d" % i,
+            author = "Dan",
+            date = datetime.datetime(2011, 11, i)
+        )
+        picture.save()
 
 @step(u'Retrieve all pictures through handlers')
 def retrieve_all_pictures_through_handlers(step):

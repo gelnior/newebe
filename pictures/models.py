@@ -14,6 +14,10 @@ class PictureManager():
     
     @staticmethod
     def get_last_pictures(startKey=None, skip=0):
+        '''
+        Returns all pictures
+        '''
+
         if startKey:
             return Picture.view("pictures/last", 
                              startkey=startKey, 
@@ -24,6 +28,20 @@ class PictureManager():
             return Picture.view("pictures/last", 
                              descending=True, 
                              limit=PICTURE_LIMIT)
+
+
+    @staticmethod
+    def get_picture(id):
+        '''
+        Returns picture corresponding to given ID.
+        '''
+
+        pictures = Picture.view("pictures/all", key=id)
+
+        if pictures:        
+            return pictures.first()
+
+        return None
 
 
 
