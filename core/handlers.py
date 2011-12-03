@@ -7,6 +7,7 @@ from tornado.web import RequestHandler
 
 from newebe.lib import json_util
 from newebe.profile.models import UserManager
+from newebe.activities.models import Activity
 
 logger = logging.getLogger("newebe.core")
 
@@ -92,6 +93,27 @@ class NewebeHandler(RequestHandler):
             return dataDict
         else:
             return None
+
+
+    def create_creation_activity(self, contact, doc, verb, docType):
+        '''
+        Create a new activity corresponding to a document creation.
+
+        * contact: contact that made the creation.
+        * doc: The created document.
+        * verb: verb linked to this activity.
+        * docType: Type of the created document.
+        '''
+
+        self.activity = Activity(
+            authorKey = contact.key,
+            author = contact.name,
+            verb = verb,
+            docType = docType,
+            docId = doc._id,
+            method = "POST"
+        )
+        self.activity.save()
 
 
 class NewebeAuthHandler(NewebeHandler):

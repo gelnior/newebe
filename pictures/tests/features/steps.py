@@ -3,14 +3,16 @@ import sys
 import datetime
 
 from lettuce import step, world, before
-from tornado.httpclient import HTTPError
+from tornado.httpclient import HTTPError, HTTPRequest
 
 sys.path.append("../../../")
 from newebe.settings import TORNADO_PORT
 from newebe.lib.test_util import NewebeClient
 
 from newebe.pictures.models import PictureManager, Picture
+from newebe.lib.upload_util import encode_multipart_formdata
 
+ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT)
 SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
 
 @before.all
@@ -60,47 +62,61 @@ def clear_all_pictures(step):
                 
 @step(u'From seconde Newebe, clear all pictures')
 def from_seconde_newebe_clear_all_pictures(step):
-    pictures = world.brower2.fetch_documents("pictures/last/")
-    while pictures:
-        for picture in pictures:
-            world.browser2.delete("pictures/%s/" % picture["_id"])
-        pictures = world.brower2.fetch_documents("pictures/last/")
+    try: 
+        pictures = world.browser2.fetch_documents("pictures/last/")
+        while pictures:
+           for picture in pictures:
+               world.browser2.delete("pictures/%s/" % picture["_id"])
+           pictures = world.brower2.fetch_documents("pictures/last/")
+    except HTTPError:
+        print "[WARNING] Second newebe instance does not look started"
+
 
 @step(u'Post a new picture via the dedicated resource')
 def post_a_new_picture_via_the_dedicated_resource(step):
     file = open("test.jpg", "r")
-    assert False, 'This step must be implemented'
+    
+    (contentType, body) = encode_multipart_formdata([], [("picture", "test.jpg", file.read())])
+    headers = {'Content-Type':contentType} 
+    request = HTTPRequest(url=ROOT_URL + "pictures/", 
+                          method="POST", body=body, headers=headers)
+    if hasattr(world.browser, "cookie"):
+            request.headers["Cookie"] = world.browser.cookie
+    world.browser.fetch(request)
 
 @step(u'Retrieve last pictures')
 def retrieve_last_pictures(step):
-    world.pictures = world.brower.fetch_documents("pictures/last/")
+    world.pictures = world.browser.fetch_documents("pictures/")
 
 @step(u'Download first returned picture')
 def download_first_returned_picture(step):
-    assert False, 'This step must be implemented'    
+    first_picture = world.pictures[0]
+    world.response = world.browser.get("pictures/%s/%s" % (first_picture["_id"],
+                                       first_picture["path"]))
 
 @step(u'Ensure it is the same that posted picture')
 def ensure_it_is_the_same_that_posted_picture(step):
-    assert False, 'This step must be implemented'
+    file = open("test.jpg", "r")
+    assert file.read() == world.response.body
 
 @step(u'Retrieve last activities')
 def retrieve_last_activities(step):
-    world.activities = world.brower.fetch_documents("activities/")
+    world.activities = world.browser.fetch_documents("activities/all/")
 
 @step(u'Check that last activity correspond to a picture creation')
 def check_that_last_activity_correspond_to_a_picture_creation(step):
     assert len(world.activities) >= 1
-    activity = world.activties[0]
-    assert activity["verb"] == "posted"
-    assert activity["docType"] == "Picture"
+    activity = world.activities[0]
+    assert activity["verb"] == "publishes"
+    assert activity["docType"] == "picture"
 
 @step(u'From second Newebe, retrieve last pictures')
 def from_second_newebe_retrieve_last_pictures(step):
-    world.pictures = world.brower2.fetch_documents("pictures/last/")
+    world.pictures = world.browser2.fetch_documents("pictures/")
 
 @step(u'From second Newebe, retrieve last activities')
 def from_second_newebe_retrieve_last_activities(step):
-    world.activities = world.brower2.fetch_documents("activities/")
+    world.activities = world.browser2.fetch_documents("activities/")
 
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):

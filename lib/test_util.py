@@ -70,8 +70,10 @@ class NewebeClient(HTTPClient):
             url = self.root_url + url
 
         request = HTTPRequest(url, method="POST", body=body)
+        print request.headers
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
+            print request.headers
         return HTTPClient.fetch(self, request)
 
 

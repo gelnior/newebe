@@ -55,4 +55,5 @@ class Picture(NewebeDocument):
     title = StringProperty(required=True)
     isMine = BooleanProperty(required=True, default=True)
     path = StringProperty()
+    contentType = StringProperty()
 

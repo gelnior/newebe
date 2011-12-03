@@ -55,6 +55,9 @@ from newebe.notes.handlers import NotesHandler, \
                                   NotesPageTHandler, NotesContentTHandler, \
                                   NoteTHandler
 
+
+from newebe.pictures.handlers import PicturesHandler, PictureFileHandler
+
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
 # Set certificate files for HTTPS configuration.
@@ -140,6 +143,8 @@ class Newebe(Application):
             ('/synchronize/', SynchronizeHandler),
             ('/synchronize/contact/', SynchronizeContactHandler),
 
+            ('/pictures/', PicturesHandler),
+            ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),
         ]
         
         settings = {
