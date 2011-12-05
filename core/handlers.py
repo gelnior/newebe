@@ -191,6 +191,10 @@ class NewebeAuthHandler(NewebeHandler):
     '''
 
     def prepare(self):
+        '''
+        Simple turn around to finish the request if user is not authenticated.
+        '''
+
         user = self.current_user
         if not user:
             self._finished = True

@@ -32,32 +32,56 @@ class PicturesHandler(NewebeAuthHandler):
 
     @asynchronous
     def post(self):
+        '''
+        Creates a picture and corresponding activity. Then picture is propagated
+        to all trusted contacts.
+
+        Errors are stored inside activity.
+        '''
 
         file = self.request.files['picture'][0]
+
         if file:
+
             picture = Picture(title = "New Picture", 
                     path=file['filename'],
                     contentType=file["content_type"], 
                     authorKey = UserManager.getUser().key,
                     author = UserManager.getUser().name)
             picture.save()
+            picture.put_attachment(content=file["body"], name=file['filename'])
+            picture.save()
 
             self.create_creation_activity(UserManager.getUser().asContact(),
                     picture, "publishes", "picture")
+
             self.send_files_to_contacts("pictures/contact/", 
                         fields = { "json": str(picture.toJson()) },
                         files = [("picture", str(picture.path), file["body"])])
+            
             self.return_success(
                     "Picture %s successfuly posted." % file['filename'])
-            picture.put_attachment(content=file["body"], name=file['filename'])
-            picture.save()
         else:
             self.return_failure("No picture posted.", 400)
 
 
 class PictureContactHandler(NewebeHandler):
+    '''
+    This handler handles requests coming from contacts.
+
+    * POST : Creates a new picture.
+    * PUT :  Delete a picture.
+    '''
 
     def post(self):
+        '''
+        Extract picture and file linked to the picture from request, then creates
+        a picture in database for the contact who sends it. An activity is 
+        created too.
+
+        If author is not inside trusted contacts, the request is rejected.
+        '''
+
         file = self.request.files['picture'][0]
         data = json_decode(self.get_argument("json"))
 
@@ -94,6 +118,13 @@ class PictureContactHandler(NewebeHandler):
 
 
     def put(self):
+        '''
+        Delete picture of which data are given inside request.
+        Picture is found with contact key and creation date.
+
+        If author is not inside trusted contacts, the request is rejected.
+        '''
+
         data = self.get_body_as_dict()
 
         if data:
@@ -103,8 +134,10 @@ class PictureContactHandler(NewebeHandler):
             if contact:
                 picture = PictureManager.get_contact_picture(
                         contact.key, data.get("date", ""))
-                self.create_deletion_activity(contact, 
-                        picture, "deletes", "picture")
+
+                if picture:
+                    self.create_deletion_activity(contact, 
+                            picture, "deletes", "picture")
                 picture.delete()
 
                 self.return_success("Deletion succeeds")
