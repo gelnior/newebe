@@ -185,7 +185,7 @@ class NewsHandler(NewebeAuthHandler):
 
 
     def __init__(self, application, request, **kwargs):
-        NewebeHandler.__init__(self, application, request, **kwargs)
+        NewebeAuthHandler.__init__(self, application, request, **kwargs)
         self.contacts = dict()
 
 

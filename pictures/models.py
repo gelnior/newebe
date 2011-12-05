@@ -44,6 +44,19 @@ class PictureManager():
         return None
 
 
+    @staticmethod
+    def get_contact_picture(contactKey, date):
+        '''
+        Returns picture corresponding to given ID.
+        '''
+
+        pictures = Picture.view("pictures/contact", key=[contactKey, date])
+
+        if pictures:        
+            return pictures.first()
+
+        return None
+
 
 class Picture(NewebeDocument):
     '''

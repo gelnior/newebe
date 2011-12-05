@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import datetime
+import time
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError, HTTPRequest
@@ -11,6 +12,7 @@ from newebe.lib.test_util import NewebeClient
 
 from newebe.pictures.models import PictureManager, Picture
 from newebe.lib.upload_util import encode_multipart_formdata
+from newebe.lib.date_util import get_db_date_from_date
 
 ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT)
 SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
@@ -49,6 +51,12 @@ def when_i_get_first_from_its_id(step):
 def i_have_one_picture_correponsding_to_id(step):
     assert world.pictures[0]._id == world.picture._id
 
+@step(u'When I get first from its date and author')
+def when_i_get_first_from_its_date_and_author(step):
+    picture = world.pictures[0]    
+    world.picture = PictureManager.get_contact_picture(picture.authorKey, 
+                                        get_db_date_from_date(picture.date))
+
 
 # Handlers
 
@@ -63,20 +71,22 @@ def clear_all_pictures(step):
 @step(u'From seconde Newebe, clear all pictures')
 def from_seconde_newebe_clear_all_pictures(step):
     try: 
-        pictures = world.browser2.fetch_documents("pictures/last/")
+        pictures = world.browser2.fetch_documents("pictures/")
         while pictures:
            for picture in pictures:
                world.browser2.delete("pictures/%s/" % picture["_id"])
-           pictures = world.brower2.fetch_documents("pictures/last/")
+           pictures = world.browser2.fetch_documents("pictures/")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
 
 @step(u'Post a new picture via the dedicated resource')
 def post_a_new_picture_via_the_dedicated_resource(step):
+    time.sleep(1)
     file = open("test.jpg", "r")
     
-    (contentType, body) = encode_multipart_formdata([], [("picture", "test.jpg", file.read())])
+    (contentType, body) = encode_multipart_formdata([], 
+                            [("picture", "test.jpg", file.read())])
     headers = {'Content-Type':contentType} 
     request = HTTPRequest(url=ROOT_URL + "pictures/", 
                           method="POST", body=body, headers=headers)
@@ -110,13 +120,23 @@ def check_that_last_activity_correspond_to_a_picture_creation(step):
     assert activity["verb"] == "publishes"
     assert activity["docType"] == "picture"
 
-@step(u'From second Newebe, retrieve last pictures')
+@step(u'From second Newebe, retrieve pictures')
 def from_second_newebe_retrieve_last_pictures(step):
+    world.pictures = []
     world.pictures = world.browser2.fetch_documents("pictures/")
+    print world.pictures
 
-@step(u'From second Newebe, retrieve last activities')
-def from_second_newebe_retrieve_last_activities(step):
-    world.activities = world.browser2.fetch_documents("activities/")
+@step(u'From second Newebe, retrieve activities')
+def from_second_newebe_retrieve_activities(step):
+    world.activities = world.browser2.fetch_documents("activities/all/")
+
+@step(u'From second Newebe, download first returned picture')
+def from_second_newebe_download_first_returned_picture(step):
+    assert 0 < len(world.pictures)
+    first_picture = world.pictures[0]
+    world.response = world.browser2.get(
+            "pictures/%s/%s" % (first_picture["_id"], first_picture["path"]))
+
 
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):
@@ -124,7 +144,8 @@ def add_three_pictures_to_the_database_with_different_dates(step):
         picture = Picture(
             title = "Pic 0%d" % i,
             author = "Dan",
-            date = datetime.datetime(2011, 11, i)
+            date = datetime.datetime(2011, 11, i),
+            isMine = False
         )
         picture.save()
 
@@ -150,8 +171,9 @@ def check_that_picture_title_is_the_same_that_first_picture(step):
 
 @step(u'Through handler delete first picture')
 def through_handler_delete_first_picture(step):
-    activity = world.activities[0]
-    world.browser.delete("pictures/%s/" + activity.get("_id", ""))
+    time.sleep(1)
+    picture = world.pictures[0]
+    world.browser.delete("pictures/{}/".format(picture.get("_id", "")))
 
 @step(u'Check that there are no picture')
 def check_that_there_are_no_picture(step):
@@ -161,6 +183,6 @@ def check_that_there_are_no_picture(step):
 def check_that_last_activity_correspond_to_a_picture_deletion(step):
     activity = world.activities[0]
     assert "deletes" == activity.get("verb", "")
-    assert "Picture" == activity.get("docType", "")
+    assert "picture" == activity.get("docType", "")
     assert "DELETE" == activity.get("method", "")
 

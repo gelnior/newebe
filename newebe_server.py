@@ -56,7 +56,8 @@ from newebe.notes.handlers import NotesHandler, \
                                   NoteTHandler
 
 
-from newebe.pictures.handlers import PicturesHandler, PictureFileHandler
+from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
+                                    PictureContactHandler, PictureHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
@@ -67,7 +68,7 @@ CERTIFICATE = os.path.join("./", "server.crt")
 # Set logging configuration
 FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
-logger = logging.getLogger('newebe')
+logger = logging.getLogger(__name__)
 
 
 class Newebe(Application):
@@ -143,7 +144,9 @@ class Newebe(Application):
             ('/synchronize/', SynchronizeHandler),
             ('/synchronize/contact/', SynchronizeContactHandler),
 
-            ('/pictures/', PicturesHandler),
+            ('/pictures/$', PicturesHandler),
+            ('/pictures/contact/$', PictureContactHandler),
+            ('/pictures/([0-9a-z]+)/$', PictureHandler),
             ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),
         ]
         

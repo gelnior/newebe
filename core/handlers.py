@@ -97,7 +97,7 @@ class NewebeHandler(RequestHandler):
 
     def create_creation_activity(self, contact, doc, verb, docType):
         '''
-        Create a new activity corresponding to a document creation.
+        Creates a new activity corresponding to a document creation.
 
         * contact: contact that made the creation.
         * doc: The created document.
@@ -112,6 +112,27 @@ class NewebeHandler(RequestHandler):
             docType = docType,
             docId = doc._id,
             method = "POST"
+        )
+        self.activity.save()
+
+
+    def create_deletion_activity(self, contact, doc, verb, docType):
+        '''
+        Creates a new activity corresponding to a document deletion.
+
+        * contact: contact that made the deletion.
+        * doc: The deleted document.
+        * verb: verb linked to this activity.
+        * docType: Type of the deleted document.
+        '''
+
+        self.activity = Activity(
+            authorKey = contact.key,
+            author = contact.name,
+            verb = verb,
+            docType = docType,
+            docId = doc._id,
+            method = "DELETE"
         )
         self.activity.save()
 

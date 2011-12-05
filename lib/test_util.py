@@ -9,6 +9,7 @@ from newebe.profile.models import UserManager, User
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
+
 class NewebeClient(HTTPClient):
     '''
     Tornado client wrapper to write requests to Newebe faster.
@@ -19,6 +20,7 @@ class NewebeClient(HTTPClient):
         '''
         Grab authentication cookie from login request.
         '''
+
         response = self.fetch(self.root_url + "login/json/", 
                 method="POST", body='{"password":"%s"}' % password)
         
@@ -30,6 +32,7 @@ class NewebeClient(HTTPClient):
         '''
         Set to DB default user. This is useful for automatic login.
         '''
+        
         self.root_url = url
 
         user = UserManager.getUser()
@@ -39,7 +42,7 @@ class NewebeClient(HTTPClient):
         user = User(
             name = "John Doe",
             password = hashlib.sha224("password").hexdigest(),
-            key = None,
+            key = "key",
             authorKey = "authorKey",
             url = url,
             description = "my description"
@@ -70,10 +73,8 @@ class NewebeClient(HTTPClient):
             url = self.root_url + url
 
         request = HTTPRequest(url, method="POST", body=body)
-        print request.headers
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
-            print request.headers
         return HTTPClient.fetch(self, request)
 
 
