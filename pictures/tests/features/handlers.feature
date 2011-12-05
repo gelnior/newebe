@@ -31,17 +31,18 @@ Feature: Share pictures
         From second Newebe, retrieve activities
         Check that last activity correspond to a picture deletion
 
-#    Scenario: Retrieve pictures
-#        Clear all pictures
-#        Add three pictures to the database with different dates
-#        Retrieve all pictures through handlers
-#        Check that there is three pictures with the most recent one as first picture
+    Scenario: Retrieve pictures
+        Clear all pictures
+        Add three pictures to the database with different dates
+        Retrieve all pictures through handlers
+        Check that there is three pictures with the most recent one as first picture
 
 
-#    Scenario: Retrieve picture
-#        Clear all pictures
-#        Add three pictures to the database with different dates
-#        Retrieve first picture hrough handler via its ID.
-#        Check that picture title is the same that first picture
+    Scenario: Retrieve picture
+        Clear all pictures
+        Add three pictures to the database with different dates
+        Retrieve all pictures through handlers
+        Retrieve first picture hrough handler via its ID.
+        Check that picture title is the same that first picture
     
    

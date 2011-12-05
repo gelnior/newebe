@@ -61,7 +61,8 @@ class ContactClient(object):
 
     def delete(self, contact, path, body):
         '''
-        Perform a DELETE request to given contact.
+        Perform a DELETE request to given contact (PUT is send because tornado
+        does not handle DELETE request with body).
         '''
 
         url = contact.url + path
@@ -78,7 +79,7 @@ class ContactClient(object):
         '''
 
         if response.error: 
-            logger.error(""" Post picture to a contact failed, error infos 
+            logger.error(""" Request to a contact failed, error infos 
                              are stored inside activity.""")            
             contact = self.contacts[response.request]
             self.activity.add_error(contact)

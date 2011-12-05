@@ -1,16 +1,13 @@
 import logging
 
 from tornado.web import asynchronous
-from tornado.escape import json_decode, utf8, to_unicode, native_str, to_basestring
-from tornado.httpclient import HTTPError
+from tornado.escape import json_decode
 
 from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.contacts.models import ContactManager
 from newebe.pictures.models import PictureManager, Picture
-
-from newebe.lib.http_util import ContactClient
 from newebe.lib.date_util import get_date_from_db_date
 
 logger = logging.getLogger("newebe.pictures")
@@ -35,6 +32,7 @@ class PicturesHandler(NewebeAuthHandler):
 
     @asynchronous
     def post(self):
+
         file = self.request.files['picture'][0]
         if file:
             picture = Picture(title = "New Picture", 
@@ -46,27 +44,15 @@ class PicturesHandler(NewebeAuthHandler):
 
             self.create_creation_activity(UserManager.getUser().asContact(),
                     picture, "publishes", "picture")
-            self.send_to_contacts(picture, file["body"])
+            self.send_files_to_contacts("pictures/contact/", 
+                        fields = { "json": str(picture.toJson()) },
+                        files = [("picture", str(picture.path), file["body"])])
             self.return_success(
                     "Picture %s successfuly posted." % file['filename'])
             picture.put_attachment(content=file["body"], name=file['filename'])
             picture.save()
         else:
             self.return_failure("No picture posted.", 400)
-
-
-    @asynchronous
-    def send_to_contacts(self, picture, file_body):
-        contacts = ContactManager.getTrustedContacts()
-        client = ContactClient(self.activity)
-        for contact in contacts:
-            try:
-                client.post_files(contact, "pictures/contact/", 
-                        fields={ "json": str(picture.toJson()) },
-                        files=[("picture", str(picture.path), file_body)])
-            except HTTPError:
-                self.activity.add_error(contact)
-                self.activity.save()
 
 
 class PictureContactHandler(NewebeHandler):
@@ -115,10 +101,8 @@ class PictureContactHandler(NewebeHandler):
                     data.get("authorKey", ""))
             
             if contact:
-                #date = get_date_from_db_date(data.get("date", ""))
-
-                print (data.get("date", ""), contact.key)
-                picture = PictureManager.get_contact_picture(data.get("date", ""), contact.key)
+                picture = PictureManager.get_contact_picture(
+                        contact.key, data.get("date", ""))
                 self.create_deletion_activity(contact, 
                         picture, "deletes", "picture")
                 picture.delete()
@@ -133,13 +117,16 @@ class PictureContactHandler(NewebeHandler):
             self.return_failure("No data sent.", 405)
 
 
-        
-
-
 class PictureFileHandler(NewebeAuthHandler):
-
+    '''
+    Returns file linked to a given picture document.
+    '''
 
     def get(self, id, filename):
+        '''
+        Returns file linked to given picture.
+        '''
+
         picture = PictureManager.get_picture(id)
         if picture:
             file = picture.fetch_attachment(picture.path)
@@ -181,21 +168,10 @@ class PictureHandler(NewebeAuthHandler):
             contact = UserManager.getUser().asContact()
             self.create_deletion_activity(contact,
                         picture, "deletes", "picture")            
-            self.send_to_contacts(picture)
+            self.send_deletion_to_contacts("pictures/contact/", picture)
             picture.delete()
             self.return_success("Picture deleted.")
         else:
             self.return_failure("Picture not found.", 404)
 
-
-    @asynchronous
-    def send_to_contacts(self, picture):
-        contacts = ContactManager.getTrustedContacts()
-        client = ContactClient(self.activity)
-        for contact in contacts:
-            try:
-                client.delete(contact, "pictures/contact/", picture.toJson())
-            except HTTPError:
-                self.activity.add_error(contact)
-                self.activity.save()
 

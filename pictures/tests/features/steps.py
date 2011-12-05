@@ -124,7 +124,6 @@ def check_that_last_activity_correspond_to_a_picture_creation(step):
 def from_second_newebe_retrieve_last_pictures(step):
     world.pictures = []
     world.pictures = world.browser2.fetch_documents("pictures/")
-    print world.pictures
 
 @step(u'From second Newebe, retrieve activities')
 def from_second_newebe_retrieve_activities(step):
@@ -163,11 +162,12 @@ def check_that_there_is_three_pictures_with_the_most_recent_one_as_first_picture
 
 @step(u'Retrieve first picture hrough handler via its ID.')
 def retrieve_first_picture_hrough_handler_via_its_id(step):
-    assert False, 'This step must be implemented'
+    world.picture = world.browser.fetch_document("pictures/{}/".format(
+                                        world.pictures[0]["_id"]))
 
 @step(u'Check that picture title is the same that first picture')
 def check_that_picture_title_is_the_same_that_first_picture(step):
-    assert world.picture.title == world.pictures[0].get("title", "")
+    assert world.picture["title"] == world.pictures[0].get("title", "")
 
 @step(u'Through handler delete first picture')
 def through_handler_delete_first_picture(step):

@@ -3,10 +3,15 @@ import hashlib
 
 
 from tornado.escape import json_decode, json_encode
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, asynchronous
+from tornado.httpclient import HTTPError
+
 
 from newebe.lib import json_util
+from newebe.lib.http_util import ContactClient
+
 from newebe.profile.models import UserManager
+from newebe.contacts.models import ContactManager
 from newebe.activities.models import Activity
 
 logger = logging.getLogger("newebe.core")
@@ -135,6 +140,46 @@ class NewebeHandler(RequestHandler):
             method = "DELETE"
         )
         self.activity.save()
+
+
+    @asynchronous
+    def send_files_to_contacts(self, path, fields, files):
+        '''
+        Send in a form given file and fields to all trusted contacts (at given
+        path).
+
+        If any error occurs, it is stored in linked activity.
+        '''
+
+        contacts = ContactManager.getTrustedContacts()
+        client = ContactClient(self.activity)
+        for contact in contacts:
+            try:
+                client.post_files(contact, path, fields = fields, files = files)
+            except HTTPError:
+                self.activity.add_error(contact)
+                self.activity.save()
+
+
+    @asynchronous
+    def send_deletion_to_contacts(self, path, doc):
+        '''
+        Send a delete request (PUT because Tornado don't handle DELETE request
+        with a body) to all trusted contacts.
+
+        Request body contains object to delete at JSON format.
+        '''
+
+        contacts = ContactManager.getTrustedContacts()
+        client = ContactClient(self.activity)
+        for contact in contacts:
+            try:
+                client.delete(contact, path, doc.toJson())
+            except HTTPError:
+                self.activity.add_error(contact)
+                self.activity.save()
+
+
 
 
 class NewebeAuthHandler(NewebeHandler):
