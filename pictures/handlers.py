@@ -33,8 +33,8 @@ class PicturesHandler(NewebeAuthHandler):
     @asynchronous
     def post(self):
         '''
-        Creates a picture and corresponding activity. Then picture is propagated
-        to all trusted contacts.
+        Creates a picture and corresponding activity. Then picture is 
+        propagated to all trusted contacts.
 
         Errors are stored inside activity.
         '''
@@ -206,5 +206,17 @@ class PictureHandler(NewebeAuthHandler):
             self.return_success("Picture deleted.")
         else:
             self.return_failure("Picture not found.", 404)
+
+
+# Template handlers
+
+class PicturesTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("templates/pictures.html")
+
+
+class PicturesContentTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("templates/pictures_content.html")
 
 

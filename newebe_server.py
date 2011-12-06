@@ -31,7 +31,6 @@ from newebe.profile.handlers import UserHandler, \
                                     ProfileTutorial1THandler, \
                                     ProfileTutorial2THandler
 
-
 from newebe.auth.handlers import LoginHandler, LogoutHandler, \
                                  LoginJsonHandler,\
                                  RegisterTHandler, RegisterPasswordTHandler, \
@@ -55,11 +54,12 @@ from newebe.notes.handlers import NotesHandler, \
                                   NotesPageTHandler, NotesContentTHandler, \
                                   NoteTHandler
 
-
 from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
-                                    PictureContactHandler, PictureHandler
+                                    PictureContactHandler, PictureHandler, \
+                                    PicturesTHandler, PicturesContentTHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
+
 
 # Set certificate files for HTTPS configuration.
 PRIVATE_KEY = os.path.join("./", "server.key")
@@ -144,7 +144,9 @@ class Newebe(Application):
             ('/synchronize/', SynchronizeHandler),
             ('/synchronize/contact/', SynchronizeContactHandler),
 
-            ('/pictures/$', PicturesHandler),
+            ('/pictures/', PicturesTHandler),
+            ('/pictures/content/', PicturesContentTHandler),
+            ('/pictures/last/$', PicturesHandler),
             ('/pictures/contact/$', PictureContactHandler),
             ('/pictures/([0-9a-z]+)/$', PictureHandler),
             ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),
