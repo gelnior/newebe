@@ -10,6 +10,7 @@ class PlatformController extends Backbone.Router
       "activities":  "displayActivities",
       "profile":  "displayProfile",
       "notes":  "displayNotes",
+      "pictures":  "displayPictures",
     }
 
     displayContact: () ->
@@ -26,6 +27,9 @@ class PlatformController extends Backbone.Router
       
     displayNotes: () ->
       @view.onNotesClicked()
+
+    displayPictures: () ->
+      @view.onPicturesClicked()
 
     registerView: (view) ->
       @view = view
