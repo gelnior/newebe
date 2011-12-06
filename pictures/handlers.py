@@ -1,4 +1,5 @@
 import logging
+import mimetypes
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
@@ -61,6 +62,52 @@ class PicturesHandler(NewebeAuthHandler):
             
             self.return_success(
                     "Picture %s successfuly posted." % file['filename'])
+        else:
+            self.return_failure("No picture posted.", 400)
+
+
+
+class PicturesQQHandler(NewebeAuthHandler):
+    '''
+    This handler handles requests from QQ uploader to post new pictures.
+    
+    * POST: Create a picture.
+    '''
+
+    @asynchronous
+    def post(self):
+        '''
+        Creates a picture and corresponding activity. Then picture is 
+        propagated to all trusted contacts.
+
+        Errors are stored inside activity.
+        '''
+
+        file = self.request.body
+        filename = self.get_argument("qqfile")
+        filetype = mimetypes.guess_type(filename)[0] or \
+                'application/octet-stream'
+
+        if file:
+
+            picture = Picture(title = "New Picture", 
+                    path=filename,
+                    contentType=filetype, 
+                    authorKey = UserManager.getUser().key,
+                    author = UserManager.getUser().name)
+            picture.save()
+            picture.put_attachment(content=file, name=filename)
+            picture.save()
+
+            self.create_creation_activity(UserManager.getUser().asContact(),
+                    picture, "publishes", "picture")
+
+            self.send_files_to_contacts("pictures/contact/", 
+                        fields = { "json": str(picture.toJson()) },
+                        files = [("picture", str(picture.path), file)])
+            
+            self.return_success(
+                    "Picture %s successfuly posted." % filename)
         else:
             self.return_failure("No picture posted.", 400)
 

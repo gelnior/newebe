@@ -56,7 +56,9 @@ from newebe.notes.handlers import NotesHandler, \
 
 from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
                                     PictureContactHandler, PictureHandler, \
-                                    PicturesTHandler, PicturesContentTHandler
+                                    PicturesTHandler, \
+                                    PicturesContentTHandler, \
+                                    PicturesQQHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
@@ -147,6 +149,7 @@ class Newebe(Application):
             ('/pictures/', PicturesTHandler),
             ('/pictures/content/', PicturesContentTHandler),
             ('/pictures/last/$', PicturesHandler),
+            ('/pictures/fileuploader/$', PicturesQQHandler),
             ('/pictures/contact/$', PictureContactHandler),
             ('/pictures/([0-9a-z]+)/$', PictureHandler),
             ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),

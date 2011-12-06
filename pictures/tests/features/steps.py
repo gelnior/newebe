@@ -71,11 +71,11 @@ def clear_all_pictures(step):
 @step(u'From seconde Newebe, clear all pictures')
 def from_seconde_newebe_clear_all_pictures(step):
     try: 
-        pictures = world.browser2.fetch_documents("pictures/")
+        pictures = world.browser2.fetch_documents("pictures/last/")
         while pictures:
            for picture in pictures:
                world.browser2.delete("pictures/%s/" % picture["_id"])
-           pictures = world.browser2.fetch_documents("pictures/")
+           pictures = world.browser2.fetch_documents("pictures/last/")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
@@ -88,7 +88,7 @@ def post_a_new_picture_via_the_dedicated_resource(step):
     (contentType, body) = encode_multipart_formdata([], 
                             [("picture", "test.jpg", file.read())])
     headers = {'Content-Type':contentType} 
-    request = HTTPRequest(url=ROOT_URL + "pictures/", 
+    request = HTTPRequest(url=ROOT_URL + "pictures/last/", 
                           method="POST", body=body, headers=headers)
     if hasattr(world.browser, "cookie"):
             request.headers["Cookie"] = world.browser.cookie
@@ -96,7 +96,7 @@ def post_a_new_picture_via_the_dedicated_resource(step):
 
 @step(u'Retrieve last pictures')
 def retrieve_last_pictures(step):
-    world.pictures = world.browser.fetch_documents("pictures/")
+    world.pictures = world.browser.fetch_documents("pictures/last/")
 
 @step(u'Download first returned picture')
 def download_first_returned_picture(step):
@@ -123,7 +123,7 @@ def check_that_last_activity_correspond_to_a_picture_creation(step):
 @step(u'From second Newebe, retrieve pictures')
 def from_second_newebe_retrieve_last_pictures(step):
     world.pictures = []
-    world.pictures = world.browser2.fetch_documents("pictures/")
+    world.pictures = world.browser2.fetch_documents("pictures/last/")
 
 @step(u'From second Newebe, retrieve activities')
 def from_second_newebe_retrieve_activities(step):
@@ -150,7 +150,7 @@ def add_three_pictures_to_the_database_with_different_dates(step):
 
 @step(u'Retrieve all pictures through handlers')
 def retrieve_all_pictures_through_handlers(step):
-    world.pictures = world.browser.fetch_documents("pictures/")
+    world.pictures = world.browser.fetch_documents("pictures/last/")
 
 @step(u'Check that there is three pictures with the most recent one as first picture')
 def check_that_there_is_three_pictures_with_the_most_recent_one_as_first_picture(step):
