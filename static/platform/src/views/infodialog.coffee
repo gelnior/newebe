@@ -70,6 +70,9 @@ class ConfirmationDialog
      $("#confirmation-text").append('<span>' + text + '</span>')
      $("#confirmation-yes").click(callback)
      @element.show()
+     top = $("body").scrollTop() + 200
+     left = @element.offset().left
+     @element.offset({left: left, top: top})
       
 
    # Hide confirmation dialog
