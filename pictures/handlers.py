@@ -1,8 +1,11 @@
+import os
 import logging
 import mimetypes
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
+from couchdbkit.exceptions import ResourceNotFound
+from PIL import Image
 
 from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
@@ -43,6 +46,8 @@ class PicturesHandler(NewebeAuthHandler):
         file = self.request.files['picture'][0]
 
         if file:
+            filebody = file["body"]
+            filename = file['filename']
 
             picture = Picture(title = "New Picture", 
                     path=file['filename'],
@@ -50,7 +55,13 @@ class PicturesHandler(NewebeAuthHandler):
                     authorKey = UserManager.getUser().key,
                     author = UserManager.getUser().name)
             picture.save()
-            picture.put_attachment(content=file["body"], name=file['filename'])
+            picture.put_attachment(filebody, filename)
+            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))  
+            picture.put_attachment(thumbnail.read(), "th_" + filename)
+            os.remove("th_" + filename)           
+            preview = self.get_thumbnail(filebody, filename, (1000, 1000))
+            picture.put_attachment(preview.read(), "prev_" + filename)
+            os.remove("th_" + filename)           
             picture.save()
 
             self.create_creation_activity(UserManager.getUser().asContact(),
@@ -59,15 +70,45 @@ class PicturesHandler(NewebeAuthHandler):
             self.send_files_to_contacts("pictures/contact/", 
                         fields = { "json": str(picture.toJson()) },
                         files = [("picture", str(picture.path), file["body"])])
-            
-            self.return_success(
-                    "Picture %s successfuly posted." % file['filename'])
+                        
+            logger.info("Picture %s successfuly posted." % filename)
+            self.return_json(picture.toJson(), 201)
+
         else:
             self.return_failure("No picture posted.", 400)
 
 
+    def get_thumbnail(self, filebody, filename, size):            
+        file = open(filename, "w")
+        file.write(filebody)  
+        file.close()
+        image = Image.open(filename)
+        image.thumbnail(size, Image.ANTIALIAS)
+        image.save("th_" + filename)
+        file = open(filename)
+        os.remove(filename)
+        return open("th_" + filename)
 
-class PicturesQQHandler(NewebeAuthHandler):
+
+class PicturesMyHandler(NewebeAuthHandler):
+    '''
+    This handler handles requests that retrieve last pictures posted by
+    Newebe owner.
+    
+    * GET: Retrieves last pictures posted by newebe owner.
+    * POST: Creates a picture.
+    '''
+
+
+    def get(self):
+        '''
+        Returns last posted pictures.
+        '''
+        pictures = PictureManager.get_owner_last_pictures()
+        self.return_documents(pictures)
+
+
+class PicturesQQHandler(PicturesHandler):
     '''
     This handler handles requests from QQ uploader to post new pictures.
     
@@ -83,12 +124,12 @@ class PicturesQQHandler(NewebeAuthHandler):
         Errors are stored inside activity.
         '''
 
-        file = self.request.body
+        filebody = self.request.body
         filename = self.get_argument("qqfile")
         filetype = mimetypes.guess_type(filename)[0] or \
                 'application/octet-stream'
 
-        if file:
+        if filebody:
 
             picture = Picture(title = "New Picture", 
                     path=filename,
@@ -96,7 +137,13 @@ class PicturesQQHandler(NewebeAuthHandler):
                     authorKey = UserManager.getUser().key,
                     author = UserManager.getUser().name)
             picture.save()
-            picture.put_attachment(content=file, name=filename)
+            picture.put_attachment(content=filebody, name=filename)            
+            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))  
+            picture.put_attachment(thumbnail.read(), "th_" + filename)
+            os.remove("th_" + filename)           
+            preview = self.get_thumbnail(filebody, filename, (1000, 1000))
+            picture.put_attachment(preview.read(), "prev_" + filename)
+            os.remove("th_" + filename)
             picture.save()
 
             self.create_creation_activity(UserManager.getUser().asContact(),
@@ -104,10 +151,11 @@ class PicturesQQHandler(NewebeAuthHandler):
 
             self.send_files_to_contacts("pictures/contact/", 
                         fields = { "json": str(picture.toJson()) },
-                        files = [("picture", str(picture.path), file)])
+                        files = [("picture", str(picture.path), filebody)])
             
-            self.return_success(
-                    "Picture %s successfuly posted." % filename)
+            logger.info("Picture %s successfuly posted." % filename)
+            self.return_json(picture.toJson(), 201)
+
         else:
             self.return_failure("No picture posted.", 400)
 
@@ -209,12 +257,17 @@ class PictureFileHandler(NewebeAuthHandler):
 
         picture = PictureManager.get_picture(id)
         if picture:
-            file = picture.fetch_attachment(picture.path)
-            self.set_header("Content-Type", picture.contentType)
-            self.write(file)
-            self.finish()
+            try:
+                file = picture.fetch_attachment(filename)
+                self.set_header("Content-Type", picture.contentType)
+                self.write(file)
+                self.finish()
+            except ResourceNotFound:
+                self.return_failure("Picture not found.", 404)
+
         else:
             self.return_failure("Picture not found.", 404)
+
 
 
 class PictureHandler(NewebeAuthHandler):
@@ -255,12 +308,39 @@ class PictureHandler(NewebeAuthHandler):
             self.return_failure("Picture not found.", 404)
 
 
+
+class PictureTHandler(NewebeAuthHandler):
+    '''
+    This handler allows to retrieve picture at HTML format.
+    * GET: Return for given id the HTML representation of corresponding 
+           picture.
+    '''
+    
+
+    def get(self, pid):
+        '''
+        Returns for given id the HTML representation of corresponding 
+        picture.
+        '''
+
+        picture = PictureManager.get_picture(pid)
+        if picture:
+            self.render("templates/picture.html", picture=picture)
+        else:
+            self.return_failure("Micropost not found.", 404)
+
+
+
+
 # Template handlers
 
 class PicturesTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/pictures.html")
 
+class PicturesTestsTHandler(NewebeAuthHandler):
+    def get(self):
+        self.render("templates/pictures_tests.html")
 
 class PicturesContentTHandler(NewebeAuthHandler):
     def get(self):

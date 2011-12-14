@@ -172,7 +172,7 @@ task 'build-tests', 'Compile coffee script tests to JS', ->
   puts 'Building JS'
 
   allFiles = []
-  allFiles = allFiles.concat(srcFiles)
+  allFiles = allFiles.concat(appFiles)
   allFiles = allFiles.concat(testFiles)
   remaining = allFiles.length
 
@@ -182,12 +182,31 @@ task 'build-tests', 'Compile coffee script tests to JS', ->
       if err
         print "Read file caught exception: \n" + err
       else
-        print stdout + stderr
         appContents[index] = fileContents
         if --remaining is 0
           process appContents, "tests", ->
             puts 'Tests build'
 
+
+# Automatically build app when a change occurs
+task 'watch-tests', 'Watch tests and app source files and build changes', ->
+    print "Starting watching for modifications..."
+
+    allFiles = [].concat(appFiles)
+    allFiles = allFiles.concat(testFiles)
+
+    # Watch Coffeescript files
+    for file in allFiles then do (file) ->
+      fs.watchFile "#{file}", (curr, prev) ->
+        if +curr.mtime isnt +prev.mtime
+          print "Saw change in app/#{file}.coffee"
+          invoke 'build-tests'
+
+    # Watch Stylus file
+    fs.watchFile styleFile, (curr, prev) ->
+      if +curr.mtime isnt +prev.mtime
+        print "Saw change in " + styleFile
+        invoke 'build-tests'
 
 # Run tests
 task 'tests', 'run tests through browser', ->

@@ -7,11 +7,15 @@ Feature: Share pictures
         Retrieve last pictures
         Download first returned picture
         Ensure it is the same that posted picture
+        Download thumbnail of first returned picture
+        Check that thumbnail is the posted picture thumbnail
+        Download preview of first returned picture
+        Check that preview is the posted picture preview
         Retrieve last activities
         Check that last activity correspond to a picture creation
         From second Newebe, retrieve pictures
         From second Newebe, download first returned picture
-        Ensure it is the same that posted pictures
+        Ensure it is the same that posted picture
         From second Newebe, retrieve activities
         Check that last activity correspond to a picture creation
 
@@ -31,6 +35,7 @@ Feature: Share pictures
         From second Newebe, retrieve activities
         Check that last activity correspond to a picture deletion
 
+
     Scenario: Retrieve pictures
         Clear all pictures
         Add three pictures to the database with different dates
@@ -45,4 +50,11 @@ Feature: Share pictures
         Retrieve first picture hrough handler via its ID.
         Check that picture title is the same that first picture
     
-   
+
+    Scenario: Retrieve My pictures
+        Clear all pictures
+        Add three pictures to the database with different dates
+        Retrieve all pictures through my pictures handlers
+        Check that there is two pictures with the most recent one as first picture
+
+

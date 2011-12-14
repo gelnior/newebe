@@ -9,4 +9,7 @@ Feature: Rertrieve pictures
         I have one picture corresponding to id
         When I get first from its date and author
         I have one picture corresponding to id
+        When I Get my last pictures
+        I have two pictures ordered by date
+
 

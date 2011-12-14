@@ -55,10 +55,11 @@ from newebe.notes.handlers import NotesHandler, \
                                   NoteTHandler
 
 from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
+                                    PicturesMyHandler, \
                                     PictureContactHandler, PictureHandler, \
-                                    PicturesTHandler, \
+                                    PicturesTHandler, PicturesTestsTHandler, \
                                     PicturesContentTHandler, \
-                                    PicturesQQHandler
+                                    PicturesQQHandler, PictureTHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
@@ -147,14 +148,22 @@ class Newebe(Application):
             ('/synchronize/contact/', SynchronizeContactHandler),
 
             ('/pictures/', PicturesTHandler),
+            ('/pictures/tests/', PicturesTestsTHandler),
             ('/pictures/content/', PicturesContentTHandler),
             ('/pictures/last/$', PicturesHandler),
+            ('/pictures/last/my/$', PicturesMyHandler),
             ('/pictures/fileuploader/$', PicturesQQHandler),
             ('/pictures/contact/$', PictureContactHandler),
             ('/pictures/([0-9a-z]+)/$', PictureHandler),
-            ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),
+            ('/pictures/([0-9a-z]+)/render/$', PictureTHandler),
+            ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),            
         ]
-        
+       
+        if DEBUG:
+            handlers.extend([
+                ('/pictures/tests/', PicturesTestsTHandler)
+            ])
+
         settings = {
           "static_path": os.path.join(os.path.dirname(__file__), "static"),
           "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",

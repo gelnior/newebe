@@ -9,8 +9,7 @@ class PicturesView extends Backbone.View
   ### Events ###
 
   events:
-    "click #pictures-post-button" : "onPostClicked"
-    "submit #pictures-post-button" : "onPostClicked"
+    "click #pictures-post-button" : "onRowClicked"
 
 
   constructor: ->
@@ -29,14 +28,6 @@ class PicturesView extends Backbone.View
 
   ### Listeners  ###
 
-
-  # When post button is clicked the content field is posted.
-  onPostClicked: (event) ->
-    event.preventDefault()
-    @postNewPicture()
-    event
-
-
   # Select clicked row and deselect previously clicked row.
   onRowClicked: (row) =>
     if row != @selectedRow
@@ -51,7 +42,7 @@ class PicturesView extends Backbone.View
   
   # Clear picture list then display more pictures button.
   clearNews: ->
-    $("#pictures-list").empty()
+    @pictureList.empty()
     $("#pictures-more").show()
 
   
@@ -73,7 +64,7 @@ class PicturesView extends Backbone.View
   appendOne: (picture) =>
     row = new PictureRow picture, @
     el = row.render()
-    $("#pictures-list").append(el)
+    @pictureList.append(el)
     row
 
    
@@ -82,7 +73,7 @@ class PicturesView extends Backbone.View
   prependOne: (picture) =>
     row = new PictureRow picture, @
     el = row.render()
-    $("#pictures-list").prepend(el)
+    @pictureList.prepend(el)
     loadingIndicator.hide()
     row
 
@@ -137,13 +128,24 @@ class PicturesView extends Backbone.View
     $("#pictures-from-datepicker").val(null)
     $("#pictures-a").addClass("disabled")
 
+    @pictureList = $("#pictures-list")
+
     uploader = new qq.FileUploader(
         element: document.getElementById('pictures-file-uploader'),
         action: '/pictures/fileuploader/',
         debug: true,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-        #onSubmit: (id, fileName) =>
+        onSubmit: (id, fileName) =>
+          loadingIndicator.display()
         #  @setParams( title: $("#pictures-title-field").val())
         #, onComplete: (id, fileName, responseJSON) =>
         #  alert responseJSON
+        onComplete: (id, fileName, responseJSON) =>
+          loadingIndicator.hide()
+          picture = new Picture responseJSON
+          row = new PictureRow picture, @
+          rowEl = row.render()
+          $(rowEl).hide()
+          $(row.render()).prependTo(@pictureList).slideDown()
+          @onRowClicked(row)
     )

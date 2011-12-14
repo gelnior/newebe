@@ -29,6 +29,24 @@ class PictureManager():
                              descending=True, 
                              limit=PICTURE_LIMIT)
 
+    
+    @staticmethod
+    def get_owner_last_pictures(startKey=None, skip=0):
+        '''
+        Returns owner pictures
+        '''
+
+        if startKey:
+            return Picture.view("pictures/owner", 
+                             startkey=startKey, 
+                             descending=True, 
+                             limit=PICTURE_LIMIT,
+                             skip=0)
+        else:
+            return Picture.view("pictures/owner", 
+                             descending=True, 
+                             limit=PICTURE_LIMIT)
+
 
     @staticmethod
     def get_picture(id):

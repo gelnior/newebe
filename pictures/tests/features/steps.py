@@ -3,6 +3,7 @@ import sys
 import datetime
 import time
 
+from PIL import Image
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError, HTTPRequest
 
@@ -57,6 +58,14 @@ def when_i_get_first_from_its_date_and_author(step):
     world.picture = PictureManager.get_contact_picture(picture.authorKey, 
                                         get_db_date_from_date(picture.date))
 
+@step(u'When I Get my last pictures')
+def when_i_get_my_last_pictures(step):    
+    world.pictures = PictureManager.get_owner_last_pictures().all()
+
+@step(u'I have two pictures ordered by date')
+def i_have_two_pictures_ordered_by_date(step):
+    assert 2 == len(world.pictures)
+    assert world.pictures[1].date <  world.pictures[0].date
 
 # Handlers
 
@@ -104,6 +113,47 @@ def download_first_returned_picture(step):
     world.response = world.browser.get("pictures/%s/%s" % (first_picture["_id"],
                                        first_picture["path"]))
 
+@step(u'Download thumbnail of first returned picture')
+def download_thumbnail_of_first_returned_picture(step):
+    first_picture = world.pictures[0]
+    world.response = world.browser.get(
+            "pictures/%s/th_%s" % (first_picture["_id"],
+            first_picture["path"]))
+
+@step(u'Check that thumbnail is the posted picture thumbnail')
+def check_that_thumbnail_is_the_posted_picture_thumbnail(step):
+    size = 200, 200
+    image = Image.open("test.jpg")
+    image.thumbnail(size, Image.ANTIALIAS)
+
+    file = open("th_test.jpg", "w")
+    file.write(world.response.body)
+    file.close()
+    thumbnail = Image.open("th_test.jpg")
+
+    assert image.getbbox() == thumbnail.getbbox()
+
+@step(u'Download preview of first returned picture')
+def download_preview_of_first_returned_picture(step):
+    first_picture = world.pictures[0]
+    world.response = world.browser.get(
+            "pictures/%s/prev_%s" % (first_picture["_id"],
+            first_picture["path"]))
+
+@step(u'Check that preview is the posted picture preview')
+def check_that_preview_is_the_posted_picture_preview(step):
+    size = 1000, 1000
+    image = Image.open("test.jpg")
+    image.thumbnail(size, Image.ANTIALIAS)
+
+    file = open("prev_test.jpg", "w")
+    file.write(world.response.body)
+    file.close()
+    preview = Image.open("prev_test.jpg")
+
+    assert image.getbbox() == preview.getbbox()
+
+
 @step(u'Ensure it is the same that posted picture')
 def ensure_it_is_the_same_that_posted_picture(step):
     file = open("test.jpg", "r")
@@ -143,8 +193,9 @@ def add_three_pictures_to_the_database_with_different_dates(step):
         picture = Picture(
             title = "Pic 0%d" % i,
             author = "Dan",
+            authorKey = "DanKey",
             date = datetime.datetime(2011, 11, i),
-            isMine = False
+            isMine = i != 3
         )
         picture.save()
 
@@ -186,3 +237,12 @@ def check_that_last_activity_correspond_to_a_picture_deletion(step):
     assert "picture" == activity.get("docType", "")
     assert "DELETE" == activity.get("method", "")
 
+@step(u'Retrieve all pictures through my pictures handlers')
+def retrieve_all_pictures_through_my_pictures_handlers(step):
+    world.pictures = world.browser.fetch_documents("pictures/last/my/")
+
+@step(u'Check that there is two pictures with the most recent one as first picture')
+def check_that_there_is_two_pictures_with_the_most_recent_one_as_first_picture(step):    
+    assert 2 == len(world.pictures)
+    assert world.pictures[1].get("date", None) <  \
+            world.pictures[0].get("date", None)

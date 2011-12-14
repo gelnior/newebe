@@ -54,10 +54,17 @@
     };
 
     ConfirmationDialog.prototype.display = function(text, callback) {
+      var left, top;
       $("#confirmation-text").empty();
       $("#confirmation-text").append('<span>' + text + '</span>');
       $("#confirmation-yes").click(callback);
-      return this.element.show();
+      this.element.show();
+      top = $("body").scrollTop() + 200;
+      left = this.element.offset().left;
+      return this.element.offset({
+        left: left,
+        top: top
+      });
     };
 
     ConfirmationDialog.prototype.hide = function() {
@@ -262,6 +269,7 @@
       this.id = this.model.id;
       this.model.view = this;
       this.selected = false;
+      this.preview = $("#pictures-preview");
     }
 
     /* Listeners
@@ -286,8 +294,8 @@
         confirmationDialog.hide();
         _this.model["delete"]();
         _this.mainView.selectedRow = null;
-        return $("#pictures-preview").fadeOut(function() {
-          return $("#pictures-preview").html(null);
+        return _this.preview.fadeOut(function() {
+          return _this.preview.html(null);
         });
       });
     };
@@ -317,39 +325,32 @@
 
     PictureRow.prototype.displayPreview = function() {
       var _this = this;
-      return $("#pictures-preview").fadeOut(function() {
-        var top;
-        $("#pictures-preview").html(null);
-        top = $("body").scrollTop();
-        if (top > 50) {
-          top = top + 20;
-        } else {
-          top = top + 60;
-        }
+      return this.preview.fadeOut(function() {
+        _this.preview.html(null);
         return $.get("/pictures/" + _this.model.get("_id") + "/render/", function(data) {
-          var left;
-          $("#pictures-preview").append(data);
+          _this.preview.append(data);
           $("#pictures-delete-button").button();
           $("#pictures-delete-button").click(_this.onDeleteClicked);
           $("#pictures-full-size-button").button();
-          $("#pictures-preview").fadeIn();
-          left = $("#pictures-preview").offset().left;
-          return $("#pictures-preview").offset({
-            left: left,
-            top: top
-          });
+          _this.preview.fadeIn();
+          return _this.updatePreviewPosition();
         });
       });
     };
 
-    PictureRow.prototype.findTop = function(obj) {
-      var curtop;
-      curtop = 0;
-      while (obj) {
-        curtop += obj.offsetTop;
-        obj = obj.offsetParent;
+    PictureRow.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
       }
-      return curtop;
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
     };
 
     return PictureRow;
@@ -459,5 +460,66 @@
   app.setListeners();
 
   app.fetchData();
+
+  describe('picture app', function() {
+    var pic;
+    pic = new Picture({
+      author: "author",
+      key: "key",
+      _id: "1234",
+      path: "path.jpg",
+      title: "test title",
+      date: "2011-12-06T20:38:47Z"
+    });
+    describe('models', function() {
+      it('Image path is properly built in constructor', function() {
+        return expect(pic.get('imgPath')).toBe('/pictures/1234/path.jpg');
+      });
+      it('Thumbnail path is properly built in constructor', function() {
+        return expect(pic.get('thumbnailPath')).toBe('/pictures/1234/th_path.jpg');
+      });
+      return it('Display date is properly built in constructor', function() {
+        return expect(pic.getDisplayDate()).toBe('06 Dec 2011, 20:38');
+      });
+    });
+    describe('rows', function() {
+      var row;
+      row = new PictureRow(pic, app);
+      $("#pictures-list").append(row.render());
+      it('Image path is properly built in constructor', function() {
+        expect(pic.get('imgPath')).toBe('/pictures/1234/path.jpg');
+        return expect($('#' + pic._id)).not.toBe(null);
+      });
+      it('Image is correctly rendered', function() {
+        return expect($('#' + pic._id)).not.toBe(null);
+      });
+      it('has mouseover class when mouse is over the row', function() {
+        row.onMouseOver();
+        return expect($(row.el).hasClass("mouseover")).toBe(true);
+      });
+      it('has not mouseover class when is out the row', function() {
+        row.onMouseOut();
+        return expect($(row.el).hasClass("mouseover")).not.toBe(true);
+      });
+      it('has right class when is selected', function() {
+        $(row.el).addClass("mouseover");
+        row.select();
+        expect($(row.el).hasClass("selected")).toBe(true);
+        return expect($(row.el).hasClass("mouseover")).not.toBe(true);
+      });
+      it('has not selected class when is selected', function() {
+        row.deselect();
+        return expect($(row.el).hasClass("selected")).not.toBe(true);
+      });
+      return it('is null when is removed', function() {
+        row.remove();
+        return expect($(row.el).parent()).toBeNull();
+      });
+    });
+    return describe('main view', function() {
+      var happy;
+      return happy = true;
+    });
+  });
 
 }).call(this);

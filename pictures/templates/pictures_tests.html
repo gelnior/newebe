@@ -1,0 +1,17 @@
+{% extends "../../newebe/core/templates/base_menu.html" %}
+
+{% block title %}Picture{% end %}
+
+{% block content %}
+{% include "pictures_content.html" %}
+  <div class="spacer"> <br /> <br /></div>
+  <h1>Tests</h1>
+  <script type="text/javascript" 
+              src="/static/pictures/app/pictures.tests.js ">
+  </script>
+  <script type="text/javascript">
+      jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+      jasmine.getEnv().execute();
+  </script>
+{% end %}
+

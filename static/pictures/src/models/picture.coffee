@@ -17,16 +17,23 @@ class Picture extends Backbone.Model
     @id = picture._id
 
     @setImgPath()
+    @setThumbnailPath()
     if picture.date
-      #postDate = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ")
-      @setDisplayDateFromDbDate()
+      @setDisplayDateFromDbDate(picture.date)
 
     
   ### Getters / Setters ###
 
+  # Buid image path from picture id and file name.
   setImgPath: ->
     @set('imgPath', "/pictures/#{@id}/#{@get('path')}")
     @attributes['imgPath'] = "/pictures/#{@id}/#{@get('path')}"
+
+  # Buid thumbnail path from picture id and file name.
+  setThumbnailPath: ->
+    @set('thumnbailPath', "/pictures/#{@id}/th_#{@get('path')}")
+    @attributes['thumbnailPath'] =
+        "/pictures/#{@id}/th_#{@get('path')}"
 
   getDisplayDate: ->
     @attributes['displayDate']
@@ -34,7 +41,7 @@ class Picture extends Backbone.Model
   setDisplayDate: ->
     dateToSet = @attributes["date"]
     @setDisplayDateFromDbDate(dateToSet)
-  
+
   # Convert raw *date* to human readable date.
   setDisplayDateFromDbDate: (date) ->
     if date
@@ -43,7 +50,7 @@ class Picture extends Backbone.Model
       @attributes['displayDate'] = stringDate
       postDate
     date
-  
+
   # Sends a delete request to services backend then ask view to remove micro 
   # post view.
   delete: ->
@@ -53,7 +60,7 @@ class Picture extends Backbone.Model
 
   # Picture is considered as new if no author is set.
   isNew: ->
-    !@getAuthor()
+    !@id
 
     
 

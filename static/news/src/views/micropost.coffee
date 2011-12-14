@@ -76,6 +76,7 @@ class MicroPostRow extends Backbone.View
       event.preventDefault()
     false
 
+
   ### Functions ###
 
 
