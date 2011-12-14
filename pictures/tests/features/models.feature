@@ -11,5 +11,9 @@ Feature: Rertrieve pictures
         I have one picture corresponding to id
         When I Get my last pictures
         I have two pictures ordered by date
+        When I Get pictures until november 2
+        I have two pictures ordered by date        
+        When I Get owner pictures until november 1
+        I have one picture
 
 

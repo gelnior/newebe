@@ -1,11 +1,9 @@
-import datetime
-
-from couchdbkit.schema import StringProperty, BooleanProperty, \
-                                         DateTimeProperty
+from couchdbkit.schema import StringProperty, BooleanProperty
 
 from newebe.core.models import NewebeDocument
 
-PICTURE_LIMIT = 50
+PICTURE_LIMIT = 10
+
 
 class PictureManager():
     '''

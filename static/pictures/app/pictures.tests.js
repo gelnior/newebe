@@ -111,15 +111,19 @@
     */
 
     PicturesView.prototype.events = {
-      "click #pictures-post-button": "onRowClicked"
+      "click #pictures-my-button": "onMyClicked",
+      "click #pictures-all-button": "onAllClicked"
     };
 
     function PicturesView() {
-      this.reloadMicroPosts = __bind(this.reloadMicroPosts, this);
+      this.fetchData = __bind(this.fetchData, this);
+      this.reloadPictures = __bind(this.reloadPictures, this);
       this.prependOne = __bind(this.prependOne, this);
       this.appendOne = __bind(this.appendOne, this);
       this.addAll = __bind(this.addAll, this);
-      this.onRowClicked = __bind(this.onRowClicked, this);      PicturesView.__super__.constructor.call(this);
+      this.onRowClicked = __bind(this.onRowClicked, this);
+      this.onAllClicked = __bind(this.onAllClicked, this);
+      this.onMyClicked = __bind(this.onMyClicked, this);      PicturesView.__super__.constructor.call(this);
     }
 
     PicturesView.prototype.initialize = function() {
@@ -131,6 +135,18 @@
 
     /* Listeners
     */
+
+    PicturesView.prototype.onMyClicked = function() {
+      this.myButton.button("disable");
+      this.allButton.button("enable");
+      return this.reloadPictures("/pictures/last/my/", null);
+    };
+
+    PicturesView.prototype.onAllClicked = function() {
+      this.myButton.button("enable");
+      this.allButton.button("disable");
+      return this.reloadPictures("/pictures/last/", null);
+    };
 
     PicturesView.prototype.onRowClicked = function(row) {
       if (row !== this.selectedRow) {
@@ -176,25 +192,17 @@
       return row;
     };
 
-    PicturesView.prototype.clearPostField = function() {
-      return false;
-    };
-
-    PicturesView.prototype.reloadMicroPosts = function(date, path) {
-      loadingIndicator.display();
+    PicturesView.prototype.reloadPictures = function(path, date) {
+      this.pictureList.empty();
       this.selectedRow = null;
-      this.pictures.fetch();
-      return this.pictures;
+      loadingIndicator.display();
+      this.pictures.url = path;
+      return this.fetchData();
     };
 
     PicturesView.prototype.fetchData = function() {
-      this.selectedRow = null;
       this.pictures.fetch();
       return this.pictures;
-    };
-
-    PicturesView.prototype.postNewPost = function() {
-      return false;
     };
 
     /* UI Builders
@@ -216,6 +224,8 @@
       $("#pictures-more").button();
       $("#pictures-from-datepicker").val(null);
       $("#pictures-a").addClass("disabled");
+      this.myButton = $("#pictures-my-button");
+      this.allButton = $("#pictures-all-button");
       this.pictureList = $("#pictures-list");
       return uploader = new qq.FileUploader({
         element: document.getElementById('pictures-file-uploader'),

@@ -6,6 +6,7 @@ app = new PicturesView
 
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
+infoDialog = new InfoDialog
 
 app.setWidgets()
 app.setListeners()

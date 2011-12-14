@@ -41,7 +41,8 @@ Feature: Share pictures
         Add three pictures to the database with different dates
         Retrieve all pictures through handlers
         Check that there is three pictures with the most recent one as first picture
-
+        Retrieve all pictures before november 2, through handlers
+        Check that there is two pictures with the most recent one as first picture
 
     Scenario: Retrieve picture
         Clear all pictures
@@ -56,5 +57,7 @@ Feature: Share pictures
         Add three pictures to the database with different dates
         Retrieve all pictures through my pictures handlers
         Check that there is two pictures with the most recent one as first picture
+        Retrieve all owner pictures before november 1, through handlers
+        Check that there is one picture
 
 

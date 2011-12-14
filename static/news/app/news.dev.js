@@ -54,10 +54,17 @@
     };
 
     ConfirmationDialog.prototype.display = function(text, callback) {
+      var left, top;
       $("#confirmation-text").empty();
       $("#confirmation-text").append('<span>' + text + '</span>');
       $("#confirmation-yes").click(callback);
-      return this.element.show();
+      this.element.show();
+      top = $("body").scrollTop() + 200;
+      left = this.element.offset().left;
+      return this.element.offset({
+        left: left,
+        top: top
+      });
     };
 
     ConfirmationDialog.prototype.hide = function() {

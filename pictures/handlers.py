@@ -12,7 +12,8 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.contacts.models import ContactManager
 from newebe.pictures.models import PictureManager, Picture
-from newebe.lib.date_util import get_date_from_db_date
+from newebe.lib.date_util import get_date_from_db_date, \
+                                 get_db_date_from_url_date
 
 logger = logging.getLogger("newebe.pictures")
 
@@ -26,11 +27,20 @@ class PicturesHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self):
+    def get(self, startKey=None):
         '''
         Returns last posted pictures.
         '''
-        pictures = PictureManager.get_last_pictures()
+        
+        pictures = list()
+
+        if startKey:
+            dateString = get_db_date_from_url_date(startKey)
+            pictures = PictureManager.get_last_pictures(startKey=dateString)
+
+        else:
+            pictures = PictureManager.get_last_pictures()
+
         self.return_documents(pictures)
 
 
@@ -100,11 +110,20 @@ class PicturesMyHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self):
+    def get(self, startKey=None):
         '''
         Returns last posted pictures.
         '''
         pictures = PictureManager.get_owner_last_pictures()
+        
+
+        if startKey:
+            dateString = get_db_date_from_url_date(startKey)
+            pictures = PictureManager.get_owner_last_pictures(
+                    startKey=dateString)
+        else:
+            pictures = PictureManager.get_owner_last_pictures()
+
         self.return_documents(pictures)
 
 

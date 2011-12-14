@@ -67,6 +67,21 @@ def i_have_two_pictures_ordered_by_date(step):
     assert 2 == len(world.pictures)
     assert world.pictures[1].date <  world.pictures[0].date
 
+@step(u'When I Get pictures until november 2')
+def when_i_get_pictures_until_november_2(step):
+    world.pictures = PictureManager.get_last_pictures(
+            "2011-11-02T23:59:00Z").all()
+
+@step(u'When I Get owner pictures until november 1')
+def when_i_get_owner_pictures_until_november_1(step):
+    world.pictures = PictureManager.get_owner_last_pictures(
+            "2011-11-01T23:59:00Z").all()
+
+@step(u'I have one picture')
+def i_have_one_picture(step):
+    assert 1 == len(world.pictures)
+
+
 # Handlers
 
 @step(u'Clear all pictures')
@@ -203,6 +218,10 @@ def add_three_pictures_to_the_database_with_different_dates(step):
 def retrieve_all_pictures_through_handlers(step):
     world.pictures = world.browser.fetch_documents("pictures/last/")
 
+@step(u'Retrieve all pictures before november 2, through handlers')
+def retrieve_all_pictures_before_november_2_through_handlers(step):
+    world.pictures = world.browser.fetch_documents("pictures/last/2011-11-02-23-59-00/")
+
 @step(u'Check that there is three pictures with the most recent one as first picture')
 def check_that_there_is_three_pictures_with_the_most_recent_one_as_first_picture(step):
     assert 3 == len(world.pictures)
@@ -246,3 +265,12 @@ def check_that_there_is_two_pictures_with_the_most_recent_one_as_first_picture(s
     assert 2 == len(world.pictures)
     assert world.pictures[1].get("date", None) <  \
             world.pictures[0].get("date", None)
+
+@step(u'Retrieve all owner pictures before november 1, through handlers')
+def retrieve_all_owner_pictures_before_november_1_through_handlers(step):
+    world.pictures = world.browser.fetch_documents("pictures/last/my/2011-11-01-23-59-00/")
+
+@step(u'Check that there is one picture')
+def check_that_there_is_one_picture(step):
+    assert 1 == len(world.pictures)
+

@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesView, app, confirmationDialog, loadingIndicator;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesView, app, confirmationDialog, infoDialog, loadingIndicator;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   InfoDialog = (function() {
@@ -54,10 +54,17 @@
     };
 
     ConfirmationDialog.prototype.display = function(text, callback) {
+      var left, top;
       $("#confirmation-text").empty();
       $("#confirmation-text").append('<span>' + text + '</span>');
       $("#confirmation-yes").click(callback);
-      return this.element.show();
+      this.element.show();
+      top = $("body").scrollTop() + 200;
+      left = this.element.offset().left;
+      return this.element.offset({
+        left: left,
+        top: top
+      });
     };
 
     ConfirmationDialog.prototype.hide = function() {
@@ -104,26 +111,48 @@
     */
 
     PicturesView.prototype.events = {
-      "click #pictures-post-button": "onRowClicked"
+      "click #pictures-my-button": "onMyClicked",
+      "click #pictures-all-button": "onAllClicked"
     };
 
     function PicturesView() {
-      this.reloadMicroPosts = __bind(this.reloadMicroPosts, this);
+      this.fetchData = __bind(this.fetchData, this);
+      this.reloadPictures = __bind(this.reloadPictures, this);
       this.prependOne = __bind(this.prependOne, this);
       this.appendOne = __bind(this.appendOne, this);
       this.addAll = __bind(this.addAll, this);
-      this.onRowClicked = __bind(this.onRowClicked, this);      PicturesView.__super__.constructor.call(this);
+      this.onDatePicked = __bind(this.onDatePicked, this);
+      this.onRowClicked = __bind(this.onRowClicked, this);
+      this.onAllClicked = __bind(this.onAllClicked, this);
+      this.onMyClicked = __bind(this.onMyClicked, this);      PicturesView.__super__.constructor.call(this);
     }
 
     PicturesView.prototype.initialize = function() {
       this.pictures = new PictureCollection;
       this.pictures.bind('add', this.prependOne);
       this.pictures.bind('reset', this.addAll);
+      this.currentPath = "/pictures/last/";
       return this.selectedRow = null;
     };
 
     /* Listeners
     */
+
+    PicturesView.prototype.onMyClicked = function() {
+      this.myButton.button("disable");
+      this.allButton.button("enable");
+      this.currentPath = "/pictures/last/my/";
+      this.datepicker.val(null);
+      return this.reloadPictures(null);
+    };
+
+    PicturesView.prototype.onAllClicked = function() {
+      this.myButton.button("enable");
+      this.allButton.button("disable");
+      this.currentPath = "/pictures/last/";
+      this.datepicker.val(null);
+      return this.reloadPictures(null);
+    };
 
     PicturesView.prototype.onRowClicked = function(row) {
       if (row !== this.selectedRow) {
@@ -131,6 +160,13 @@
         row.select();
         return this.selectedRow = row;
       }
+    };
+
+    PicturesView.prototype.onDatePicked = function(dateText, event) {
+      var date, datePicked;
+      datePicked = Date.parse(dateText);
+      date = datePicked.toString("yyyy-MM-dd");
+      return this.reloadPictures(date);
     };
 
     /* Functions
@@ -143,9 +179,9 @@
 
     PicturesView.prototype.addAll = function() {
       if (this.pictures.length > 0) {
-        if (this.pictures.length < 30) $("#pictures-more").hide();
+        if (this.pictures.length < 10) this.moreButton.hide();
       } else {
-        $("#pictures-more").hide();
+        this.moreButton.hide();
       }
       this.pictures.each(this.prependOne);
       loadingIndicator.hide();
@@ -169,32 +205,33 @@
       return row;
     };
 
-    PicturesView.prototype.clearPostField = function() {
-      return false;
-    };
-
-    PicturesView.prototype.reloadMicroPosts = function(date, path) {
-      loadingIndicator.display();
+    PicturesView.prototype.reloadPictures = function(date) {
+      this.pictureList.empty();
       this.selectedRow = null;
-      this.pictures.fetch();
-      return this.pictures;
+      loadingIndicator.display();
+      if (date) {
+        this.pictures.url = this.currentPath + date + '-23-59-00/';
+      } else {
+        this.pictures.url = this.currentPath;
+      }
+      return this.fetchData();
     };
 
     PicturesView.prototype.fetchData = function() {
-      this.selectedRow = null;
-      this.pictures.fetch();
+      this.pictures.fetch({
+        error: function() {
+          infoDialog.display("Error occured while retrieving data.");
+          return loadingIndicator.hide();
+        }
+      });
       return this.pictures;
-    };
-
-    PicturesView.prototype.postNewPost = function() {
-      return false;
     };
 
     /* UI Builders
     */
 
     PicturesView.prototype.setListeners = function() {
-      return $("input#pictures-from-datepicker").datepicker({
+      return this.datepicker.datepicker({
         onSelect: this.onDatePicked
       });
     };
@@ -202,12 +239,16 @@
     PicturesView.prototype.setWidgets = function() {
       var uploader;
       var _this = this;
+      this.myButton = $("#pictures-my-button");
+      this.allButton = $("#pictures-all-button");
+      this.moreButton = $("#pictures-more");
+      this.datepicker = $("#pictures-from-datepicker");
       $("input#pictures-post-button").button();
-      $("#pictures-my-button").button();
-      $("#pictures-all-button").button();
-      $("#pictures-all-button").button("disable");
-      $("#pictures-more").button();
-      $("#pictures-from-datepicker").val(null);
+      this.myButton.button();
+      this.allButton.button();
+      this.allButton.button("disable");
+      this.moreButton.button();
+      this.datepicker.val(null);
       $("#pictures-a").addClass("disabled");
       this.pictureList = $("#pictures-list");
       return uploader = new qq.FileUploader({
@@ -262,6 +303,7 @@
       this.id = this.model.id;
       this.model.view = this;
       this.selected = false;
+      this.preview = $("#pictures-preview");
     }
 
     /* Listeners
@@ -286,8 +328,8 @@
         confirmationDialog.hide();
         _this.model["delete"]();
         _this.mainView.selectedRow = null;
-        return $("#pictures-preview").fadeOut(function() {
-          return $("#pictures-preview").html(null);
+        return _this.preview.fadeOut(function() {
+          return _this.preview.html(null);
         });
       });
     };
@@ -317,39 +359,32 @@
 
     PictureRow.prototype.displayPreview = function() {
       var _this = this;
-      return $("#pictures-preview").fadeOut(function() {
-        var top;
-        $("#pictures-preview").html(null);
-        top = $("body").scrollTop();
-        if (top > 50) {
-          top = top + 20;
-        } else {
-          top = top + 60;
-        }
+      return this.preview.fadeOut(function() {
+        _this.preview.html(null);
         return $.get("/pictures/" + _this.model.get("_id") + "/render/", function(data) {
-          var left;
-          $("#pictures-preview").append(data);
+          _this.preview.append(data);
           $("#pictures-delete-button").button();
           $("#pictures-delete-button").click(_this.onDeleteClicked);
           $("#pictures-full-size-button").button();
-          $("#pictures-preview").fadeIn();
-          left = $("#pictures-preview").offset().left;
-          return $("#pictures-preview").offset({
-            left: left,
-            top: top
-          });
+          _this.preview.fadeIn();
+          return _this.updatePreviewPosition();
         });
       });
     };
 
-    PictureRow.prototype.findTop = function(obj) {
-      var curtop;
-      curtop = 0;
-      while (obj) {
-        curtop += obj.offsetTop;
-        obj = obj.offsetParent;
+    PictureRow.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
       }
-      return curtop;
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
     };
 
     return PictureRow;
@@ -453,6 +488,8 @@
   loadingIndicator = new LoadingIndicator;
 
   confirmationDialog = new ConfirmationDialog;
+
+  infoDialog = new InfoDialog;
 
   app.setWidgets();
 

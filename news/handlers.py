@@ -209,7 +209,8 @@ class NewsHandler(NewebeAuthHandler):
         else:
             microposts = MicroPostManager.getList()
 
-        self.return_json(json_util.get_json_from_doc_list(microposts))
+
+        self.return_documents(microposts)
 
 
     @asynchronous
