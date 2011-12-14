@@ -19,6 +19,9 @@ class Picture extends Backbone.Model
     @setImgPath()
     @setThumbnailPath()
     if picture.date
+      urlDate = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ")
+      urlDate = urlDate.toString("yyyy-MM-dd-HH-mm-ss")
+      @attributes['urlDate'] = urlDate
       @setDisplayDateFromDbDate(picture.date)
 
     
@@ -34,6 +37,9 @@ class Picture extends Backbone.Model
     @set('thumnbailPath', "/pictures/#{@id}/th_#{@get('path')}")
     @attributes['thumbnailPath'] =
         "/pictures/#{@id}/th_#{@get('path')}"
+
+  getUrlDate: () ->
+    @attributes['urlDate']
 
   getDisplayDate: ->
     @attributes['displayDate']

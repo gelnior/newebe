@@ -32,7 +32,8 @@ class PictureRow extends Backbone.View
     @model.view = @
     @selected = false
     @preview = $("#pictures-preview")
-     
+    
+
   ### Listeners ###
 
   # When mouse is over background changes.

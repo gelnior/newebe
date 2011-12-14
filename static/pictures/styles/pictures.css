@@ -9,7 +9,7 @@
   margin-top: 20px;
 }
 #pictures-list {
-  margin-top: 20px;
+  margin: 20px 0;
   border-top: 1px solid #ccc;
 }
 .pictures-row {

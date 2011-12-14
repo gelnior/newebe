@@ -1,6 +1,6 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesView, app, confirmationDialog, infoDialog, loadingIndicator;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter;
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -101,6 +101,42 @@
 
   })();
 
+  PicturesRouter = (function() {
+
+    __extends(PicturesRouter, Backbone.Router);
+
+    PicturesRouter.prototype.routes = {
+      "": "all",
+      "pictures/": "all",
+      "pictures/all/": "all",
+      "pictures/all/until/:date/": "all",
+      "pictures/mine/": "mine",
+      "pictures/mine/until/:date/": "mine",
+      "pictures/mine/:id/": "mineWithSelection"
+    };
+
+    function PicturesRouter(view) {
+      PicturesRouter.__super__.constructor.apply(this, arguments);
+      this.view = view;
+    }
+
+    PicturesRouter.prototype.all = function(date) {
+      return this.view.displayAllPictures(date);
+    };
+
+    PicturesRouter.prototype.mine = function(date) {
+      return this.view.displayMyPictures(date);
+    };
+
+    PicturesRouter.prototype.mineWithSelection = function(id) {
+      this.view.lastSelectedId = id;
+      return this.view.displayMyPictures(null);
+    };
+
+    return PicturesRouter;
+
+  })();
+
   PicturesView = (function() {
 
     __extends(PicturesView, Backbone.View);
@@ -111,8 +147,7 @@
     */
 
     PicturesView.prototype.events = {
-      "click #pictures-my-button": "onMyClicked",
-      "click #pictures-all-button": "onAllClicked"
+      "click #pictures-more-button": "onMoreClicked"
     };
 
     function PicturesView() {
@@ -120,17 +155,21 @@
       this.reloadPictures = __bind(this.reloadPictures, this);
       this.prependOne = __bind(this.prependOne, this);
       this.appendOne = __bind(this.appendOne, this);
+      this.addAllMore = __bind(this.addAllMore, this);
       this.addAll = __bind(this.addAll, this);
       this.onDatePicked = __bind(this.onDatePicked, this);
       this.onRowClicked = __bind(this.onRowClicked, this);
-      this.onAllClicked = __bind(this.onAllClicked, this);
-      this.onMyClicked = __bind(this.onMyClicked, this);      PicturesView.__super__.constructor.call(this);
+      this.onMoreClicked = __bind(this.onMoreClicked, this);
+      this.displayAllPictures = __bind(this.displayAllPictures, this);
+      this.displayMyPictures = __bind(this.displayMyPictures, this);      PicturesView.__super__.constructor.call(this);
     }
 
     PicturesView.prototype.initialize = function() {
       this.pictures = new PictureCollection;
+      this.morePictures = new PictureCollection;
       this.pictures.bind('add', this.prependOne);
       this.pictures.bind('reset', this.addAll);
+      this.morePictures.bind('reset', this.addAllMore);
       this.currentPath = "/pictures/last/";
       return this.selectedRow = null;
     };
@@ -138,20 +177,25 @@
     /* Listeners
     */
 
-    PicturesView.prototype.onMyClicked = function() {
+    PicturesView.prototype.displayMyPictures = function(date) {
       this.myButton.button("disable");
       this.allButton.button("enable");
       this.currentPath = "/pictures/last/my/";
-      this.datepicker.val(null);
-      return this.reloadPictures(null);
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
     };
 
-    PicturesView.prototype.onAllClicked = function() {
+    PicturesView.prototype.displayAllPictures = function(date) {
       this.myButton.button("enable");
       this.allButton.button("disable");
       this.currentPath = "/pictures/last/";
-      this.datepicker.val(null);
-      return this.reloadPictures(null);
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
+    };
+
+    PicturesView.prototype.onMoreClicked = function() {
+      this.morePictures.url = this.currentPath + this.lastDate + "/";
+      return this.morePictures.fetch();
     };
 
     PicturesView.prototype.onRowClicked = function(row) {
@@ -166,26 +210,44 @@
       var date, datePicked;
       datePicked = Date.parse(dateText);
       date = datePicked.toString("yyyy-MM-dd");
-      return this.reloadPictures(date);
+      if (this.currentPath === "/pictures/last/my/") {
+        return Backbone.history.navigate("pictures/mine/until/" + date + "/", true);
+      } else {
+        return Backbone.history.navigate("pictures/all/until/" + date + "/", true);
+      }
     };
 
     /* Functions
     */
 
-    PicturesView.prototype.clearNews = function() {
-      this.pictureList.empty();
-      return $("#pictures-more").show();
-    };
-
     PicturesView.prototype.addAll = function() {
-      if (this.pictures.length > 0) {
-        if (this.pictures.length < 10) this.moreButton.hide();
-      } else {
+      var picture;
+      if (this.pictures.length >= 0 && this.pictures.length < 10) {
         this.moreButton.hide();
+      } else {
+        picture = this.pictures.first();
+        this.lastDate = picture.getUrlDate();
+        this.moreButton.show();
       }
       this.pictures.each(this.prependOne);
       loadingIndicator.hide();
       return this.pictures.length;
+    };
+
+    PicturesView.prototype.addAllMore = function() {
+      var picture, pictures;
+      pictures = this.morePictures.toArray().reverse();
+      pictures = _.rest(pictures);
+      if (this.morePictures.length >= 0 && this.morePictures.length < 10) {
+        this.moreButton.hide();
+      } else {
+        picture = pictures[0];
+        this.lastDate = picture.getUrlDate();
+        this.moreButton.show();
+      }
+      _.each(pictures, this.appendOne);
+      loadingIndicator.hide();
+      return this.morePictures.length;
     };
 
     PicturesView.prototype.appendOne = function(picture) {
@@ -241,7 +303,7 @@
       var _this = this;
       this.myButton = $("#pictures-my-button");
       this.allButton = $("#pictures-all-button");
-      this.moreButton = $("#pictures-more");
+      this.moreButton = $("#pictures-more-button");
       this.datepicker = $("#pictures-from-datepicker");
       $("input#pictures-post-button").button();
       this.myButton.button();
@@ -398,6 +460,7 @@
     Picture.prototype.url = '/pictures/last/';
 
     function Picture(picture) {
+      var urlDate;
       Picture.__super__.constructor.apply(this, arguments);
       this.set('author', picture.author);
       this.set('authorKey', picture.authorKey);
@@ -406,7 +469,12 @@
       this.id = picture._id;
       this.setImgPath();
       this.setThumbnailPath();
-      if (picture.date) this.setDisplayDateFromDbDate(picture.date);
+      if (picture.date) {
+        urlDate = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ");
+        urlDate = urlDate.toString("yyyy-MM-dd-HH-mm-ss");
+        this.attributes['urlDate'] = urlDate;
+        this.setDisplayDateFromDbDate(picture.date);
+      }
     }
 
     /* Getters / Setters
@@ -420,6 +488,10 @@
     Picture.prototype.setThumbnailPath = function() {
       this.set('thumnbailPath', "/pictures/" + this.id + "/th_" + (this.get('path')));
       return this.attributes['thumbnailPath'] = "/pictures/" + this.id + "/th_" + (this.get('path'));
+    };
+
+    Picture.prototype.getUrlDate = function() {
+      return this.attributes['urlDate'];
     };
 
     Picture.prototype.getDisplayDate = function() {
@@ -485,6 +557,8 @@
 
   app = new PicturesView;
 
+  pictureRouter = new PicturesRouter(app);
+
   loadingIndicator = new LoadingIndicator;
 
   confirmationDialog = new ConfirmationDialog;
@@ -494,7 +568,5 @@
   app.setWidgets();
 
   app.setListeners();
-
-  app.fetchData();
 
 }).call(this);

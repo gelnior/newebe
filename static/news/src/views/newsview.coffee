@@ -33,11 +33,11 @@ class NewsView extends Backbone.View
     @tutorialOn = true
     @microposts = new MicroPostCollection
     
-    @microposts.bind('add', @prependOne)
-    @microposts.bind('reset', @addAll)
+    @microposts.bind 'add', @prependOne
+    @microposts.bind 'reset', @addAll
         
     @moreMicroposts = new MicroPostCollection
-    @moreMicroposts.bind('reset', @addAllMore)
+    @moreMicroposts.bind 'reset', @addAllMore
 
     @currentPath = '/news/microposts/all/'
 

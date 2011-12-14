@@ -9,19 +9,21 @@ class PicturesView extends Backbone.View
   ### Events ###
 
   events:
-    "click #pictures-my-button": "onMyClicked"
-    "click #pictures-all-button": "onAllClicked"
+    "click #pictures-more-button": "onMoreClicked"
 
   constructor: ->
     super()
 
-  # Initiliaze binds functions to this view, sets up micropost colleciton
+  # Initialize binds functions to this view, sets up pictures collection
   # behaviours.
   initialize: ->
     @pictures = new PictureCollection
+    @morePictures = new PictureCollection
     
     @pictures.bind 'add', @prependOne
     @pictures.bind 'reset', @addAll
+    @morePictures.bind 'reset', @addAllMore
+
     @currentPath = "/pictures/last/"
 
     @selectedRow = null
@@ -31,23 +33,32 @@ class PicturesView extends Backbone.View
 
   # When my button is clicked, it only displays owner pictures.
   # Then my button is disabled and all button is enabled.
-  onMyClicked: () =>
+#  onMyClicked: =>
+#    alert "my"
+#    Backbone.history.navigate("pictures/mine", true)
+
+  displayMyPictures:(date) =>
     @myButton.button "disable"
     @allButton.button "enable"
     @currentPath = "/pictures/last/my/"
     
-    @datepicker.val null
-    @reloadPictures null
+
+    @datepicker.val date
+    @reloadPictures date
 
   # When all button is clicked, it displays all pictures.
   # Then all button is disabled and my button is enabled.
-  onAllClicked: () =>
+  displayAllPictures: (date) =>
     @myButton.button "enable"
     @allButton.button "disable"
     @currentPath = "/pictures/last/"
 
-    @datepicker.val null
-    @reloadPictures null
+    @datepicker.val date
+    @reloadPictures date
+
+  onMoreClicked: =>
+    @morePictures.url = @currentPath + @lastDate + "/"
+    @morePictures.fetch()
 
   # Select clicked row and deselect previously clicked row.
   onRowClicked: (row) =>
@@ -61,29 +72,47 @@ class PicturesView extends Backbone.View
   onDatePicked: (dateText, event) =>
     datePicked = Date.parse(dateText)
     date = datePicked.toString "yyyy-MM-dd"
-    @reloadPictures date
+
+    if @currentPath == "/pictures/last/my/"
+      Backbone.history.navigate "pictures/mine/until/" + date + "/", true
+    else
+      Backbone.history.navigate "pictures/all/until/" + date + "/", true
 
 
   ### Functions  ###
 
   
-  # Clear picture list then display more pictures button.
-  clearNews: ->
-    @pictureList.empty()
-    $("#pictures-more").show()
-  
-  # Add pictures to current list. If less thant 30 picures are returned, 
+  # Add pictures to current list. If less than 10 pictures are returned, 
   # it means that there are no more pictures, so more button is hidden.
   addAll: =>
-    if @pictures.length > 0
-      if @pictures.length < 10
-        @moreButton.hide()
-    else
+    if @pictures.length >= 0 and @pictures.length < 10
       @moreButton.hide()
+    else
+      picture = @pictures.first()
+      @lastDate = picture.getUrlDate()
+      @moreButton.show()
+
     @pictures.each @prependOne
 
     loadingIndicator.hide()
     @pictures.length
+
+  addAllMore: =>
+    pictures = @morePictures.toArray().reverse()
+    pictures = _.rest(pictures)
+
+    if @morePictures.length >= 0 and @morePictures.length < 10
+      @moreButton.hide()
+    else
+      picture = pictures[0]
+      @lastDate = picture.getUrlDate()
+      @moreButton.show()
+
+    _.each(pictures, @appendOne)
+
+    loadingIndicator.hide()
+    @morePictures.length
+
 
   # Appends *micropost* to the beginning of current post list (render it).
   appendOne: (picture) =>
@@ -137,7 +166,7 @@ class PicturesView extends Backbone.View
   setWidgets: ->
     @myButton = $("#pictures-my-button")
     @allButton = $("#pictures-all-button")
-    @moreButton = $("#pictures-more")
+    @moreButton = $("#pictures-more-button")
     @datepicker = $("#pictures-from-datepicker")
 
     $("input#pictures-post-button").button()
