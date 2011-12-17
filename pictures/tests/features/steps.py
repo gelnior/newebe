@@ -203,8 +203,8 @@ def from_second_newebe_download_thumbnail_of_posted_picture(step):
             "pictures/%s/%s" % (first_picture["_id"], 
             "th_" + first_picture["path"]))
 
-@step(u'From second Newebe, posted picture dowload fails')
-def from_second_newebe_posted_picture_dowload_fails(step):
+@step(u'From second Newebe, posted picture download fails')
+def from_second_newebe_posted_picture_download_fails(step):
     assert 0 < len(world.pictures)
     first_picture = world.pictures[0]
     try:
@@ -214,6 +214,12 @@ def from_second_newebe_posted_picture_dowload_fails(step):
     except HTTPError, error:
         assert 404 == error.code
 
+@step(u'From second Newebe, request for download')
+def from_second_newebe_request_for_download(step):
+    assert 0 < len(world.pictures)
+    first_picture = world.pictures[0]
+    world.response = world.browser2.get(
+              "pictures/{}/download/".format(first_picture["_id"]))
 
 
 @step(u'Add three pictures to the database with different dates')

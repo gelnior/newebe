@@ -3,7 +3,8 @@ import logging
 import mimetypes
 
 from tornado.web import asynchronous
-from tornado.escape import json_decode
+from tornado.httpclient import HTTPError, AsyncHTTPClient, HTTPRequest
+from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
 from PIL import Image
 
@@ -14,6 +15,7 @@ from newebe.contacts.models import ContactManager
 from newebe.pictures.models import PictureManager, Picture
 from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_url_date
+
 
 logger = logging.getLogger("newebe.pictures")
 
@@ -162,7 +164,7 @@ class PicturesQQHandler(PicturesHandler):
                 contentType=filetype, 
                 authorKey = UserManager.getUser().key,
                 author = UserManager.getUser().name,
-                isMine = False,
+                isMine = True,
                 isFile = True
             )
             picture.save()
@@ -201,9 +203,9 @@ class PictureContactHandler(NewebeHandler):
 
     def post(self):
         '''
-        Extract picture and file linked to the picture from request, then creates
-        a picture in database for the contact who sends it. An activity is 
-        created too.
+        Extract picture and file linked to the picture from request, then 
+        creates a picture in database for the contact who sends it. An 
+        activity is created too.
 
         If author is not inside trusted contacts, the request is rejected.
         '''
@@ -232,7 +234,7 @@ class PictureContactHandler(NewebeHandler):
                 picture.put_attachment(content=file["body"], 
                                        name="th_" + file['filename'])
                 picture.save()
-                
+
                 self.create_creation_activity(contact,
                         picture, "publishes", "picture")
 
@@ -277,32 +279,61 @@ class PictureContactHandler(NewebeHandler):
             self.return_failure("No data sent.", 405)
 
 
-class PictureFileHandler(NewebeAuthHandler):
-    '''
-    Returns file linked to a given picture document.
-    '''
 
-    def get(self, id, filename):
+
+class PictureObjectHandler(NewebeAuthHandler):
+
+    def get(self, id):
         '''
-        Returns file linked to given picture.
+        Retrieves picture corresponding to id. Returns a 404 response if
+        picture is not found.
         '''
 
         picture = PictureManager.get_picture(id)
         if picture:
-            try:
-                file = picture.fetch_attachment(filename)
-                self.set_header("Content-Type", picture.contentType)
-                self.write(file)
-                self.finish()
-            except ResourceNotFound:
-                self.return_failure("Picture not found.", 404)
-
+            self.on_picture_found(picture, id)
         else:
             self.return_failure("Picture not found.", 404)
 
 
+    def on_picture_found(self, picture, id):
+        pass
 
-class PictureHandler(NewebeAuthHandler):
+
+class PictureFileHandler(NewebeAuthHandler):
+    '''
+    Returns file linked to a given picture document.
+    '''
+    
+    def get(self, id, filename):
+        '''
+        Retrieves picture corresponding to id. Returns a 404 response if
+        picture is not found.
+        '''
+
+        picture = PictureManager.get_picture(id)
+        if picture:
+            self.filename = filename
+            self.on_picture_found(picture, id)
+        else:
+            self.return_failure("Picture not found.", 404)
+
+
+    def on_picture_found(self, picture, id):
+        '''
+        Returns file linked to given picture.
+        '''
+        try:
+            file = picture.fetch_attachment(self.filename)
+            self.set_header("Content-Type", picture.contentType)
+            self.write(file)
+            self.finish()
+        except ResourceNotFound:
+            self.return_failure("Picture not found.", 404)
+
+
+
+class PictureHandler(PictureObjectHandler):
     '''
     Handles operations on a single picture.
 
@@ -311,15 +342,12 @@ class PictureHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self, id):
+    def on_picture_found(self, picture, id):        
         '''
         Retrieves picture corresponding to id.
         '''
-        picture = PictureManager.get_picture(id)
-        if picture:
-            self.return_document(picture)
-        else:
-            self.return_failure("Picture not found.", 404)
+
+        self.return_document(picture)
 
 
     @asynchronous
@@ -340,8 +368,101 @@ class PictureHandler(NewebeAuthHandler):
             self.return_failure("Picture not found.", 404)
 
 
+class PictureDownloadHandler(PictureObjectHandler):
+    '''
+    Handler that allows newebe owner to download original file of the picture 
+    inside its newebe to make it available through UI. 
+    '''
 
-class PictureTHandler(NewebeAuthHandler):
+    
+    @asynchronous
+    def on_picture_found(self, picture, id):        
+        '''
+        '''
+
+        self.picture = picture
+
+        data = dict()
+        data["picture"] = picture.toDict()
+        data["contact"] = UserManager.getUser().asContact().toDict()
+
+        contact = ContactManager.getTrustedContact(picture.authorKey)
+        
+        url = contact.url + u"pictures/contact/download/"
+        client = AsyncHTTPClient()
+        request = HTTPRequest(url, method="POST", body=json_encode(data))       
+        
+        try:
+            logger.info(url)
+            client.fetch(request, self.on_download_finished)
+        except HTTPError:
+            self.return_failure("Cannot download picture from contact.")
+
+
+    def on_download_finished(self, response):
+        logger.info(self.picture)
+        self.picture.put_attachment(response.body, self.picture.path)
+        thumbnail = self.get_thumbnail(
+                response.body, self.picture.path, (1000, 1000))
+        thbuffer = thumbnail.read()
+        self.picture.put_attachment(thbuffer, "prev_" + self.picture.path)
+        os.remove("th_" + self.picture.path)
+        self.picture.isFile = True
+        self.picture.save()
+        self.return_success("Picture successfuly downloaded.")
+
+
+
+    def get_thumbnail(self, filebody, filename, size):            
+        file = open(filename, "w")
+        file.write(filebody)  
+        file.close()
+        image = Image.open(filename)
+        image.thumbnail(size, Image.ANTIALIAS)
+        image.save("th_" + filename)
+        file = open(filename)
+        os.remove(filename)
+        return open("th_" + filename)
+
+
+
+class PictureContactDownloadHandler(NewebeHandler):
+
+
+    @asynchronous
+    def post(self):
+        '''
+        '''
+
+        data = self.get_body_as_dict()
+
+        contact = ContactManager.getTrustedContact(data["contact"]["key"])
+
+        if contact:
+            date = data["picture"]["date"]
+     
+            picture = PictureManager.get_owner_last_pictures(date).first()
+
+            if picture:
+                self.on_picture_found(picture, id)
+            else:
+                logger.info("Picture no more available.")
+                self.return_failure("Picture not found.", 404)
+        else:
+            logger.info("Contact unknown")
+            self.return_failure("Picture not found", 404)
+
+    @asynchronous
+    def on_picture_found(self, picture, id):
+        file = picture.fetch_attachment(picture.path)
+        
+        self.set_status(200)        
+        self.set_header("Content-Type", picture.contentType)
+        self.write(file)
+        self.finish()
+        
+
+class PictureTHandler(PictureObjectHandler):
     '''
     This handler allows to retrieve picture at HTML format.
     * GET: Return for given id the HTML representation of corresponding 
@@ -349,21 +470,16 @@ class PictureTHandler(NewebeAuthHandler):
     '''
     
 
-    def get(self, pid):
+    def on_picture_found(self, picture, id):
         '''
         Returns for given id the HTML representation of corresponding 
         picture.
         '''
 
-        picture = PictureManager.get_picture(pid)        
-        if picture:
-            if picture.isFile:
-                self.render("templates/picture.html", picture=picture)
-            else:
-                self.render("templates/picture_empty.html", picture=picture)                            
+        if picture.isFile:
+            self.render("templates/picture.html", picture=picture)
         else:
-            self.return_failure("Micropost not found.", 404)
-
+            self.render("templates/picture_empty.html", picture=picture)        
 
 
 

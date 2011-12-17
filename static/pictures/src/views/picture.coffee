@@ -71,7 +71,6 @@ class PictureRow extends Backbone.View
       event.preventDefault()
 
     $.get(@model.getDownloadPath(), (data) =>
-        alert data
         if data.success
           @displayPreview()
         else

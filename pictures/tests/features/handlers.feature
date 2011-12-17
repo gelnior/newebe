@@ -16,7 +16,12 @@ Feature: Share pictures
         From second Newebe, retrieve pictures
         From second Newebe, download thumbnail of posted picture
         Check that thumbnail is the posted picture thumbnail
-        From second Newebe, posted picture dowload fails
+        From second Newebe, posted picture download fails
+        From second Newebe, request for download
+        From second Newebe, Download preview of first returned picture
+        Check that preview is the posted picture preview
+        From second Newebe, Download first returned picture
+        Ensure it is the same that posted picture
         From second Newebe, retrieve activities
         Check that last activity correspond to a picture creation
 

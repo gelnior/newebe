@@ -422,7 +422,6 @@
       var _this = this;
       if (event) event.preventDefault();
       return $.get(this.model.getDownloadPath(), function(data) {
-        alert(data);
         if (data.success) {
           return _this.displayPreview();
         } else {

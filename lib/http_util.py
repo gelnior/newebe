@@ -11,7 +11,7 @@ class ContactClient(object):
     Async HTTP client to make facilitate request sending to newebe contacts.
     '''
 
-    def __init__(self, activity):
+    def __init__(self, activity=None):
         '''
         Register activity in which errors will be stored if a request to a
         contact failed.
