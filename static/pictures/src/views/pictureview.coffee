@@ -31,31 +31,8 @@ class PicturesView extends Backbone.View
 
   ### Listeners  ###
 
-  # When my button is clicked, it only displays owner pictures.
-  # Then my button is disabled and all button is enabled.
-#  onMyClicked: =>
-#    alert "my"
-#    Backbone.history.navigate("pictures/mine", true)
-
-  displayMyPictures:(date) =>
-    @myButton.button "disable"
-    @allButton.button "enable"
-    @currentPath = "/pictures/last/my/"
-    
-
-    @datepicker.val date
-    @reloadPictures date
-
-  # When all button is clicked, it displays all pictures.
-  # Then all button is disabled and my button is enabled.
-  displayAllPictures: (date) =>
-    @myButton.button "enable"
-    @allButton.button "disable"
-    @currentPath = "/pictures/last/"
-
-    @datepicker.val date
-    @reloadPictures date
-
+  # When more button is clicked, last pictures until eldest picture are
+  # loaded.
   onMoreClicked: =>
     @morePictures.url = @currentPath + @lastDate + "/"
     @morePictures.fetch()
@@ -77,6 +54,40 @@ class PicturesView extends Backbone.View
       Backbone.history.navigate "pictures/mine/until/" + date + "/", true
     else
       Backbone.history.navigate "pictures/all/until/" + date + "/", true
+
+  # When a file is submitted, loading indicator is displayed. 
+  onFileSubmitted:  (id, fileName) =>
+   loadingIndicator.display()
+
+  # When image upload is complete, a new row is built for the 
+  onFileUploadComplete: (id, fileName, responseJSON) =>
+    loadingIndicator.hide()
+    picture = new Picture responseJSON
+    row = new PictureRow picture, @
+    rowEl = row.render()
+    $(rowEl).hide()
+    $(row.render()).prependTo(@pictureList).slideDown()
+    @onRowClicked(row)
+
+  # Loads and displays last owner pictures.
+  # Then my button is disabled and all button is enabled.
+  displayMyPictures:(date) =>
+    @myButton.button "disable"
+    @allButton.button "enable"
+    @currentPath = "/pictures/last/my/"
+
+    @datepicker.val date
+    @reloadPictures date
+
+  # Loads and dispay last pictures.
+  # Then all button is disabled and my button is enabled.
+  displayAllPictures: (date) =>
+    @myButton.button "enable"
+    @allButton.button "disable"
+    @currentPath = "/pictures/last/"
+
+    @datepicker.val date
+    @reloadPictures date
 
 
   ### Functions  ###
@@ -122,12 +133,10 @@ class PicturesView extends Backbone.View
     row
 
   # Prepends *micropost* to the end of current post list (render it).
-  # Displays second tutorial of tutorial mode is on.
   prependOne: (picture) =>
     row = new PictureRow picture, @
     el = row.render()
     @pictureList.prepend(el)
-    loadingIndicator.hide()
     row
 
   # Clears picture lists and reload pictures from *path* until *date*.
@@ -151,6 +160,25 @@ class PicturesView extends Backbone.View
         loadingIndicator.hide()
     @pictures
 
+  # When my button is clicked, it only displays owner pictures.
+  # Then my button is disabled and all button is enabled.
+  displayMyPictures:(date) =>
+    @myButton.button "disable"
+    @allButton.button "enable"
+    @currentPath = "/pictures/last/my/"
+    
+    @datepicker.val date
+    @reloadPictures date
+
+  # When all button is clicked, it displays all pictures.
+  # Then all button is disabled and my button is enabled.
+  displayAllPictures: (date) =>
+    @myButton.button "enable"
+    @allButton.button "disable"
+    @currentPath = "/pictures/last/"
+
+    @datepicker.val date
+    @reloadPictures date
 
 
   ### UI Builders  ###
@@ -161,7 +189,6 @@ class PicturesView extends Backbone.View
     @datepicker.datepicker
       onSelect : @onDatePicked
 
-  
   # Build JQuery widgets.
   setWidgets: ->
     @myButton = $("#pictures-my-button")
@@ -169,13 +196,11 @@ class PicturesView extends Backbone.View
     @moreButton = $("#pictures-more-button")
     @datepicker = $("#pictures-from-datepicker")
 
-    $("input#pictures-post-button").button()
     @myButton.button()
     @allButton.button()
     @allButton.button "disable"
     @moreButton.button()
     @datepicker.val(null)
-    $("#pictures-a").addClass "disabled"
 
     @pictureList = $("#pictures-list")
 
@@ -184,18 +209,8 @@ class PicturesView extends Backbone.View
       action: '/pictures/fileuploader/',
       debug: true,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-      onSubmit: (id, fileName) =>
-        loadingIndicator.display()
-      #  @setParams( title: $("#pictures-title-field").val())
+      onSubmit: @onFileSubmitted,
+          #  @setParams( title: $("#pictures-title-field").val())
       #, onComplete: (id, fileName, responseJSON) =>
       #  alert responseJSON
-      , onComplete: (id, fileName, responseJSON) =>
-        loadingIndicator.hide()
-        picture = new Picture responseJSON
-        row = new PictureRow picture, @
-        rowEl = row.render()
-        $(rowEl).hide()
-        $(row.render()).prependTo(@pictureList).slideDown()
-        @onRowClicked(row)
-    
-
+      onComplete: @onFileUploadComplete

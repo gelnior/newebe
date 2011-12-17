@@ -5,7 +5,9 @@ class Picture extends Backbone.Model
   url: '/pictures/last/'
 
   # Constructor initializes its field from a javascript raw object.
-  # Fields:
+  # 
+  # Specific fields are build : thumnbail path, image path, url date (for 
+  # building server request path), display date.
   #
   constructor: (picture) ->
     super
@@ -19,13 +21,18 @@ class Picture extends Backbone.Model
     @setImgPath()
     @setThumbnailPath()
     if picture.date
-      urlDate = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ")
-      urlDate = urlDate.toString("yyyy-MM-dd-HH-mm-ss")
-      @attributes['urlDate'] = urlDate
-      @setDisplayDateFromDbDate(picture.date)
+      date = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ")
+      @attributes['urlDate'] = date.toString("yyyy-MM-dd-HH-mm-ss")
+      @attributes['displayDate'] = date.toString("dd MMM yyyy, HH:mm")
 
     
   ### Getters / Setters ###
+
+  getUrlDate: () ->
+    @attributes['urlDate']
+
+  getDisplayDate: ->
+    @attributes['displayDate']
 
   # Buid image path from picture id and file name.
   setImgPath: ->
@@ -37,25 +44,15 @@ class Picture extends Backbone.Model
     @set('thumnbailPath', "/pictures/#{@id}/th_#{@get('path')}")
     @attributes['thumbnailPath'] =
         "/pictures/#{@id}/th_#{@get('path')}"
-
-  getUrlDate: () ->
-    @attributes['urlDate']
-
-  getDisplayDate: ->
-    @attributes['displayDate']
-
-  setDisplayDate: ->
-    dateToSet = @attributes["date"]
-    @setDisplayDateFromDbDate(dateToSet)
-
-  # Convert raw *date* to human readable date.
-  setDisplayDateFromDbDate: (date) ->
-    if date
-      postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ")
-      stringDate = postDate.toString("dd MMM yyyy, HH:mm")
-      @attributes['displayDate'] = stringDate
-      postDate
-    date
+  
+  # Returns server path where picture template is located.
+  getPath: ->
+    "/pictures/" + @get("_id") + "/render/"
+   
+  # Returns server path where download request must be sent.
+  getDownloadPath: ->
+    "/pictures/" + @get("_id") + "/download/"
+   
 
   # Sends a delete request to services backend then ask view to remove micro 
   # post view.

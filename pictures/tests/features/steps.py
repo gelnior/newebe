@@ -194,12 +194,26 @@ def from_second_newebe_retrieve_last_pictures(step):
 def from_second_newebe_retrieve_activities(step):
     world.activities = world.browser2.fetch_documents("activities/all/")
 
-@step(u'From second Newebe, download first returned picture')
-def from_second_newebe_download_first_returned_picture(step):
+
+@step(u'From second Newebe, download thumbnail of posted picture')
+def from_second_newebe_download_thumbnail_of_posted_picture(step):
     assert 0 < len(world.pictures)
     first_picture = world.pictures[0]
     world.response = world.browser2.get(
-            "pictures/%s/%s" % (first_picture["_id"], first_picture["path"]))
+            "pictures/%s/%s" % (first_picture["_id"], 
+            "th_" + first_picture["path"]))
+
+@step(u'From second Newebe, posted picture dowload fails')
+def from_second_newebe_posted_picture_dowload_fails(step):
+    assert 0 < len(world.pictures)
+    first_picture = world.pictures[0]
+    try:
+      world.response = world.browser2.get(
+              "pictures/%s/%s" % (first_picture["_id"], 
+              first_picture["path"]))
+    except HTTPError, error:
+        assert 404 == error.code
+
 
 
 @step(u'Add three pictures to the database with different dates')

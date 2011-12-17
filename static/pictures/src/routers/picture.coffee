@@ -1,7 +1,13 @@
+## Picture Router
+#
+# Router for picture application.
+
+
 class PicturesRouter extends Backbone.Router
 
   routes:
     "": "all"
+    "pictures": "all"
     "pictures/": "all"
     "pictures/all/": "all"
     "pictures/all/until/:date/": "all"

@@ -14,8 +14,9 @@ Feature: Share pictures
         Retrieve last activities
         Check that last activity correspond to a picture creation
         From second Newebe, retrieve pictures
-        From second Newebe, download first returned picture
-        Ensure it is the same that posted picture
+        From second Newebe, download thumbnail of posted picture
+        Check that thumbnail is the posted picture thumbnail
+        From second Newebe, posted picture dowload fails
         From second Newebe, retrieve activities
         Check that last activity correspond to a picture creation
 

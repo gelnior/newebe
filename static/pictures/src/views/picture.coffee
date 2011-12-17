@@ -52,7 +52,7 @@ class PictureRow extends Backbone.View
     @mainView.onRowClicked(@)
 
   # When delete button is clicked, the row is deleted from server then 
-  # removed from view.
+  # removed from view (a confirmation box is displayed before that).
   onDeleteClicked: (event) =>
     if event
       event.preventDefault()
@@ -66,6 +66,18 @@ class PictureRow extends Backbone.View
             @preview.html(null)
     )
 
+  onDownloadClicked: (event) =>
+    if event
+      event.preventDefault()
+
+    $.get(@model.getDownloadPath(), (data) =>
+        alert data
+        if data.success
+          @displayPreview()
+        else
+          confirmationDialog.display(
+            "An error occured while downloading image file.")
+    )
 
   ### Functions ###
 
@@ -78,9 +90,7 @@ class PictureRow extends Backbone.View
   # It sets the button jquery-ui behavior on delete button then it hides it.
   # It does not set element to DOM.
   render: ->
-    if not @model.getDisplayDate()
-      @model.setDisplayDate()
-
+      
     $(@el).html(@template(@model.toJSON()))
     @el
 
@@ -101,10 +111,12 @@ class PictureRow extends Backbone.View
     @preview.fadeOut =>
       @preview.html(null)
 
-      $.get "/pictures/" + @model.get("_id") + "/render/", (data) =>
+      $.get @model.getPath(), (data) =>
         @preview.append(data)
         $("#pictures-delete-button").button()
         $("#pictures-delete-button").click(@onDeleteClicked)
+        $("#pictures-download-button").button()
+        $("#pictures-download-button").click(@onDownloadClicked)
         $("#pictures-full-size-button").button()
         @preview.fadeIn()
         @updatePreviewPosition()

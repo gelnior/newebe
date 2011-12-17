@@ -29,7 +29,8 @@ class PicturesHandler(NewebeAuthHandler):
 
     def get(self, startKey=None):
         '''
-        Returns last posted pictures.
+        Returns last posted pictures.  If *startKey* is provided, it returns 
+        last picture posted until *startKey*.
         '''
         
         pictures = list()
@@ -59,27 +60,32 @@ class PicturesHandler(NewebeAuthHandler):
             filebody = file["body"]
             filename = file['filename']
 
-            picture = Picture(title = "New Picture", 
-                    path=file['filename'],
-                    contentType=file["content_type"], 
-                    authorKey = UserManager.getUser().key,
-                    author = UserManager.getUser().name)
+            picture = Picture(
+                title = "New Picture", 
+                path=file['filename'],
+                contentType=file["content_type"], 
+                authorKey = UserManager.getUser().key,
+                author = UserManager.getUser().name,
+                isFile = True
+            )
             picture.save()
+
             picture.put_attachment(filebody, filename)
-            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))  
-            picture.put_attachment(thumbnail.read(), "th_" + filename)
+            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))     
+            thbuffer = thumbnail.read()
+            picture.put_attachment(thbuffer, "th_" + filename)
             os.remove("th_" + filename)           
             preview = self.get_thumbnail(filebody, filename, (1000, 1000))
             picture.put_attachment(preview.read(), "prev_" + filename)
             os.remove("th_" + filename)           
             picture.save()
-
+        
             self.create_creation_activity(UserManager.getUser().asContact(),
                     picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/", 
                         fields = { "json": str(picture.toJson()) },
-                        files = [("picture", str(picture.path), file["body"])])
+                        files = [("picture", str(picture.path), thbuffer)])
                         
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
@@ -150,15 +156,21 @@ class PicturesQQHandler(PicturesHandler):
 
         if filebody:
 
-            picture = Picture(title = "New Picture", 
-                    path=filename,
-                    contentType=filetype, 
-                    authorKey = UserManager.getUser().key,
-                    author = UserManager.getUser().name)
+            picture = Picture(
+                title = "New Picture", 
+                path=filename,
+                contentType=filetype, 
+                authorKey = UserManager.getUser().key,
+                author = UserManager.getUser().name,
+                isMine = False,
+                isFile = True
+            )
             picture.save()
+
             picture.put_attachment(content=filebody, name=filename)            
-            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))  
-            picture.put_attachment(thumbnail.read(), "th_" + filename)
+            thumbnail = self.get_thumbnail(filebody, filename, (200, 200))
+            thbuffer = thumbnail.read()        
+            picture.put_attachment(thbuffer, "th_" + filename)
             os.remove("th_" + filename)           
             preview = self.get_thumbnail(filebody, filename, (1000, 1000))
             picture.put_attachment(preview.read(), "prev_" + filename)
@@ -170,7 +182,7 @@ class PicturesQQHandler(PicturesHandler):
 
             self.send_files_to_contacts("pictures/contact/", 
                         fields = { "json": str(picture.toJson()) },
-                        files = [("picture", str(picture.path), filebody)])
+                        files = [("picture", str(picture.path), thbuffer)])
             
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
@@ -213,11 +225,12 @@ class PictureContactHandler(NewebeHandler):
                     authorKey = data.get("authorKey", ""),
                     author = data.get("author", ""),
                     date = date,
-                    isMine = False
+                    isMine = False,
+                    isFile = False
                 )
                 picture.save()
                 picture.put_attachment(content=file["body"], 
-                                       name=file['filename'])
+                                       name="th_" + file['filename'])
                 picture.save()
                 
                 self.create_creation_activity(contact,
@@ -342,9 +355,12 @@ class PictureTHandler(NewebeAuthHandler):
         picture.
         '''
 
-        picture = PictureManager.get_picture(pid)
+        picture = PictureManager.get_picture(pid)        
         if picture:
-            self.render("templates/picture.html", picture=picture)
+            if picture.isFile:
+                self.render("templates/picture.html", picture=picture)
+            else:
+                self.render("templates/picture_empty.html", picture=picture)                            
         else:
             self.return_failure("Micropost not found.", 404)
 

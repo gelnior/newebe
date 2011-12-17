@@ -107,6 +107,7 @@
 
     PicturesRouter.prototype.routes = {
       "": "all",
+      "pictures": "all",
       "pictures/": "all",
       "pictures/all/": "all",
       "pictures/all/until/:date/": "all",
@@ -151,17 +152,21 @@
     };
 
     function PicturesView() {
+      this.displayAllPictures = __bind(this.displayAllPictures, this);
+      this.displayMyPictures = __bind(this.displayMyPictures, this);
       this.fetchData = __bind(this.fetchData, this);
       this.reloadPictures = __bind(this.reloadPictures, this);
       this.prependOne = __bind(this.prependOne, this);
       this.appendOne = __bind(this.appendOne, this);
       this.addAllMore = __bind(this.addAllMore, this);
       this.addAll = __bind(this.addAll, this);
+      this.displayAllPictures = __bind(this.displayAllPictures, this);
+      this.displayMyPictures = __bind(this.displayMyPictures, this);
+      this.onFileUploadComplete = __bind(this.onFileUploadComplete, this);
+      this.onFileSubmitted = __bind(this.onFileSubmitted, this);
       this.onDatePicked = __bind(this.onDatePicked, this);
       this.onRowClicked = __bind(this.onRowClicked, this);
-      this.onMoreClicked = __bind(this.onMoreClicked, this);
-      this.displayAllPictures = __bind(this.displayAllPictures, this);
-      this.displayMyPictures = __bind(this.displayMyPictures, this);      PicturesView.__super__.constructor.call(this);
+      this.onMoreClicked = __bind(this.onMoreClicked, this);      PicturesView.__super__.constructor.call(this);
     }
 
     PicturesView.prototype.initialize = function() {
@@ -176,22 +181,6 @@
 
     /* Listeners
     */
-
-    PicturesView.prototype.displayMyPictures = function(date) {
-      this.myButton.button("disable");
-      this.allButton.button("enable");
-      this.currentPath = "/pictures/last/my/";
-      this.datepicker.val(date);
-      return this.reloadPictures(date);
-    };
-
-    PicturesView.prototype.displayAllPictures = function(date) {
-      this.myButton.button("enable");
-      this.allButton.button("disable");
-      this.currentPath = "/pictures/last/";
-      this.datepicker.val(date);
-      return this.reloadPictures(date);
-    };
 
     PicturesView.prototype.onMoreClicked = function() {
       this.morePictures.url = this.currentPath + this.lastDate + "/";
@@ -215,6 +204,37 @@
       } else {
         return Backbone.history.navigate("pictures/all/until/" + date + "/", true);
       }
+    };
+
+    PicturesView.prototype.onFileSubmitted = function(id, fileName) {
+      return loadingIndicator.display();
+    };
+
+    PicturesView.prototype.onFileUploadComplete = function(id, fileName, responseJSON) {
+      var picture, row, rowEl;
+      loadingIndicator.hide();
+      picture = new Picture(responseJSON);
+      row = new PictureRow(picture, this);
+      rowEl = row.render();
+      $(rowEl).hide();
+      $(row.render()).prependTo(this.pictureList).slideDown();
+      return this.onRowClicked(row);
+    };
+
+    PicturesView.prototype.displayMyPictures = function(date) {
+      this.myButton.button("disable");
+      this.allButton.button("enable");
+      this.currentPath = "/pictures/last/my/";
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
+    };
+
+    PicturesView.prototype.displayAllPictures = function(date) {
+      this.myButton.button("enable");
+      this.allButton.button("disable");
+      this.currentPath = "/pictures/last/";
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
     };
 
     /* Functions
@@ -263,7 +283,6 @@
       row = new PictureRow(picture, this);
       el = row.render();
       this.pictureList.prepend(el);
-      loadingIndicator.hide();
       return row;
     };
 
@@ -289,6 +308,22 @@
       return this.pictures;
     };
 
+    PicturesView.prototype.displayMyPictures = function(date) {
+      this.myButton.button("disable");
+      this.allButton.button("enable");
+      this.currentPath = "/pictures/last/my/";
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
+    };
+
+    PicturesView.prototype.displayAllPictures = function(date) {
+      this.myButton.button("enable");
+      this.allButton.button("disable");
+      this.currentPath = "/pictures/last/";
+      this.datepicker.val(date);
+      return this.reloadPictures(date);
+    };
+
     /* UI Builders
     */
 
@@ -300,37 +335,23 @@
 
     PicturesView.prototype.setWidgets = function() {
       var uploader;
-      var _this = this;
       this.myButton = $("#pictures-my-button");
       this.allButton = $("#pictures-all-button");
       this.moreButton = $("#pictures-more-button");
       this.datepicker = $("#pictures-from-datepicker");
-      $("input#pictures-post-button").button();
       this.myButton.button();
       this.allButton.button();
       this.allButton.button("disable");
       this.moreButton.button();
       this.datepicker.val(null);
-      $("#pictures-a").addClass("disabled");
       this.pictureList = $("#pictures-list");
       return uploader = new qq.FileUploader({
         element: document.getElementById('pictures-file-uploader'),
         action: '/pictures/fileuploader/',
         debug: true,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-        onSubmit: function(id, fileName) {
-          return loadingIndicator.display();
-        },
-        onComplete: function(id, fileName, responseJSON) {
-          var picture, row, rowEl;
-          loadingIndicator.hide();
-          picture = new Picture(responseJSON);
-          row = new PictureRow(picture, _this);
-          rowEl = row.render();
-          $(rowEl).hide();
-          $(row.render()).prependTo(_this.pictureList).slideDown();
-          return _this.onRowClicked(row);
-        }
+        onSubmit: this.onFileSubmitted,
+        onComplete: this.onFileUploadComplete
       });
     };
 
@@ -360,6 +381,7 @@
     function PictureRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.onDownloadClicked = __bind(this.onDownloadClicked, this);
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
       PictureRow.__super__.constructor.call(this);
       this.id = this.model.id;
@@ -396,6 +418,19 @@
       });
     };
 
+    PictureRow.prototype.onDownloadClicked = function(event) {
+      var _this = this;
+      if (event) event.preventDefault();
+      return $.get(this.model.getDownloadPath(), function(data) {
+        alert(data);
+        if (data.success) {
+          return _this.displayPreview();
+        } else {
+          return confirmationDialog.display("An error occured while downloading image file.");
+        }
+      });
+    };
+
     /* Functions
     */
 
@@ -404,7 +439,6 @@
     };
 
     PictureRow.prototype.render = function() {
-      if (!this.model.getDisplayDate()) this.model.setDisplayDate();
       $(this.el).html(this.template(this.model.toJSON()));
       return this.el;
     };
@@ -423,10 +457,12 @@
       var _this = this;
       return this.preview.fadeOut(function() {
         _this.preview.html(null);
-        return $.get("/pictures/" + _this.model.get("_id") + "/render/", function(data) {
+        return $.get(_this.model.getPath(), function(data) {
           _this.preview.append(data);
           $("#pictures-delete-button").button();
           $("#pictures-delete-button").click(_this.onDeleteClicked);
+          $("#pictures-download-button").button();
+          $("#pictures-download-button").click(_this.onDownloadClicked);
           $("#pictures-full-size-button").button();
           _this.preview.fadeIn();
           return _this.updatePreviewPosition();
@@ -460,7 +496,7 @@
     Picture.prototype.url = '/pictures/last/';
 
     function Picture(picture) {
-      var urlDate;
+      var date;
       Picture.__super__.constructor.apply(this, arguments);
       this.set('author', picture.author);
       this.set('authorKey', picture.authorKey);
@@ -470,15 +506,22 @@
       this.setImgPath();
       this.setThumbnailPath();
       if (picture.date) {
-        urlDate = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ");
-        urlDate = urlDate.toString("yyyy-MM-dd-HH-mm-ss");
-        this.attributes['urlDate'] = urlDate;
-        this.setDisplayDateFromDbDate(picture.date);
+        date = Date.parseExact(picture.date, "yyyy-MM-ddTHH:mm:ssZ");
+        this.attributes['urlDate'] = date.toString("yyyy-MM-dd-HH-mm-ss");
+        this.attributes['displayDate'] = date.toString("dd MMM yyyy, HH:mm");
       }
     }
 
     /* Getters / Setters
     */
+
+    Picture.prototype.getUrlDate = function() {
+      return this.attributes['urlDate'];
+    };
+
+    Picture.prototype.getDisplayDate = function() {
+      return this.attributes['displayDate'];
+    };
 
     Picture.prototype.setImgPath = function() {
       this.set('imgPath', "/pictures/" + this.id + "/" + (this.get('path')));
@@ -490,29 +533,12 @@
       return this.attributes['thumbnailPath'] = "/pictures/" + this.id + "/th_" + (this.get('path'));
     };
 
-    Picture.prototype.getUrlDate = function() {
-      return this.attributes['urlDate'];
+    Picture.prototype.getPath = function() {
+      return "/pictures/" + this.get("_id") + "/render/";
     };
 
-    Picture.prototype.getDisplayDate = function() {
-      return this.attributes['displayDate'];
-    };
-
-    Picture.prototype.setDisplayDate = function() {
-      var dateToSet;
-      dateToSet = this.attributes["date"];
-      return this.setDisplayDateFromDbDate(dateToSet);
-    };
-
-    Picture.prototype.setDisplayDateFromDbDate = function(date) {
-      var postDate, stringDate;
-      if (date) {
-        postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
-        stringDate = postDate.toString("dd MMM yyyy, HH:mm");
-        this.attributes['displayDate'] = stringDate;
-        postDate;
-      }
-      return date;
+    Picture.prototype.getDownloadPath = function() {
+      return "/pictures/" + this.get("_id") + "/download/";
     };
 
     Picture.prototype["delete"] = function() {

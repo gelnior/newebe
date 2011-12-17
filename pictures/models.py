@@ -13,7 +13,8 @@ class PictureManager():
     @staticmethod
     def get_last_pictures(startKey=None, skip=0):
         '''
-        Returns all pictures
+        Returns all pictures. If *startKey* is provided, it returns last
+        picture posted until *startKey*.
         '''
 
         if startKey:
@@ -31,7 +32,8 @@ class PictureManager():
     @staticmethod
     def get_owner_last_pictures(startKey=None, skip=0):
         '''
-        Returns owner pictures
+        Returns owner pictures. If *startKey* is provided, it returns last
+        picture posted by owner until *startKey*.
         '''
 
         if startKey:
@@ -85,4 +87,5 @@ class Picture(NewebeDocument):
     isMine = BooleanProperty(required=True, default=True)
     path = StringProperty()
     contentType = StringProperty()
+    isFile = BooleanProperty(required=True, default=False)
 

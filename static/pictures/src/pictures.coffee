@@ -5,14 +5,12 @@
 app = new PicturesView
 pictureRouter = new PicturesRouter app
 
+# Common tools
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
 infoDialog = new InfoDialog
 
+# Initialize widgets
 app.setWidgets()
 app.setListeners()
-
-#app.fetchData()
-
-
 
