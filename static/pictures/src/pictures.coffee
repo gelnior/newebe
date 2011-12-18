@@ -14,3 +14,4 @@ infoDialog = new InfoDialog
 app.setWidgets()
 app.setListeners()
 
+app.displayAllPictures null

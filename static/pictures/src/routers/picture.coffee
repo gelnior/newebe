@@ -8,7 +8,7 @@ class PicturesRouter extends Backbone.Router
   routes:
     "": "all"
     "pictures": "all"
-    "pictures/": "all"
+    #"pictures/": "all"
     "pictures/all/": "all"
     "pictures/all/until/:date/": "all"
     "pictures/mine/": "mine"

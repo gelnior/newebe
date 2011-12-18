@@ -108,7 +108,6 @@
     PicturesRouter.prototype.routes = {
       "": "all",
       "pictures": "all",
-      "pictures/": "all",
       "pictures/all/": "all",
       "pictures/all/until/:date/": "all",
       "pictures/mine/": "mine",
@@ -593,5 +592,7 @@
   app.setWidgets();
 
   app.setListeners();
+
+  app.displayAllPictures(null);
 
 }).call(this);
