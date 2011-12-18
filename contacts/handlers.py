@@ -28,20 +28,19 @@ class ContactUpdateHandler(NewebeHandler):
         received ones.
         '''      
 
-        data = self.request.body
+        data = self.get_body_as_dict()
 
         if data:
-            putContact = json_decode(data)
-            key = putContact["key"]            
-
+            key = data["key"]            
             contact = ContactManager.getTrustedContact(key)
+
             if contact:
-                contact.url = putContact["url"]
-                contact.description = putContact["description"]
-                contact.name = putContact["name"]
+                contact.url = data["url"]
+                contact.description = data["description"]
+                contact.name = data["name"]
                 contact.save()
          
-                self.create_modify_activity(contact)
+                self.create_modify_activity(contact, "modifies", "profile")
 
                 self.return_success("Contact successfully modified.")
        
@@ -51,23 +50,6 @@ class ContactUpdateHandler(NewebeHandler):
         
         else:
             self.return_failure("Empty data.")
-
-
-    def create_modify_activity(self, contact):
-        '''
-        Creates an activity that describes a contact profile modification.
-        '''
-
-        activity = Activity(
-             authorKey = contact.key,
-             author = contact.name,
-             verb = "modifies",
-             docType = "profile",
-             method = "PUT",
-             docId = "none",
-             isMine = False
-        )
-        activity.save()
 
 
 class ContactsPendingHandler(NewebeAuthHandler):

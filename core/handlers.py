@@ -142,6 +142,23 @@ class NewebeHandler(RequestHandler):
         self.activity.save()
 
 
+    def create_modify_activity(self, contact, verb, docType):
+        '''
+        Creates an activity that describes a contact profile modification.
+        '''
+
+        activity = Activity(
+             authorKey = contact.key,
+             author = contact.name,
+             verb = verb,
+             docType = docType,
+             method = "PUT",
+             docId = "none",
+             isMine = False
+        )
+        activity.save()
+
+
     @asynchronous
     def send_files_to_contacts(self, path, fields, files):
         '''
