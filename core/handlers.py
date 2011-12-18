@@ -142,10 +142,15 @@ class NewebeHandler(RequestHandler):
         self.activity.save()
 
 
-    def create_modify_activity(self, contact, verb, docType):
+    def create_modify_activity(self, contact, verb, docType, doc=None):
         '''
         Creates an activity that describes a contact profile modification.
         '''
+
+        if doc:
+            docId = doc._id
+        else:
+            docId = "none"
 
         activity = Activity(
              authorKey = contact.key,
@@ -153,7 +158,7 @@ class NewebeHandler(RequestHandler):
              verb = verb,
              docType = docType,
              method = "PUT",
-             docId = "none",
+             docId = docId,
              isMine = False
         )
         activity.save()
