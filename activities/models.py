@@ -34,14 +34,14 @@ class ActivityManager():
 
         if startKey:
             return Activity.view("activities/mine", 
-                             startkey = startKey, 
-                             descending = True, 
-                             limit = activity_settings.LIMIT + 1, 
-                             skip = 0)
+                                 startkey = startKey, 
+                                 descending = True, 
+                                 limit = activity_settings.LIMIT + 1, 
+                                 skip = 0)
         else:
             return Activity.view("activities/mine", 
-                             descending=True, 
-                             limit = activity_settings.LIMIT)
+                                 descending=True, 
+                                 limit = activity_settings.LIMIT)
 
 
     @staticmethod
@@ -54,14 +54,14 @@ class ActivityManager():
         
         if startKey:
             return Activity.view("activities/all", 
-                             startkey = startKey, 
-                             descending=True, 
-                             limit=activity_settings.LIMIT+1, 
-                             skip=0)
+                                 startkey = startKey, 
+                                 descending=True, 
+                                 limit=activity_settings.LIMIT+1, 
+                                 skip=0)
         else:
             return Activity.view("activities/all", 
-                             descending=True, 
-                             limit=activity_settings.LIMIT)
+                                 descending=True, 
+                                 limit=activity_settings.LIMIT)
 
 
 class Activity(NewebeDocument):
@@ -84,7 +84,7 @@ class Activity(NewebeDocument):
     isMine = BooleanProperty(required=True, default=True)
     errors = ListProperty()
 
-    def add_error(self, contact, extra = None):
+    def add_error(self, contact, extra=None):
         '''
         And to the error list an error based on *contact* data. Extra 
         information can be added to error object (sometimes linked object
