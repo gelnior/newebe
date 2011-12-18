@@ -7,8 +7,6 @@ from newebe.core.models import NewebeDocument
 logger = logging.getLogger("newebe.contacts")
 
 
-# Contact document
-
 # Contacts available states
 STATE_PENDING = "pending"
 STATE_WAIT_APPROVAL = "Wait for approval"
