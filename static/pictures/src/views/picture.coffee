@@ -70,10 +70,12 @@ class PictureRow extends Backbone.View
     if event
       event.preventDefault()
 
+    loadingIndicator.display()
     $.get(@model.getDownloadPath(), (data) =>
         if data.success
           @displayPreview()
         else
+            loadingIndicator.hide()
           confirmationDialog.display(
             "An error occured while downloading image file.")
     )
@@ -89,7 +91,6 @@ class PictureRow extends Backbone.View
   # It sets the button jquery-ui behavior on delete button then it hides it.
   # It does not set element to DOM.
   render: ->
-      
     $(@el).html(@template(@model.toJSON()))
     @el
 
@@ -111,6 +112,7 @@ class PictureRow extends Backbone.View
       @preview.html(null)
 
       $.get @model.getPath(), (data) =>
+        loadingIndicator.hide()
         @preview.append(data)
         $("#pictures-delete-button").button()
         $("#pictures-delete-button").click(@onDeleteClicked)

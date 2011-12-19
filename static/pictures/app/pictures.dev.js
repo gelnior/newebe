@@ -420,12 +420,14 @@
     PictureRow.prototype.onDownloadClicked = function(event) {
       var _this = this;
       if (event) event.preventDefault();
+      loadingIndicator.display();
       return $.get(this.model.getDownloadPath(), function(data) {
         if (data.success) {
-          return _this.displayPreview();
+          _this.displayPreview();
         } else {
-          return confirmationDialog.display("An error occured while downloading image file.");
+          loadingIndicator.hide();
         }
+        return confirmationDialog.display("An error occured while downloading image file.");
       });
     };
 
@@ -456,6 +458,7 @@
       return this.preview.fadeOut(function() {
         _this.preview.html(null);
         return $.get(_this.model.getPath(), function(data) {
+          loadingIndicator.hide();
           _this.preview.append(data);
           $("#pictures-delete-button").button();
           $("#pictures-delete-button").click(_this.onDeleteClicked);
