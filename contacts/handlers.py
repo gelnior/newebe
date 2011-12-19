@@ -18,6 +18,8 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 # Template handlers for contact pages.
 
 
+logger = logging.getLogger(__name__)
+
 class ContactUpdateHandler(NewebeHandler):
 
 
@@ -28,19 +30,20 @@ class ContactUpdateHandler(NewebeHandler):
         received ones.
         '''      
 
-        data = self.get_body_as_dict()
+        data = self.request.body
 
         if data:
-            key = data["key"]            
-            contact = ContactManager.getTrustedContact(key)
+            putContact = json_decode(data)
+            key = putContact["key"]            
 
+            contact = ContactManager.getTrustedContact(key)
             if contact:
-                contact.url = data["url"]
-                contact.description = data["description"]
-                contact.name = data["name"]
+                contact.url = putContact["url"]
+                contact.description = putContact["description"]
+                contact.name = putContact["name"]
                 contact.save()
          
-                self.create_modify_activity(contact, "modifies", "profile")
+                self.create_modify_activity(contact)
 
                 self.return_success("Contact successfully modified.")
        
@@ -50,6 +53,23 @@ class ContactUpdateHandler(NewebeHandler):
         
         else:
             self.return_failure("Empty data.")
+
+
+    def create_modify_activity(self, contact):
+        '''
+        Creates an activity that describes a contact profile modification.
+        '''
+
+        activity = Activity(
+             authorKey = contact.key,
+             author = contact.name,
+             verb = "modifies",
+             docType = "profile",
+             method = "PUT",
+             docId = "none",
+             isMine = False
+        )
+        activity.save()
 
 
 class ContactsPendingHandler(NewebeAuthHandler):
@@ -149,14 +169,13 @@ class ContactHandler(NewebeAuthHandler):
                  contact.state = STATE_ERROR
                  contact.save()
                  self.return_failure("Error occurs while confirming contact.")
+             else:
+                 self.return_success("Contact trusted.")
 
         except:
             contact.state = STATE_ERROR
             contact.save()
             self.return_failure("Error occurs while confirming contact.")
-
-
-        self.return_success("Contact trusted.")
 
 
     def delete(self, slug):
@@ -431,5 +450,6 @@ class ContactTutorial2THandler(NewebeAuthHandler):
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/contact.html")
+
 
 
