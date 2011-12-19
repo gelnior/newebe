@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
+  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, Row, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   PlatformController = (function() {
@@ -268,6 +268,33 @@
     };
 
     return LoginView;
+
+  })();
+
+  Row = (function() {
+
+    __extends(Row, Backbone.View);
+
+    function Row() {
+      Row.__super__.constructor.apply(this, arguments);
+    }
+
+    Row.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
+      }
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
+    };
+
+    return Row;
 
   })();
 

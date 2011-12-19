@@ -1,35 +1,61 @@
 (function() {
-  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, activitiesApp, confirmationDialog, infoDialog, loadingIndicator;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
-    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
-    function ctor() { this.constructor = child; }
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor;
-    child.__super__ = parent.prototype;
-    return child;
-  };
+  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, Row, activitiesApp, confirmationDialog, infoDialog, loadingIndicator;
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Row = (function() {
+
+    __extends(Row, Backbone.View);
+
+    function Row() {
+      Row.__super__.constructor.apply(this, arguments);
+    }
+
+    Row.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
+      }
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
+    };
+
+    return Row;
+
+  })();
+
   InfoDialog = (function() {
+
     function InfoDialog() {
       var div;
       if ($("#info-dialog").length === 0) {
         div = document.createElement('div');
         div.id = "info-dialog";
         div.className = "dialog";
-        div.innerHTML = "Test";
         $("body").prepend(div);
       }
       this.element = $("#info-dialog");
       this.element.hide();
     }
+
     InfoDialog.prototype.display = function(text) {
       this.element.empty();
       this.element.append(text);
       this.element.show();
       return this.element.fadeOut(4000);
     };
+
     return InfoDialog;
+
   })();
+
   ConfirmationDialog = (function() {
+
     function ConfirmationDialog(callback) {
       var div;
       if ($("#confirmation-dialog").length === 0) {
@@ -44,6 +70,7 @@
       this.element.hide();
       this.setNoButton();
     }
+
     ConfirmationDialog.prototype.setNoButton = function() {
       var divElement;
       divElement = this.element;
@@ -52,18 +79,31 @@
         return false;
       });
     };
+
     ConfirmationDialog.prototype.display = function(text, callback) {
+      var left, top;
       $("#confirmation-text").empty();
       $("#confirmation-text").append('<span>' + text + '</span>');
       $("#confirmation-yes").click(callback);
-      return this.element.show();
+      this.element.show();
+      top = $("body").scrollTop() + 200;
+      left = this.element.offset().left;
+      return this.element.offset({
+        left: left,
+        top: top
+      });
     };
+
     ConfirmationDialog.prototype.hide = function() {
       return this.element.fadeOut();
     };
+
     return ConfirmationDialog;
+
   })();
+
   LoadingIndicator = (function() {
+
     function LoadingIndicator() {
       var div;
       if ($("#loading-indicator").length === 0) {
@@ -75,30 +115,42 @@
       this.element = $("#loading-indicator");
       this.element.hide();
     }
+
     LoadingIndicator.prototype.display = function() {
       return this.element.show();
     };
+
     LoadingIndicator.prototype.hide = function() {
       return this.element.hide();
     };
+
     return LoadingIndicator;
+
   })();
+
   ActivitiesView = (function() {
+
     __extends(ActivitiesView, Backbone.View);
+
     ActivitiesView.prototype.el = $("#activities");
-    /* Events */
+
+    /* Events
+    */
+
     ActivitiesView.prototype.events = {
       "click #activities-my-button": "onMineClicked",
       "click #activities-all-button": "onAllClicked",
       "click #activities-sync-button": "onSyncClicked",
       "click #activities-more": "onMoreActivitiesClicked"
     };
+
     function ActivitiesView() {
-      this.prependOne = __bind(this.prependOne, this);;
-      this.appendOne = __bind(this.appendOne, this);;
-      this.addAll = __bind(this.addAll, this);;
-      this.addAllMore = __bind(this.addAllMore, this);;      ActivitiesView.__super__.constructor.apply(this, arguments);
+      this.prependOne = __bind(this.prependOne, this);
+      this.appendOne = __bind(this.appendOne, this);
+      this.addAll = __bind(this.addAll, this);
+      this.addAllMore = __bind(this.addAllMore, this);      ActivitiesView.__super__.constructor.apply(this, arguments);
     }
+
     ActivitiesView.prototype.initialize = function() {
       _.bindAll(this, 'displayMyActivities', 'onMoreActivtiesClicked');
       _.bindAll(this, 'onDatePicked');
@@ -111,7 +163,10 @@
       this.currentPath = '/activities/all/';
       return this.selectedRow = null;
     };
-    /* Listeners  */
+
+    /* Listeners
+    */
+
     ActivitiesView.prototype.onMineClicked = function(event) {
       $("#activities-my-button").button("disable");
       $("#activities-all-button").button("enable");
@@ -121,6 +176,7 @@
       this.reloadActivities(null);
       return event;
     };
+
     ActivitiesView.prototype.onAllClicked = function(event) {
       $("#activities-all-button").button("disable");
       $("#activities-my-button").button("enable");
@@ -130,6 +186,7 @@
       this.reloadActivities(null);
       return event;
     };
+
     ActivitiesView.prototype.onSyncClicked = function(event) {
       $.ajax({
         url: "/synchronize/",
@@ -142,6 +199,7 @@
       });
       return event;
     };
+
     ActivitiesView.prototype.onDatePicked = function(dateText, event) {
       var d, sinceDate;
       d = Date.parse(dateText);
@@ -149,39 +207,39 @@
       this.clearActivities();
       return this.reloadActivities(sinceDate);
     };
+
     ActivitiesView.prototype.onRowClicked = function(row) {
       if (row !== this.selectedRow) {
-        if (this.selectedRow) {
-          this.selectedRow.deselect();
-        }
+        if (this.selectedRow) this.selectedRow.deselect();
         row.select();
         return this.selectedRow = row;
       }
     };
-    /* Functions  */
+
+    /* Functions
+    */
+
     ActivitiesView.prototype.clearActivities = function() {
       $("#activity-list").empty();
       return $("#activities-more").show();
     };
+
     ActivitiesView.prototype.addAllMore = function() {
       var activitiesArray;
       activitiesArray = this.moreActivities.toArray().reverse();
       activitiesArray = _.rest(activitiesArray);
       _.each(activitiesArray, this.appendOne);
       this.lastDate = this.moreActivities.last().getUrlDate();
-      if (activitiesArray.length < 30) {
-        $("#activities-more").hide();
-      }
+      if (activitiesArray.length < 30) $("#activities-more").hide();
       loadingIndicator.hide();
       return this.lastDate;
     };
+
     ActivitiesView.prototype.addAll = function() {
       if (this.activities.length > 0) {
         this.tutorialOn = false;
         this.lastDate = this.activities.first().getUrlDate();
-        if (this.activities.length < 30) {
-          $("#activities-more").hide();
-        }
+        if (this.activities.length < 30) $("#activities-more").hide();
       } else {
         if (this.tutorialOn) {
           this.displayTutorial(1);
@@ -194,6 +252,7 @@
       loadingIndicator.hide();
       return this.activities.length;
     };
+
     ActivitiesView.prototype.appendOne = function(activity) {
       var el, row;
       row = new ActivityRow(activity, this);
@@ -201,6 +260,7 @@
       $("#activity-list").append(el);
       return row;
     };
+
     ActivitiesView.prototype.prependOne = function(activity) {
       var el, row;
       row = new ActivityRow(activity, this);
@@ -213,25 +273,27 @@
       }
       return row;
     };
+
     ActivitiesView.prototype.displayTutorial = function(index) {
       return $.get("/activities/tutorial/" + index + "/", function(data) {
         return $("#tutorial-activities").html(data);
       });
     };
+
     ActivitiesView.prototype.reloadActivities = function(date, path) {
       loadingIndicator.display();
       this.selectedRow = null;
       this.activities.url = this.currentPath;
-      if (date) {
-        this.activities.url = this.currentPath + date + '-23-59-00/';
-      }
+      if (date) this.activities.url = this.currentPath + date + '-23-59-00/';
       this.activities.fetch();
       return this.activities;
     };
+
     ActivitiesView.prototype.fetch = function() {
       this.activities.fetch();
       return this.activties;
     };
+
     ActivitiesView.prototype.onMoreActivitiesClicked = function() {
       loadingIndicator.display();
       if (this.lastDate) {
@@ -242,12 +304,16 @@
       this.moreActivities.fetch();
       return this.moreActivities;
     };
-    /* UI Builders  */
+
+    /* UI Builders
+    */
+
     ActivitiesView.prototype.setListeners = function() {
       return $("input#activities-from-datepicker").datepicker({
         onSelect: this.onDatePicked
       });
     };
+
     ActivitiesView.prototype.setWidgets = function() {
       $("#activities-my-button").button();
       $("#activities-all-button").button();
@@ -256,14 +322,24 @@
       $("#activities-more").button();
       return $("#activities-from-datepicker").val(null);
     };
+
     return ActivitiesView;
+
   })();
+
   ActivityRow = (function() {
-    __extends(ActivityRow, Backbone.View);
+
+    __extends(ActivityRow, Row);
+
     ActivityRow.prototype.tagName = "div";
+
     ActivityRow.prototype.className = "activity-row";
+
     ActivityRow.prototype.template = _.template('<span class="activity-date">\n <%= displayDate %> -\n</span>\n<a href="#" class="activity-author"><%= author %></a>\n<span class="activity-verb"><%= verb %></span>\na\n<a href="#" class="doc-ref">\n<span class="activity-verb"><%= docType %></span>\n</a>\n<span class="activity-error-number">\n<%= errorNumber %>\n</span>\n<div class="activity-errors">\nErrors :\n<% _.each(errors, function(error) { %>\n  <div class="activity-error">\n    <%= error.contactName %> |\n    <%= error.contactUrl %> ->\n    <span id="<%= error.contactKey%>"\n          class="activity-error-resend">\n      resend\n    </span>\n</div>\n<% }); %>\n</div>');
-    /* Events */
+
+    /* Events
+    */
+
     ActivityRow.prototype.events = {
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
@@ -273,59 +349,74 @@
       "click .activity-error-number": "onErrorNumberClicked",
       "click .activity-error-resend": "onErrorResendClicked"
     };
+
     function ActivityRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.onActivityAuthorClicked = __bind(this.onActivityAuthorClicked, this);
+      this.onPreviewLoaded = __bind(this.onPreviewLoaded, this);
       ActivityRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
       this.selected = false;
       this.authorDisplayed = false;
+      this.preview = $("#activities-preview");
     }
-    /* Listeners */
+
+    /* Listeners
+    */
+
     ActivityRow.prototype.onMouseOver = function() {
-      if (!this.selected) {
-        return $(this.el).addClass("mouseover");
-      }
+      if (!this.selected) return $(this.el).addClass("mouseover");
     };
+
     ActivityRow.prototype.onMouseOut = function() {
       return $(this.el).removeClass("mouseover");
     };
+
     ActivityRow.prototype.onClick = function() {
       return this.mainView.onRowClicked(this);
     };
+
     ActivityRow.prototype.onDocRefClicked = function(event) {
+      alert("toto");
       if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
-        $.get("/news/micropost/" + this.model.getDocId() + "/html/", function(data) {
-          return $("#activities-preview").html(data);
-        });
+        $.get("/news/micropost/" + this.model.getDocId() + "/html/", this.onPreviewLoaded);
       } else if (this.model.getDocType() === "note") {
-        $.get("/notes/" + (this.model.getDocId()) + "/html/", function(data) {
-          return $("#activities-preview").html(data);
-        });
-      }
-      if (event) {
-        event.preventDefault();
+        $.get("/notes/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
+      } else if (this.model.getDocType() === "picture" && this.model.getMethod() === "POST") {
+        $.get("/pictures/" + (this.model.getDocId()) + "/render/", this.onPreviewLoaded);
+        if (event) event.preventDefault();
       }
       return false;
     };
+
+    ActivityRow.prototype.onPreviewLoaded = function(data) {
+      this.preview.html(data);
+      return this.updatePreviewPosition();
+    };
+
     ActivityRow.prototype.onActivityAuthorClicked = function(event) {
+      var _this = this;
       if (!this.authorDisplayed) {
-        $.get("/contacts/render/" + this.model.getAuthorKey() + "/", __bind(function(data) {
-          $("#activities-preview").append("<p>&nbsp;</p>");
-          $("#activities-preview").append("<p>Author profile: </p>");
-          $("#activities-preview").append(data);
-          return this.authorDisplayed = true;
-        }, this));
+        $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
+          _this.preview.append("<p>&nbsp;</p>");
+          _this.preview.append("<p>Author profile: </p>");
+          _this.preview.append(data);
+          return _this.authorDisplayed = true;
+        });
       }
       event.preventDefault();
       return false;
     };
+
     ActivityRow.prototype.onErrorNumberClicked = function(event) {
       return this.$(".activity-errors").show();
     };
+
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
+      var _this = this;
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
@@ -335,13 +426,13 @@
               url: "/news/micropost/" + this.model.getDocId() + "/retry/",
               data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '"}',
               dataType: "json",
-              success: __bind(function(data) {
+              success: function(data) {
                 return $(event.target).html("resending succeeds.");
-              }, this),
-              error: __bind(function(data) {
+              },
+              error: function(data) {
                 infoDialog.display("Sending data fails again.");
                 return $(event.target).html("resend");
-              }, this)
+              }
             });
           case "DELETE":
             extra = "";
@@ -369,31 +460,41 @@
         }
       }
     };
-    /* Functions */
+
+    /* Functions
+    */
+
     ActivityRow.prototype.render = function() {
-      if (!this.model.getDisplayDate()) {
-        this.model.setDisplayDate();
-      }
+      if (!this.model.getDisplayDate()) this.model.setDisplayDate();
       $(this.el).html(this.template(this.model.toJSON()));
       this.$(".activity-errors").hide();
       return this.el;
     };
+
     ActivityRow.prototype.select = function() {
       $(this.el).removeClass("mouseover");
       $(this.el).addClass("selected");
       $("#activities-preview").empty();
+      alert("tata");
       return this.onDocRefClicked(null);
     };
+
     ActivityRow.prototype.deselect = function() {
       $(this.el).removeClass("selected");
       $("#news-preview").html(null);
       return this.authorDisplayed = false;
     };
+
     return ActivityRow;
+
   })();
+
   Activity = (function() {
+
     __extends(Activity, Backbone.Model);
+
     Activity.prototype.url = '/activities/all/';
+
     function Activity(activity) {
       var activityDate, urlDate;
       Activity.__super__.constructor.apply(this, arguments);
@@ -420,15 +521,20 @@
         this.attributes['errorNumber'] = "";
       }
     }
-    /* Getters / Setters */
+
+    /* Getters / Setters
+    */
+
     Activity.prototype.getDisplayDate = function() {
       return this.attributes['displayDate'];
     };
+
     Activity.prototype.setDisplayDate = function() {
       var dateToSet;
       dateToSet = this.attributes["date"];
       return this.setDisplayDateFromDbDate(dateToSet);
     };
+
     Activity.prototype.setDisplayDateFromDbDate = function(date) {
       var postDate, stringDate;
       postDate = Date.parseExact(date, "yyyy-MM-ddTHH:mm:ssZ");
@@ -436,55 +542,83 @@
       this.attributes['displayDate'] = stringDate;
       return postDate;
     };
+
     Activity.prototype.getAuthor = function() {
       return this.get('author');
     };
+
     Activity.prototype.getAuthorKey = function() {
       return this.get('authorKey');
     };
+
     Activity.prototype.getDate = function() {
       return this.get('date');
     };
+
     Activity.prototype.getUrlDate = function() {
       return this.attributes['urlDate'];
     };
+
     Activity.prototype.getDocType = function() {
       return this.attributes['docType'];
     };
+
     Activity.prototype.getDocId = function() {
       return this.get('docId');
     };
+
     Activity.prototype.getMethod = function() {
       return this.get('method');
     };
+
     Activity.prototype.getMid = function() {
       return this.get('mid');
     };
+
     Activity.prototype.getErrors = function() {
       return this.get('errors');
     };
+
     return Activity;
+
   })();
+
   ActivityCollection = (function() {
+
+    __extends(ActivityCollection, Backbone.Collection);
+
     function ActivityCollection() {
       ActivityCollection.__super__.constructor.apply(this, arguments);
     }
-    __extends(ActivityCollection, Backbone.Collection);
+
     ActivityCollection.prototype.model = Activity;
+
     ActivityCollection.prototype.url = '/activities/all/';
+
     ActivityCollection.prototype.comparator = function(activity) {
       return activity.getDate();
     };
+
     ActivityCollection.prototype.parse = function(response) {
       return response.rows;
     };
+
     return ActivityCollection;
+
   })();
+
   loadingIndicator = new LoadingIndicator;
+
   confirmationDialog = new ConfirmationDialog;
+
   infoDialog = new InfoDialog;
+
   activitiesApp = new ActivitiesView;
+
   activitiesApp.setWidgets();
+
   activitiesApp.setListeners();
+
   activitiesApp.fetch();
+
 }).call(this);

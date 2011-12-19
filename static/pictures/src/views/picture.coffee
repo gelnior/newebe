@@ -2,7 +2,7 @@
 
 # PictureRow is the widget representation of a picture inside the list.
 # It displays the picture thumbnail.
-class PictureRow extends Backbone.View
+class PictureRow extends Row
 
   tagName: "div"
   className: "pictures-row"
@@ -122,17 +122,4 @@ class PictureRow extends Backbone.View
         @preview.fadeIn()
         @updatePreviewPosition()
     
-
-  # Update preview position depending on the actual window scroll position.
-  updatePreviewPosition: () ->
-    top = $("body").scrollTop()
-
-    if top > 50
-      top = top + 20
-    else
-      top = top + 60
-
-    left = @preview.offset().left
-    @preview.offset({left: left, top: top})
-
 

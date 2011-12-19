@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter;
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, Row, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
@@ -98,6 +98,33 @@
     };
 
     return LoadingIndicator;
+
+  })();
+
+  Row = (function() {
+
+    __extends(Row, Backbone.View);
+
+    function Row() {
+      Row.__super__.constructor.apply(this, arguments);
+    }
+
+    Row.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
+      }
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
+    };
+
+    return Row;
 
   })();
 
@@ -360,7 +387,7 @@
 
   PictureRow = (function() {
 
-    __extends(PictureRow, Backbone.View);
+    __extends(PictureRow, Row);
 
     PictureRow.prototype.tagName = "div";
 
@@ -468,21 +495,6 @@
           _this.preview.fadeIn();
           return _this.updatePreviewPosition();
         });
-      });
-    };
-
-    PictureRow.prototype.updatePreviewPosition = function() {
-      var left, top;
-      top = $("body").scrollTop();
-      if (top > 50) {
-        top = top + 20;
-      } else {
-        top = top + 60;
-      }
-      left = this.preview.offset().left;
-      return this.preview.offset({
-        left: left,
-        top: top
       });
     };
 

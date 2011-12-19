@@ -1,7 +1,7 @@
 ## Activity
 
 # Activity is the widget representation of an Activity
-class ActivityRow extends Backbone.View
+class ActivityRow extends Row
 
   tagName: "div"
   className: "activity-row"
@@ -57,7 +57,7 @@ class ActivityRow extends Backbone.View
     @model.view = @
     @selected = false
     @authorDisplayed = false
-
+    @preview = $("#activities-preview")
     
   ### Listeners ###
 
@@ -83,27 +83,32 @@ class ActivityRow extends Backbone.View
   # When doc ref is clicked, if it is a micropost, micropost is displayed 
   # in the preview section, same for notes.
   onDocRefClicked: (event) ->
+    alert "toto"
     if @model.getDocType() == "micropost" and @model.getMethod() == "POST"
-        $.get("/news/micropost/" + @model.getDocId() + "/html/", (data) ->
-          $("#activities-preview").html(data)
-        )
+        $.get "/news/micropost/" + @model.getDocId() + "/html/",  @onPreviewLoaded
     else if @model.getDocType() == "note"
-        $.get("/notes/#{@model.getDocId()}/html/", (data) ->
-          $("#activities-preview").html(data)
-        )
-
-    if event
-        event.preventDefault()
+        $.get "/notes/#{@model.getDocId()}/html/", @onPreviewLoaded
+    
+    else if @model.getDocType() == "picture" and @model.getMethod() == "POST"
+        $.get "/pictures/#{@model.getDocId()}/render/", @onPreviewLoaded
+            
+        if event
+          event.preventDefault()
     false
 
 
+  onPreviewLoaded: (data) =>
+    @preview.html(data)
+    @updatePreviewPosition()
+
+
   # When activity author is clicked, the author profile is displayed.
-  onActivityAuthorClicked: (event) ->
+  onActivityAuthorClicked: (event) =>
     if not @authorDisplayed
       $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) =>
-        $("#activities-preview").append("<p>&nbsp;</p>")
-        $("#activities-preview").append("<p>Author profile: </p>")
-        $("#activities-preview").append(data)
+        @preview.append("<p>&nbsp;</p>")
+        @preview.append("<p>Author profile: </p>")
+        @preview.append(data)
         @authorDisplayed = true
       )
 
@@ -178,6 +183,7 @@ class ActivityRow extends Backbone.View
     $(@el).removeClass("mouseover")
     $(@el).addClass("selected")
     $("#activities-preview").empty()
+    alert "tata"
     @onDocRefClicked(null)
     
     
