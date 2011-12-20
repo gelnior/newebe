@@ -1,7 +1,7 @@
 ## MicroPostRow
 
 # MicroPostRow is the widget representation of a MicroPost
-class MicroPostRow extends Backbone.View
+class MicroPostRow extends Row
 
   tagName: "div"
   className: "news-micropost-row"
@@ -32,6 +32,7 @@ class MicroPostRow extends Backbone.View
          
     @model.view = @
     @selected = false
+    @preview = $("#news-preview")
     
   ### Listeners ###
 
@@ -66,11 +67,12 @@ class MicroPostRow extends Backbone.View
     )
 
   # When author name is clicked, its data are displayed in the preview zone.
-  onAuthorClicked: (event) ->
-    $.get("/contacts/render/" + @model.getAuthorKey() + "/", (data) ->
-      $("#news-preview").append("<p>Post written by : </p>")
-      $("#news-preview").append(data)
-    )
+  onAuthorClicked: (event) =>
+    $.get "/contacts/render/#{@model.getAuthorKey()}/", (data) =>
+      @preview.append("<p>Post written by : </p>")
+      @preview.append(data)
+      @updatePreviewPosition()
+    
 
     if event
       event.preventDefault()

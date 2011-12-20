@@ -14,9 +14,9 @@ class ActivityRow extends Row
     <a href="#" class="activity-author"><%= author %></a>
     <span class="activity-verb"><%= verb %></span>
     a
-    <a href="#" class="doc-ref">
+    <span class="doc-ref">
     <span class="activity-verb"><%= docType %></span>
-    </a>
+    </span>
     <span class="activity-error-number">
     <%= errorNumber %>
     </span>

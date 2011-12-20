@@ -1,6 +1,6 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, confirmationDialog, loadingIndicator, newsApp, updater;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, loadingIndicator, newsApp, updater;
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -101,9 +101,36 @@
 
   })();
 
+  Row = (function() {
+
+    __extends(Row, Backbone.View);
+
+    function Row() {
+      Row.__super__.constructor.apply(this, arguments);
+    }
+
+    Row.prototype.updatePreviewPosition = function() {
+      var left, top;
+      top = $("body").scrollTop();
+      if (top > 50) {
+        top = top + 20;
+      } else {
+        top = top + 60;
+      }
+      left = this.preview.offset().left;
+      return this.preview.offset({
+        left: left,
+        top: top
+      });
+    };
+
+    return Row;
+
+  })();
+
   MicroPostRow = (function() {
 
-    __extends(MicroPostRow, Backbone.View);
+    __extends(MicroPostRow, Row);
 
     MicroPostRow.prototype.tagName = "div";
 
@@ -125,10 +152,12 @@
     function MicroPostRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.onAuthorClicked = __bind(this.onAuthorClicked, this);
       MicroPostRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
       this.selected = false;
+      this.preview = $("#news-preview");
     }
 
     /* Listeners
@@ -159,9 +188,11 @@
     };
 
     MicroPostRow.prototype.onAuthorClicked = function(event) {
-      $.get("/contacts/render/" + this.model.getAuthorKey() + "/", function(data) {
-        $("#news-preview").append("<p>Post written by : </p>");
-        return $("#news-preview").append(data);
+      var _this = this;
+      $.get("/contacts/render/" + (this.model.getAuthorKey()) + "/", function(data) {
+        _this.preview.append("<p>Post written by : </p>");
+        _this.preview.append(data);
+        return _this.updatePreviewPosition();
       });
       if (event) event.preventDefault();
       return false;

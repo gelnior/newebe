@@ -11,12 +11,6 @@ fs     = require 'fs'
 
 # File to compile
 appFiles  = [
-  '../../platform/src/views/infodialog'
-  '../../platform/src/views/loadingindicator'
-  'models/micropost',
-  'views/micropost',
-  'views/newsview',
-  'news'
 ]
 
 appName = "news"
@@ -33,7 +27,7 @@ fs = require 'fs'
 appFiles = [
   '../platform/src/views/infodialog.coffee'
   '../platform/src/views/loadingindicator.coffee'
-
+  '../platform/src/views/row.coffee'
 ]
 # Source files (automatically filled)
 srcFiles = []
@@ -91,7 +85,7 @@ process = (appContents, suffix, callback) ->
 # Grab src files and add them to app files.
 walk("./src", srcFiles)
 
-# Weird way to enusre that main file is converted at the end of the result file.
+# Weird way to ensure that main file is converted at the end of the result file.
 i = 0
 appFile = ""
 for file, index in srcFiles
