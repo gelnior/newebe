@@ -379,7 +379,6 @@
     };
 
     ActivityRow.prototype.onDocRefClicked = function(event) {
-      alert("toto");
       if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
         $.get("/news/micropost/" + this.model.getDocId() + "/html/", this.onPreviewLoaded);
       } else if (this.model.getDocType() === "note") {
@@ -475,7 +474,6 @@
       $(this.el).removeClass("mouseover");
       $(this.el).addClass("selected");
       $("#activities-preview").empty();
-      alert("tata");
       return this.onDocRefClicked(null);
     };
 

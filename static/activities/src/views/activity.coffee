@@ -83,7 +83,6 @@ class ActivityRow extends Row
   # When doc ref is clicked, if it is a micropost, micropost is displayed 
   # in the preview section, same for notes.
   onDocRefClicked: (event) ->
-    alert "toto"
     if @model.getDocType() == "micropost" and @model.getMethod() == "POST"
         $.get "/news/micropost/" + @model.getDocId() + "/html/",  @onPreviewLoaded
     else if @model.getDocType() == "note"
@@ -183,7 +182,6 @@ class ActivityRow extends Row
     $(@el).removeClass("mouseover")
     $(@el).addClass("selected")
     $("#activities-preview").empty()
-    alert "tata"
     @onDocRefClicked(null)
     
     
