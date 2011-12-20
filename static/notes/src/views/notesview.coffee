@@ -153,6 +153,7 @@ class NotesView extends Backbone.View
     @notePreviewer.html(null)
     html = @converter.makeHtml(row.getContent())
     @notePreviewer.html(html)
+    row.updatePreviewPosition()
 
 
   ### UI Builders  ###

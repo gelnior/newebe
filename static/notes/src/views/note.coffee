@@ -1,7 +1,7 @@
 ## NoteRow
 
 # NoteRow is the widget representation of a note.
-class NoteRow extends Backbone.View
+class NoteRow extends Row
 
   tagName: "div"
   className: "notes-note-row"
@@ -36,6 +36,7 @@ class NoteRow extends Backbone.View
          
     @model.view = @
     @selected = false
+    @preview = $("#notes-preview")
     
 
   ### Listeners ###
