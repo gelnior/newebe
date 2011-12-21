@@ -48,28 +48,12 @@ class NotesHandler(NewebeAuthHandler):
                 isMine = True,
             )
             note.save()
-            
-            self._create_write_activity(note)
+            self.create_owner_creation_activity(note, "writes", "note")
+
             self.return_json(note.toJson(), 201)
         else:
             self.return_failure("No data sent", 400)
 
-
-    def _create_write_activity(self, note):
-        '''
-        Creates and save a new creation activity for current user.
-        '''
-            
-        activity = Activity(
-            authorKey = UserManager.getUser().key,
-            author = note.author,
-            verb = "writes",
-            docType = "note",
-            docId = note._id,
-            isMine = True,
-            date = note.lastModified
-        )
-        activity.save()
 
 
 class NotesByDateHandler(NewebeAuthHandler):
@@ -146,29 +130,12 @@ class NoteHandler(NewebeAuthHandler):
         note = NoteManager.get_note(noteid)
 
         if note:
-            self.create_delete_activity(note)
+            self.create_owner_deletion_activity(note, "deletes", "note")
             note.delete()
             self.return_success("Note deleted.")
 
         else:
             self.return_failure("No note to delete.", 404)
-
-
-    def create_delete_activity(self, note):
-        '''
-        Creates and save a new delete activity for current user.
-        '''
-            
-        activity = Activity(
-            authorKey = UserManager.getUser().key,
-            author = note.author,
-            verb = "deletes",
-            docType = "note",
-            docId = note._id,
-            isMine = True,
-            method = "DELETE"        
-        )
-        activity.save()
 
 
 class NoteTHandler(NewebeAuthHandler):

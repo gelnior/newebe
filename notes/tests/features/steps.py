@@ -172,7 +172,8 @@ def create_through_handler_a_note(step):
     world.note._id = noteDict["_id"]
 
 @step(u'Delete, through handler, the note')
-def delete_through_handler_the_note(step):
+def delete_through_handler_the_note(step):    
+    time.sleep(1)
     response = client.delete("notes/" + world.note._id + "/")
     assert response.code == 200
 

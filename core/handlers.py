@@ -100,7 +100,21 @@ class NewebeHandler(RequestHandler):
             return None
 
 
-    def create_creation_activity(self, contact, doc, verb, docType):
+    def create_owner_creation_activity(self, doc, verb, docType):
+        '''
+        Creates a new activity corresponding to a document creation
+        made by Newebe owner.
+
+        * doc: The created document.
+        * verb: verb linked to this activity.
+        * docType: Type of the created document.
+        '''
+
+        self.create_creation_activity(
+            UserManager.getUser().asContact(), doc, verb, docType, True)
+
+    def create_creation_activity(self, contact, doc, verb, docType, 
+                                 isMine=False):
         '''
         Creates a new activity corresponding to a document creation.
 
@@ -108,6 +122,7 @@ class NewebeHandler(RequestHandler):
         * doc: The created document.
         * verb: verb linked to this activity.
         * docType: Type of the created document.
+        * isMine : True if activity is made by owner.
         '''
 
         self.activity = Activity(
@@ -116,12 +131,28 @@ class NewebeHandler(RequestHandler):
             verb = verb,
             docType = docType,
             docId = doc._id,
+            isMine = isMine,
             method = "POST"
         )
         self.activity.save()
 
 
-    def create_deletion_activity(self, contact, doc, verb, docType):
+    def create_owner_deletion_activity(self, doc, verb, docType):
+        '''
+        Creates a new activity corresponding to a document deletion made 
+        by owner.
+
+        * doc: The deleted document.
+        * verb: verb linked to this activity.
+        * docType: Type of the deleted document.
+        '''
+
+        self.create_deletion_activity(
+            UserManager.getUser().asContact(), doc, verb, docType, True)
+
+
+    def create_deletion_activity(self, contact, doc, verb, docType, 
+                                 isMine=False):
         '''
         Creates a new activity corresponding to a document deletion.
 
@@ -129,6 +160,7 @@ class NewebeHandler(RequestHandler):
         * doc: The deleted document.
         * verb: verb linked to this activity.
         * docType: Type of the deleted document.
+        * isMine: True if deletion is done by owner.
         '''
 
         self.activity = Activity(
@@ -137,7 +169,8 @@ class NewebeHandler(RequestHandler):
             verb = verb,
             docType = docType,
             docId = doc._id,
-            method = "DELETE"
+            method = "DELETE",
+            isMine = isMine
         )
         self.activity.save()
 
