@@ -144,13 +144,20 @@ class RegisterPasswordTHandler(NewebeHandler):
             data = self.request.body
 
             if data:
-                postedPassword = json_decode(data)
-                password = hashlib.sha224(postedPassword['password']).hexdigest()
-                user.password = password
-                user.save()
-                self.set_secure_cookie("password", postedPassword['password'])
+                postedPassword = json_decode(data)['password']
 
-                self.return_json(user.toJson())
+                if postedPassword and len(postedPassword) > 3:
+                    password = \
+                        hashlib.sha224(postedPassword).hexdigest()
+                    user.password = password
+                    user.save()
+                    self.set_secure_cookie("password", postedPassword)
+    
+                    self.return_json(user.toJson())
+
+                else:
+                    self.return_failure(
+                        "Password is too short. User password is not set.", 400)
 
             else:
                 self.return_failure(

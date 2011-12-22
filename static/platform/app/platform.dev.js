@@ -145,7 +145,7 @@
 
     RegisterView.prototype.onUserFieldKeyUp = function(event) {
       var dataPost, url;
-      if (event.keyCode === 13 && !this.isPosting) {
+      if (event.keyCode === 13 && !this.isPosting && $("#platform-user-text-field").val()) {
         dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}';
         this.isPosting = true;
         url = "/register/";
@@ -191,23 +191,27 @@
 
     RegisterPasswordView.prototype.onUserFieldKeyUp = function(event) {
       var dataPost, url;
-      if ((event.keyCode === 13 || e.which === 13) && !this.isPosting) {
-        dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}';
-        this.isPosting = true;
-        url = "/register/password/";
-        return $.post(url, dataPost, function(data) {
-          return $("#register").fadeOut(1600, function() {
-            $("body").hide();
-            return $.get("/profile/menu-content/", function(data) {
-              $("body").prepend(data);
-              $("#menu").hide();
-              $("#apps").hide();
-              $("body").show();
-              $("#menu").fadeIn();
-              return $("#apps").fadeIn();
+      if ((event.keyCode === 13 || event.which === 13) && !this.isPosting) {
+        if ($("#platform-password-text-field").val().length <= 3) {
+          return infoDialog.display("Sesame must have at least 4 characters.");
+        } else {
+          dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}';
+          this.isPosting = true;
+          url = "/register/password/";
+          return $.post(url, dataPost, function(data) {
+            return $("#register").fadeOut(1600, function() {
+              $("body").hide();
+              return $.get("/profile/menu-content/", function(data) {
+                $("body").prepend(data);
+                $("#menu").hide();
+                $("#apps").hide();
+                $("body").show();
+                $("#menu").fadeIn();
+                return $("#apps").fadeIn();
+              });
             });
-          });
-        }, "json");
+          }, "json");
+        }
       }
     };
 
@@ -236,7 +240,7 @@
     LoginView.prototype.onPasswordFieldKeyUp = function(event) {
       var dataPost, url;
       var _this = this;
-      if (event.keyCode === 13 && !this.isPosting) {
+      if ((event.keyCode === 13 || event.which === 13) && !this.isPosting) {
         this.isPosting = true;
         url = "/login/json/";
         dataPost = '{ "password":"' + $("#login-password-text-field").val() + '"}';

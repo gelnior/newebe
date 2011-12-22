@@ -24,7 +24,8 @@ class RegisterView extends Backbone.View
   # backend services (commit registration) and displays page to set up 
   # password.
   onUserFieldKeyUp: (event) ->
-    if event.keyCode == 13 and not @isPosting
+    if event.keyCode == 13 and not @isPosting \
+        and $("#platform-user-text-field").val()
       dataPost = '{ "name":"' + $("#platform-user-text-field").val() + '"}'
       @isPosting = true
       url = "/register/"
@@ -71,27 +72,32 @@ class RegisterPasswordView extends Backbone.View
   # When user field key is up, if it is enter key, it posts typed password to 
   # backend services (commit registration) and displays profile application.
   onUserFieldKeyUp: (event) ->
-    if (event.keyCode == 13 or e.which == 13) and not @isPosting
-      dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}'
-      @isPosting = true
-      url = "/register/password/"
-      $.post(url, dataPost,
-        (data) ->
-          $("#register").fadeOut(1600,
-            () ->
-              $("body").hide()
-              $.get("/profile/menu-content/",
-                (data) ->
-                  $("body").prepend(data)
-                  $("#menu").hide()
-                  $("#apps").hide()
-                  $("body").show()
-                  $("#menu").fadeIn()
-                  $("#apps").fadeIn()
-              )
-          )
-        , "json"
-      )
+
+    if (event.keyCode == 13 or event.which == 13) and not @isPosting
+
+      if $("#platform-password-text-field").val().length <= 3
+        infoDialog.display "Sesame must have at least 4 characters."
+      else
+        dataPost = '{ "password":"' + $("#platform-password-text-field").val() + '"}'
+        @isPosting = true
+        url = "/register/password/"
+        $.post(url, dataPost,
+          (data) ->
+            $("#register").fadeOut(1600,
+              () ->
+                $("body").hide()
+                $.get("/profile/menu-content/",
+                  (data) ->
+                    $("body").prepend(data)
+                    $("#menu").hide()
+                    $("#apps").hide()
+                    $("body").show()
+                    $("#menu").fadeIn()
+                    $("#apps").fadeIn()
+                )
+            )
+          , "json"
+        )
 
 
 # This view displays a simple field to let user type its password (its Sesame).
@@ -117,7 +123,7 @@ class LoginView extends Backbone.View
   # If password is wrong, the password field is cleared and uset need to retry.
   # If password is right, the news application is displayed.
   onPasswordFieldKeyUp: (event) ->
-    if event.keyCode == 13 and not @isPosting
+    if (event.keyCode == 13 or event.which == 13) and not @isPosting
       @isPosting = true
       url = "/login/json/"
 

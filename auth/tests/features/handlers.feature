@@ -47,6 +47,7 @@ Feature: Authenticate, create user and set password
         Send creation request for Jhon as user name
         Open password registration url
         Checks that response is password registration page
+        Fail to send password creation request with ba as password
         Send password creation request with password as password
         Send login request with password as password
         Checks that secure cookie is set
