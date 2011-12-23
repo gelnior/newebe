@@ -60,15 +60,25 @@ class ProfileView extends Backbone.View
   onChangePasswordClicked: (event) ->
     formDialog.clearFields()
     formDialog.addField name: "new-password"
+
     formDialog.display "Type your new sesame", () ->
-      if formDialog.getVal(0)
+      if formDialog.getVal(0) and formDialog.getVal(0).length > 3
         loadingIndicator.display()
-        $.ajax (type: "PUT", url: "/user/password/", data: "{\"password\":\"#{formDialog.getVal(0)}\"}", dataType: "json", success: =>
-                 formDialog.hide()
-                 loadingIndicator.hide()
-        )
+        $.ajax
+          type: "PUT"
+          url: "/user/password/"
+          data: "{\"password\":\"#{formDialog.getVal(0)}\"}"
+          dataType: "json"
+          success: =>
+            formDialog.hide()
+            loadingIndicator.hide()
+          error: =>
+            formDialog.hide()
+            loadingIndicator.hide()
+            infoDialog.display "Error occured while changing password."
+        
       else
-        infoDialog.display "Please enter a sesame"
+        infoDialog.display "Please enter a sesame with at least 4 characters"
         
 
 

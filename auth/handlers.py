@@ -229,11 +229,18 @@ class UserPasswordHandler(NewebeAuthHandler):
            data = self.request.body
         
            if data:
-               postedPassword = json_decode(data)
-               user.password =  \
-                   hashlib.sha224(postedPassword['password']).hexdigest()
-               user.save()
-               self.set_secure_cookie("password", user.password)
+               postedPassword = json_decode(data)['password']
+
+               if postedPassword and len(postedPassword) >= 3:
+                   user.password =  \
+                       hashlib.sha224(postedPassword).hexdigest()
+                   user.save()
+                   self.set_secure_cookie("password", user.password)
+               
+               else:
+                   self.return_failure(
+                        "Password must be at least 3 characters long.", 400)
+
 
 
 # Template handlers

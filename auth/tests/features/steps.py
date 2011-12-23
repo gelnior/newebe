@@ -160,6 +160,16 @@ def change_password_with_password2(step, password):
     world.browser.put(ROOT_URL + "user/password/", 
                       '{"password":"' + password + '"}')
 
+
+@step(u'Fail to change user password with ba')
+def fail_to_change_user_password_with_ba(step):
+    try:
+        world.response = world.browser.put(ROOT_URL + "user/password/", 
+            body='{"password":"%s"}' % "ba")
+        assert False
+    except HTTPError:
+        assert True
+
 @step(u'Fail to send password creation request with ba as password')
 def send_password_creation_request_with_ba_as_password(step):
     try:
