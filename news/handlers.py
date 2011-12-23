@@ -98,8 +98,6 @@ class MicropostHandler(NewebeAuthHandler):
 
         micropost = MicroPostManager.getMicropost(postId)
         if micropost:
-            self.set_status(200)
-
             user = UserManager.getUser()
 
             self.create_delete_activity(user, micropost)
@@ -594,7 +592,7 @@ class MyNewsHandler(NewebeAuthHandler):
         else:
             microposts = MicroPostManager.getMine()
 
-        self.return_json(json_util.get_json_from_doc_list(microposts))
+        self.return_documents(microposts)
     
 
 # Template handlers
