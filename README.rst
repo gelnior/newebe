@@ -16,6 +16,7 @@ Dependencies
 * daemon >= 1.0.0
 * pycurl >= 1.0.0
 * markdown >= 2.0.0
+* PIL >= 1.1.6
 * lettuce >= 0.1.9
 
 
@@ -26,7 +27,8 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pycurl python-daemon couchdb git
+    python python-setuptools python-pycurl python-daemon python-imaging 
+           couchdb git
 
 Then via easy_install:
 
