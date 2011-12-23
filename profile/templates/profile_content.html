@@ -2,8 +2,15 @@
     
   <div class="app">
   <p><input type="text" id="platform-profile-name" /></p>
-  <div id="tutorial-profile"></div>
-  <p>Url: <input type="text" id="platform-profile-url" /></p>
+  <div id="tutorial-profile"></div>  
+  <p id="profile-url-container" >
+    Url: <input type="text" id="platform-profile-url" />
+  </p>
+  <p id="profile-url-error" class="error">
+    Wrong URL, URL should look like http://www.mynewebe.net:8000/ or like 
+    http://87.123.21.13:12000/. Don't forget port number and trailing slash
+    at the end of the URL.
+  </p>
   <div id="profile-toolbar">
     <a id="profile-change-password">Change password</a>
     <a id="profile-description-edit">Edit</a>

@@ -32,14 +32,19 @@ class ProfileView extends Backbone.View
     @postUserInfo()
     event
 
+  # When mouse is over forms, it displays toolbar buttons.
   onMouseOver: (event) =>
     $("#profile-description-edit").show()
     $("#profile-change-password").show()
 
+  # When mouse is out forms, it hides toolbar buttons.
   onMouseOut: (event) =>
     $("#profile-description-edit").hide()
     $("#profile-change-password").hide()
 
+  # When description button is clicked, a text editor is displayed 
+  # with description inside, then the descriptions is rendered in preview
+  # area.
   onDescriptionEditClicked: (event) =>
 
     if not @isEditing
@@ -57,6 +62,9 @@ class ProfileView extends Backbone.View
 
     false
 
+  # When change password button is clicked a dialog is displayed allowing
+  # user to type its new password. Password must be at least 4 characters 
+  # long or an error dialog is displayed.
   onChangePasswordClicked: (event) ->
     formDialog.clearFields()
     formDialog.addField name: "new-password"
@@ -75,11 +83,24 @@ class ProfileView extends Backbone.View
           error: =>
             formDialog.hide()
             loadingIndicator.hide()
-            infoDialog.display "Error occured while changing password."
+            infoDialog.display "Error occured while changing sesame."
         
       else
         infoDialog.display "Please enter a sesame with at least 4 characters"
         
+
+  # When something is type in URL field, it checks if URL is rightly written,
+  # if not, an error message is displayed else the URL is saved.
+  onUrlKeyUp: () =>
+    regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\/$/
+    url = @urlField.val()
+    
+    if url.match(regexp)
+      @postUserInfo()
+      @urlFieldError.hide()
+    else
+      @urlFieldError.show()
+      
 
 
   ### Functions ###
@@ -142,6 +163,8 @@ class ProfileView extends Backbone.View
       $("#tutorial-profile").html(data)
     )
 
+  # Render profile display profile with its description converter from markdown
+  # to HTML.
   renderProfile: ->
     renderer = _.template('''
     <h1 class="profile-name"><%= name %></h1>
@@ -168,7 +191,7 @@ class ProfileView extends Backbone.View
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
     $("#platform-profile-name").keyup((event) -> profileApp.onKeyUp(event))
-    $("#platform-profile-url").keyup((event) -> profileApp.onKeyUp(event))
+    $("#platform-profile-url").keyup(@onUrlKeyUp)
     $("#profile-description").keyup((event) -> profileApp.onKeyUp(event))
 
   # Build JQuery widgets.
@@ -182,4 +205,7 @@ class ProfileView extends Backbone.View
     $("#profile-change-password").button()
     $("#profile-change-password").hide()
 
+    @urlField = $("#platform-profile-url")
+    @urlFieldError = $("#profile-url-error")
+    @urlFieldError.hide()
 

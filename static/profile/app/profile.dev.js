@@ -182,6 +182,7 @@
     ProfileView.prototype.el = $("#profile");
 
     function ProfileView() {
+      this.onUrlKeyUp = __bind(this.onUrlKeyUp, this);
       this.onDescriptionEditClicked = __bind(this.onDescriptionEditClicked, this);
       this.onMouseOut = __bind(this.onMouseOut, this);
       this.onMouseOver = __bind(this.onMouseOver, this);      ProfileView.__super__.constructor.call(this);
@@ -260,13 +261,25 @@
             error: function() {
               formDialog.hide();
               loadingIndicator.hide();
-              return infoDialog.display("Error occured while changing password.");
+              return infoDialog.display("Error occured while changing sesame.");
             }
           });
         } else {
           return infoDialog.display("Please enter a sesame with at least 4 characters");
         }
       });
+    };
+
+    ProfileView.prototype.onUrlKeyUp = function() {
+      var regexp, url;
+      regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\/$/;
+      url = this.urlField.val();
+      if (url.match(regexp)) {
+        this.postUserInfo();
+        return this.urlFieldError.hide();
+      } else {
+        return this.urlFieldError.show();
+      }
     };
 
     /* Functions
@@ -348,9 +361,7 @@
       $("#platform-profile-name").keyup(function(event) {
         return profileApp.onKeyUp(event);
       });
-      $("#platform-profile-url").keyup(function(event) {
-        return profileApp.onKeyUp(event);
-      });
+      $("#platform-profile-url").keyup(this.onUrlKeyUp);
       return $("#profile-description").keyup(function(event) {
         return profileApp.onKeyUp(event);
       });
@@ -364,7 +375,10 @@
       $("#profile-description-edit").button();
       $("#profile-description-edit").hide();
       $("#profile-change-password").button();
-      return $("#profile-change-password").hide();
+      $("#profile-change-password").hide();
+      this.urlField = $("#platform-profile-url");
+      this.urlFieldError = $("#profile-url-error");
+      return this.urlFieldError.hide();
     };
 
     return ProfileView;
