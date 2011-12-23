@@ -1,5 +1,12 @@
 ### Main view for contact application ###
 
+
+String.prototype.isNewebeUrl = ->
+  regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
+
+  @.match(regexp) != null
+
+
 class ContactView extends Backbone.View
   el: $("#news")
 
@@ -81,6 +88,14 @@ class ContactView extends Backbone.View
       row.select()
       @selectedRow = row
 
+  onAddContactFieldKeyUp: =>
+    contactUrl = $.trim(@addContactField.val())
+
+    if not contactUrl.isNewebeUrl()
+      @contactFieldError.show()
+    else
+      @contactFieldError.hide()
+
 
   ### Functions ###
 
@@ -155,20 +170,17 @@ class ContactView extends Backbone.View
 
 
   # Reloads contact list.
-  fetch: () ->
+  fetch: ->
     @contacts.fetch()
     @contacts
 
 
   # Send a post request to server and add current at the beginning of current 
   # contact list.
-  postNewContact: ()->
+  postNewContact: ->
     contactUrl = $.trim($("#contact-url-field").val())
-    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
 
-#    alert contactUrl.match(regexp)
-
-    if contactUrl.match(regexp)
+    if contactUrl.isNewebeUrl()
 
       if @contacts.find((contact) -> contactUrl == contact.getUrl())
         infoDialog.display("Contact is already in your list")
@@ -208,14 +220,15 @@ class ContactView extends Backbone.View
   # Set listeners and corresponding callbacks on view widgets.
   setListeners: ->
       
-    $("#contact-post-button").submit((event) -> contactApp.onPostClicked(event))
-    $("#contact-post-button").click((event) -> contactApp.onPostClicked(event))
-    $("#contact-all-button").click((event) -> contactApp.onAllClicked(event))
-    $("#contact-pending-button").click((event) ->
-        contactApp.onPendingClicked(event))
-    $("#contact-request-button").click((event) ->
-        contactApp.onRequestedClicked(event))
-
+    $("#contact-post-button").submit (event) -> contactApp.onPostClicked(event)
+    $("#contact-post-button").click (event) -> contactApp.onPostClicked(event)
+    $("#contact-all-button").click (event) -> contactApp.onAllClicked(event)
+    $("#contact-pending-button").click (event) ->
+        contactApp.onPendingClicked(event)
+    $("#contact-request-button").click (event) ->
+        contactApp.onRequestedClicked(event)
+    @addContactField.keyup @onAddContactFieldKeyUp
+    
 
   # Build JQuery widgets.
   setWidgets: ->
@@ -226,4 +239,8 @@ class ContactView extends Backbone.View
     $("#contact-a").addClass("disabled")
     $("#contact-all-button").button( "option", "disabled", true)
     @lastFilterClicked = "#contact-all-button"
+
+    @addContactField = $("#contact-url-field")
+    @contactFieldError = $("#contact-url-error")
+    @contactFieldError.hide()
 
