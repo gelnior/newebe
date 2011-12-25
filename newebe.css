@@ -119,3 +119,22 @@ span.step {
 #menu a.selected:hover {
   border: none;
 }
+.feature {
+  background-color: #fff;
+  color: #000;
+  width: 320px;
+  padding: 10px;
+  float: left;
+}
+.feature-left {
+  margin-right: 10px;
+}
+.feature-right {
+  margin-left: 10px;
+}
+.feature h3 {
+  font-size: 26px;
+  padding: 0;
+  margin: 0;
+  font-variant: normal;
+}
