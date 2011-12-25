@@ -2,6 +2,9 @@
   margin-top: 30px;
   font-size: 18px;
 }
+#profile-preview {
+  display: none;
+}
 #profile-toolbar {
   margin-bottom: 10px;
 }
@@ -24,6 +27,7 @@
   height: 70%;
   border: 1px solid #000;
   font-size: 14px;
+  display: none;
 }
 #profile input {
   font-size: 18px;
