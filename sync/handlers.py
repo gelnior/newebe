@@ -111,7 +111,7 @@ class SynchronizeContactHandler(NewebeHandler):
         Send microposts from last month to given contact.
         '''
 
-        microposts = MicroPostManager.getMine(
+        microposts = MicroPostManager.get_mine(
                 startKey=date_util.get_db_date_from_date(now), 
                 endKey=date_util.get_db_date_from_date(date))
 

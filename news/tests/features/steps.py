@@ -29,18 +29,18 @@ def set_browers():
 
 @before.each_scenario
 def delete_posts(scenario):
-    posts = MicroPostManager.getList()
+    posts = MicroPostManager.get_list()
     while posts:
         for post in posts:
             post.delete()
-        posts = MicroPostManager.getList()
+        posts = MicroPostManager.get_list()
 
     MicroPost._db = db2
-    posts = MicroPostManager.getList()
+    posts = MicroPostManager.get_list()
     while posts:
         for post in posts:
             post.delete()
-        posts = MicroPostManager.getList()
+        posts = MicroPostManager.get_list()
     MicroPost._db = db
 
 
@@ -74,7 +74,7 @@ def given_there_are_3_posts_of_and_3_posts_of_my_contacts(step,
 
 @step(u'When I retrieve the last posts')
 def when_i_retrieve_the_last_posts(step):
-    world.microposts = MicroPostManager.getList().all()
+    world.microposts = MicroPostManager.get_list().all()
 
 
 @step(u'Then I have (\d+) posts ordered by date')
@@ -87,11 +87,11 @@ def then_i_have_6_posts_ordered_by_date(step, nbposts):
 
 @step(u'When I retrieve my last posts')
 def when_i_retrieve_my_last_posts(step):
-    world.microposts = MicroPostManager.getMine().all()
+    world.microposts = MicroPostManager.get_mine().all()
 
 @step(u'When I retrieve a post for a given date')
 def when_i_retrieve_a_post_for_a_given_date(step):
-    world.micropost = MicroPostManager.getFirst("2011-01-01T11:05:12Z")
+    world.micropost = MicroPostManager.get_first("2011-01-01T11:05:12Z")
 
 @step(u'Then I have 1 post corresponding to given date')
 def then_i_have_1_post_corresponding_to_given_date(step):
@@ -99,7 +99,7 @@ def then_i_have_1_post_corresponding_to_given_date(step):
 
 @step(u'When I retrieve a post for a given ID')
 def when_i_retrieve_a_post_for_a_given_id(step):
-    world.micropost_id = MicroPostManager.getMicropost(world.micropost._id)
+    world.micropost_id = MicroPostManager.get_micropost(world.micropost._id)
 
 @step(u'Then I have 1 post corresponding to given ID')
 def then_i_have_1_post_corresponding_to_given_id(step):
@@ -107,7 +107,7 @@ def then_i_have_1_post_corresponding_to_given_id(step):
 
 @step(u'When I retrieve a post for a given contact and a given date')
 def when_i_retrieve_a_post_for_a_given_contact_and_a_given_date(step):
-    world.micropost_contact = MicroPostManager.getContactMicropost(
+    world.micropost_contact = MicroPostManager.get_contact_micropost(
             world.user2.key, "2011-01-10T11:05:12Z")
 
 @step(u'Then I have 1 post corresponding to given contact and date')

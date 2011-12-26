@@ -67,10 +67,25 @@ class NewebeDocument(Document):
 
 
 class DocumentManager():
+    '''
+    Utility class to grab documents easier than with standard couchdbkit 
+    methods (adapted for Newebe use cases).
+    '''
 
     @staticmethod
-    def getDocuments(docType, view, startKey=None, skip=0, limit=10,
-                endKey=None):
+    def get_documents(docType, view, startKey=None, endKey=None, 
+                      skip=0, limit=10):
+
+        '''
+        Returns documents of which type is *docType* from given *view*.
+        
+        By default 10 documents are returned but *limit* could be changed.
+        
+        *startKey* and *endKey* allows to set boundaries ont what is returned.
+
+        Finally, you can *skip* results. This one is discouraged because
+        CouchDB has bad performance when skipping is too high.
+        '''
 
         if startKey:
            documents = docType.view(view, 
@@ -80,8 +95,23 @@ class DocumentManager():
                                  endKey = endKey, 
                                  skip = 0)
         else:
-          documents = docType.view("news/mine", 
-                                 descending=True, 
-                                 limit = limit)
+          documents = docType.view(view, descending = True, limit = limit)
 
         return documents
+
+
+    @staticmethod
+    def get_document(docType, view, key):
+        '''
+        Returns documents of which type is *docType* from given *view* and 
+        which view key is equal to *key*. 
+        '''
+
+        documents = docType.view(view, key=key)
+
+        document = None
+        if documents:        
+            document = documents.first()
+
+        return document
+

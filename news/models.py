@@ -1,6 +1,6 @@
 from couchdbkit.schema import StringProperty, BooleanProperty
 
-from newebe.core.models import NewebeDocument
+from newebe.core.models import NewebeDocument, DocumentManager
 from newebe.news import news_settings
 
 
@@ -11,8 +11,8 @@ class MicroPostManager():
 
 
     @staticmethod
-    def getMine(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
-                endKey=None):
+    def get_mine(startKey=None, endKey=None, 
+                 skip=0, limit=news_settings.NEWS_LIMIT):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
@@ -26,20 +26,12 @@ class MicroPostManager():
           *startKey* The date from where data should be retrieved
         '''
 
-        if startKey:
-            return MicroPost.view("news/mine", 
-                             startkey = startKey, 
-                             descending = True, 
-                             limit = limit+1,
-                             endKey = endKey, 
-                             skip = 0)
-        else:
-            return MicroPost.view("news/mine", 
-                             descending=True, 
-                             limit = limit)
+        return DocumentManager.get_documents(MicroPost, "news/mine", startKey,
+                                      endKey, skip, limit)
+
 
     @staticmethod
-    def getList(startKey=None, skip=0):
+    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending.
         If *startKey* is given, it retrieves micro posts from startKey. 
@@ -51,20 +43,13 @@ class MicroPostManager():
         Arguments:
           *startKey* The date from where data should be retrieved
         '''
-        if startKey:
-            return MicroPost.view("news/all", 
-                             startkey=startKey, 
-                             descending=True, 
-                             limit=news_settings.NEWS_LIMIT+1, 
-                             skip=0)
-        else:
-            return MicroPost.view("news/all", 
-                             descending=True, 
-                             limit=news_settings.NEWS_LIMIT)
+        
+        return DocumentManager.get_documents(
+                           MicroPost, "news/all", startKey, skip, limit)
 
 
     @staticmethod
-    def getFirst(dateKey):
+    def get_first(dateKey):
         '''
         Return first micro post written by current user from the list of micro
         posts corresponding to given date. Normally there should be only 
@@ -75,44 +60,28 @@ class MicroPostManager():
         Arguments:
           *date* Date used to retrieve micro post.
         '''
-        microposts = MicroPost.view("news/all", key=dateKey)
-
-        micropost = None
-        if microposts:        
-            micropost = microposts.first()
-
-        return micropost
+        
+        return DocumentManager.get_document(MicroPost, "news/all", dateKey)
 
 
     @staticmethod
-    def getMicropost(mid):
+    def get_micropost(mid):
         '''
         Returns post of which id match given *id*.
         '''
 
-        microposts = MicroPost.view("news/full", key=mid)
-
-        micropost = None
-        if microposts:
-            micropost = microposts.first()
-
-        return micropost
+        return DocumentManager.get_document(MicroPost, "news/full", mid)
 
 
     @staticmethod
-    def getContactMicropost(contactKey, date):
+    def get_contact_micropost(contactKey, date):
         '''
         Returns all micropost posted by a given contact. Contact key is used
         to retrieve the microposts.
         '''
 
-        microposts = MicroPost.view("news/contact", key=[contactKey, date])
-
-        micropost = None
-        if microposts:
-            micropost = microposts.first()
-
-        return micropost
+        return DocumentManager.get_document(
+                             MicroPost, "news/contact", key=[contactKey, date])
 
 
 class MicroPost(NewebeDocument):

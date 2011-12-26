@@ -78,7 +78,7 @@ class MicropostHandler(NewebeAuthHandler):
         URL.
         '''
 
-        micropost = MicroPostManager.getMicropost(postId)
+        micropost = MicroPostManager.get_micropost(postId)
         if micropost:
             self.return_json(micropost.toJson())
         else:
@@ -95,7 +95,7 @@ class MicropostHandler(NewebeAuthHandler):
         requests...
         '''
 
-        micropost = MicroPostManager.getMicropost(postId)
+        micropost = MicroPostManager.get_micropost(postId)
         if micropost:
             user = UserManager.getUser()
 
@@ -201,10 +201,10 @@ class NewsHandler(NewebeAuthHandler):
 
         if startKey:
             dateString = get_db_date_from_url_date(startKey)
-            microposts = MicroPostManager.getList(dateString)
+            microposts = MicroPostManager.get_list(dateString)
 
         else:
-            microposts = MicroPostManager.getList()
+            microposts = MicroPostManager.get_list()
 
 
         self.return_documents(microposts)
@@ -325,7 +325,8 @@ class NewsContactHandler(NewebeHandler):
             date = get_date_from_db_date(db_date)
             authorKey = postedMicropost["authorKey"]
 
-            micropost = MicroPostManager.getContactMicropost(authorKey, db_date)
+            micropost = MicroPostManager.get_contact_micropost(
+                             authorKey, db_date)
 
             if not micropost:
                 micropost = MicroPost(
@@ -395,7 +396,7 @@ class NewsContactHandler(NewebeHandler):
 
         if data:
             deletedMicropost = json_decode(data)
-            micropost = MicroPostManager.getContactMicropost(
+            micropost = MicroPostManager.get_contact_micropost(
                  deletedMicropost["authorKey"], deletedMicropost["date"])
             
             if micropost:
@@ -452,7 +453,7 @@ class MicropostTHandler(NewebeAuthHandler):
         micropost.
         '''
 
-        micropost = MicroPostManager.getMicropost(postId)
+        micropost = MicroPostManager.get_micropost(postId)
         if micropost:
 
             if micropost.content:
@@ -472,7 +473,7 @@ class NewsRetryHandler(NewebeAuthHandler):
         JSON. Corresponding activity ID is given inside the posted json.
         Here is the format : {"contactId":"data","activityId":"data"}
         '''
-        micropost = MicroPostManager.getMicropost(key)
+        micropost = MicroPostManager.get_micropost(key)
         idInfos = self.request.body
 
         ids = json_decode(idInfos)
@@ -585,10 +586,10 @@ class MyNewsHandler(NewebeAuthHandler):
 
         if startKey:
             dateString = get_db_date_from_url_date(startKey)
-            microposts = MicroPostManager.getMine(dateString)
+            microposts = MicroPostManager.get_mine(dateString)
 
         else:
-            microposts = MicroPostManager.getMine()
+            microposts = MicroPostManager.get_mine()
 
         self.return_documents(microposts)
     
