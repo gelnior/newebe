@@ -6,7 +6,6 @@ from tornado.escape import json_decode
 from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
-from newebe.lib import json_util
 from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_url_date
 from newebe.news.models import MicroPostManager, MicroPost
@@ -242,8 +241,7 @@ class NewsHandler(NewebeAuthHandler):
             self.create_post_activity(user, micropost)
             self.forward_to_contacts(micropost)
                
-            self.set_status(201)
-            self.return_json(micropost.toJson())
+            self.return_json(micropost.toJson(), 201)
     
         else: 
             self.return_failure(

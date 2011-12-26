@@ -1,13 +1,20 @@
 import hashlib
 
 from lettuce import world
+from couchdbkit import Server
 from tornado.escape import json_decode
 from tornado.httpclient import HTTPClient, HTTPRequest
 
-from newebe.settings import TORNADO_PORT
+from newebe.settings import TORNADO_PORT, COUCHDB_DB_NAME
 from newebe.profile.models import UserManager, User
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
+
+server = Server()
+server2 = Server()
+db = server.get_or_create_db(COUCHDB_DB_NAME)
+db2 = server.get_or_create_db(COUCHDB_DB_NAME + "2")
 
 
 class NewebeClient(HTTPClient):
@@ -35,11 +42,11 @@ class NewebeClient(HTTPClient):
         
         self.root_url = url
 
-        user = UserManager.getUser()
-        if user:
-            user.delete()
+        self.user = UserManager.getUser()
+        if self.user:
+            self.user.delete()
         
-        user = User(
+        self.user = User(
             name = "John Doe",
             password = hashlib.sha224("password").hexdigest(),
             key = "key",
@@ -47,7 +54,31 @@ class NewebeClient(HTTPClient):
             url = url,
             description = "my description"
         )
-        user.save()
+        self.user.save()
+
+
+    def set_default_user_2(self, url=ROOT_URL):
+        '''
+        Set to DB default user. This is useful for automatic login.
+        '''
+        
+        self.root_url = url
+        User._db = db2
+
+        self.user = UserManager.getUser()
+        if self.user:
+            self.user.delete()
+
+        self.user = User(
+            name = "Dan Frazer",
+            password = hashlib.sha224("password").hexdigest(),
+            key = "key2",
+            authorKey = "authorKey2",
+            url = url,
+            description = "my description"
+        )
+        self.user.save()
+        User._db = db
 
 
     def get(self, url):

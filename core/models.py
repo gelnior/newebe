@@ -66,3 +66,22 @@ class NewebeDocument(Document):
 
 
 
+class DocumentManager():
+
+    @staticmethod
+    def getDocuments(docType, view, startKey=None, skip=0, limit=10,
+                endKey=None):
+
+        if startKey:
+           documents = docType.view(view, 
+                                 startkey = startKey, 
+                                 descending = True, 
+                                 limit = limit+1,
+                                 endKey = endKey, 
+                                 skip = 0)
+        else:
+          documents = docType.view("news/mine", 
+                                 descending=True, 
+                                 limit = limit)
+
+        return documents
