@@ -279,8 +279,6 @@ class PictureContactHandler(NewebeHandler):
             self.return_failure("No data sent.", 405)
 
 
-
-
 class PictureObjectHandler(NewebeAuthHandler):
 
     def get(self, id):
@@ -358,10 +356,13 @@ class PictureHandler(PictureObjectHandler):
 
         picture = PictureManager.get_picture(id)
         if picture:
-            contact = UserManager.getUser().asContact()
-            self.create_deletion_activity(contact,
-                        picture, "deletes", "picture")            
-            self.send_deletion_to_contacts("pictures/contact/", picture)
+            user = UserManager.getUser()
+            
+            if picture.authorKey == user.key:
+                self.send_deletion_to_contacts("pictures/contact/", picture)
+                self.create_owner_deletion_activity(
+                        picture, "deletes", "picture")
+          
             picture.delete()
             self.return_success("Picture deleted.")
         else:
@@ -423,7 +424,6 @@ class PictureDownloadHandler(PictureObjectHandler):
         file = open(filename)
         os.remove(filename)
         return open("th_" + filename)
-
 
 
 class PictureContactDownloadHandler(NewebeHandler):

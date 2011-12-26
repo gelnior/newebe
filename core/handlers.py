@@ -53,6 +53,11 @@ class NewebeHandler(RequestHandler):
                                                           statusCode)
 
 
+    def return_one_document_or_404(self, document, text):
+        if document:
+            return self.return_json(document.toJson)
+        else:
+            self.return_failure(text, 404)
     def return_success(self, text, statusCode=200):
         '''
         Return a success response containing a JSON object that describes
@@ -197,10 +202,29 @@ class NewebeHandler(RequestHandler):
         activity.save()
 
 
+
+    @asynchronous
+    def send_creation_to_contacts(self, path, doc):
+        '''
+        Sends a POST request to all trusted contacts.
+
+        Request body contains object to post at JSON format.
+        '''
+
+        contacts = ContactManager.getTrustedContacts()
+        client = ContactClient(self.activity)
+        for contact in contacts:
+            try:
+                client.post(contact, path, doc.toJson())
+            except HTTPError:
+                self.activity.add_error(contact)
+                self.activity.save()
+
+    
     @asynchronous
     def send_files_to_contacts(self, path, fields, files):
         '''
-        Send in a form given file and fields to all trusted contacts (at given
+        Sends in a form given file and fields to all trusted contacts (at given
         path).
 
         If any error occurs, it is stored in linked activity.
