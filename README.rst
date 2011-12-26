@@ -27,11 +27,11 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pycurl python-daemon python-imaging couchdb git
+    python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git
 
 Then via easy_install:
 
-    easy_install couchdbkit django tornado markdown lettuce
+    pip install couchdbkit django tornado markdown lettuce
 
 Retrieve Newebe project:
 
