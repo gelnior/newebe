@@ -1,5 +1,6 @@
 import sys
 import hashlib
+import logging
 
 # -*- coding: utf-8 -*-
 from lettuce import step, world, before
@@ -18,6 +19,8 @@ SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
 
 ## Before running this test suite, fake server should be started.
 ##
+
+logger = logging.getLogger(__name__)
 
 @before.all
 def set_browser():
@@ -70,7 +73,10 @@ def convert_it_to_json(step):
 
 @step(u'When I send a request to Json resource')
 def when_i_send_a_request_to_json_service(step):
-    world.response = world.browser.get("json/")
+    try:
+        world.response = world.browser.get("json/")
+    except HTTPError:
+        logger.warn("Warning, fake server does not look started.")
 
 @step(u'Then I got a response with JSON inside')
 def then_i_got_a_response_with_json_inside(step):

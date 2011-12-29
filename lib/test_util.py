@@ -17,6 +17,20 @@ db = server.get_or_create_db(COUCHDB_DB_NAME)
 db2 = server.get_or_create_db(COUCHDB_DB_NAME + "2")
 
 
+def reset_documents(cls, get_func, database=db):
+    '''
+    Clear all documents corresponding to *cls*. 
+    '''
+
+    cls._db = database
+    docs = get_func()
+    while docs:
+        for doc in docs:
+            doc.delete()
+        docs = get_func()
+    cls._db = db
+
+
 class NewebeClient(HTTPClient):
     '''
     Tornado client wrapper to write requests to Newebe faster.

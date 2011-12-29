@@ -12,6 +12,9 @@ from newebe.news.models import MicroPost, MicroPostManager
 from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL, db, db2
 from newebe.lib.date_util import get_date_from_db_date
 
+from newebe.lib.slugify import slugify
+
+
 @before.all
 def set_browers():
     world.browser = NewebeClient()
@@ -23,6 +26,11 @@ def set_browers():
         world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
         world.user2 = world.browser2.user
         world.browser2.login("password")
+
+        
+        world.browser.post("contacts/",
+                       body='{"url":"%s"}' % world.browser2.root_url)
+        world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
     

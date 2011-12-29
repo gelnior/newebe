@@ -6,16 +6,20 @@ from lettuce import step, world
 
 sys.path.append("../../../")
 
-
 from newebe.profile.models import User, UserManager
-from newebe.contacts.models import Contact, ContactManager
 from newebe.settings import TORNADO_PORT
+from newebe.lib.test_util import NewebeClient
 
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
 
 
+@step(u'Send login request with password as password')
+def send_login_request_with_password_as_password(step):   
+    client = NewebeClient()
+    client.root_url = ROOT_URL
+    client.login("password")
 
 @step('Set default user')
 def set_default_user(step):

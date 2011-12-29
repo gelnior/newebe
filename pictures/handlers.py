@@ -267,7 +267,7 @@ class PictureContactHandler(NewebeHandler):
                 if picture:
                     self.create_deletion_activity(contact, 
                             picture, "deletes", "picture")
-                picture.delete()
+                    picture.delete()
 
                 self.return_success("Deletion succeeds")
 
@@ -359,9 +359,9 @@ class PictureHandler(PictureObjectHandler):
             user = UserManager.getUser()
             
             if picture.authorKey == user.key:
-                self.send_deletion_to_contacts("pictures/contact/", picture)
                 self.create_owner_deletion_activity(
                         picture, "deletes", "picture")
+                self.send_deletion_to_contacts("pictures/contact/", picture)
           
             picture.delete()
             self.return_success("Picture deleted.")

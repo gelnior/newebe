@@ -3,13 +3,13 @@ import datetime
 import markdown
 
 from tornado.escape import json_decode
-from tornado.httpclient import AsyncHTTPClient, HTTPClient, HTTPRequest
+from tornado.httpclient import HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
 from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_url_date
 from newebe.news.models import MicroPostManager, MicroPost
-from newebe.activities.models import Activity, ActivityManager
+from newebe.activities.models import ActivityManager
 from newebe.contacts.models import ContactManager
 from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
@@ -106,11 +106,6 @@ class NewsHandler(NewebeAuthHandler):
     '''
 
 
-    def __init__(self, application, request, **kwargs):
-        NewebeAuthHandler.__init__(self, application, request, **kwargs)
-        self.contacts = dict()
-
-
     @asynchronous
     def get(self, startKey=None):
         '''
@@ -147,17 +142,14 @@ class NewsHandler(NewebeAuthHandler):
         
         logger.info("Micropost post received.")
 
-        data = self.request.body
-        if data:
-
-            # Save post locally
-            postedMicropost = json_decode(data)
+        data = self.get_body_as_dict()
+        if data and "content" in data:
 
             user = UserManager.getUser()
             micropost = MicroPost(
                 authorKey = user.key,
                 author = user.name,
-                content = postedMicropost['content'],
+                content = data['content'],
                 date = datetime.datetime.now(),
             )
             micropost.save()
@@ -189,30 +181,31 @@ class NewsContactHandler(NewebeHandler):
         are set from incoming data.
         '''
 
-        data = self.request.body
+        data = self.get_body_as_dict()
 
-        if data:
-            postedMicropost = json_decode(data)
-            db_date = postedMicropost.get("date", "")
+        if data and "date" in data and "authorKey" in data:
+            db_date =data.get("date")
             date = get_date_from_db_date(db_date)
-            authorKey = postedMicropost["authorKey"]
+            authorKey = data.get("authorKey")
 
+            contact = ContactManager.getTrustedContact(authorKey)
             micropost = MicroPostManager.get_contact_micropost(
                              authorKey, db_date)
 
-            if not micropost:
+            if not micropost and contact:
                 micropost = MicroPost(
                     authorKey = authorKey,
-                    author = postedMicropost["author"],
-                    content = postedMicropost['content'],
+                    author = data["author"],
+                    content = data['content'],
                     date = date,
                     isMine = False
                 )
                 micropost.save()
 
-                self.create_write_activity(micropost, date)
-                self.notify_suscribers(micropost)
-                self.write_create_log(micropost)
+                self.create_creation_activity(contact, micropost, 
+                        "writes", "micropost")
+                self._notify_suscribers(micropost)
+                self._write_create_log(micropost)
             
             self.return_json(micropost.toJson(), 201)
 
@@ -220,25 +213,7 @@ class NewsContactHandler(NewebeHandler):
             self.return_failure("No data sent.", 405)
 
 
-    def create_write_activity(self, micropost, date):
-        '''
-        Creates an activity telling that a micropost has been written.
-        The activity is linked to *micropost* and its date is set to *date*.
-        '''
-
-        activity = Activity(
-            authorKey = micropost.authorKey,
-            author = micropost.author,
-            verb = "writes",
-            docType = "micropost",
-            docId = micropost._id,
-            isMine = False,
-            date = date
-        )
-        activity.save()
-
-
-    def notify_suscribers(self, micropost):
+    def _notify_suscribers(self, micropost):
         '''
         Notify suscribed client (long polling requests) that a *micropost*
         has been saved. It sends them the micropost content.
@@ -249,7 +224,7 @@ class NewsContactHandler(NewebeHandler):
             connection(micropost.toJson())
 
 
-    def write_create_log(self, micropost):
+    def _write_create_log(self, micropost):
         '''
         Print a log telling that an incoming micropost has been saved.
         '''
@@ -264,51 +239,36 @@ class NewsContactHandler(NewebeHandler):
         to this deletion.
         '''
 
-        data = self.request.body
+        data = self.get_body_as_dict()
 
-        if data:
-            deletedMicropost = json_decode(data)
-            micropost = MicroPostManager.get_contact_micropost(
-                 deletedMicropost["authorKey"], deletedMicropost["date"])
-            
-            if micropost:
-                self.create_delete_activity(micropost)
+        if data and "authorKey" in data and "date" in data:
+            authorKey = data["authorKey"]
+            date = data["date"]
+
+            micropost = MicroPostManager.get_contact_micropost(authorKey, date)
+            contact = ContactManager.getTrustedContact(authorKey)
+
+            if micropost and contact:
+                self.create_deletion_activity(contact, micropost, "deletes",
+                        "micropost")
                 micropost.delete()
 
-                self.write_delete_log(micropost)
+                self._write_delete_log(micropost)
                 self.return_success("Micropost deleted.")
 
             else:
                 self.return_failure("Micropost not found", 404)
 
         else:
-            self.return_failure("No data sent.", 405)
+            self.return_failure("No data sent.", 400)
 
 
-    def write_delete_log(self, micropost):
+    def _write_delete_log(self, micropost):
         '''
         Prints a log telling that an incoming micropost has been saved.
         '''
 
         logger.info("Micropost deletion from %s received" % micropost.author)
-
-
-    def create_delete_activity(self, micropost):
-        '''
-        Creates an activity telling that a micropost deletion occured.
-        *micropost* data are set in the activity.
-        '''
-
-        activity = Activity(
-            authorKey = micropost.authorKey,
-            author = micropost.author,
-            docId = micropost._id,
-            verb = "deletes",
-            isMine = False,
-            docType = "Micropost",
-            method = "DELETE"
-        )
-        activity.save()
 
 
 class MicropostTHandler(NewebeAuthHandler):

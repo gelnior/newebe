@@ -8,18 +8,23 @@ from lettuce import step, world, before
 from tornado.httpclient import HTTPError, HTTPRequest
 
 sys.path.append("../../../")
-from newebe.settings import TORNADO_PORT
-from newebe.lib.test_util import NewebeClient
 
 from newebe.pictures.models import PictureManager, Picture
+from newebe.activities.models import ActivityManager, Activity
+from newebe.contacts.models import Contact, ContactManager
 from newebe.lib.upload_util import encode_multipart_formdata
 from newebe.lib.date_util import get_db_date_from_date
+from newebe.lib.slugify import slugify
+from newebe.lib.test_util import NewebeClient, reset_documents, \
+                                 SECOND_NEWEBE_ROOT_URL, db2
 
-ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT)
-SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
 
 @before.all
 def set_browers():
+
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
+
     world.browser = NewebeClient()
     world.browser.set_default_user()
     world.browser.login("password")
@@ -28,8 +33,21 @@ def set_browers():
         world.browser2 = NewebeClient()
         world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
         world.browser2.login("password")
+
+        world.browser.post("contacts/",
+                       body='{"url":"%s"}' % world.browser2.root_url)
+        world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
+
+
+@before.each_scenario
+def delete_pictures(scenario):
+
+    reset_documents(Picture, PictureManager.get_last_pictures)
+    reset_documents(Picture, PictureManager.get_last_pictures, db2)
+    reset_documents(Activity, ActivityManager.get_all)
+    reset_documents(Activity, ActivityManager.get_all, db2)
 
 
 # Models
@@ -112,7 +130,7 @@ def post_a_new_picture_via_the_dedicated_resource(step):
     (contentType, body) = encode_multipart_formdata([], 
                             [("picture", "test.jpg", file.read())])
     headers = {'Content-Type':contentType} 
-    request = HTTPRequest(url=ROOT_URL + "pictures/last/", 
+    request = HTTPRequest(url=world.browser.root_url + "pictures/last/", 
                           method="POST", body=body, headers=headers)
     if hasattr(world.browser, "cookie"):
             request.headers["Cookie"] = world.browser.cookie
@@ -127,6 +145,12 @@ def download_first_returned_picture(step):
     first_picture = world.pictures[0]
     world.response = world.browser.get("pictures/%s/%s" % (first_picture["_id"],
                                        first_picture["path"]))
+
+@step(u'From second Newebe, download the first returned picture')
+def from_second_newebe_download_the_first_returned_picture(step):
+    first_picture = world.pictures[0]
+    world.response = world.browser2.get(
+            "pictures/%s/%s" % (first_picture["_id"], first_picture["path"]))
 
 @step(u'Download thumbnail of first returned picture')
 def download_thumbnail_of_first_returned_picture(step):
@@ -154,6 +178,15 @@ def download_preview_of_first_returned_picture(step):
     world.response = world.browser.get(
             "pictures/%s/prev_%s" % (first_picture["_id"],
             first_picture["path"]))
+
+
+@step(u'From second Newebe, download the preview of first returned picture')
+def from_second_newebe_download_the_preview_of_first_returned_picture(step):
+    first_picture = world.pictures[0]
+    world.response = world.browser2.get(
+            "pictures/%s/prev_%s" % (first_picture["_id"],
+            first_picture["path"]))
+
 
 @step(u'Check that preview is the posted picture preview')
 def check_that_preview_is_the_posted_picture_preview(step):

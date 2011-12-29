@@ -118,6 +118,7 @@ class NewebeHandler(RequestHandler):
         self.create_creation_activity(
             UserManager.getUser().asContact(), doc, verb, docType, True)
 
+    
     def create_creation_activity(self, contact, doc, verb, docType, 
                                  isMine=False):
         '''

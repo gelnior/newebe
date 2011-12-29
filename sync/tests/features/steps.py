@@ -9,7 +9,7 @@ sys.path.append("../../../")
 
 from newebe.lib.test_util import NewebeClient
 
-from newebe.core.models import User, UserManager
+from newebe.profile.models import User, UserManager
 from newebe.news.models import MicroPost
 from newebe.lib.slugify import slugify
 
