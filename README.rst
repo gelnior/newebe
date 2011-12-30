@@ -16,6 +16,7 @@ Dependencies
 * daemon >= 1.0.0
 * pycurl >= 1.0.0
 * markdown >= 2.0.0
+* pytz
 * PIL >= 1.1.6
 * lettuce >= 0.1.9
 
@@ -31,7 +32,7 @@ Install following packages:
 
 Then via easy_install:
 
-    pip install couchdbkit django tornado markdown lettuce
+    pip install couchdbkit django tornado markdown lettuce pytz
 
 Retrieve Newebe project:
 
