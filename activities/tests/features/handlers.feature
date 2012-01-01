@@ -31,3 +31,9 @@ Feature: Retrieve Activities
         Get owner activities until 2010-08-15-11-05-12 from handler
         Assert that there are, from handler, 10 activities retrieved
 
+    Scenario: Test timezone conversion through handlers
+        Clear all activities from database
+        Creates one activity 
+        Get last activities from handler
+        Then My activity date is converted to my timezone
+        

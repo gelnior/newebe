@@ -1,15 +1,16 @@
 import sys
 import datetime 
+import pytz
 
 from lettuce import step, world, before
 
 sys.path.append("../../../")
 
-from newebe.lib import date_util
 from newebe.activities.models import Activity, ActivityManager
 from newebe.contacts.models import Contact
 from newebe.settings import TORNADO_PORT
 from newebe.lib.test_util import NewebeClient
+from newebe.lib import date_util
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
 
@@ -160,4 +161,26 @@ def get_activities_until_date_from_handler(step, url_date):
 def get_owner_activities_until_date_from_handler(step, url_date):
     world.data = world.browser.fetch_documents_from_url(
             "activities/mine/" + url_date + "/")
+
+@step(u'Creates one activity')
+def creates_one_activity(step):
+    world.activity = Activity(
+        author = "me",
+        docId = "aaavvvbbbb%d",
+        verb = "writes",
+        method = "POST",
+        isMine = True,
+        errors = [],
+        docType = "micropost"
+    )
+    world.activity.save()
+
+@step(u'Then My activity date is converted to my timezone')
+def then_my_activity_date_is_converted_to_my_timezone(step):
+    assert 0 < len(world.data)
+    date = world.data[0].get("date")
+    date = date_util.get_date_from_db_date(date)
+    date = date_util.convert_timezone_date_to_utc(date)
+
+    assert world.activity.date.replace(tzinfo=pytz.utc) == date, date
 
