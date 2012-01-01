@@ -38,6 +38,7 @@ Feature: Retrieve Activities
         From second newebe retrieve all contacts
         Check that there is 1 contacts
         Check that first contact status is waiting for approval
+        Check that request date is set to Europe/Paris timezone
 
 
     Scenario: Confirm a contact
@@ -64,6 +65,4 @@ Feature: Retrieve Activities
         From second newebe retrieve all contacts
         Check that there is 1 contacts
         Check that first contact status is waiting for approval
-
-        
 

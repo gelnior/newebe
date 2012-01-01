@@ -1,4 +1,5 @@
 import sys
+import pytz
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
@@ -14,7 +15,8 @@ from newebe.settings import TORNADO_PORT
 from newebe.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
 from newebe.contacts.models import STATE_PENDING, STATE_ERROR
 
-from newebe.lib.test_util import NewebeClient
+from newebe.lib.test_util import NewebeClient, db, db2
+from newebe.lib import date_util
 
 
 ROOT_URL = u"http://localhost:%d/" % TORNADO_PORT
@@ -220,4 +222,16 @@ def set_first_contact_state_as_error(step):
 def send_a_retry_request_for_this_contact(step):
     world.browser.post("contacts/%s/retry/" % slugify(SECOND_NEWEBE_ROOT_URL), "")
 
+# Timezone
 
+@step(u'Check that request date is set to Europe/Paris timezone')
+def check_that_request_date_is_set_to_europe_paris_timezone(step):
+    Contact._db = db2
+    contact = ContactManager.getRequestedContacts().first()
+    Contact._db = db
+
+    date = date_util.get_date_from_db_date(world.contacts[0]["requestDate"])
+    date = date.replace(tzinfo=pytz.utc)
+
+    assert date_util.convert_utc_date_to_timezone(contact.requestDate) == date
+    

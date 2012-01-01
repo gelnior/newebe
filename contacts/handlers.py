@@ -154,7 +154,7 @@ class ContactHandler(NewebeAuthHandler):
         contact.save()
 
         user = UserManager.getUser()
-        data = user.asContact().toJson()
+        data = user.asContact().toJson(localized=False)
 
         try:
              url = contact.url
@@ -351,7 +351,7 @@ class ContactPushHandler(NewebeHandler):
                         slug = slug,
                         key = postedContact["key"],
                         state = STATE_WAIT_APPROVAL,
-                        requestDate = datetime.datetime.now(),
+                        requestDate = datetime.datetime.utcnow(),
                         description = postedContact["description"]
                     )
                     contact.save()

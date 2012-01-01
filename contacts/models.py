@@ -3,6 +3,7 @@ import logging
 from couchdbkit.schema import StringProperty, DateTimeProperty
 
 from newebe.core.models import NewebeDocument
+from newebe.lib import date_util
 
 logger = logging.getLogger("newebe.contacts")
 
@@ -109,3 +110,21 @@ class Contact(NewebeDocument):
     description = StringProperty()
     
 
+    def toDict(self, localized=True):
+        '''
+        Return a dict representation of the document (copy).
+
+        Removes _rev key and convert date field and request date field
+        to local timezone if *localized* is set to True.
+        '''
+
+        docDict = NewebeDocument.toDict(self, localized)
+
+        if localized and docDict.get("requestDate", ""):
+            
+            utc_date = date_util.get_date_from_db_date(
+                            docDict.get("requestDate"))
+            date = date_util.convert_utc_date_to_timezone(utc_date)
+            docDict["requestDate"] = date_util.get_db_date_from_date(date)
+
+        return docDict
