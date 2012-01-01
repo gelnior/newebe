@@ -5,7 +5,6 @@ from tornado.escape import json_decode
 
 from newebe.profile.models import UserManager
 from newebe.contacts.handlers import NewebeAuthHandler
-from newebe.activities.models import Activity
 from newebe.notes.models import Note, NoteManager
 
 

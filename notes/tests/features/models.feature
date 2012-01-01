@@ -4,6 +4,7 @@ Feature: Retrieve Notes
         Create a note
         Save the note
         Checks that date is rightly set
+        Checks that dict convert date to the current time zone
         Retrieve the note with note key
         Checks that notes have same fields
 

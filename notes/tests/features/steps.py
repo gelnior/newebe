@@ -1,5 +1,7 @@
 import sys
 import time
+import datetime
+import pytz
 
 from lettuce import step, world, before
 from tornado.escape import json_decode
@@ -8,7 +10,7 @@ sys.path.append("../../../")
 
 from newebe.notes.models import Note, NoteManager
 from newebe.activities.models import ActivityManager
-from newebe.lib.date_util import get_date_from_db_date
+from newebe.lib import date_util
 from newebe.lib.test_util import NewebeClient
 
 from newebe.settings import TORNADO_PORT
@@ -18,7 +20,7 @@ client = NewebeClient()
 
 
 @before.all
-def connec_client():
+def connect_client():
     world.browser = client
     world.browser.set_default_user()
     world.browser.login("password")
@@ -46,17 +48,33 @@ def save_the_note(step):
 def checks_that_date_is_rightly_set(step):
     assert world.note.lastModified is not None 
 
+@step(u'Checks that dict convert date to the current time zone')
+def checks_that_dict_convert_date_to_the_current_time_zone(step):
+    lastModifiedDate = world.note.lastModified.replace(tzinfo=pytz.utc) 
+    lastModifiedDictDate = world.note.toDict()["lastModified"]
+    lastModifiedDictDate = \
+        date_util.get_date_from_db_date(lastModifiedDictDate)
+    lastModifiedDictDate = \
+        date_util.convert_timezone_date_to_utc(lastModifiedDictDate)
+
+    assert lastModifiedDate == lastModifiedDictDate
+
+
 @step(u'Retrieve the note with note key')
 def retrieve_the_note_with_note_key(step):
     world.test_note = NoteManager.get_note(world.note._id)
 
 @step(u'Checks that notes have same fields')
 def checks_that_notes_have_same_fields(step):
+    lastModified = date_util.convert_timezone_date_to_utc(
+            world.test_note.lastModified) 
+
     assert world.test_note is not None
     assert world.test_note.author == world.note.author
     assert world.test_note.title == world.note.title
     assert world.test_note.content == world.note.content
-    assert world.test_note.lastModified == world.note.lastModified
+    assert lastModified == \
+            world.note.lastModified.replace(tzinfo=pytz.utc), world.note.lastModified
     assert world.test_note.isMine == world.note.isMine
 
 @step(u'Creates (\d+) notes')
@@ -107,8 +125,8 @@ def checks_that_notes_are_sorted_by_date(step):
     for i in range(len(world.notes)):
         if i > 0:
             if isinstance(world.test_notes[i], dict):
-                assert get_date_from_db_date(world.test_notes[i - 1]["lastModified"]).time()  > \
-                      get_date_from_db_date(world.test_notes[i]["lastModified"]).time(),  (world.test_notes[i - 1]["lastModified"]) + u" " + (world.test_notes[i]["lastModified"])
+                assert date_util.get_date_from_db_date(world.test_notes[i - 1]["lastModified"]).time()  > \
+                      date_util.get_date_from_db_date(world.test_notes[i]["lastModified"]).time(),  (world.test_notes[i - 1]["lastModified"]) + u" " + (world.test_notes[i]["lastModified"])
             else:
                 assert world.test_notes[i - 1].lastModified.time() > \
                       world.test_notes[i].lastModified.time() 
@@ -140,7 +158,8 @@ def retrieve_through_handler_the_note_with_note_id(step):
         author = notes[0]["author"],
         title = notes[0]["title"],
         content = notes[0]["content"],
-        lastModified = get_date_from_db_date(notes[0]["lastModified"]),
+        lastModified = \
+            date_util.get_date_from_db_date(notes[0]["lastModified"]),
         isMine = notes[0]["isMine"],
     )
 
@@ -159,6 +178,7 @@ def create_through_handler_a_note(step):
     world.note = Note(
         title = "test note creation",
         content = "test content creation",
+        date = datetime.datetime.utcnow()
     )
     response = client.post("notes/all/", body=world.note.toJson())
     noteDict = json_decode(response.body)
@@ -166,7 +186,9 @@ def create_through_handler_a_note(step):
         author = noteDict["author"],
         title = noteDict["title"],
         content = noteDict["content"],
-        lastModified = get_date_from_db_date(noteDict["lastModified"]),
+        lastModified = \
+           date_util.convert_timezone_date_to_utc(
+               date_util.get_date_from_db_date(noteDict["lastModified"])),
         isMine = noteDict["isMine"],
     )
     world.note._id = noteDict["_id"]

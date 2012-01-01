@@ -6,6 +6,9 @@ from couchdbkit.schema import StringProperty, BooleanProperty, \
 from newebe.core.models import NewebeDocument
 from newebe.profile.models import UserManager
 
+from newebe.lib.date_util import get_date_from_db_date, \
+                                 get_db_date_from_date, \
+                                 convert_utc_date_to_timezone
 
 class NoteManager():
     '''
@@ -70,10 +73,24 @@ class Note(NewebeDocument):
             self.authorKey = user.key
             self.author = user.name
 
-
-        if not self.date:
-            self.date = datetime.datetime.now()
-
-        self.lastModified = datetime.datetime.now()
+        self.lastModified = datetime.datetime.utcnow()
         NewebeDocument.save(self)
 
+
+    def toDict(self, localized=True):
+        '''
+        Return a dict representation of the document (copy).
+
+        Removes _rev key and convert date field and last modified field
+        to local timezone if *localized* is set to True.
+        '''
+
+        docDict = NewebeDocument.toDict(self, localized)
+
+        if localized and "lastModified" in docDict:
+            
+            utc_date = get_date_from_db_date(docDict.get("lastModified"))
+            date = convert_utc_date_to_timezone(utc_date)
+            docDict["lastModified"] = get_db_date_from_date(date)
+
+        return docDict
