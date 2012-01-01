@@ -1,6 +1,9 @@
 import logging
 import datetime
 
+import pytz
+utc = pytz.utc
+
 from tornado.escape import json_encode
 
 from couchdbkit import Server
@@ -8,6 +11,10 @@ from couchdbkit.schema import Document, StringProperty, \
                                          DateTimeProperty
 
 from newebe.settings import COUCHDB_DB_NAME
+
+from newebe.lib.date_util import get_date_from_db_date, \
+                                 get_db_date_from_date, \
+                                 convert_utc_date_to_timezone
 
 logger = logging.getLogger("newebe.core")
 
@@ -22,23 +29,34 @@ class NewebeDocument(Document):
     date = DateTimeProperty(required=True)
      
 
-    def toDict(self):
+    def toDict(self, localized=True):
         '''
         Return a dict representation of the document (copy).
+
+        Removes _rev key and convert date field to local timezone 
+        if *localized* is set to True.
         '''
 
         docDict = self.__dict__["_doc"].copy()
+
         if "_rev" in docDict:
             del docDict["_rev"]
+
+        if localized and "date" in docDict:
+            
+            utc_date = get_date_from_db_date(docDict.get("date"))
+            date = convert_utc_date_to_timezone(utc_date)
+            docDict["date"] = get_db_date_from_date(date)
+
         return docDict
 
 
-    def toJson(self):
+    def toJson(self, localized=True):
         '''
         Return json representation of the document.
         '''
 
-        docDict = self.toDict()
+        docDict = self.toDict(localized)
         return json_encode(docDict)
 
 
@@ -47,8 +65,8 @@ class NewebeDocument(Document):
         When document is saved if its date is null, it is set to now. 
         '''
 
-        if self.date is None:            
-            self.date = datetime.datetime.now()
+        if self.date is None:        
+            self.date = datetime.datetime.utcnow()
         super(Document, self).save()
 
 

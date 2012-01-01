@@ -216,7 +216,7 @@ class NewebeHandler(RequestHandler):
         client = ContactClient(self.activity)
         for contact in contacts:
             try:
-                client.post(contact, path, doc.toJson())
+                client.post(contact, path, doc.toJson(localized=False))
             except HTTPError:
                 self.activity.add_error(contact)
                 self.activity.save()
@@ -254,7 +254,7 @@ class NewebeHandler(RequestHandler):
         client = ContactClient(self.activity)
         for contact in contacts:
             try:
-                client.delete(contact, path, doc.toJson())
+                client.delete(contact, path, doc.toJson(localized=False))
             except HTTPError:
                 self.activity.add_error(contact)
                 self.activity.save()

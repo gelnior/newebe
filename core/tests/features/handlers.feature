@@ -21,3 +21,5 @@ Feature: Handlers returning basic response
         When I send a request to failure resource
         Then I got a json with a failure text 
 
+    Scenario: Test dates
+        
