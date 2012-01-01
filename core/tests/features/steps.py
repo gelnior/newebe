@@ -1,6 +1,7 @@
 import sys
 import hashlib
 import logging
+import pytz
 
 # -*- coding: utf-8 -*-
 from lettuce import step, world, before
@@ -12,6 +13,7 @@ sys.path.append("../../../")
 from newebe.settings import TORNADO_PORT
 from newebe.profile.models import UserManager, User
 from newebe.lib.test_util import NewebeClient
+from newebe.lib import date_util
 from tornado.httpclient import HTTPError
 
 ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
@@ -125,4 +127,14 @@ def when_i_send_a_request_to_failure_resource(step):
 @step(u'Then I got a json with a failure text')
 def then_i_got_a_json_with_a_failure_text(step):
     assert json_decode(world.response.body).get("error", None) is not None 
+
+
+# Timezone
+@step(u'Then dict date field is the timezone date')
+def then_dict_date_field_is_the_timezone_date(step):
+    date = world.user.toDict().get("date")
+    date = date_util.get_date_from_db_date(date)
+    date = date_util.convert_timezone_date_to_utc(date)
+
+    assert world.user.date.replace(tzinfo=pytz.utc) == date
 

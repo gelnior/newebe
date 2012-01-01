@@ -11,3 +11,8 @@ Feature: Test newebe document
         Gets Default User
         Converts it to dict
         Converts it to JSON
+
+    Scenario: Document date is converted to timezone
+        Gets Default user
+        When I converts it to dict
+        Then dict date field is the timezone date
