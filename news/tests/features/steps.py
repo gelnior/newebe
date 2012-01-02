@@ -10,8 +10,10 @@ sys.path.append("../../../")
 
 from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
+from newebe.contacts.models import Contact, ContactManager
 
-from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL, db, db2
+from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL, db, \
+                                 db2, reset_documents
 from newebe.lib import date_util
 
 from newebe.lib.slugify import slugify
@@ -19,6 +21,10 @@ from newebe.lib.slugify import slugify
 
 @before.all
 def set_browers():
+
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
+
     world.browser = NewebeClient()
     world.browser.set_default_user()
     world.browser.login("password")
@@ -39,19 +45,9 @@ def set_browers():
 
 @before.each_scenario
 def delete_posts(scenario):
-    posts = MicroPostManager.get_list()
-    while posts:
-        for post in posts:
-            post.delete()
-        posts = MicroPostManager.get_list()
-
-    MicroPost._db = db2
-    posts = MicroPostManager.get_list()
-    while posts:
-        for post in posts:
-            post.delete()
-        posts = MicroPostManager.get_list()
-    MicroPost._db = db
+    
+    reset_documents(MicroPost, MicroPostManager.get_list)
+    reset_documents(MicroPost, MicroPostManager.get_list, db2)
 
 
 
