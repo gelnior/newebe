@@ -6,8 +6,7 @@ from tornado.escape import json_decode
 from tornado.httpclient import HTTPClient, HTTPRequest
 from tornado.web import asynchronous, HTTPError
 
-from newebe.lib.date_util import get_date_from_db_date, \
-                                 get_db_date_from_url_date
+from newebe.lib import date_util
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import ActivityManager
 from newebe.contacts.models import ContactManager
@@ -120,7 +119,7 @@ class NewsHandler(NewebeAuthHandler):
         microposts = list()
 
         if startKey:
-            dateString = get_db_date_from_url_date(startKey)
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
             microposts = MicroPostManager.get_list(dateString)
 
         else:
@@ -150,7 +149,6 @@ class NewsHandler(NewebeAuthHandler):
                 authorKey = user.key,
                 author = user.name,
                 content = data['content'],
-                date = datetime.datetime.now(),
             )
             micropost.save()
 
@@ -184,8 +182,8 @@ class NewsContactHandler(NewebeHandler):
         data = self.get_body_as_dict()
 
         if data and "date" in data and "authorKey" in data:
-            db_date =data.get("date")
-            date = get_date_from_db_date(db_date)
+            db_date = data.get("date")
+            date = date_util.get_date_from_db_date(db_date)
             authorKey = data.get("authorKey")
 
             contact = ContactManager.getTrustedContact(authorKey)
@@ -385,8 +383,10 @@ class NewsRetryHandler(NewebeAuthHandler):
             else:
 
                 user = UserManager.getUser()
-                micropost = MicroPost(authorKey = user.key, 
-                                      date = get_date_from_db_date(date))
+                micropost = MicroPost(
+                    authorKey = user.key, 
+                    date = date_util.get_date_from_db_date(date)
+                )
 
                 self.forward_to_contact(micropost, contact, activity, 
                                         method = "PUT")
@@ -417,7 +417,7 @@ class MyNewsHandler(NewebeAuthHandler):
         microposts = list()
 
         if startKey:
-            dateString = get_db_date_from_url_date(startKey)
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
             microposts = MicroPostManager.get_mine(dateString)
 
         else:

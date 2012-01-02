@@ -15,9 +15,6 @@ from newebe.contacts.models import Contact, ContactManager
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import reset_documents
 
-from newebe.settings import TORNADO_PORT
-
-
 
 @before.all
 def set_browser():
@@ -67,6 +64,8 @@ def when_i_ask_for_synchronization(step):
 @step(u'Check that 5 posts from first newebe are stored in second newebe')
 def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
     posts = world.browser2.fetch_documents("news/microposts/")
+    import pdb
+    pdb.set_trace()
     assert 5 == len(posts), posts
 
 @step(u'Modify first newebe profile directly to DB')

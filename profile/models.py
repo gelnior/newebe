@@ -67,5 +67,6 @@ class User(NewebeDocument):
         contact.key = self.key
         contact.name = self.name
         contact.description = self.description
+        contact.date = self.date
 
         return contact

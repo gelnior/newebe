@@ -74,7 +74,7 @@ def checks_that_notes_have_same_fields(step):
     assert world.test_note.title == world.note.title
     assert world.test_note.content == world.note.content
     assert lastModified == \
-            world.note.lastModified.replace(tzinfo=pytz.utc), world.note.lastModified
+        world.note.lastModified.replace(tzinfo=pytz.utc)        
     assert world.test_note.isMine == world.note.isMine
 
 @step(u'Creates (\d+) notes')

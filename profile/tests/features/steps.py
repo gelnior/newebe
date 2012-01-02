@@ -1,5 +1,6 @@
 import sys
 import hashlib
+import datetime
 
 from lettuce import step, world
 
@@ -29,7 +30,8 @@ def set_default_user(step):
         key = "key",
         authorKey = "authorKey",
         url = "url",
-        description = "my description"        
+        description = "my description",
+        date = datetime.datetime(2011, 6, 19, 2, 20, 53)
     )
     world.user._id = "userid"
 
@@ -53,7 +55,7 @@ def convert_user_to_json(step):
 
 @step(u'Check that JSON conversion is correct')
 def check_that_json_conversion_is_correct(step):
-    expectedJson = '{"doc_type": "User", "password": "password", "description": "my description", "authorKey": "authorKey", "url": "url", "key": "key", "date": "2011-06-19T02:20:53Z", "_id": "userid", "name": "John Doe"}\n'
+    expectedJson = '{"doc_type": "User", "password": "password", "description": "my description", "authorKey": "authorKey", "url": "url", "key": "key", "date": "2011-06-19T04:20:53Z", "_id": "userid", "name": "John Doe"}\n'
     assert expectedJson == world.json_user, "%s" % world.json_user
 
 @step(u'Delete current user')

@@ -1,27 +1,12 @@
 import logging
 
 from newebe.core.handlers import NewebeAuthHandler
-from newebe.lib.date_util import get_date_from_url_date, \
-                                 convert_timezone_date_to_utc, \
-                                 get_db_date_from_date
+from newebe.lib import date_util
 
 from newebe.activities.models import ActivityManager
 
 
 logger = logging.getLogger("newebe.activities")
-
-
-def get_db_utc_date_from_url_date(urlDate):
-    '''
-    3 steps convertion :
-    * from url date to date object
-    * from date to utc date
-    * from utc date to db date
-    '''
-
-    date = get_date_from_url_date(urlDate)
-    date = convert_timezone_date_to_utc(date)
-    return get_db_date_from_date(date)
 
 
 class ActivityHandler(NewebeAuthHandler):
@@ -42,7 +27,7 @@ class ActivityHandler(NewebeAuthHandler):
         '''
 
         if startKey:
-            dateString = get_db_utc_date_from_url_date(startKey)
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
             activities = ActivityManager.get_all(dateString)
         else:
             activities = ActivityManager.get_all()
@@ -69,7 +54,7 @@ class MyActivityHandler(NewebeAuthHandler):
         '''
 
         if startKey:
-            dateString = get_db_utc_date_from_url_date(startKey)
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
             activities = ActivityManager.get_mine(dateString)
         else:
             activities = ActivityManager.get_mine()

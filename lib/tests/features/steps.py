@@ -27,6 +27,29 @@ def assert_that_date_is_well_converted_to_2011_02_01t12_45_32z(step, db_date):
     date = date_util.get_date_from_db_date(db_date)
     assert db_date == date.strftime(date_util.DB_DATETIME_FORMAT)
 
+@step(u'When I convert ([0-9A-Z-]+) to date')
+def when_i_convert_2011_02_01_12_45_32_to_date(step, url_date):
+    world.date =  date_util.get_date_from_url_date(url_date)
+
+@step(u'I get date corresponding to ([0-9A-Z-:]+)')
+def i_get_date_corresponding_to_2011_02_01t12_45_32z(step, db_date):
+    assert db_date == world.date.strftime(date_util.DB_DATETIME_FORMAT)
+
+@step(u'When I convert ([0-9A-Z-:]+) to timezone date')
+def when_i_convert_2011_02_01_12_45_32_to_timezone_date(step, db_date):
+    date = date_util.get_date_from_db_date(db_date)
+    world.date =  date_util.convert_utc_date_to_timezone(date)
+
+@step(u'When I convert ([0-9A-Z-:]+) to utc date')
+def when_i_convert_2011_02_01_13_45_32_to_utc_date(step, db_date):
+    date = date_util.get_date_from_db_date(db_date)
+    world.date =  date_util.convert_timezone_date_to_utc(date)
+
+@step(u'When I convert url date ([0-9A-Z-]+) to utc date')
+def when_i_convert_url_date_2011_02_01_13_45_32_to_utc_date(step, urlDate):
+    world.date = date_util.get_db_utc_date_from_url_date(urlDate)
+    world.date = date_util.get_date_from_db_date(world.date)
+
 
 @step(u'Creates (\d+) microposts')
 def creates_x_microposts(step, nb_docs):

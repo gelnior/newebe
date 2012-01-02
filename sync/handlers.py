@@ -92,7 +92,7 @@ class SynchronizeContactHandler(NewebeHandler):
         '''
             
         client = AsyncHTTPClient()
-        now = datetime.datetime.now() 
+        now = datetime.datetime.utcnow() 
         date = now - datetime.timedelta(365/12)
 
         contact = self.get_body_as_dict()
@@ -117,7 +117,7 @@ class SynchronizeContactHandler(NewebeHandler):
 
         for micropost in microposts:
             url = contact.url.encode("utf-8") + MICROPOST_PATH
-            body = micropost.toJson()
+            body = micropost.toJson(localized=False)
 
             request = HTTPRequest(url, method = "POST", body = body)
             client.fetch(request, self.onContactResponse)
