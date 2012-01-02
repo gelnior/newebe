@@ -25,7 +25,7 @@ Feature: Retrieve Activities
         Retrieve last activities of owner
         Assert that there is 0 activities retrieved.
         Creates 35 activities - 10 for owner, at 2010-09-01T11:05:12Z 
-        Retrieve last activities of owner
+        Retrieve owner last activities
         Assert that there is 10 activities retrieved.
 
     Scenario: Retrieve activities from a date

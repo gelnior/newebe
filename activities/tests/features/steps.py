@@ -117,10 +117,9 @@ def creates_x_activities(step, nb_activities, nb_owner_activities, date):
 
 @step(u'Assert that there is (\d+) activities retrieved.')
 def assert_that_there_is_x_activities_retrieved(step, nb_activities):
-    
     assert int(nb_activities) == len(world.activities)
 
-@step(u'Retrieve last activities of owner')
+@step(u'Retrieve owner last activities')
 def retrieve_last_activities_of_owner(step):
 
     world.activities = ActivityManager.get_mine()
