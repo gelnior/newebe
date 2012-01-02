@@ -224,14 +224,15 @@ def send_a_retry_request_for_this_contact(step):
 
 # Timezone
 
-@step(u'Check that request date is set to Europe/Paris timezone')
-def check_that_request_date_is_set_to_europe_paris_timezone(step):
+@step(u'Check that request date is set to ([a-zA-Z//]+) timezone')
+def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
     Contact._db = db2
     contact = ContactManager.getRequestedContacts().first()
     Contact._db = db
 
     date = date_util.get_date_from_db_date(world.contacts[0]["requestDate"])
-    date = date.replace(tzinfo=pytz.utc)
-
-    assert date_util.convert_utc_date_to_timezone(contact.requestDate) == date
+    tz = pytz.timezone(timezone)
+    date = date.replace(tzinfo=tz)
+    assert date_util.convert_utc_date_to_timezone(contact.requestDate, tz) == \
+                date
     
