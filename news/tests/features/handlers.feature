@@ -12,8 +12,10 @@ Feature: Retrieve, post and delete microposts
         When I send a request to post a micropost
         And I send a request to retrieve the last posts        
         Then I have 1 micropost
+        And this micropost has timezone date
         When I send a request to second newebe to retrieve last posts    
         Then I have 1 micropost
+        And this micropost has US/Eastern timezone'
         When I send a request to second newebe to retrieve owner last posts    
         Then I have 0 micropost
 

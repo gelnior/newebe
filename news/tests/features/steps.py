@@ -1,8 +1,10 @@
 import sys
 import datetime 
+import pytz
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
+from tornado.escape import json_decode
 
 sys.path.append("../../../")
 
@@ -10,7 +12,7 @@ from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
 
 from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL, db, db2
-from newebe.lib.date_util import get_date_from_db_date
+from newebe.lib import date_util
 
 from newebe.lib.slugify import slugify
 
@@ -141,8 +143,8 @@ def then_i_have_6_microposts_ordered_by_date(step, nbposts):
     assert nbposts == len(world.microposts)
 
     for i in range(0, nbposts -1):
-       assert get_date_from_db_date(world.microposts[i].get("date")) > \
-               get_date_from_db_date(world.microposts[i+1].get("date")) 
+       assert date_util.get_date_from_db_date(world.microposts[i].get("date")) > \
+               date_util.get_date_from_db_date(world.microposts[i+1].get("date")) 
 
 @step(u'When I send a request to retrieve my last posts')
 def when_i_send_a_request_to_retrieve_my_last_posts(step):
@@ -152,13 +154,14 @@ def when_i_send_a_request_to_retrieve_my_last_posts(step):
 def when_i_send_a_request_to_post_a_micropost(step):
     response = world.browser.post("news/microposts/all/",                                                         '{"content":"test"}')
     assert 201 == response.code
+    world.posted_micropost = json_decode(response.body)
 
 @step(u'Then I have 1 micropost')
 def then_i_have_1_micropost(step):
     assert len(world.microposts) == 1
-    micropost = world.microposts[0]
-    assert "test" == micropost.get("content")
-    assert world.browser.user.key == micropost.get("authorKey")
+    world.micropost = world.microposts[0]
+    assert "test" ==  world.micropost.get("content")
+    assert world.browser.user.key ==  world.micropost.get("authorKey")
 
 @step(u'When I send a request to second newebe to retrieve last posts')
 def when_i_send_a_request_to_second_newebe_to_retrieve_last_posts(step):
@@ -178,3 +181,30 @@ def and_i_send_a_delete_request_for_this_micropost(step):
 @step(u'Then I have 0 micropost')
 def then_i_have_0_micropost(step):
     assert 0 == len(world.microposts)
+
+
+@step(u'And this micropost has timezone date')
+def and_this_micropost_has_timezone_date(step):
+    world.date_micropost = world.microposts[0]
+    db_micropost = MicroPostManager.get_micropost(world.date_micropost["_id"])
+    
+    date = date_util.get_date_from_db_date(world.date_micropost["date"])
+    
+    assert db_micropost.date.replace(tzinfo=pytz.utc) == \
+        date_util.convert_timezone_date_to_utc(date)
+        
+
+@step(u'And this micropost has ([a-zA-Z//]+) timezone')
+def and_this_micropost_has_same_date_as_the_posted_one(step, timezone):
+    micropost = world.microposts[0]
+    
+    posted_date = date_util.get_date_from_db_date(world.date_micropost["date"])
+    posted_date = date_util.convert_timezone_date_to_utc(posted_date)
+
+    tz = pytz.timezone(timezone)
+    contact_date = date_util.get_date_from_db_date(micropost["date"])
+    contact_date = date_util.convert_timezone_date_to_utc(contact_date, tz)
+
+    assert contact_date == posted_date
+
+
