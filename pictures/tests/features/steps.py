@@ -13,7 +13,7 @@ from newebe.pictures.models import PictureManager, Picture
 from newebe.activities.models import ActivityManager, Activity
 from newebe.contacts.models import Contact, ContactManager
 from newebe.lib.upload_util import encode_multipart_formdata
-from newebe.lib.date_util import get_db_date_from_date
+from newebe.lib import date_util
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import NewebeClient, reset_documents, \
                                  SECOND_NEWEBE_ROOT_URL, db2
@@ -74,7 +74,7 @@ def i_have_one_picture_correponsding_to_id(step):
 def when_i_get_first_from_its_date_and_author(step):
     picture = world.pictures[0]    
     world.picture = PictureManager.get_contact_picture(picture.authorKey, 
-                                        get_db_date_from_date(picture.date))
+                                date_util.get_db_date_from_date(picture.date))
 
 @step(u'When I Get my last pictures')
 def when_i_get_my_last_pictures(step):    
@@ -207,6 +207,17 @@ def ensure_it_is_the_same_that_posted_picture(step):
     file = open("test.jpg", "r")
     assert file.read() == world.response.body
 
+@step(u'Ensure that picture date is ok with time zone')
+def ensure_that_picture_date_is_ok_with_time_zone(step):
+    world.date_picture = world.pictures[0]
+
+    picture_db = PictureManager.get_picture(world.date_picture["_id"])
+    date = date_util.convert_utc_date_to_timezone(picture_db.date)
+    date = date_util.get_db_date_from_date(date)
+
+    assert world.date_picture["date"] == date
+
+
 @step(u'Retrieve last activities')
 def retrieve_last_activities(step):
     world.activities = world.browser.fetch_documents("activities/all/")
@@ -326,4 +337,9 @@ def retrieve_all_owner_pictures_before_november_1_through_handlers(step):
 @step(u'Check that there is one picture')
 def check_that_there_is_one_picture(step):
     assert 1 == len(world.pictures)
+
+@step(u'Check that date picture on second newebe is the same')
+def check_that_date_picture_on_second_newebe_is_the_same(step):
+    picture = world.pictures[0]
+    world.date_picture["date"] = picture["date"]
 

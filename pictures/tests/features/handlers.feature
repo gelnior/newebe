@@ -7,6 +7,7 @@ Feature: Share pictures
         Retrieve last pictures
         Download first returned picture
         Ensure it is the same that posted picture
+        Ensure that picture date is ok with time zone
         Download thumbnail of first returned picture
         Check that thumbnail is the posted picture thumbnail
         Download preview of first returned picture
@@ -14,6 +15,7 @@ Feature: Share pictures
         Retrieve last activities
         Check that last activity correspond to a picture creation
         From second Newebe, retrieve pictures
+        Check that date picture on second newebe is the same
         From second Newebe, download thumbnail of posted picture
         Check that thumbnail is the posted picture thumbnail
         From second Newebe, posted picture download fails

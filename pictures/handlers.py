@@ -13,9 +13,7 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.contacts.models import ContactManager
 from newebe.pictures.models import PictureManager, Picture
-from newebe.lib.date_util import get_date_from_db_date, \
-                                 get_db_date_from_url_date
-
+from newebe.lib import date_util
 
 logger = logging.getLogger("newebe.pictures")
 
@@ -38,7 +36,7 @@ class PicturesHandler(NewebeAuthHandler):
         pictures = list()
 
         if startKey:
-            dateString = get_db_date_from_url_date(startKey)
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
             pictures = PictureManager.get_last_pictures(startKey=dateString)
 
         else:
@@ -86,7 +84,8 @@ class PicturesHandler(NewebeAuthHandler):
                     picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/", 
-                        fields = { "json": str(picture.toJson()) },
+                        fields = 
+                           { "json": str(picture.toJson(localized=False)) },
                         files = [("picture", str(picture.path), thbuffer)])
                         
             logger.info("Picture %s successfuly posted." % filename)
@@ -126,7 +125,7 @@ class PicturesMyHandler(NewebeAuthHandler):
         
 
         if startKey:
-            dateString = get_db_date_from_url_date(startKey)
+            dateString = date_util.get_db_date_from_url_date(startKey)
             pictures = PictureManager.get_owner_last_pictures(
                     startKey=dateString)
         else:
@@ -183,7 +182,8 @@ class PicturesQQHandler(PicturesHandler):
                     picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/", 
-                        fields = { "json": str(picture.toJson()) },
+                        fields = 
+                          { "json": str(picture.toJson(localized=False)) },
                         files = [("picture", str(picture.path), thbuffer)])
             
             logger.info("Picture %s successfuly posted." % filename)
@@ -218,7 +218,7 @@ class PictureContactHandler(NewebeHandler):
                     data.get("authorKey", ""))
             
             if contact:
-                date = get_date_from_db_date(data.get("date", ""))
+                date = date_util.get_date_from_db_date(data.get("date", ""))
 
                 picture = Picture(
                     title = data.get("title", ""),
@@ -384,7 +384,7 @@ class PictureDownloadHandler(PictureObjectHandler):
         self.picture = picture
 
         data = dict()
-        data["picture"] = picture.toDict()
+        data["picture"] = picture.toDict(localized=False)
         data["contact"] = UserManager.getUser().asContact().toDict()
 
         contact = ContactManager.getTrustedContact(picture.authorKey)
@@ -402,15 +402,19 @@ class PictureDownloadHandler(PictureObjectHandler):
 
     def on_download_finished(self, response):
         logger.info(self.picture)
-        self.picture.put_attachment(response.body, self.picture.path)
-        thumbnail = self.get_thumbnail(
+
+        if response.code == 200:
+            self.picture.put_attachment(response.body, self.picture.path)
+            thumbnail = self.get_thumbnail(
                 response.body, self.picture.path, (1000, 1000))
-        thbuffer = thumbnail.read()
-        self.picture.put_attachment(thbuffer, "prev_" + self.picture.path)
-        os.remove("th_" + self.picture.path)
-        self.picture.isFile = True
-        self.picture.save()
-        self.return_success("Picture successfuly downloaded.")
+            thbuffer = thumbnail.read()
+            self.picture.put_attachment(thbuffer, "prev_" + self.picture.path)
+            os.remove("th_" + self.picture.path)
+            self.picture.isFile = True
+            self.picture.save()
+            self.return_success("Picture successfuly downloaded.")
+        else:
+            self.return_failure("Picture cannot be retrieved.")
 
 
 
@@ -432,6 +436,9 @@ class PictureContactDownloadHandler(NewebeHandler):
     @asynchronous
     def post(self):
         '''
+        When a post request is sent, the newebe downloads full size version of 
+        picture specified in the request from the contact also specified in 
+        the request. 
         '''
 
         data = self.get_body_as_dict()
@@ -454,6 +461,10 @@ class PictureContactDownloadHandler(NewebeHandler):
 
     @asynchronous
     def on_picture_found(self, picture, id):
+        '''
+        When picture is found, a download request is sent to the contact.
+        '''
+
         file = picture.fetch_attachment(picture.path)
         
         self.set_status(200)        
@@ -476,6 +487,7 @@ class PictureTHandler(PictureObjectHandler):
         picture.
         '''
 
+        picture.date = date_util.convert_utc_date_to_timezone(picture.date)
         if picture.isFile:
             self.render("templates/picture.html", picture=picture)
         else:
