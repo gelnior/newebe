@@ -121,6 +121,7 @@ type="text/css" media="screen" />
         <li>Daemon &gt;= 1.0.0</li>
         <li>Markdown &gt;= 2.0.0</li>
         <li>PIL &gt;= 1.1.6</li>
+        <li>Pytz</li>
     </ul>    
     <h3>Procedure (For Debian 6.0)</h3>
     <p>
@@ -130,11 +131,11 @@ type="text/css" media="screen" />
     <pre>
  apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git </pre>
     <p>
-        Via easy_install install <em>couchdbkit</em>, <em>markdown</em> and 
-        <em>tornado</em> :
+        Via easy_install install <em>couchdbkit</em>, <em>markdown</em>,
+        <em>pytz</em> and <em>tornado</em> :
     </p>
     <pre>
- pip install couchdbkit tornado markdown</pre>
+ pip install couchdbkit tornado markdown pytz</pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
         <em>Github</em> or unpack the downloaded archive. In both case
@@ -180,6 +181,13 @@ type="text/css" media="screen" />
         <em>settings.py</em> file : <em>TORNADO_PORT</em> and 
         <em>COUCHDB_DB_NAME</em>. Default port is
         8000 and default database name is <em>newebe</em>.
+    </p>
+    <p>
+    <span class="step"> step 4 ter </span> To display times properly,
+    you need to set the <em>TIMEZONE</em> constant in <em>settings.py</em>
+    with the timezone that corresponds to your place. Here is a 
+    <a href="https://github.com/gelnior/newebe/wiki/Available-timezones">
+        list of available timezones</a>
     </p>
     <p>
         <span class="step"> step 5 </span> Copy file <em>deploy/newebe</em> in 
