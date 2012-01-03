@@ -155,7 +155,6 @@ class ActivityRow extends Row
 
 
         when "DELETE"
-
           @sendRetryRequest("PUT",
                             "/news/pictures/" + @model.getDocId()  + "/retry/",
                             event,
