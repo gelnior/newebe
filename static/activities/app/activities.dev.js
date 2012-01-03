@@ -415,20 +415,27 @@
 
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
+      extra = "";
+      _ref = this.model.getErrors();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        error = _ref[_i];
+        if (error.contactKey && error.contactKey === event.target.id) {
+          extra = error.extra;
+        }
+      }
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
             return this.sendRetryRequest("POST", "/news/micropost/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
-            extra = "";
-            _ref = this.model.getErrors();
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              error = _ref[_i];
-              if (error.contactKey && error.contactKey === event.target.id) {
-                extra = error.extra;
-              }
-            }
             return this.sendRetryRequest("PUT", "/news/micropost/" + this.model.getDocId() + "/retry/", event, extra);
+        }
+      } else if (this.model.getDocType() === "picture") {
+        switch (this.model.getMethod()) {
+          case "POST":
+            return this.sendRetryRequest("POST", "/pictures/" + this.model.getDocId() + "/retry/", event);
+          case "DELETE":
+            return this.sendRetryRequest("PUT", "/news/pictures/" + this.model.getDocId() + "/retry/", event, extra);
         }
       }
     };
