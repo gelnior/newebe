@@ -415,7 +415,6 @@
 
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
-
       extra = "";
       _ref = this.model.getErrors();
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -438,7 +437,6 @@
             return this.sendRetryRequest("POST", "/pictures/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
             return this.sendRetryRequest("PUT", "/news/pictures/" + this.model.getDocId() + "/retry/", event, extra);
-
         }
       }
     };
