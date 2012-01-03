@@ -415,24 +415,10 @@
 
     ActivityRow.prototype.onErrorResendClicked = function(event) {
       var error, extra, _i, _len, _ref;
-      var _this = this;
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
-            $(event.target).html("resending...");
-            return $.ajax({
-              type: "POST",
-              url: "/news/micropost/" + this.model.getDocId() + "/retry/",
-              data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '"}',
-              dataType: "json",
-              success: function(data) {
-                return $(event.target).html("resending succeeds.");
-              },
-              error: function(data) {
-                infoDialog.display("Sending data fails again.");
-                return $(event.target).html("resend");
-              }
-            });
+            return this.sendRetryRequest("POST", "/news/micropost/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
             extra = "";
             _ref = this.model.getErrors();
@@ -442,22 +428,27 @@
                 extra = error.extra;
               }
             }
-            $("#" + event.target.id).html("resending...");
-            return $.ajax({
-              type: "PUT",
-              url: "/news/micropost/" + this.model.getDocId() + "/retry/",
-              data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '", "extra":"' + extra + '"}',
-              dataType: "json",
-              success: function(data) {
-                return $("#" + event.target.id).html("resending succeeds.");
-              },
-              error: function(data) {
-                infoDialog.display("Sending data fails again.");
-                return $("#" + event.target.id).html("resend");
-              }
-            });
+            return this.sendRetryRequest("PUT", "/news/micropost/" + this.model.getDocId() + "/retry/", event, extra);
         }
       }
+    };
+
+    ActivityRow.prototype.sendRetryRequest = function(type, path, event, extra) {
+      var _this = this;
+      $(event.target).html("resending...");
+      return $.ajax({
+        type: type,
+        url: path,
+        data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '", "extra":"' + extra + '"}',
+        dataType: "json",
+        success: function(data) {
+          return $(event.target).html("resending succeeds.");
+        },
+        error: function(data) {
+          infoDialog.display("Sending data fails again.");
+          return $(event.target).html("resend");
+        }
+      });
     };
 
     /* Functions

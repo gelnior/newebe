@@ -129,18 +129,10 @@ class ActivityRow extends Row
       switch @model.getMethod()
 
         when "POST"
-          $(event.target).html("resending...")
-          $.ajax(
-            type: "POST"
-            url: "/news/micropost/" + @model.getDocId()  + "/retry/"
-            data: '{"contactId": "' + event.target.id + '", "activityId":"' + @model.id + '"}'
-            dataType : "json"
-            success: (data) =>
-              $(event.target).html("resending succeeds.")
-            error: (data) =>
-              infoDialog.display "Sending data fails again."
-              $(event.target).html("resend")
-          )
+          @sendRetryRequest("POST",
+                            "/news/micropost/" + @model.getDocId()  + "/retry/",
+                            event)
+
 
         when "DELETE"
           extra = ""
@@ -148,20 +140,36 @@ class ActivityRow extends Row
             if error.contactKey and error.contactKey is event.target.id
               extra = error.extra
 
-          $("#" + event.target.id).html("resending...")
-          $.ajax(
-            type: "PUT"
-            url: "/news/micropost/" + @model.getDocId()  + "/retry/"
-            data: '{"contactId": "' + event.target.id + '", "activityId":"' + @model.id + '", "extra":"' + extra + '"}'
-            dataType : "json"
-            success: (data) ->
-              $("#" + event.target.id).html("resending succeeds.")
-            error: (data) ->
-              infoDialog.display "Sending data fails again."
-              $("#" + event.target.id).html("resend")
-          )
+          @sendRetryRequest("PUT",
+                            "/news/micropost/" + @model.getDocId()  + "/retry/",
+                            event,
+                            extra)
 
-  
+  # Requests server to resend data to the contact. 
+  # If it it succeeds it marks the error as solved else it displays an error 
+  # message. 
+  #
+  # Arguments : 
+  # * type is the request method (POST, PUT...).
+  # * path is the path where request must be sent.
+  # * event is the event which causes the retry.
+  # * extra are the extra data needed.
+
+  sendRetryRequest: (type, path, event, extra) ->
+    $(event.target).html "resending..."
+    $.ajax
+      type: type
+      url: path
+      data: '{"contactId": "' + event.target.id + '", "activityId":"' + @model.id  + '", "extra":"' + extra + '"}'
+      dataType : "json"
+      success: (data) =>
+        $(event.target).html("resending succeeds.")
+      error: (data) =>
+        infoDialog.display "Sending data fails again."
+        $(event.target).html("resend")
+    
+
+
 
   ### Functions ###
 
