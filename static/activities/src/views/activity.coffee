@@ -125,6 +125,11 @@ class ActivityRow extends Row
   # to the contact. If it it succeeds it marks the error as solved else  
   # it displays an error message.
   onErrorResendClicked: (event) ->
+    extra = ""
+    for error in @model.getErrors()
+      if error.contactKey and error.contactKey is event.target.id
+        extra = error.extra
+
     if @model.getDocType() is "micropost"
       switch @model.getMethod()
 
@@ -135,13 +140,24 @@ class ActivityRow extends Row
 
 
         when "DELETE"
-          extra = ""
-          for error in @model.getErrors()
-            if error.contactKey and error.contactKey is event.target.id
-              extra = error.extra
-
           @sendRetryRequest("PUT",
                             "/news/micropost/" + @model.getDocId()  + "/retry/",
+                            event,
+                            extra)
+
+    else if @model.getDocType() is "picture"
+      switch @model.getMethod()
+
+        when "POST"
+          @sendRetryRequest("POST",
+                            "/pictures/" + @model.getDocId()  + "/retry/",
+                            event)
+
+
+        when "DELETE"
+
+          @sendRetryRequest("PUT",
+                            "/news/pictures/" + @model.getDocId()  + "/retry/",
                             event,
                             extra)
 
