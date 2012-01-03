@@ -6,7 +6,7 @@ except:
     TORNADO_PORT = 8000
     COUCHDB_DB_NAME = "newebe"
     DEBUG = False
-    TIMEZON = "GMT"
+    TIMEZONE = "GMT"
 
 # Couchdb configuration
 COUCHDB_DATABASES = (
