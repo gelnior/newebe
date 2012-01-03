@@ -200,7 +200,7 @@ if __name__ == '__main__':
     if DEBUG:
         try:
             # Server running.
-            http_server = HTTPServer(tornado_app)
+            http_server = HTTPServer(tornado_app, xheaders=True)
 #                    ,
 #                ssl_options = {
 #                    "certfile": CERTIFICATE,
