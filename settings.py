@@ -8,13 +8,16 @@ except:
     DEBUG = False
     TIMEZONE = "GMT"
 
+
+
 # Couchdb configuration
+COUCHDB_DB_URI =  'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME
 COUCHDB_DATABASES = (
-    ('newebe.news', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
-    ('newebe.core', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
-    ('newebe.activities', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
-    ('newebe.notes', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
-    ('newebe.pictures', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME),
+    ('newebe.news', COUCHDB_DB_URI),
+    ('newebe.core', COUCHDB_DB_URI),
+    ('newebe.activities', COUCHDB_DB_URI),
+    ('newebe.notes', COUCHDB_DB_URI),
+    ('newebe.pictures', 'http://127.0.0.1:5984/%s' % COUCHDB_DB_URI),
 )
 
 INSTALLED_APPS = (
