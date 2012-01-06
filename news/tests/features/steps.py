@@ -4,15 +4,16 @@ import pytz
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
-from tornado.escape import json_decode
+from tornado.escape import json_decode, json_encode
 
 sys.path.append("../../../")
 
 from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
 from newebe.contacts.models import Contact, ContactManager
+from newebe.activities.models import Activity, ActivityManager
 
-from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL, db, \
+from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL,\
                                  db2, reset_documents
 from newebe.lib import date_util
 
@@ -48,6 +49,29 @@ def delete_posts(scenario):
     
     reset_documents(MicroPost, MicroPostManager.get_list)
     reset_documents(MicroPost, MicroPostManager.get_list, db2)
+
+    reset_documents(Activity, ActivityManager.get_all)
+    reset_documents(Activity, ActivityManager.get_all, db2)
+
+
+
+# Models
+
+@step(u'Given there are (\d+) posts of me and (\d+) posts of my contacts')
+def given_there_are_3_posts_of_and_3_posts_of_my_contacts(step, 
+                                                          nbposts, 
+                                                          nbcontactposts):
+    nbposts = int(nbposts)
+    nbcontactposts = int(nbcontactposts)
+
+    for i in range(1, nbposts + 1):
+        micropost = MicroPost()
+        micropost.author = UserManager.getUser().name
+        micropost.authorKey = UserManager.getUser().key
+        micropost.content = "my content {}".format(i)
+        micropost.date = datetime.datetime(2011, i, 01, 11, 05, 12)
+        micropost.isMine = True
+        micropost.save()
 
 
 
@@ -146,7 +170,7 @@ def then_i_have_6_microposts_ordered_by_date(step, nbposts):
 def when_i_send_a_request_to_retrieve_my_last_posts(step):
     world.microposts = world.browser.fetch_documents("news/microposts/mine/")
 
-@step(u'When I send a request to post a micropost')
+@step(u'I send a request to post a micropost')
 def when_i_send_a_request_to_post_a_micropost(step):
     response = world.browser.post("news/microposts/all/",                                                         '{"content":"test"}')
     assert 201 == response.code
@@ -159,7 +183,7 @@ def then_i_have_1_micropost(step):
     assert "test" ==  world.micropost.get("content")
     assert world.browser.user.key ==  world.micropost.get("authorKey")
 
-@step(u'When I send a request to second newebe to retrieve last posts')
+@step(u'I send a request to second newebe to retrieve last posts')
 def when_i_send_a_request_to_second_newebe_to_retrieve_last_posts(step):
     world.microposts = world.browser2.fetch_documents("news/microposts/all/")
 
@@ -203,4 +227,72 @@ def and_this_micropost_has_same_date_as_the_posted_one(step, timezone):
 
     assert contact_date == posted_date
 
+# Retry
+
+@step(u'And one activity for first micropost with one error for my contact')
+def and_one_activity_for_first_micropost_with_one_error_for_my_contact(step):
+    author = world.browser.user
+    world.contact = world.browser2.user.asContact()
+    world.micropost = MicroPostManager.get_list().first()
+    
+    world.activity = Activity(
+        author = author.name,
+        verb = "posts",
+        docType = "micropost",
+        docId = world.micropost._id,
+    )
+    world.activity.add_error(world.contact)
+    world.activity.save()
+
+
+@step(u'When I send a retry request')
+def when_i_send_a_retry_request(step):
+    idsDict = { "contactId": world.contact.key, 
+                "activityId" : world.activity._id,
+                "extra": "" }
+
+    world.browser.post(world.micropost.get_path() + "retry/",
+                      json_encode(idsDict))
+    
+@step(u'Then I have a micropost and an activity for it')
+def then_i_have_a_micropost_and_activity_for_it(step):
+    assert 1 == len(world.microposts)
+
+    activities = world.browser2.fetch_documents("activities/all/")
+    assert 1 == len(activities)
+
+
+@step(u'And activity has no more errors')
+def and_activity_has_no_more_errors(step):
+    activity = ActivityManager.get_activity(world.activity._id)
+    assert 0 == len(activity.errors)
+
+
+@step(u'And add one deletion activity for first micropost with one error')
+def and_add_one_deletion_activity_for_first_micropost_with_one_error(step):
+    author = world.browser.user
+    world.contact = world.browser2.user.asContact()
+    world.micropost = MicroPostManager.get_list().first()
+    
+    world.activity = Activity(
+        author = author.name,
+        verb = "deletes",
+        docType = "micropost",
+        docId = world.micropost._id,
+        method = "PUT"
+    )
+    date = date_util.get_db_date_from_date(world.micropost.date)
+    world.activity.add_error(world.contact, extra=date)
+    world.activity.save()
+
+@step(u'I send a delete retry request')
+def when_i_send_a_delete_retry_request(step):    
+    date = world.activity.errors[0]["extra"] 
+    date = date_util.get_db_date_from_date(date)
+    idsDict = { "contactId": world.contact.key, 
+                "activityId" : world.activity._id,
+                "extra": date }
+
+    world.browser.put(world.micropost.get_path() + "retry/",
+                      json_encode(idsDict))
 
