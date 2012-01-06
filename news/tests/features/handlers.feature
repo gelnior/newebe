@@ -30,5 +30,3 @@ Feature: Retrieve, post and delete microposts
         Then I have 0 micropost
 
 
-
-

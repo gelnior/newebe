@@ -17,6 +17,7 @@ from newebe.lib.date_util import get_date_from_db_date, \
                                  convert_utc_date_to_timezone
 
 logger = logging.getLogger("newebe.core")
+server = Server()
 
 # Base document 
 
@@ -77,7 +78,6 @@ class NewebeDocument(Document):
         '''
         db = getattr(cls, '_db', None)
         if db is None:
-            server = Server()
             db = server.get_or_create_db(COUCHDB_DB_NAME)
             cls._db = db
         return db

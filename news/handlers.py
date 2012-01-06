@@ -1,5 +1,4 @@
 import logging
-import datetime
 import markdown
 
 from tornado.escape import json_decode
@@ -303,6 +302,7 @@ class NewsRetryHandler(NewebeAuthHandler):
         JSON. Corresponding activity ID is given inside the posted json.
         Here is the format : {"contactId":"data","activityId":"data"}
         '''
+
         micropost = MicroPostManager.get_micropost(key)
         idInfos = self.request.body
 
@@ -321,6 +321,8 @@ class NewsRetryHandler(NewebeAuthHandler):
             elif not activity:
                 self.return_failure("Activity not found", 404)
             else:           
+                logger.info("Attemp to resend a post to contact: {}.".format(
+                    contact.name))
                 self.forward_to_contact(micropost, contact, activity)
         else:
             self.return_failure("Micropost not found", 404)
@@ -335,7 +337,7 @@ class NewsRetryHandler(NewebeAuthHandler):
 
         httpClient = HTTPClient()            
         url = contact.url.encode("utf-8") + CONTACT_PATH
-        body = micropost.toJson()
+        body = micropost.toJson(localized=False)
 
         request = HTTPRequest(url, method = method, body = body)
 
@@ -387,6 +389,10 @@ class NewsRetryHandler(NewebeAuthHandler):
                     authorKey = user.key, 
                     date = date_util.get_date_from_db_date(date)
                 )
+                
+                logger.info(
+                    "Attemp to resend a post deletion to contact: {}.".format(
+                        contact.name))
 
                 self.forward_to_contact(micropost, contact, activity, 
                                         method = "PUT")

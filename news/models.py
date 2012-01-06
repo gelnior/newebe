@@ -94,4 +94,10 @@ class MicroPost(NewebeDocument):
     isMine = BooleanProperty(required=True, default=True) 
 
 
+    def get_path(self):
+        '''
+        Return path where micropost could be find.
+        '''
+
+        return "news/micropost/{}/".format(self._id)
 

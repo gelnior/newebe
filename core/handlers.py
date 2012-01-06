@@ -7,7 +7,7 @@ from tornado.web import RequestHandler, asynchronous
 from tornado.httpclient import HTTPError
 
 
-from newebe.lib import json_util
+from newebe.lib import json_util, date_util
 from newebe.lib.http_util import ContactClient
 
 from newebe.profile.models import UserManager
@@ -37,7 +37,7 @@ class NewebeHandler(RequestHandler):
 
     def return_documents(self, documents, statusCode=200):
         '''
-        Return a response containing a list of newebe documents at json format. 
+        Return a response containing a list of newebe documents at json format.
         '''
 
         self.return_json(
@@ -54,10 +54,15 @@ class NewebeHandler(RequestHandler):
 
 
     def return_one_document_or_404(self, document, text):
+        '''
+        '''
+
         if document:
             return self.return_json(document.toJson)
         else:
             self.return_failure(text, 404)
+
+
     def return_success(self, text, statusCode=200):
         '''
         Return a success response containing a JSON object that describes
@@ -252,14 +257,16 @@ class NewebeHandler(RequestHandler):
 
         contacts = ContactManager.getTrustedContacts()
         client = ContactClient(self.activity)
+        date = date_util.get_db_date_from_date(doc.date)
+
         for contact in contacts:
             try:
-                client.delete(contact, path, doc.toJson(localized=False))
+                client.delete(contact, path, doc.toJson(localized=False), date)
             except HTTPError:
-                self.activity.add_error(contact)
+                import pdb
+                pdb.set_trace()
+                self.activity.add_error(contact, extra=date)
                 self.activity.save()
-
-
 
 
 class NewebeAuthHandler(NewebeHandler):

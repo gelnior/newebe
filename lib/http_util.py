@@ -59,7 +59,7 @@ class ContactClient(object):
         return self.client.fetch(request, self.on_contact_response)
 
 
-    def delete(self, contact, path, body):
+    def delete(self, contact, path, body, extra=None):
         '''
         Perform a DELETE request to given contact (PUT is send because tornado
         does not handle DELETE request with body).
@@ -68,6 +68,7 @@ class ContactClient(object):
         url = contact.url + path
         request = HTTPRequest(url, method="PUT", body=body)
         self.contacts[request] = contact
+        self.extra = extra
         return self.client.fetch(request, self.on_contact_response)
 
 
@@ -77,16 +78,18 @@ class ContactClient(object):
         marks it inside the activity for which error occurs. Else 
         it logs that micropost posting succeeds.
         '''
+        
+        contact = self.contacts[response.request]
 
         if response.error: 
             logger.error(""" Request to a contact failed, error infos 
                              are stored inside activity.""")            
-            contact = self.contacts[response.request]
-            self.activity.add_error(contact)
+
+            self.activity.add_error(contact, extra=self.extra)
             self.activity.save()
 
         else: 
-            logger.info("Post successfully sent.")
+            logger.info("Request successfully sent to {}.".format(contact.name))
         
         del self.contacts[response.request]
 
