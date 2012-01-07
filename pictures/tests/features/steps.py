@@ -343,3 +343,34 @@ def check_that_date_picture_on_second_newebe_is_the_same(step):
     picture = world.pictures[0]
     world.date_picture["date"] = picture["date"]
 
+
+# Retry
+
+@step(u'And one activity for first picture with one error for my contact')
+def and_one_activity_for_first_picture_with_one_error_for_my_contact(step):
+    assert False, 'This step must be implemented'
+
+@step(u'When I send a retry request')
+def when_i_send_a_retry_request(step):
+    assert False, 'This step must be implemented'
+
+@step(u'Then I have a picture and an activity for it')
+def then_i_have_a_picture_and_an_activity_for_it(step):
+    assert False, 'This step must be implemented'
+
+@step(u'And first activity has no more errors')
+def and_first_activity_has_no_more_errors(step):
+    assert False, 'This step must be implemented'
+
+@step(u'And I add one deletion activity for first picture with one error')
+def and_i_add_one_deletion_activity_for_first_picture_with_one_error(step):
+    assert False, 'This step must be implemented'
+
+@step(u'When I send a delete retry request')
+def when_i_send_a_delete_retry_request(step):
+    assert False, 'This step must be implemented'
+
+@step(u'And activity has no more errors')
+def and_activity_has_no_more_errors(step):
+    assert False, 'This step must be implemented'
+
