@@ -427,7 +427,6 @@
         switch (this.model.getMethod()) {
           case "POST":
             return this.sendRetryRequest("POST", "/news/micropost/" + this.model.getDocId() + "/retry/", event);
-
           case "DELETE":
             return this.sendRetryRequest("PUT", "/news/micropost/" + this.model.getDocId() + "/retry/", event, extra);
         }
