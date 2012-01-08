@@ -1,6 +1,6 @@
 from couchdbkit.schema import StringProperty, BooleanProperty
 
-from newebe.core.models import NewebeDocument
+from newebe.core.models import NewebeDocument, DocumentManager
 
 PICTURE_LIMIT = 10
 
@@ -30,22 +30,15 @@ class PictureManager():
 
     
     @staticmethod
-    def get_owner_last_pictures(startKey=None, skip=0):
+    def get_owner_last_pictures(startKey=None, endKey=None, 
+                 skip=0, limit=PICTURE_LIMIT):
         '''
         Returns owner pictures. If *startKey* is provided, it returns last
         picture posted by owner until *startKey*.
         '''
 
-        if startKey:
-            return Picture.view("pictures/owner", 
-                             startkey=startKey, 
-                             descending=True, 
-                             limit=PICTURE_LIMIT,
-                             skip=0)
-        else:
-            return Picture.view("pictures/owner", 
-                             descending=True, 
-                             limit=PICTURE_LIMIT)
+        return DocumentManager.get_documents(Picture, "pictures/owner", 
+                                             startKey, endKey, skip, limit)
 
 
     @staticmethod
