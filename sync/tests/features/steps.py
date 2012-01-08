@@ -1,7 +1,6 @@
 import sys
 import time
 import datetime
-import hashlib
 
 from lettuce import step, world, before
 
@@ -9,8 +8,8 @@ sys.path.append("../../../")
 
 from newebe.lib.test_util import NewebeClient, db2, SECOND_NEWEBE_ROOT_URL
 
-from newebe.profile.models import User, UserManager
 from newebe.news.models import MicroPost, MicroPostManager
+from newebe.pictures.models import Picture, PictureManager
 from newebe.contacts.models import Contact, ContactManager
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import reset_documents
@@ -44,15 +43,24 @@ def delete_all_posts(scenario):
     reset_documents(MicroPost, MicroPostManager.get_list)
     reset_documents(MicroPost, MicroPostManager.get_list, db2)
 
-@step(u'Creates 5 posts on first newebe')
-def creates_5_posts_on_first_newebe(step):
+
+@before.each_scenario
+def delete_all_pictures(scenario):
+
+    reset_documents(Picture, PictureManager.get_last_pictures)
+    reset_documents(Picture, PictureManager.get_last_pictures, db2)
+
+# Microposts
+
+@step(u'5 posts are created on first newebe')
+def posts_on_first_newebe(step):
     for i in range(5):
         micropost = MicroPost(
             author = world.user.name,
             content = "content %s" % i,
             date = datetime.datetime.now()
         )
-        time.sleep(2)
+        time.sleep(1)
         world.browser.post("news/microposts/", micropost.toJson())
 
 
@@ -61,12 +69,31 @@ def when_i_ask_for_synchronization(step):
     response = world.browser2.get("synchronize/")
     assert response.code == 200
 
-@step(u'Check that 5 posts from first newebe are stored in second newebe')
+@step(u'5 posts from first newebe are stored in second newebe')
 def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
     posts = world.browser2.fetch_documents("news/microposts/")
-    import pdb
-    pdb.set_trace()
     assert 5 == len(posts), posts
+
+# Pictures
+
+@step(u'5 pictures are created on first newebe')
+def and_5_pictures_are_created_on_first_newebe(step):
+    for i in range(1, 6):
+        picture = Picture(
+            title = "Pic 0%d" % i,
+            author = "Dan",
+            authorKey = "DanKey",
+            date = datetime.datetime(2011, 11, i),
+            isMine = True
+        )
+        picture.save()
+
+@step(u'5 pictures from first newebe are stored in second newebe')
+def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
+    pictures = world.browser2.fetch_documents("pictures/")
+    assert 5 == len(pictures)
+
+# Profile
 
 @step(u'Modify first newebe profile directly to DB')
 def modify_first_newebe_profile_directly_to_db(step):
