@@ -46,7 +46,6 @@ def delete_all_posts(scenario):
 
 @before.each_scenario
 def delete_all_pictures(scenario):
-
     reset_documents(Picture, PictureManager.get_last_pictures)
     reset_documents(Picture, PictureManager.get_last_pictures, db2)
 
@@ -57,6 +56,7 @@ def posts_on_first_newebe(step):
     for i in range(5):
         micropost = MicroPost(
             author = world.user.name,
+            authorKey = world.user.key,
             content = "content %s" % i,
             date = datetime.datetime.now()
         )
@@ -78,19 +78,24 @@ def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
 
 @step(u'5 pictures are created on first newebe')
 def and_5_pictures_are_created_on_first_newebe(step):
+    file = open("../../pictures/tests/test.jpg")
     for i in range(1, 6):
         picture = Picture(
             title = "Pic 0%d" % i,
-            author = "Dan",
-            authorKey = "DanKey",
+            author =  world.user.name,
+            authorKey = world.user.key,
             date = datetime.datetime(2011, 11, i),
+            path = "test.jpg",
             isMine = True
         )
         picture.save()
+        picture.put_attachment(file.read(), "th_test.jpg")
+        picture.save()
+
 
 @step(u'5 pictures from first newebe are stored in second newebe')
 def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
-    pictures = world.browser2.fetch_documents("pictures/")
+    pictures = world.browser2.fetch_documents("pictures/last/")
     assert 5 == len(pictures)
 
 # Profile
