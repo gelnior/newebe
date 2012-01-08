@@ -550,7 +550,7 @@ class PictureRetryHandler(NewebeAuthHandler):
             date = ids["extra"]
 
             contact = ContactManager.getTrustedContact(contactId)
-            activity = PictureManager.get_activity(activityId)
+            activity = ActivityManager.get_activity(activityId)
 
             if not contact:
                 self.return_failure("Contact not found", 404)

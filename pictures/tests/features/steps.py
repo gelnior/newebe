@@ -270,15 +270,24 @@ def from_second_newebe_request_for_download(step):
 
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):
+    size = 200, 200
+    image = Image.open("test.jpg")
+    image.thumbnail(size, Image.ANTIALIAS)
+    image.save("th_test.jpg")
+    file = open("th_test.jpg")
+
     for i in range(1, 4):
         picture = Picture(
             title = "Pic 0%d" % i,
-            author = "Dan",
-            authorKey = "DanKey",
+            author = world.browser.user.name,
+            authorKey = world.browser.user.key,
             date = datetime.datetime(2011, 11, i),
+            path = "test.jpg",
             isMine = i != 3
         )
         picture.save()
+        picture.put_attachment(file.read(), "th_test.jpg")
+
 
 @step(u'Retrieve all pictures through handlers')
 def retrieve_all_pictures_through_handlers(step):
@@ -388,7 +397,7 @@ def and_first_activity_has_no_more_errors(step):
 def and_i_add_one_deletion_activity_for_first_picture_with_one_error(step):
     author = world.browser.user
     world.contact = world.browser2.user.asContact()
-    world.picture = PictureManager.get_last_picture().first()
+    world.picture = PictureManager.get_last_pictures().first()
     
     world.activity = Activity(
         author = author.name,

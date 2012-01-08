@@ -163,6 +163,7 @@ class Newebe(Application):
             ('/pictures/([0-9a-z]+)/$', PictureHandler),
             ('/pictures/([0-9a-z]+)/render/$', PictureTHandler),            
             ('/pictures/([0-9a-z]+)/retry/$', PictureRetryHandler),
+            ('/pictures/([0-9a-z]+)/download/$', PictureDownloadHandler),
             ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),            
         ]
        
