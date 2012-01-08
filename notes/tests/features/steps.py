@@ -64,17 +64,16 @@ def checks_that_dict_convert_date_to_the_current_time_zone(step):
 def retrieve_the_note_with_note_key(step):
     world.test_note = NoteManager.get_note(world.note._id)
 
+
 @step(u'Checks that notes have same fields')
 def checks_that_notes_have_same_fields(step):
-    lastModified = date_util.convert_timezone_date_to_utc(
-            world.test_note.lastModified) 
 
     assert world.test_note is not None
     assert world.test_note.author == world.note.author
     assert world.test_note.title == world.note.title
     assert world.test_note.content == world.note.content
-    assert lastModified == \
-        world.note.lastModified.replace(tzinfo=pytz.utc)        
+    assert world.test_note.lastModified == \
+        world.note.lastModified       
     assert world.test_note.isMine == world.note.isMine
 
 @step(u'Creates (\d+) notes')
@@ -159,7 +158,8 @@ def retrieve_through_handler_the_note_with_note_id(step):
         title = notes[0]["title"],
         content = notes[0]["content"],
         lastModified = \
-            date_util.get_date_from_db_date(notes[0]["lastModified"]),
+            date_util.convert_timezone_date_to_utc(
+                date_util.get_date_from_db_date(notes[0]["lastModified"])),
         isMine = notes[0]["isMine"],
     )
 
