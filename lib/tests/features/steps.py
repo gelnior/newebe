@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 
 from tornado.escape import json_decode
 from lettuce import step, world
@@ -57,7 +58,8 @@ def creates_x_microposts(step, nb_docs):
     for i in range(int(nb_docs)):
         post = MicroPost(
             author = "me",
-            content = "test_content_%d" % i
+            content = "test_content_%d" % i,
+            date = datetime.datetime.utcnow()
         )
         world.documents.append(post)
 

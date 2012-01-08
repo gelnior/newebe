@@ -43,7 +43,7 @@ class NewebeDocument(Document):
         if "_rev" in docDict:
             del docDict["_rev"]
 
-        if localized and "date" in docDict:
+        if localized and docDict.get("date", None):
             
             utc_date = get_date_from_db_date(docDict.get("date"))
             date = convert_utc_date_to_timezone(utc_date)
