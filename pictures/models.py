@@ -89,3 +89,11 @@ class Picture(NewebeDocument):
     contentType = StringProperty()
     isFile = BooleanProperty(required=True, default=False)
 
+
+    def get_path(self):
+        '''
+        Return path where micropost could be find.
+        '''
+
+        return "pictures/{}/".format(self._id)
+

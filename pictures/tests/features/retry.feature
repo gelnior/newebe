@@ -2,7 +2,7 @@ Feature: Retrieve, post and delete microposts
 
     Scenario: Retry sending last picture
         Given Add three pictures to the database with different dates
-        And one activity for first picture with one error for my contact
+        And add one activity for first picture with one error for my contact
         When I send a retry request
         And From second Newebe, retrieve pictures
         Then I have a picture and an activity for it
@@ -14,7 +14,7 @@ Feature: Retrieve, post and delete microposts
         When I send a delete retry request
         And From second Newebe, retrieve pictures
         Then Check that there are no picture
-        And activity has no more errors
+        And first activity has no more errors
         
 
 

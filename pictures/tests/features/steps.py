@@ -6,6 +6,7 @@ import time
 from PIL import Image
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError, HTTPRequest
+from tornado.escape import json_encode
 
 sys.path.append("../../../")
 
@@ -31,7 +32,7 @@ def set_browers():
 
     try: 
         world.browser2 = NewebeClient()
-        world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
+        world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
         world.browser2.login("password")
 
         world.browser.post("contacts/",
@@ -46,6 +47,7 @@ def delete_pictures(scenario):
 
     reset_documents(Picture, PictureManager.get_last_pictures)
     reset_documents(Picture, PictureManager.get_last_pictures, db2)
+
     reset_documents(Activity, ActivityManager.get_all)
     reset_documents(Activity, ActivityManager.get_all, db2)
 
@@ -346,31 +348,68 @@ def check_that_date_picture_on_second_newebe_is_the_same(step):
 
 # Retry
 
-@step(u'And one activity for first picture with one error for my contact')
+@step(u'add one activity for first picture with one error for my contact')
 def and_one_activity_for_first_picture_with_one_error_for_my_contact(step):
-    assert False, 'This step must be implemented'
+    author = world.browser.user
+    world.contact = world.browser2.user.asContact()
+    world.picture = PictureManager.get_last_pictures().first()
+    
+    world.activity = Activity(
+        author = author.name,
+        verb = "posts",
+        docType = "picture",
+        docId = world.picture._id,
+    )
+    world.activity.add_error(world.contact)
+    world.activity.save()
 
 @step(u'When I send a retry request')
 def when_i_send_a_retry_request(step):
-    assert False, 'This step must be implemented'
+    idsDict = { "contactId": world.contact.key, 
+                "activityId" : world.activity._id,
+                "extra": "" }
+
+    world.browser.post(world.picture.get_path() + "retry/",
+                      json_encode(idsDict))
 
 @step(u'Then I have a picture and an activity for it')
 def then_i_have_a_picture_and_an_activity_for_it(step):
-    assert False, 'This step must be implemented'
+    assert 1 == len(world.pictures)
 
-@step(u'And first activity has no more errors')
+    activities = world.browser2.fetch_documents("activities/all/")
+    assert 1 == len(activities)
+
+@step(u'first activity has no more errors')
 def and_first_activity_has_no_more_errors(step):
-    assert False, 'This step must be implemented'
+    activity = ActivityManager.get_activity(world.activity._id)
+    assert 0 == len(activity.errors)
 
 @step(u'And I add one deletion activity for first picture with one error')
 def and_i_add_one_deletion_activity_for_first_picture_with_one_error(step):
-    assert False, 'This step must be implemented'
+    author = world.browser.user
+    world.contact = world.browser2.user.asContact()
+    world.picture = PictureManager.get_last_picture().first()
+    
+    world.activity = Activity(
+        author = author.name,
+        verb = "deletes",
+        docType = "picture",
+        docId = world.picture._id,
+        method = "PUT"
+    )
+    date = date_util.get_db_date_from_date(world.picture.date)
+    world.activity.add_error(world.contact, extra=date)
+    world.activity.save()
+
 
 @step(u'When I send a delete retry request')
 def when_i_send_a_delete_retry_request(step):
-    assert False, 'This step must be implemented'
+    date = world.activity.errors[0]["extra"] 
+    date = date_util.get_db_date_from_date(date)
+    idsDict = { "contactId": world.contact.key, 
+                "activityId" : world.activity._id,
+                "extra": date }
 
-@step(u'And activity has no more errors')
-def and_activity_has_no_more_errors(step):
-    assert False, 'This step must be implemented'
+    world.browser.put(world.picture.get_path() + "retry/",
+                      json_encode(idsDict))
 
