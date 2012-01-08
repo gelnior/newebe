@@ -4,14 +4,17 @@ import logging
 from tornado.web import asynchronous
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 
-from newebe.lib import date_util
+from newebe.lib import date_util, upload_util
 
 from newebe.profile.models import UserManager
 from newebe.contacts.models import ContactManager
 from newebe.news.models import MicroPostManager
+from newebe.pictures.models import PictureManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.news.handlers import CONTACT_PATH as MICROPOST_PATH
+from newebe.pictures.handlers import CONTACT_PATH as PICTURE_PATH
+
 
 logger = logging.getLogger("newebe.sync")
 
@@ -100,6 +103,7 @@ class SynchronizeContactHandler(NewebeHandler):
 
         if localContact:
             self.send_posts_to_contact(client, localContact, now, date)
+            self.send_pictures_to_contact(client, localContact, now, date)
 
             self.return_document(UserManager.getUser().asContact())
         else:
@@ -120,6 +124,21 @@ class SynchronizeContactHandler(NewebeHandler):
             body = micropost.toJson(localized=False)
 
             request = HTTPRequest(url, method = "POST", body = body)
+            client.fetch(request, self.onContactResponse)
+
+
+    def send_pictures_to_contact(self, client, contact, now, date):
+        '''
+        Send pictures from last month to given contact.
+        '''
+
+        pictures = PictureManager.get_owner_last_pictures(
+                startKey=date_util.get_db_date_from_date(now), 
+                endKey=date_util.get_db_date_from_date(date))
+
+        for picture in pictures:
+            url = contact.url.encode("utf-8") + PICTURE_PATH
+            request = upload_util.get_picture_upload_request(url, picture)
             client.fetch(request, self.onContactResponse)
 
 
