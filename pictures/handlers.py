@@ -3,7 +3,8 @@ import logging
 import mimetypes
 
 from tornado.web import asynchronous
-from tornado.httpclient import HTTPError, AsyncHTTPClient, HTTPRequest
+from tornado.httpclient import HTTPError, AsyncHTTPClient, HTTPClient, \
+                               HTTPRequest
 from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
 from PIL import Image
@@ -12,11 +13,14 @@ from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.contacts.models import ContactManager
+from newebe.activities.models import ActivityManager
 from newebe.pictures.models import PictureManager, Picture
 from newebe.lib import date_util
+from newebe.lib.upload_util import encode_multipart_formdata
 
 logger = logging.getLogger("newebe.pictures")
 
+CONTACT_PATH = 'pictures/contact/'
 
 class PicturesHandler(NewebeAuthHandler):
     '''
@@ -74,7 +78,7 @@ class PicturesHandler(NewebeAuthHandler):
             thumbnail = self.get_thumbnail(filebody, filename, (200, 200))     
             thbuffer = thumbnail.read()
             picture.put_attachment(thbuffer, "th_" + filename)
-            os.remove("th_" + filename)           
+            os.remove("th_" + filename) 
             preview = self.get_thumbnail(filebody, filename, (1000, 1000))
             picture.put_attachment(preview.read(), "prev_" + filename)
             os.remove("th_" + filename)           
@@ -492,6 +496,125 @@ class PictureTHandler(PictureObjectHandler):
             self.render("templates/picture.html", picture=picture)
         else:
             self.render("templates/picture_empty.html", picture=picture)        
+
+
+class PictureRetryHandler(NewebeAuthHandler):
+
+
+    def post(self, key):
+        '''
+        Resend post with *key* as key to the contact given in the posted
+        JSON. Corresponding activity ID is given inside the posted json.
+        Here is the format : {"contactId":"data","activityId":"data"}
+        '''
+
+        picture = PictureManager.get_picture(key)
+        idInfos = self.request.body
+
+        ids = json_decode(idInfos)
+
+        if picture and idInfos:
+
+            contactId = ids["contactId"]
+            activityId = ids["activityId"]
+
+            contact = ContactManager.getTrustedContact(contactId)
+            activity = ActivityManager.get_activity(activityId)
+
+            if not contact:
+                self.return_failure("Contact not found", 404)
+            elif not activity:
+                self.return_failure("Activity not found", 404)
+            else:           
+                logger.info("Attemp to resend a picture to contact: {}.".format(
+                    contact.name))
+                self.forward_to_contact(picture, contact, activity)
+        else:
+            self.return_failure("Picture not found", 404)
+
+       
+    def put(self, key):
+        '''
+        Resend deletion of micropost with *key* as key to the contact given in 
+        the posted JSON. Corresponding activity ID is given inside the posted 
+        json.
+        Here is the format : {"contactId":"data","activityId":"data"}
+        '''
+        idInfos = self.request.body
+
+        ids = json_decode(idInfos)
+
+        if ids:
+
+            contactId = ids["contactId"]
+            activityId = ids["activityId"]
+            date = ids["extra"]
+
+            contact = ContactManager.getTrustedContact(contactId)
+            activity = PictureManager.get_activity(activityId)
+
+            if not contact:
+                self.return_failure("Contact not found", 404)
+            elif not activity:
+                self.return_failure("Activity not found", 404)
+            else:
+
+                user = UserManager.getUser()
+                picture = Picture(
+                    authorKey = user.key, 
+                    date = date_util.get_date_from_db_date(date)
+                )
+                
+                logger.info(
+                    "Attemp to resend a picture deletion to contact: {}.".format(
+                        contact.name))
+
+                self.forward_to_contact(picture, contact, activity, 
+                                        method = "PUT")
+
+        else:
+            self.return_failure("Micropost not found", 404)
+
+
+    def forward_to_contact(self, picture, contact, activity, method = "POST"):
+        '''
+        *picture is sent to *contact* via a request of which method is set 
+        as *method*. If request succeeds, error linked to this contact
+        is removed. Else nothing is done and error code is returned.
+        '''
+
+        httpClient = HTTPClient()            
+        url = contact.url.encode("utf-8") + CONTACT_PATH
+
+        if "POST" == method:            
+            fields = { "json": str(picture.toJson(localized=False)) }
+            files = [("picture", str(picture.path), 
+                        picture.fetch_attachment("th_" + picture.path))]
+            (contentType, body) = encode_multipart_formdata(fields=fields, 
+                                                            files=files)
+            headers = { 'Content-Type': contentType } 
+            request = HTTPRequest(url=url, method="POST", 
+                                  body=body, headers=headers)
+        else:
+            body = picture.toJson(localized=False)
+            request = HTTPRequest(url, method = method, body = body)
+
+        try:
+            response = httpClient.fetch(request)
+            
+            if response.error:
+                self.return_failure(
+                  "Retry picture request to a contact failed ({}).".format(method))
+
+            else:
+                for error in activity.errors:
+                    if error["contactKey"] == contact.key:
+                        activity.errors.remove(error)
+                        activity.save()
+                        self.return_success("Picture request correctly resent.")
+
+        except:
+            self.return_failure("Picture resend to a contact failed again.")
 
 
 

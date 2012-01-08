@@ -61,7 +61,8 @@ from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
                                     PicturesContentTHandler, \
                                     PicturesQQHandler, PictureTHandler, \
                                     PictureDownloadHandler, \
-                                    PictureContactDownloadHandler
+                                    PictureContactDownloadHandler, \
+                                    PictureRetryHandler
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
@@ -161,7 +162,7 @@ class Newebe(Application):
             ('/pictures/contact/download/$', PictureContactDownloadHandler),
             ('/pictures/([0-9a-z]+)/$', PictureHandler),
             ('/pictures/([0-9a-z]+)/render/$', PictureTHandler),            
-            ('/pictures/([0-9a-z]+)/download/$', PictureDownloadHandler),
+            ('/pictures/([0-9a-z]+)/retry/$', PictureRetryHandler),
             ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),            
         ]
        

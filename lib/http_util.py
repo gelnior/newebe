@@ -20,6 +20,7 @@ class ContactClient(object):
         self.contacts = dict()
         self.client = AsyncHTTPClient()
         self.activity = activity
+        self.extra = ""
 
 
     def get(self, contact, path):
