@@ -15,8 +15,7 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 from newebe.contacts.models import ContactManager
 from newebe.activities.models import ActivityManager
 from newebe.pictures.models import PictureManager, Picture
-from newebe.lib import date_util
-from newebe.lib.upload_util import encode_multipart_formdata
+from newebe.lib import date_util, upload_util
 
 logger = logging.getLogger("newebe.pictures")
 
@@ -587,14 +586,7 @@ class PictureRetryHandler(NewebeAuthHandler):
         url = contact.url.encode("utf-8") + CONTACT_PATH
 
         if "POST" == method:            
-            fields = { "json": str(picture.toJson(localized=False)) }
-            files = [("picture", str(picture.path), 
-                        picture.fetch_attachment("th_" + picture.path))]
-            (contentType, body) = encode_multipart_formdata(fields=fields, 
-                                                            files=files)
-            headers = { 'Content-Type': contentType } 
-            request = HTTPRequest(url=url, method="POST", 
-                                  body=body, headers=headers)
+            request = upload_util.get_picture_upload_request(url, picture)
         else:
             body = picture.toJson(localized=False)
             request = HTTPRequest(url, method = method, body = body)

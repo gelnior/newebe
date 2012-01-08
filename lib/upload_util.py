@@ -2,7 +2,25 @@ import mimetools
 import mimetypes
 import logging
 
+from tornado.httpclient import HTTPRequest
+
 logger = logging.getLogger(__name__)
+
+
+def get_picture_upload_request(url, picture):
+    '''
+    Construct a POST request from a picture and its thumbnail.
+    '''
+        
+    fields = { "json": str(picture.toJson(localized=False)) }
+    files = [("picture", str(picture.path), 
+                picture.fetch_attachment("th_" + picture.path))]
+    (contentType, body) = encode_multipart_formdata(fields=fields, 
+                                                    files=files)
+    headers = { 'Content-Type': contentType } 
+
+    return HTTPRequest(url=url, method="POST", 
+                          body=body, headers=headers)
 
 
 def encode_multipart_formdata(fields, files, 
