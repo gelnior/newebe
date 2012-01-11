@@ -189,22 +189,26 @@ class NewsContactHandler(NewebeHandler):
             micropost = MicroPostManager.get_contact_micropost(
                              authorKey, db_date)
 
-            if not micropost and contact:
-                micropost = MicroPost(
-                    authorKey = authorKey,
-                    author = data["author"],
-                    content = data['content'],
-                    date = date,
-                    isMine = False
-                )
-                micropost.save()
+            if contact:
+                if not micropost:
+                    micropost = MicroPost(
+                        authorKey = authorKey,
+                        author = data["author"],
+                        content = data['content'],
+                        date = date,
+                        isMine = False
+                    )
+                    micropost.save()
 
                 self.create_creation_activity(contact, micropost, 
                         "writes", "micropost")
                 self._notify_suscribers(micropost)
                 self._write_create_log(micropost)
             
-            self.return_json(micropost.toJson(), 201)
+                self.return_json(micropost.toJson(), 201)
+
+            else:
+                self.return_failure("Contact is not registered.", 405)
 
         else:
             self.return_failure("No data sent.", 405)
