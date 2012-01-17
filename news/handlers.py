@@ -130,7 +130,7 @@ class NewsHandler(NewebeAuthHandler):
     @asynchronous
     def post(self):
         '''
-        When post request is recieved, micropost data are expected as
+        When post request is received, micropost data are expected as
         a JSON object. It is extracted from it
         then stored inside a new Microposts object. Micropost author is 
         automatically set with current user and current date is set as date.
@@ -230,7 +230,7 @@ class NewsContactHandler(NewebeHandler):
         Print a log telling that an incoming micropost has been saved.
         '''
 
-        logger.info("Micropost from %s recieved" % micropost.author)
+        logger.info("Micropost from %s received" % micropost.author)
 
 
     def put(self):
