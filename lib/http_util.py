@@ -89,7 +89,7 @@ class ContactClient(object):
             self.activity.add_error(contact, extra=self.extra)
             self.activity.save()
 
-        else: 
+        elif contact and contact.name: 
             logger.info("Request successfully sent to {}.".format(contact.name))
         
         del self.contacts[response.request]
