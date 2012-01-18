@@ -9,7 +9,6 @@ Newebe
 Dependencies
 ============
 * python >= 2.6
-* django >= 1.2
 * couchdb >= 0.11.0
 * couchdbkit >= 0.4.8
 * tornado >= 2.0.0
