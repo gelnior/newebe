@@ -31,7 +31,7 @@ Install following packages:
 
 Then via easy_install:
 
-    pip install couchdbkit django tornado markdown lettuce pytz
+    pip install couchdbkit tornado markdown lettuce pytz
 
 Retrieve Newebe project:
 
