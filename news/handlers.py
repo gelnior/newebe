@@ -324,9 +324,9 @@ class NewsRetryHandler(NewebeAuthHandler):
                 self.return_failure("Contact not found", 404)
             elif not activity:
                 self.return_failure("Activity not found", 404)
-            else:           
-                logger.info("Attemp to resend a post to contact: {}.".format(
-                    contact.name))
+            else:
+                if contact.name:
+                    logger.info("Attempt to resend a post to contact: %s." % contact.name)
                 self.forward_to_contact(micropost, contact, activity)
         else:
             self.return_failure("Micropost not found", 404)
