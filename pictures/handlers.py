@@ -65,8 +65,8 @@ class PicturesHandler(NewebeAuthHandler):
 
             picture = Picture(
                 title = "New Picture", 
-                path=file['filename'],
-                contentType=file["content_type"], 
+                path = filename,
+                contentType =file["content_type"], 
                 authorKey = UserManager.getUser().key,
                 author = UserManager.getUser().name,
                 isFile = True
@@ -223,24 +223,29 @@ class PictureContactHandler(NewebeHandler):
             if contact:
                 date = date_util.get_date_from_db_date(data.get("date", ""))
 
-                picture = Picture(
-                    title = data.get("title", ""),
-                    path = data.get("path", ""),
-                    contentType = data.get("contentType", ""),
-                    authorKey = data.get("authorKey", ""),
-                    author = data.get("author", ""),
-                    date = date,
-                    isMine = False,
-                    isFile = False
-                )
-                picture.save()
-                picture.put_attachment(content=file["body"], 
-                                       name="th_" + file['filename'])
-                picture.save()
+                picture = PictureManager.get_contact_picture(
+                            contact.key, data.get("date", ""))
 
-                self.create_creation_activity(contact,
-                        picture, "publishes", "picture")
+                if not picture:
+                    picture = Picture(
+                        title = data.get("title", ""),
+                        path = data.get("path", ""),
+                        contentType = data.get("contentType", ""),
+                        authorKey = data.get("authorKey", ""),
+                        author = data.get("author", ""),
+                        date = date,
+                        isMine = False,
+                        isFile = False
+                    )
+                    picture.save()
+                    picture.put_attachment(content=file["body"], 
+                                           name="th_" + file['filename'])
+                    picture.save()
 
+                    self.create_creation_activity(contact,
+                            picture, "publishes", "picture")
+
+                logger.info("New picture from %s" % contact.name)
                 self.return_success("Creation succeeds", 201)
 
             else:
