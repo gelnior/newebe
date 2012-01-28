@@ -7,6 +7,10 @@ Feature: Manage notes through handlers
         And Wait for 3 seconds
         Then 5 posts from first newebe are stored in second newebe
         And 5 pictures from first newebe are stored in second newebe
+        When I ask for synchronization
+        And Wait for 3 seconds
+        Then 5 posts from first newebe are stored in second newebe
+        And 5 pictures from first newebe are stored in second newebe
 
     Scenario: Synchronize profiles
         Modify first newebe profile directly to DB
