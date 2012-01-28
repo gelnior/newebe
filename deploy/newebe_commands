@@ -1,0 +1,28 @@
+# Handle manual control parameters like start, stop, status, restart, etc.
+
+case "$1" in
+  start)
+    echo "Starting newebe..."
+    cd $NEWEBE_PATH
+    python newebe_server.py
+    ;;
+
+  stop)
+    # Stop daemons.
+    echo "Shutting down newebe... "
+    kill `cat -- $PIDFILE`
+
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0
+
+
