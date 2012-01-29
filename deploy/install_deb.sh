@@ -31,8 +31,7 @@ done
 echo "Selected port is $DBNAME"
 
 
-while true; do
-    
+while true; do  
     echo "Which time zone do you want for your database (default is Europe/Paris) ?"
     echo "Timezone list : https://github.com/gelnior/newebe/wiki/Available-timezones"
     read usertimezone
@@ -53,27 +52,32 @@ echo "-----------------------------------------------------------------------\n"
 sudo apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git
 
 
+# Clone Newebe repository
+
 echo "\n\nStep 2: Clone newebe repository"
 echo "-----------------------------------------------------------------------\n"
-# Clone Newebe repository
 git clone git://github.com/gelnior/newebe.git 
 
 
 # Go to newebe folder
+
 cd newebe
+
+# Install python dependecies
 
 echo "\n\nStep 3: Install Newebe dependecies"
 echo "-----------------------------------------------------------------------\n"
-# Install python dependecies
 sudo pip install -r deploy/requirements.txt
 
 # Set up db
+
 echo "\n\nStep 4: Set up Newebe database"
 echo "-----------------------------------------------------------------------\n"
 python syncdb.py
 
 
 # Set local configuration file
+
 echo "\n\nStep 5: Build configuration file"
 echo "-----------------------------------------------------------------------\n"
 
@@ -86,6 +90,7 @@ echo "newebe/local_settings.py created\n"
 
 
 # Set auto starter
+
 echo "\n\nStep 6: Set newebe for automatic startup"
 echo "-----------------------------------------------------------------------\n"
 
@@ -99,6 +104,8 @@ sudo cp deploy/newebe_starter /etc/init.d/newebe
 sudo chmod +x /etc/init.d/newebe
 sudo /usr/sbin/update-rc.d -f newebe defaults
 
+
+# Finish text
 
 echo "\n\n\nInstallation finished !"
 echo "-----------------------------------------------------------------------\n"
