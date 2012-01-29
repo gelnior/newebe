@@ -4,28 +4,45 @@
 PORT=8000
 DBNAME="newebe"
 TIMEZONE="Europe/Paris"
-DEBUG="True"
+DEBUG="False"
 
 
 # Get parameters from user
-echo "On which port do you want to setup Newebe (default is 8000) ?"
-read userport
-if [  $userport =~ [0-9]+ -a $userport -gt 3000 -a $userport -lt 20000 ]
-then PORT=$userport
-fi
+while true; do
+    read -p "On which port do you want to setup Newebe (default is 8000) ? " userport
+    case $userport in
+        [0-9]* ) if [ $userport -gt 20000 -o $userport -lt 3000 ]
+                 then echo "Port must be comprised between 3000 and 20000"
+                 else PORT=$userport; break;
+                 fi;;
+        "" ) PORT=8000; break;;
+        * ) echo "Please give a valid port";;
+    esac
+done
+echo "Selected port is $PORT"
 
-echo "Which name do you want for your database (default is newebe) ?"
-read userdbname
-if [ -n $userdbname ]
-then DBNAME=$userdbname
-fi
+while true; do
+    read -p "Which name do you want for your database (default is newebe) ? " userdbname
+    case $userdbname in
+        "" ) DBNAME="newebe"; break;; 
+        * ) DBNAME=$userdbname; break;; 
+    esac
+done
+echo "Selected port is $DBNAME"
 
-echo "Which time zone do you want for your database (default is Europe/Paris) ?"
-echo "Timezone list : https://github.com/gelnior/newebe/wiki/Available-timezones"
-read usertimezone
-if [ -n $usertimezone ]
-then TIMEZONE=$usertimezone
-fi
+
+while true; do
+    
+    echo "Which time zone do you want for your database (default is Europe/Paris) ?"
+    echo "Timezone list : https://github.com/gelnior/newebe/wiki/Available-timezones"
+    read usertimezone
+    case $usertimezone in
+        "" ) TIMEZONE="Europe/Paris"; break;; 
+        * ) TIMEZONE=$usertimezone; break;; 
+    esac
+done
+echo "Selected timezone is $TIMEZONE"
+
 
 
 # Install needed tools
@@ -74,8 +91,8 @@ echo "-----------------------------------------------------------------------\n"
 
 path=`pwd`
 cat deploy/newebe_init > deploy/newebe_starter
-echo "NEWEBE_PATH=$path""/newebe" >> deploy/newebe_starter
-echo "PIDFILE=$path""/newebe/newebe.pid" >> deploy/newebe_starter
+echo "NEWEBE_PATH=$path" >> deploy/newebe_starter
+echo "PIDFILE=$path""/newebe.pid" >> deploy/newebe_starter
 cat deploy/newebe_commands >> deploy/newebe_starter
 
 sudo cp deploy/newebe_starter /etc/init.d/newebe
@@ -83,8 +100,10 @@ sudo chmod +x /etc/init.d/newebe
 sudo /usr/sbin/update-rc.d -f newebe defaults
 
 
+echo "\n\n\nInstallation finished !"
 echo "-----------------------------------------------------------------------\n"
-echo "\n\nInstallation finished, to start your newebe run :"
+
+echo "To start your newebe run :"
 echo "sudo /etc/init.d/newebe start"
 
 
