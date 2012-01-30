@@ -181,7 +181,7 @@ class PicturesQQHandler(PicturesHandler):
             os.remove("th_" + filename)
             picture.save()
 
-            self.create_creation_activity(UserManager.getUser().asContact(),
+            self.create_owner_creation_activity(
                     picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/", 
