@@ -219,6 +219,7 @@
       $(this.el).addClass("selected");
       $("#news-preview").html(null);
       this.checkForVideo();
+      this.checkForImage();
       return this.onAuthorClicked(null);
     };
 
@@ -229,21 +230,55 @@
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
-      var key, res, url, youtubeRegExp;
-      youtubeRegExp = /(http|https):\/\/\S+?youtube.com\S+\]/;
-      url = youtubeRegExp.exec(this.model.get("content"));
-      key = "";
-      if (url) {
-        res = /v=(.+)&/.exec(url[0]);
-        if (res != null) key = res[0];
-        if (!key) {
-          res = /v=(.+)]/.exec(url[0]);
+      var content, index, key, regexp, res, url, urls, _i, _len, _results;
+      regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g;
+      content = this.model.get("content");
+      urls = content.match(regexp);
+      if (urls) {
+        _results = [];
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          index = url.indexOf("(");
+          url = url.substring(index + 1, url.length - 1);
+          res = url.match(/v=\S+&/);
           if (res != null) key = res[0];
+          if (!key) {
+            res = url.match(/v=\S+/);
+            if (res != null) key = res[0];
+          }
+          if (key) {
+            if (key.indexOf("&") > 0) {
+              key = key.substring(2, key.length - 1);
+            } else {
+              key = key.substring(2, key.length);
+            }
+            _results.push($("#news-preview").append("<p>\n  <iframe width=\"100%\" height=\"315\" \n    src=\"http://www.youtube.com/embed/" + key + "\" \n    frameborder=\"0\" allowfullscreen>\n  </iframe>\n</p>"));
+          } else {
+            _results.push(void 0);
+          }
         }
+        return _results;
       }
-      if (key) {
-        key = key.substring(2, key.length - 1);
-        return $("#news-preview").html("<p>\n<iframe width=\"100%\" height=\"315\" \n        src=\"http://www.youtube.com/embed/" + key + "\" \n        frameborder=\"0\" allowfullscreen>\n</iframe>\n</p>");
+    };
+
+    MicroPostRow.prototype.checkForImage = function() {
+      var content, index, regexp, url, urls, _i, _len, _results;
+      regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g;
+      content = this.model.get("content");
+      urls = content.match(regexp);
+      if (urls) {
+        _results = [];
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          index = url.indexOf("(");
+          url = url.substring(index + 1, url.length - 1);
+          if (url) {
+            _results.push($("#news-preview").append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Micropost preview\" />\n</img>\n</p>"));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       }
     };
 
