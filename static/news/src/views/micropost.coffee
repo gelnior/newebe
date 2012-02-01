@@ -106,6 +106,7 @@ class MicroPostRow extends Row
 
     $("#news-preview").html(null)
     @checkForVideo()
+    @checkForImage()
     @onAuthorClicked(null)
     
   # Hide delete button and remove "selected" style.
@@ -117,28 +118,61 @@ class MicroPostRow extends Row
   # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.
   checkForVideo: ->
-    youtubeRegExp = /(http|https):\/\/\S+?youtube.com\S+\]/
-    url = youtubeRegExp.exec(@model.get("content"))
-    key = ""
+    # Remember we analyze markdown code, not displayed text.
+    regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g
+    content = @model.get("content")
+    urls = content.match(regexp)
+    
+    if urls
+      for url in urls
+        index = url.indexOf("(")
+        url = url.substring(index + 1, url.length - 1)
 
-    if url
-      res = /v=(.+)&/.exec(url[0])
-      key = res[0] if res?
-
-      if not key
-        res = /v=(.+)]/.exec(url[0])
+        res = url.match(/v=\S+&/)
         key = res[0] if res?
 
-    if key
-      key = key.substring(2, key.length - 1)
+        if not key
+          res = url.match(/v=\S+/)
+          key = res[0] if res?
+
+        if key
+          if key.indexOf("&") > 0
+            key = key.substring(2, key.length - 1)
+          else
+            key = key.substring(2, key.length)
   
-      $("#news-preview").html("""
-        <p>
-        <iframe width="100%" height="315" 
-                src="http://www.youtube.com/embed/#{key}" 
-                frameborder="0" allowfullscreen>
-        </iframe>
-        </p>
-      """)
+          $("#news-preview").append("""
+           <p>
+             <iframe width="100%" height="315" 
+               src="http://www.youtube.com/embed/#{key}" 
+               frameborder="0" allowfullscreen>
+             </iframe>
+           </p>
+          """)
+
+    
+  # Check if mircropost contains an image link. If it is the case,
+  # it displays the image in the preview column.
+  checkForImage: ->
+    # Remember we analyze markdown code, not displayed text.
+    regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g
+    content = @model.get("content")
+    urls = content.match(regexp)
+    
+    if urls
+
+      for url in urls
+        index = url.indexOf("(")
+        url = url.substring(index + 1, url.length - 1)
+
+        if url
+          $("#news-preview").append("""
+            <p>
+            <img style="max-width: 100%;"
+                 src="#{url}"
+                 alt="Micropost preview" />
+            </img>
+            </p>
+          """)
 
 
