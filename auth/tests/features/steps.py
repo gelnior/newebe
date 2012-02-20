@@ -13,8 +13,8 @@ from newebe.settings import TORNADO_PORT
 
 from newebe.profile.models import User, UserManager
 
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = "https://localhost:%d/" % (TORNADO_PORT + 10)
 
 
 
@@ -59,7 +59,7 @@ def save_default_user(step):
 
 @step(u'Open root url')
 def open_root_url(step):
-    request = HTTPRequest(ROOT_URL)
+    request = HTTPRequest(ROOT_URL, validate_cert=False)
     if world.cookie:
         request.headers["Cookie"] = world.cookie
     world.response = world.browser.fetch(request)
@@ -74,7 +74,8 @@ def checks_that_response_is_login_page(step):
 def send_login_request(step, password):
     try:
         world.response = world.browser.fetch(ROOT_URL + "login/json/", 
-                method="POST", body='{"password":"%s"}' % password)
+                method="POST", body='{"password":"%s"}' % password,
+                validate_cert=False)
     except HTTPError:
         pass
 
@@ -101,7 +102,7 @@ def checks_that_secure_cookie_is_not_set(step):
 
 @step(u'Send logout request')
 def send_logout_request(step):
-    request = HTTPRequest(ROOT_URL+ "logout/",)
+    request = HTTPRequest(ROOT_URL+ "logout/", validate_cert=False)
     if world.cookie:
         request.headers["Cookie"] = world.cookie
     world.response = world.browser.fetch(request)
@@ -112,7 +113,7 @@ def send_logout_request(step):
 
 @step(u'Open register url')
 def open_register_url(step):
-    request = HTTPRequest(ROOT_URL + "register/")
+    request = HTTPRequest(ROOT_URL + "register/", validate_cert=False)
     world.response = world.browser.fetch(request)
 
 @step(u'Checks that response is register page')
@@ -126,8 +127,9 @@ def checks_that_response_is_register_page(step):
 @step(u'Send creation request for (\w+) as user name')
 def send_creation_request(step, name):    
     try:
-        world.response = world.browser.fetch(ROOT_URL + "register/", 
-                method="POST", body='{"name":"%s"}' % name)
+        request = HTTPRequest(ROOT_URL + "register/", 
+                method="POST", body='{"name":"%s"}' % name, validate_cert=False)
+        world.response = world.browser.fetch(request)
         assert world.response.code == 201
     except HTTPError:
         pass
@@ -140,7 +142,7 @@ def checks_that_newebe_owner_is_called_jhon(step, name):
 
 @step(u'Open password registration url')
 def open_password_registration_url(step):
-    request = HTTPRequest(ROOT_URL + "register/password/")
+    request = HTTPRequest(ROOT_URL + "register/password/", validate_cert=False)
     world.response = world.browser.fetch(request)
 
 @step(u'Checks that response is password registration page')
@@ -151,8 +153,10 @@ def checks_that_response_is_password_registration_page(step):
 
 @step(u'Send password creation request with password as password')
 def send_password_creation_request_with_password_as_password(step):
-    world.response = world.browser.fetch(ROOT_URL + "register/password/", 
-        method="POST", body='{"password":"%s"}' % "password")
+    request = HTTPRequest(ROOT_URL + "register/password/", 
+                          method="POST", body='{"password":"%s"}' % "password", 
+                          validate_cert=False)
+    world.response = world.browser.fetch(request)
     assert world.response.code == 200
 
 @step(u'Change password with (\w+)')
@@ -165,7 +169,7 @@ def change_password_with_password2(step, password):
 def fail_to_change_user_password_with_ba(step):
     try:
         world.response = world.browser.put(ROOT_URL + "user/password/", 
-            body='{"password":"%s"}' % "ba")
+                             body='{"password":"%s"}' % "ba")
         assert False
     except HTTPError:
         assert True
@@ -173,8 +177,10 @@ def fail_to_change_user_password_with_ba(step):
 @step(u'Fail to send password creation request with ba as password')
 def send_password_creation_request_with_ba_as_password(step):
     try:
-        world.response = world.browser.fetch(ROOT_URL + "register/password/", 
-            method="POST", body='{"password":"%s"}' % "ba")
+        request = HTTPRequest(ROOT_URL + "register/password/",  
+            method="POST", body='{"password":"%s"}' % "ba", validate_cert=False)
+
+        world.response = world.browser.fetch(request)
         assert False
     except HTTPError:
         assert True

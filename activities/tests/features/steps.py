@@ -8,12 +8,8 @@ sys.path.append("../../../")
 
 from newebe.activities.models import Activity, ActivityManager
 from newebe.contacts.models import Contact
-from newebe.settings import TORNADO_PORT
 from newebe.lib.test_util import NewebeClient
 from newebe.lib import date_util
-
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-
 
 @before.all
 def set_browser():

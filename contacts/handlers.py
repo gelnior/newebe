@@ -2,22 +2,20 @@ import datetime
 import logging
 import markdown
 
-
+from tornado.web import asynchronous
 from tornado.escape import json_decode
-from tornado.httpclient import HTTPClient, HTTPRequest
 
 from newebe.lib.slugify import slugify
+from newebe.lib.http_util import ContactClient
 
 from newebe.profile.models import UserManager
 from newebe.contacts.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED, STATE_PENDING
-from newebe.activities.models import Activity
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
+
 # Template handlers for contact pages.
-
-
 logger = logging.getLogger(__name__)
 
 class ContactUpdateHandler(NewebeHandler):
@@ -43,7 +41,7 @@ class ContactUpdateHandler(NewebeHandler):
                 contact.name = putContact["name"]
                 contact.save()
          
-                self.create_modify_activity(contact)
+                self.create_modify_activity(contact, "modifies", "profile")
 
                 self.return_success("Contact successfully modified.")
        
@@ -53,23 +51,6 @@ class ContactUpdateHandler(NewebeHandler):
         
         else:
             self.return_failure("Empty data.")
-
-
-    def create_modify_activity(self, contact):
-        '''
-        Creates an activity that describes a contact profile modification.
-        '''
-
-        activity = Activity(
-             authorKey = contact.key,
-             author = contact.name,
-             verb = "modifies",
-             docType = "profile",
-             method = "PUT",
-             docId = "none",
-             isMine = False
-        )
-        activity.save()
 
 
 class ContactsPendingHandler(NewebeAuthHandler):
@@ -143,38 +124,50 @@ class ContactHandler(NewebeAuthHandler):
         else:
             self.return_failure("Contact does not exist.", 404)
 
- 
+    @asynchronous 
     def put(self, slug):
         '''
         Confirm contact request.
         '''
 
-        contact = ContactManager.getContact(slug)
-        contact.state = STATE_TRUSTED
-        contact.save()
+        self.contact = ContactManager.getContact(slug)
+        if self.contact:
+            self.contact.state = STATE_TRUSTED
+            self.contact.save()
 
-        user = UserManager.getUser()
-        data = user.asContact().toJson(localized=False)
+            user = UserManager.getUser()
+            data = user.asContact().toJson(localized=False)
+
+            try:
+                 client = ContactClient()
+                 client.post(self.contact, "contacts/confirm/", data, 
+                             self.on_contact_response)
+            except:
+                self.contact.state = STATE_ERROR
+                self.contact.save()
+                self.return_failure("Error occurs while confirming contact.")
+        else:
+            self.return_failure("Contact to confirm does not exist.")
+
+
+    def on_contact_response(self, response, **kwargs):
+        '''
+        Check contact response and set contact status depending on this 
+        response.
+        '''
 
         try:
-             url = contact.url
-             client = HTTPClient()
-             request = HTTPRequest("%scontacts/confirm/" % url, 
-                                   method="POST", body=data)
-
-             response = client.fetch(request)
              incomingData = response.body
              newebeResponse = json_decode(incomingData)
              if not newebeResponse["success"]:
-                 contact.state = STATE_ERROR
-                 contact.save()
+                 self.contact.state = STATE_ERROR
+                 self.contact.save()
                  self.return_failure("Error occurs while confirming contact.")
              else:
                  self.return_success("Contact trusted.")
-
         except:
-            contact.state = STATE_ERROR
-            contact.save()
+            self.contact.state = STATE_ERROR
+            self.contact.save()
             self.return_failure("Error occurs while confirming contact.")
 
 
@@ -208,6 +201,7 @@ class ContactsHandler(NewebeAuthHandler):
         self.return_documents(contacts)
 
 
+    @asynchronous
     def post(self):
         '''
         Creates a new contact from web client data 
@@ -227,36 +221,28 @@ class ContactsHandler(NewebeAuthHandler):
             if owner.url != url:
                 slug = slugify(url)
 
-                contact = Contact(
+                self.contact = Contact(
                   url = url,
                   slug = slug
                 )
-                contact.save()
-            
+                self.contact.save()
+
                 try:
                     data = UserManager.getUser().asContact().toJson()
 
-                    client = HTTPClient()
-                    request = HTTPRequest("%scontacts/request/" % url, 
-                                          method="POST", body=data)
-
-                    response = client.fetch(request)
-                    data = response.body
-                    
-                    newebeResponse = json_decode(data)
-                    if not newebeResponse["success"]:
-                        contact.state = STATE_ERROR
-                        contact.save()
+                    client = ContactClient()
+                    client.post(self.contact, "contacts/request/",
+                                data, self.on_contact_response)
 
                 except Exception:
                     import traceback
                     logger.error("Error on adding contact:\n %s" % 
                             traceback.format_exc())
 
-                    contact.state = STATE_ERROR
-                    contact.save()
+                    self.contact.state = STATE_ERROR
+                    self.contact.save()
 
-                return self.return_json(contact.toJson(), 201)
+                return self.return_json(self.contact.toJson(), 201)
 
             else:
                 return self.return_failure(
@@ -264,6 +250,28 @@ class ContactsHandler(NewebeAuthHandler):
         else:
             return self.return_failure(
                     "Wrong data. Contact has not been created.", 400)
+
+
+    def on_contact_response(self, response, **kwargs):
+        '''
+        On contact response, checks if no error occured. If error occured,
+        it changes the contact status from Pending to Error.
+        '''
+
+        try:
+            newebeResponse = json_decode(response.body)
+            if not newebeResponse["success"]:
+                self.contact.state = STATE_ERROR
+                self.contact.save()
+
+        except Exception:
+            import traceback
+            logger.error("Error on adding contact:\n %s" % 
+                    traceback.format_exc())
+
+            self.contact.state = STATE_ERROR
+            self.contact.save()
+
 
 class ContactRetryHandler(NewebeAuthHandler):
     '''
@@ -274,6 +282,7 @@ class ContactRetryHandler(NewebeAuthHandler):
     '''
 
 
+    @asynchronous
     def post(self, slug):
         '''
         When post request is received, contact of which slug is equal to
@@ -283,40 +292,40 @@ class ContactRetryHandler(NewebeAuthHandler):
 
         logger = logging.getLogger("newebe.contact")
 
-        contact = ContactManager.getContact(slug)
+        self.contact = ContactManager.getContact(slug)
         owner = UserManager.getUser()
 
-        if contact and contact.url != owner.url:
+        if self.contact and self.contact.url != owner.url:
             try:
                 data = owner.asContact().toJson()
 
-                client = HTTPClient()
-                url = contact.url 
-                request = HTTPRequest("%scontacts/request/" % url, 
-                                      method="POST", body=data)
-
-                response = client.fetch(request)
-                data = response.body
-                
-                if response.code != 200:
-                    contact.state = STATE_ERROR
-                    contact.save()
-
-                else:
-                    contact.state = STATE_PENDING
-                    contact.save()
+                client = ContactClient()
+                client.post(self.contact, "contacts/request/", data, 
+                            self.on_contact_response)
 
             except Exception:
                 import traceback
                 logger.error("Error on adding contact:\n %s" % 
                         traceback.format_exc())
 
-                contact.state = STATE_ERROR
-                contact.save()
+                self.contact.state = STATE_ERROR
+                self.contact.save()
 
-            return self.return_json(contact.toJson(), 200)
+            self.return_json(self.contact.toJson(), 200)
         else:
             self.return_failure("Contact does not exist", 404)
+
+
+    def on_contact_response(self, response, **kwargs):
+        
+        if response.code != 200:
+            self.contact.state = STATE_ERROR
+            self.contact.save()
+
+        else:
+            self.contact.state = STATE_PENDING
+            self.contact.save()
+
 
 
 class ContactPushHandler(NewebeHandler):

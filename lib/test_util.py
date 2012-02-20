@@ -8,8 +8,8 @@ from tornado.httpclient import HTTPClient, HTTPRequest
 from newebe.settings import TORNADO_PORT, COUCHDB_DB_NAME
 from newebe.profile.models import UserManager, User
 
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = u"https://localhost:%d/" % (TORNADO_PORT + 10)
 
 server = Server()
 server2 = Server()
@@ -42,8 +42,10 @@ class NewebeClient(HTTPClient):
         Grab authentication cookie from login request.
         '''
 
-        response = self.fetch(self.root_url + "login/json/", 
-                method="POST", body='{"password":"%s"}' % password)
+        request = HTTPRequest(self.root_url + "login/json/", 
+                method="POST", body='{"password":"%s"}' % password,
+                validate_cert=False)
+        response = self.fetch(request)
         
         assert response.headers["Set-Cookie"].startswith("password=")
         self.cookie = response.headers["Set-Cookie"]
@@ -103,7 +105,7 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url)
+        request = HTTPRequest(url, validate_cert=False)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
@@ -117,7 +119,7 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url, method="POST", body=body)
+        request = HTTPRequest(url, method="POST", body=body, validate_cert=False)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
@@ -131,7 +133,7 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url, method="PUT", body=body)
+        request = HTTPRequest(url, method="PUT", body=body, validate_cert=False)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
             
@@ -146,7 +148,7 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url, method="DELETE")
+        request = HTTPRequest(url, method="DELETE", validate_cert=False)
         if self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
