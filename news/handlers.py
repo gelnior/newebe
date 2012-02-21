@@ -347,7 +347,7 @@ class NewsRetryHandler(NewebeAuthHandler):
 
         try:
             httpClient.post(contact, CONTACT_PATH, body, 
-                    callback=(yield gen.Callback("retry")))
+                            callback=(yield gen.Callback("retry")))
             response = yield gen.Wait("retry")
               
             if response.error:
@@ -364,6 +364,9 @@ class NewsRetryHandler(NewebeAuthHandler):
             self.return_failure("Posting micropost to contact failed.")
 
        
+       
+    @asynchronous
+    @gen.engine
     def put(self, key):
         '''
         Resend deletion of micropost with *key* as key to the contact given in 
@@ -397,11 +400,32 @@ class NewsRetryHandler(NewebeAuthHandler):
                 )
                 
                 logger.info(
-                    "Attemp to resend a post deletion to contact: {}.".format(
+                    "Attempt to resend a post deletion to contact: {}.".format(
                         contact.name))
+                httpClient = ContactClient()         
+                body = micropost.toJson(localized=False)
 
-                self.forward_to_contact(micropost, contact, activity, 
-                                        method = "PUT")
+
+                try:
+                    httpClient.put(contact, CONTACT_PATH, body, 
+                                   callback=(yield gen.Callback("retry")))
+                    response = yield gen.Wait("retry")
+                  
+                    if response.error:
+                        self.return_failure(
+                                "Deleting micropost to contact failed.")
+
+                    else:
+                        for error in activity.errors:
+                            if error["contactKey"] == contact.key:
+                                activity.errors.remove(error)
+                                activity.save()
+                                self.return_success(
+                                        "Micropost correctly redeleted.")
+
+                except:
+                    self.return_failure("Deleting micropost to contact failed.")
+
 
         else:
             self.return_failure("Micropost not found", 404)

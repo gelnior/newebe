@@ -1,6 +1,7 @@
 import sys
 import datetime 
 import pytz
+import time
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
@@ -39,6 +40,7 @@ def set_browers():
         
         world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
+        time.sleep(0.3)
         world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
@@ -53,25 +55,6 @@ def delete_posts(scenario):
     reset_documents(Activity, ActivityManager.get_all)
     reset_documents(Activity, ActivityManager.get_all, db2)
 
-
-
-# Models
-
-@step(u'Given there are (\d+) posts of me and (\d+) posts of my contacts')
-def given_there_are_3_posts_of_and_3_posts_of_my_contacts(step, 
-                                                          nbposts, 
-                                                          nbcontactposts):
-    nbposts = int(nbposts)
-    nbcontactposts = int(nbcontactposts)
-
-    for i in range(1, nbposts + 1):
-        micropost = MicroPost()
-        micropost.author = UserManager.getUser().name
-        micropost.authorKey = UserManager.getUser().key
-        micropost.content = "my content {}".format(i)
-        micropost.date = datetime.datetime(2011, i, 01, 11, 05, 12)
-        micropost.isMine = True
-        micropost.save()
 
 
 
@@ -152,6 +135,7 @@ def then_i_have_1_post_corresponding_to_given_contact_and_date(step):
 @step(u'When I send a request to retrieve the last posts')
 def when_i_send_a_request_to_retrieve_the_last_posts(step):
     world.microposts = world.browser.fetch_documents("news/microposts/all/")
+    time.sleep(0.6)
    
 @step(u'And I send a request to retrieve the last posts')
 def and_i_send_a_request_to_retrieve_the_last_posts(step):
@@ -197,6 +181,7 @@ def and_i_send_a_delete_request_for_this_micropost(step):
     response = world.browser.delete(
                     "news/micropost/{}/".format(micropost.get("_id")))
     assert 200 == response.code
+    time.sleep(0.3)
 
 @step(u'Then I have 0 micropost')
 def then_i_have_0_micropost(step):

@@ -50,6 +50,23 @@ class ContactClient(object):
         return self.client.fetch(request, callback)
 
 
+    def put(self, contact, path, body, callback=None):
+        '''
+        Perform a PUT request to given contact.
+        '''
+
+        url = contact.url + path
+
+        request = HTTPRequest(url, method="PUT", body=body, 
+                              validate_cert=False)
+        self.contacts[request] = contact
+
+        if not callback:
+            callback = self.on_contact_response
+
+        return self.client.fetch(request, callback)
+
+
     def post_files(self, contact, path, fields={}, files={}):
         '''
         Post file and fields to givent contact.
