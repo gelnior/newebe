@@ -2,9 +2,9 @@ import os
 import logging
 import mimetypes
 
+from tornado import gen
 from tornado.web import asynchronous
-from tornado.httpclient import HTTPError, AsyncHTTPClient, HTTPClient, \
-                               HTTPRequest
+from tornado.httpclient import HTTPError
 from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
 from PIL import Image
@@ -16,6 +16,7 @@ from newebe.contacts.models import ContactManager
 from newebe.activities.models import ActivityManager
 from newebe.pictures.models import PictureManager, Picture
 from newebe.lib import date_util, upload_util
+from newebe.lib.http_util import ContactClient
 
 logger = logging.getLogger("newebe.pictures")
 
@@ -397,13 +398,12 @@ class PictureDownloadHandler(PictureObjectHandler):
 
         contact = ContactManager.getTrustedContact(picture.authorKey)
         
-        url = contact.url + u"pictures/contact/download/"
-        client = AsyncHTTPClient()
-        request = HTTPRequest(url, method="POST", body=json_encode(data))       
+        client = ContactClient()
+        body = json_encode(data)
         
         try:
-            logger.info(url)
-            client.fetch(request, self.on_download_finished)
+            client.post(contact,  u"pictures/contact/download/", 
+                        body, self.on_download_finished)
         except HTTPError:
             self.return_failure("Cannot download picture from contact.")
 
@@ -505,6 +505,7 @@ class PictureTHandler(PictureObjectHandler):
 class PictureRetryHandler(NewebeAuthHandler):
 
 
+    @asynchronous
     def post(self, key):
         '''
         Resend post with *key* as key to the contact given in the posted
@@ -537,6 +538,7 @@ class PictureRetryHandler(NewebeAuthHandler):
             self.return_failure("Picture not found", 404)
 
        
+    @asynchronous
     def put(self, key):
         '''
         Resend deletion of micropost with *key* as key to the contact given in 
@@ -580,6 +582,8 @@ class PictureRetryHandler(NewebeAuthHandler):
             self.return_failure("Micropost not found", 404)
 
 
+    @asynchronous
+    @gen.engine
     def forward_to_contact(self, picture, contact, activity, method = "POST"):
         '''
         *picture is sent to *contact* via a request of which method is set 
@@ -587,18 +591,25 @@ class PictureRetryHandler(NewebeAuthHandler):
         is removed. Else nothing is done and error code is returned.
         '''
 
-        httpClient = HTTPClient()            
-        url = contact.url.encode("utf-8") + CONTACT_PATH
-
-        if "POST" == method:            
-            request = upload_util.get_picture_upload_request(url, picture)
-        else:
-            body = picture.toJson(localized=False)
-            request = HTTPRequest(url, method = method, body = body)
+        client = ContactClient()            
 
         try:
-            response = httpClient.fetch(request)
-            
+
+            if method == "POST":
+                
+                client.post_files(contact, CONTACT_PATH, 
+                              { "json": str(picture.toJson(localized=False)) },
+                              [("picture", str(picture.path), 
+                               picture.fetch_attachment("th_" + picture.path))],
+                              callback=(yield gen.Callback("retry")))
+                response = yield gen.Wait("retry")
+
+            else:                
+                body = picture.toJson(localized=False)
+                response = client.put(contact, CONTACT_PATH, body, 
+                                      callback=(yield gen.Callback("retry")))
+                response = yield gen.Wait("retry")
+
             if response.error:
                 self.return_failure(
                   "Retry picture request to a contact failed ({}).".format(method))

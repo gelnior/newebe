@@ -12,8 +12,8 @@ from newebe.settings import TORNADO_PORT
 from newebe.lib.test_util import NewebeClient
 
 
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = "https://localhost:%d/" % (TORNADO_PORT + 10)
 
 
 @step(u'Send login request with password as password')

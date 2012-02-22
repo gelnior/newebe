@@ -37,6 +37,7 @@ def set_browers():
 
         world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
+        time.sleep(0.3)
         world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
@@ -133,7 +134,8 @@ def post_a_new_picture_via_the_dedicated_resource(step):
                             [("picture", "test.jpg", file.read())])
     headers = {'Content-Type':contentType} 
     request = HTTPRequest(url=world.browser.root_url + "pictures/last/", 
-                          method="POST", body=body, headers=headers)
+                          method="POST", body=body, headers=headers,
+                          validate_cert=False)
     if hasattr(world.browser, "cookie"):
             request.headers["Cookie"] = world.browser.cookie
     world.browser.fetch(request)
@@ -319,6 +321,7 @@ def through_handler_delete_first_picture(step):
     time.sleep(1)
     picture = world.pictures[0]
     world.browser.delete("pictures/{}/".format(picture.get("_id", "")))
+    time.sleep(0.4)
 
 @step(u'Check that there are no picture')
 def check_that_there_are_no_picture(step):

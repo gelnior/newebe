@@ -67,7 +67,7 @@ class ContactClient(object):
         return self.client.fetch(request, callback)
 
 
-    def post_files(self, contact, path, fields={}, files={}):
+    def post_files(self, contact, path, fields={}, files={}, callback=None):
         '''
         Post file and fields to givent contact.
         '''
@@ -81,7 +81,11 @@ class ContactClient(object):
         request = HTTPRequest(url=url, method="POST", 
                               body=body, headers=headers, validate_cert=False)
         self.contacts[request] = contact
-        return self.client.fetch(request, self.on_contact_response)
+
+        if not callback:
+            callback = self.on_contact_response
+
+        return self.client.fetch(request, callback)
 
 
     def delete(self, contact, path, body, extra=None):
