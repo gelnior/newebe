@@ -239,7 +239,11 @@ if __name__ == '__main__':
 
             # Starts server.
             try:
-                http_server = HTTPServer(tornado_app)
+                http_server = HTTPServer(tornado_app, xheaders=True,
+                                         ssl_options = {
+                                            "certfile": CERTIFICATE,
+                                            "keyfile": PRIVATE_KEY,
+                                        })
                 http_server.listen(TORNADO_PORT)
 
                 logger.info("Starts Newebe on port %d." % TORNADO_PORT)
