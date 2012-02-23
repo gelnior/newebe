@@ -47,9 +47,9 @@ echo "Selected timezone is $TIMEZONE"
 # Install needed tools
 
 echo "\nStep 1: Install tools needed by Newebe : Python binary, Pyton utils,"
-echo "Couchdb and Git"
+echo "Couchdb, Git and Open SSL"
 echo "-----------------------------------------------------------------------\n"
-sudo apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git
+sudo apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git openssl
 
 
 # Clone Newebe repository
