@@ -104,6 +104,17 @@ sudo cp deploy/newebe_starter /etc/init.d/newebe
 sudo chmod +x /etc/init.d/newebe
 sudo /usr/sbin/update-rc.d -f newebe defaults
 
+# Set certificates
+
+echo "\n\n Step 7: build certificates"
+echo "-----------------------------------------------------------------------\n"
+
+sudo openssl genrsa -out ./server.key 1024
+sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
+sudo chmod 640 server.key
+sudo chown root:ssl-cert server.key
+cd ..
+
 
 # Finish text
 
