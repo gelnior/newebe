@@ -1,7 +1,11 @@
 # Global settings
+import os
 
+
+# User configuration
 try:
-    from newebe.local_settings import *
+    from newebe.local_settings import TORNADO_PORT, COUCHDB_DB_NAME, DEBUG, \
+            TIMEZONE, COOKIE_KEY
 except:
     TORNADO_PORT = 8000
     COUCHDB_DB_NAME = "newebe"
@@ -9,6 +13,13 @@ except:
     TIMEZONE = "GMT"
     COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
+
+# Set certificate files for HTTPS configuration.
+try:
+    from newebe.local_settings import PRIVATE_KEY, CERTIFICATE
+except:
+    PRIVATE_KEY = os.path.join("./", "server.key")
+    CERTIFICATE = os.path.join("./", "server.crt")
 
 
 

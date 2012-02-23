@@ -6,7 +6,8 @@ from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 sys.path.append("../")
-from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY
+from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
+                            PRIVATE_KEY, CERTIFICATE
 
 import newebe.lib.pid as pid
 
@@ -66,10 +67,6 @@ from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
 
 from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
-
-# Set certificate files for HTTPS configuration.
-PRIVATE_KEY = os.path.join("./", "server.key")
-CERTIFICATE = os.path.join("./", "server.crt")
 
 # Set logging configuration
 FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
