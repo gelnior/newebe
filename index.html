@@ -201,8 +201,8 @@
         </p>
 
         <p>
-        <span class="step">step 4 bis</span>  To change database name or port 
-        change, you must modify your <em>settings.py</em> file by settings the 
+        <span class="step">step 4 bis</span>  To change database name or port, 
+        you must modify your <em>settings.py</em> file by settings the 
         following constants : <em>TORNADO_PORT</em> and 
         <em>COUCHDB_DB_NAME</em>. Default port is <em>8000</em> and default 
         database name is <em>newebe</em>. <br />
@@ -214,7 +214,7 @@
     </p>
     <p>
     NB: The best way to deal with specific configuration is to set this
-    variable in a file called l<em>socal_settings.py</em> in the same directory
+    variable in a file called <em>local_settings.py</em> in the same directory
     as <em>settings.py</em>.
     </p>
     <p>
@@ -253,7 +253,7 @@
   < /dev/urandom tr -dc A-Za-z0-9_ | head -c50
 </pre>
     <p>
-    and in *local_settings.py* put the result as string value of constant COOKIE_KEY
+    and in <em>local_settings.py</em> put the result as string value of constant COOKIE_KEY
     </p>
     <pre>
   COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
