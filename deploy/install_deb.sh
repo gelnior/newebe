@@ -85,7 +85,7 @@ echo "TORNADO_PORT = $PORT" > local_settings.py
 echo "COUCHDB_DB_NAME = \"$DBNAME\"" >> local_settings.py
 echo "TIMEZONE = \"$TIMEZONE\"" >> local_settings.py
 echo "DEBUG = $DEBUG" >> local_settings.py
-
+echo "COOKIE_KEY = `< /dev/urandom tr -dc A-Za-z0-9_ | head -c50`"  >> local_settings.py
 echo "newebe/local_settings.py created\n"
 
 

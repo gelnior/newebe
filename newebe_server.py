@@ -6,7 +6,7 @@ from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 sys.path.append("../")
-from newebe.settings import TORNADO_PORT, DEBUG
+from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY
 
 import newebe.lib.pid as pid
 
@@ -152,7 +152,7 @@ class Newebe(Application):
 
             ('/pictures/$', PicturesTHandler),
             ('/pictures/tests/$', PicturesTestsTHandler),
-            ('/pictures/content/$', PicturesContentTHandler),            
+            ('/pictures/content/$', PicturesConzKtentTHandler),            
             ('/pictures/last/$', PicturesHandler),
             ('/pictures/last/([0-9\-]+)/$', PicturesHandler),
             ('/pictures/last/my/$', PicturesMyHandler),        
@@ -174,7 +174,7 @@ class Newebe(Application):
 
         settings = {
           "static_path": os.path.join(os.path.dirname(__file__), "static"),
-          "cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
+          "cookie_secret": COOKIE_KEY,
           "login_url": "/login",
         }
         Application.__init__(self, handlers, debug=DEBUG, **settings)

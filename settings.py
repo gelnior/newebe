@@ -7,6 +7,8 @@ except:
     COUCHDB_DB_NAME = "newebe"
     DEBUG = False
     TIMEZONE = "GMT"
+    COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+
 
 
 
