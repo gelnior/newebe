@@ -34,6 +34,7 @@ def set_default_user():
     
     world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
+    time.sleep(0.3)
     world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
 
 
@@ -58,10 +59,9 @@ def posts_on_first_newebe(step):
             author = world.user.name,
             authorKey = world.user.key,
             content = "content %s" % i,
-            date = datetime.datetime.now()
         )
         time.sleep(1)
-        world.browser.post("news/microposts/", micropost.toJson())
+        micropost.save()
 
 
 @step(u'When I Ask for synchronization')
@@ -86,6 +86,7 @@ def and_5_pictures_are_created_on_first_newebe(step):
             authorKey = world.user.key,
             date = datetime.datetime(2011, 11, i),
             path = "test.jpg",
+            contentType = "image/jpeg",
             isMine = True
         )
         picture.save()

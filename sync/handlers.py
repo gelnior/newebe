@@ -2,9 +2,9 @@ import datetime
 import logging
 
 from tornado.web import asynchronous
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 
 from newebe.lib import date_util, upload_util
+from newebe.lib.http_util import ContactClient
 
 from newebe.profile.models import UserManager
 from newebe.contacts.models import ContactManager
@@ -40,7 +40,7 @@ class SynchronizeHandler(NewebeAuthHandler):
         Current newebe has to check himself if he already has these data.
         '''
 
-        client = AsyncHTTPClient()
+        client = ContactClient()
         user = UserManager.getUser()
 
         self.contacts = dict()
@@ -58,11 +58,10 @@ class SynchronizeHandler(NewebeAuthHandler):
 
         body = user.asContact().toJson()
         logger.info("Start syncing with : " + contact.url)
-        request = HTTPRequest(url = contact.url + "synchronize/contact/", 
-                              method = "POST",
-                              body = body)
-        self.contacts[request] = contact
-        client.fetch(request = request, callback = self.on_synchronize_posts) 
+        url = "%ssynchronize/contact/" % contact.url
+        self.contacts[url] = contact
+        client.post(contact, "synchronize/contact/", body, 
+                    callback=self.on_synchronize_posts) 
 
 
     def on_synchronize_posts(self, response, **kwargs):
@@ -72,7 +71,7 @@ class SynchronizeHandler(NewebeAuthHandler):
         '''
 
         if not response.error:
-            contact = self.contacts[response.request]
+            contact = self.contacts[response.request.url]
 
             if contact:
                 remoteContact = self.get_json_from_response(response)["rows"][0]
@@ -94,7 +93,7 @@ class SynchronizeContactHandler(NewebeHandler):
         sends again all posts from last month to contact.
         '''
             
-        client = AsyncHTTPClient()
+        client = ContactClient()
         now = datetime.datetime.utcnow() 
         date = now - datetime.timedelta(365/12)
 
@@ -120,11 +119,9 @@ class SynchronizeContactHandler(NewebeHandler):
                 endKey=date_util.get_db_date_from_date(date))
 
         for micropost in microposts:
-            url = contact.url.encode("utf-8") + MICROPOST_PATH
             body = micropost.toJson(localized=False)
 
-            request = HTTPRequest(url, method = "POST", body = body)
-            client.fetch(request, self.onContactResponse)
+            client.post(contact, MICROPOST_PATH, body, self.onContactResponse)
 
 
     def send_pictures_to_contact(self, client, contact, now, date):
@@ -137,9 +134,11 @@ class SynchronizeContactHandler(NewebeHandler):
                 endKey=date_util.get_db_date_from_date(date))
 
         for picture in pictures:
-            url = contact.url.encode("utf-8") + PICTURE_PATH
-            request = upload_util.get_picture_upload_request(url, picture)
-            client.fetch(request, self.onContactResponse)
+            client.post_files(contact, PICTURE_PATH, 
+                    { "json": str(picture.toJson(localized=False)) },
+                    [("picture", str(picture.path), 
+                            picture.fetch_attachment("th_" + picture.path))]
+                    , self.onContactResponse)
 
 
     def onContactResponse(self, response, **kwargs):

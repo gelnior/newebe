@@ -29,22 +29,45 @@ class ContactClient(object):
         '''
 
         url = contact.url + path
-        request = HTTPRequest(url)
+        request = HTTPRequest(url, validate_cert=False)
         return self.client.fetch(self, request)
 
 
-    def post(self, contact, path, body):
+    def post(self, contact, path, body, callback=None):
         '''
         Perform a POST request to given contact.
         '''
 
         url = contact.url + path
-        request = HTTPRequest(url, method="POST", body=body)
+
+        request = HTTPRequest(url, method="POST", body=body, 
+                              validate_cert=False)
         self.contacts[request] = contact
-        return self.client.fetch(request, self.on_contact_response)
+
+        if not callback:
+            callback = self.on_contact_response
+
+        return self.client.fetch(request, callback)
 
 
-    def post_files(self, contact, path, fields={}, files={}):
+    def put(self, contact, path, body, callback=None):
+        '''
+        Perform a PUT request to given contact.
+        '''
+
+        url = contact.url + path
+
+        request = HTTPRequest(url, method="PUT", body=body, 
+                              validate_cert=False)
+        self.contacts[request] = contact
+
+        if not callback:
+            callback = self.on_contact_response
+
+        return self.client.fetch(request, callback)
+
+
+    def post_files(self, contact, path, fields={}, files={}, callback=None):
         '''
         Post file and fields to givent contact.
         '''
@@ -54,10 +77,15 @@ class ContactClient(object):
         headers = { 'Content-Type': contentType } 
 
         url = contact.url + path
+
         request = HTTPRequest(url=url, method="POST", 
-                              body=body, headers=headers)
+                              body=body, headers=headers, validate_cert=False)
         self.contacts[request] = contact
-        return self.client.fetch(request, self.on_contact_response)
+
+        if not callback:
+            callback = self.on_contact_response
+
+        return self.client.fetch(request, callback)
 
 
     def delete(self, contact, path, body, extra=None):
@@ -67,7 +95,7 @@ class ContactClient(object):
         '''
 
         url = contact.url + path
-        request = HTTPRequest(url, method="PUT", body=body)
+        request = HTTPRequest(url, method="PUT", body=body, validate_cert=False)
         self.contacts[request] = contact
         self.extra = extra
         return self.client.fetch(request, self.on_contact_response)

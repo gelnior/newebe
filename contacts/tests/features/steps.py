@@ -1,5 +1,7 @@
 import sys
 import pytz
+import time
+
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
@@ -15,22 +17,32 @@ from newebe.settings import TORNADO_PORT
 from newebe.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
 from newebe.contacts.models import STATE_PENDING, STATE_ERROR
 
-from newebe.lib.test_util import NewebeClient, db, db2
+from newebe.lib.test_util import NewebeClient, db, db2, reset_documents
 from newebe.lib import date_util
 
 
-ROOT_URL = u"http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = u"https://localhost:%d/" % TORNADO_PORT
+SECOND_NEWEBE_ROOT_URL = u"https://localhost:%d/" % (TORNADO_PORT + 10)
+
 
 @before.all
-def set_browser():
+def set_browers():
+
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
+
     world.browser = NewebeClient()
     world.browser.set_default_user()
     world.browser.login("password")
 
-    world.browser2 = NewebeClient()
-    world.browser2.root_url = SECOND_NEWEBE_ROOT_URL
-    world.browser2.login("password")
+    try: 
+        world.browser2 = NewebeClient()
+        world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
+        world.user2 = world.browser2.user
+        world.browser2.login("password")
+
+    except HTTPError:
+        print "[WARNING] Second newebe instance does not look started"
 
 @step(u'Convert default user to contact')
 def convert_default_user_to_contact(step):
@@ -186,6 +198,7 @@ def deletes_seconde_newebe_contacts(step):
 def on_first_newebe_add_second_newebe_as_a_contact(step):
     world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
+    time.sleep(0.3)
 
 @step(u'Check that first contact status is pending')
 def check_that_first_contact_status_is_pending(step):
@@ -194,6 +207,7 @@ def check_that_first_contact_status_is_pending(step):
 
 @step(u'From second newebe retrieve all contacts')
 def from_second_newebe_retrieve_all_contacts(step):
+    time.sleep(0.3)
     world.contacts = world.browser2.fetch_documents("contacts/")
 
 @step(u'Check that first contact status is waiting for approval')
@@ -201,7 +215,7 @@ def check_that_first_contact_status_is_waiting_for_approval(step):
     assert 1 == len(world.contacts)
     assert STATE_WAIT_APPROVAL == world.contacts[0]["state"]
 
-@step(u'On seconde newebe confirm first newebe request')
+@step(u'On second newebe confirm first newebe request')
 def on_seconde_newebe_confirm_first_newebe_request(step):
     world.browser2.put("contacts/%s/" % slugify(ROOT_URL), "")
 
@@ -221,6 +235,7 @@ def set_first_contact_state_as_error(step):
 @step(u'Send a retry request for this contact')
 def send_a_retry_request_for_this_contact(step):
     world.browser.post("contacts/%s/retry/" % slugify(SECOND_NEWEBE_ROOT_URL), "")
+    time.sleep(0.3)
 
 # Timezone
 

@@ -9,7 +9,7 @@ logger = logging.getLogger("newebe.contacts")
 
 
 # Contacts available states
-STATE_PENDING = "pending"
+STATE_PENDING = "Pending"
 STATE_WAIT_APPROVAL = "Wait for approval"
 STATE_ERROR = "Error"
 STATE_TRUSTED = "Trusted"

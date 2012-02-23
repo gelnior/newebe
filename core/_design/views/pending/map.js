@@ -1,6 +1,6 @@
 function(doc) {
   if("Contact" == doc.doc_type 
-     && ("pending" == doc.state || "error" == doc.state)) {
+     && ("Pending" == doc.state || "Error" == doc.state)) {
     emit(doc.slug, doc);
   }
 }

@@ -2,10 +2,11 @@ import logging
 import markdown
 
 from tornado.escape import json_decode
-from tornado.httpclient import HTTPClient, HTTPRequest
+from tornado import gen 
 from tornado.web import asynchronous, HTTPError
 
 from newebe.lib import date_util
+from newebe.lib.http_util import ContactClient
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import ActivityManager
 from newebe.contacts.models import ContactManager
@@ -300,6 +301,7 @@ class MicropostTHandler(NewebeAuthHandler):
 class NewsRetryHandler(NewebeAuthHandler):
 
 
+    @asynchronous
     def post(self, key):
         '''
         Resend post with *key* as key to the contact given in the posted
@@ -331,7 +333,8 @@ class NewsRetryHandler(NewebeAuthHandler):
         else:
             self.return_failure("Micropost not found", 404)
 
-
+    @asynchronous
+    @gen.engine
     def forward_to_contact(self, micropost, contact, activity, method = "POST"):
         '''
         *micropost* is sent to *contact* via a request of which method is set 
@@ -339,15 +342,14 @@ class NewsRetryHandler(NewebeAuthHandler):
         is removed. Else nothing is done and error code is returned.
         '''
 
-        httpClient = HTTPClient()            
-        url = contact.url.encode("utf-8") + CONTACT_PATH
+        httpClient = ContactClient()         
         body = micropost.toJson(localized=False)
 
-        request = HTTPRequest(url, method = method, body = body)
-
         try:
-            response = httpClient.fetch(request)
-            
+            httpClient.post(contact, CONTACT_PATH, body, 
+                            callback=(yield gen.Callback("retry")))
+            response = yield gen.Wait("retry")
+              
             if response.error:
                 self.return_failure("Posting micropost to contact failed.")
 
@@ -362,6 +364,9 @@ class NewsRetryHandler(NewebeAuthHandler):
             self.return_failure("Posting micropost to contact failed.")
 
        
+       
+    @asynchronous
+    @gen.engine
     def put(self, key):
         '''
         Resend deletion of micropost with *key* as key to the contact given in 
@@ -395,11 +400,32 @@ class NewsRetryHandler(NewebeAuthHandler):
                 )
                 
                 logger.info(
-                    "Attemp to resend a post deletion to contact: {}.".format(
+                    "Attempt to resend a post deletion to contact: {}.".format(
                         contact.name))
+                httpClient = ContactClient()         
+                body = micropost.toJson(localized=False)
 
-                self.forward_to_contact(micropost, contact, activity, 
-                                        method = "PUT")
+
+                try:
+                    httpClient.put(contact, CONTACT_PATH, body, 
+                                   callback=(yield gen.Callback("retry")))
+                    response = yield gen.Wait("retry")
+                  
+                    if response.error:
+                        self.return_failure(
+                                "Deleting micropost to contact failed.")
+
+                    else:
+                        for error in activity.errors:
+                            if error["contactKey"] == contact.key:
+                                activity.errors.remove(error)
+                                activity.save()
+                                self.return_success(
+                                        "Micropost correctly redeleted.")
+
+                except:
+                    self.return_failure("Deleting micropost to contact failed.")
+
 
         else:
             self.return_failure("Micropost not found", 404)

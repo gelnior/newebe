@@ -45,7 +45,7 @@ Feature: Retrieve Activities
         Deletes contacts
         Deletes seconde newebe contacts
         On first newebe add second newebe as a contact
-        On seconde newebe confirm first newebe request
+        On second newebe confirm first newebe request
         Through handlers retrieve all contacts
         Check that there is 1 contacts
         Check that first contact status is trusted
