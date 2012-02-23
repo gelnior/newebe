@@ -5,12 +5,18 @@ import os
 # User configuration
 try:
     from newebe.local_settings import TORNADO_PORT, COUCHDB_DB_NAME, DEBUG, \
-            TIMEZONE, COOKIE_KEY
+            TIMEZONE
 except:
     TORNADO_PORT = 8000
     COUCHDB_DB_NAME = "newebe"
     DEBUG = False
     TIMEZONE = "GMT"
+
+
+# Secret key used to encrypt cookie containing password.
+try:
+    from newebe.local_settings import COOKIE_KEY
+except:
     COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
 
