@@ -126,7 +126,8 @@
     <h3>Easy way for Debian or Ubuntu users</h3>
     <p> 
       To install Newebe just run the following commands in the folder where
-      you want to install Newebe. If you want to do a specific setup, refer
+      you want to install Newebe. Answer questions and everything will be 
+      cleanly setup. If you want to do a specific setup, refer
       to the procedure described below.
     </p>
     <pre>
@@ -151,13 +152,14 @@
     (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>), prefixed it with <em>sudo</em> if needed :
     </p>
     <pre>
- apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git </pre>
+  apt-get install python python-setuptools python-pip python-pycurl 
+  apt-get install python-daemon python-imaging couchdb git openssl </pre>
     <p>
         Via easy_install install <em>couchdbkit</em>, <em>markdown</em>,
         <em>pytz</em> and <em>tornado</em> :
     </p>
     <pre>
- pip install couchdbkit tornado markdown pytz</pre>
+  pip install couchdbkit tornado markdown pytz</pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
         <em>Github</em> or unpack the downloaded archive. In both case
@@ -196,20 +198,35 @@
         <em>NEWEBE_PATH</em> and <em>PIDFILE</em> constants to make it point 
         to your 
         <em>Newebe</em> directory (pid file will be created at first startup).
+        </p>
+
+        <p>
+        <span class="step">step 4 bis</span>  To change database name or port 
+        change, you must modify your <em>settings.py</em> file by settings the 
+        following constants : <em>TORNADO_PORT</em> and 
+        <em>COUCHDB_DB_NAME</em>. Default port is <em>8000</em> and default 
+        database name is <em>newebe</em>. <br />
+        Time zone is set in the same manner. So if you want to set it, 
+        you must change the TIMEZONE constant value by your timezone. Here is 
+        the 
+          <a href="https://github.com/gelnior/newebe/wiki/Available-timezones">
+        list of available timezones</a>.
     </p>
     <p>
-        <span class="step"> step 4 bis </span> To change database name or port,
-        modifiy constants set in
-        <em>settings.py</em> file : <em>TORNADO_PORT</em> and 
-        <em>COUCHDB_DB_NAME</em>. Default port is
-        8000 and default database name is <em>newebe</em>.
+    NB: The best way to deal with specific configuration is to set this
+    variable in a file called l<em>socal_settings.py</em> in the same directory
+    as <em>settings.py</em>.
     </p>
     <p>
-    <span class="step"> step 4 ter </span> To display times properly,
-    you need to set the <em>TIMEZONE</em> constant in <em>settings.py</em>
-    with the timezone that corresponds to your place. Here is a 
-    <a href="https://github.com/gelnior/newebe/wiki/Available-timezones">
-        list of available timezones</a>
+    <em>local_settings.py</em> exemple:
+
+<pre>
+  TORNADO_PORT = 8000
+  COUCHDB_DB_NAME = "newebe"
+  TIMEZONE = "Europe/Paris"
+  DEBUG = False
+  COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+</pre>
     </p>
     <p>
         <span class="step"> step 5 </span> Copy file <em>deploy/newebe</em> in 
@@ -218,8 +235,31 @@
     <pre>
   cp deploy/newebe /etc/init.d
   chmod +x /etc/init.d/newebe</pre>
+
+
     <p>
-        <span class="step"> step 6 </span> Start <em>Newebe</em> server.
+    <span class="step">step 6</span> Create certificate for HTTPS and protect it. This will ask some questions, answer as you like:
+    </p>
+<pre>
+    sudo openssl genrsa -out ./server.key 1024
+    sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
+    sudo chmod 640 server.key
+    sudo chown root:ssl-cert server.key
+</pre>
+    <p>
+    <span class="step"> tep 6 bis</span>
+    <p>Create your own secret cookie key with following command:</p>
+<pre>
+  < /dev/urandom tr -dc A-Za-z0-9_ | head -c50
+</pre>
+    <p>
+    and in *local_settings.py* put the result as string value of constant COOKIE_KEY
+    </p>
+    <pre>
+  COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+</pre>
+    <p>
+        <span class="step"> step 7 </span> Start <em>Newebe</em> server.
     </p>
     <pre>
   /etc/init.d/newebe start</pre>
