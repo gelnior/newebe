@@ -152,7 +152,7 @@ class Newebe(Application):
 
             ('/pictures/$', PicturesTHandler),
             ('/pictures/tests/$', PicturesTestsTHandler),
-            ('/pictures/content/$', PicturesConzKtentTHandler),            
+            ('/pictures/content/$', PicturesContentTHandler),            
             ('/pictures/last/$', PicturesHandler),
             ('/pictures/last/([0-9\-]+)/$', PicturesHandler),
             ('/pictures/last/my/$', PicturesMyHandler),        
