@@ -71,7 +71,7 @@ span.step {
   padding: 10px;
 }
 #download {
-  padding: 10px;
+  padding: 10px #468856;
   text-align: center;
   background-color: #000;
   color: #fff;
@@ -137,4 +137,19 @@ span.step {
   padding: 0;
   margin: 0;
   font-variant: normal;
+}
+#annoucement {
+  background-color: #dff0d8;
+  color: #468856;
+  border: 1px solid #468856;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+#annoucement a {
+  color: #468856;
+}
+#annoucement p,
+h2 {
+  padding: 0;
+  margin: 0;
 }
