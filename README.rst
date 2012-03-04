@@ -50,13 +50,13 @@ Time zone is set in the same you. So if you want to set your own time zone, you 
 
 NB: The best way to deal with specific configuration is to set this variable in a file called *local_settings.py* in the same directory as *settings.py*.
 
-*local_settings.py* exemple:
+*local_settings.py* exemple::
 
-|    TORNADO_PORT = 8000
-|    COUCHDB_DB_NAME = "newebe"
-|    TIMEZONE = "Europe/Paris"
-|    DEBUG = True
-|    COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+    TORNADO_PORT = 8000
+    COUCHDB_DB_NAME = "newebe"
+    TIMEZONE = "Europe/Paris"
+    DEBUG = True
+    COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
 
 Create certificate for HTTPS. This will ask some questions, answer as you like:
