@@ -62,7 +62,7 @@ NB: The best way to deal with specific configuration is to set this variable in 
 Create certificate for HTTPS. This will ask some questions, answer as you like::
 
     sudo openssl genrsa -out ./server.key 1024
-|    sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
+    sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
 
 Run server:
 
