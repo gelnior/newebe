@@ -458,7 +458,8 @@ class ContactTutorial2THandler(NewebeAuthHandler):
 
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/contact.html")
+        self.render("templates/contact.html", 
+                    isTheme=self.is_file_theme_exists())
 
 
 

@@ -466,7 +466,7 @@ class MyNewsHandler(NewebeAuthHandler):
 
 class NewsTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/news.html")
+        self.render("templates/news.html", isTheme=self.is_file_theme_exists())
 
 
 class NewsContentTHandler(NewebeAuthHandler):

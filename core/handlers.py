@@ -1,5 +1,6 @@
 import logging
 import hashlib
+import os
 
 
 from tornado.escape import json_decode, json_encode
@@ -267,6 +268,16 @@ class NewebeHandler(RequestHandler):
                 pdb.set_trace()
                 self.activity.add_error(contact, extra=date)
                 self.activity.save()
+
+
+    def is_file_theme_exists(self):
+        '''
+        True if theme.css exists in CSS static folder. This stylesheet is
+        optional. So, for templates, it is useful to know if it exists.
+        '''
+
+        return os.path.isfile(os.path.join("static", "css", "theme.css"))
+        
 
 
 class NewebeAuthHandler(NewebeHandler):

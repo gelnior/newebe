@@ -70,7 +70,8 @@ class ActivityContentHandler(NewebeAuthHandler):
 
 class ActivityPageHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/activities.html")
+        self.render("templates/activities.html", 
+                    isTheme=self.is_file_theme_exists())
 
 
 

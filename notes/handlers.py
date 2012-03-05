@@ -172,6 +172,7 @@ class NotesContentTHandler(NewebeAuthHandler):
 
 class NotesPageTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/notes.html")
+        self.render("templates/notes.html",
+                    isTheme=self.is_file_theme_exists())
 
 
