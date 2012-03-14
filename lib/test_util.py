@@ -42,11 +42,7 @@ class NewebeClient(HTTPClient):
         Grab authentication cookie from login request.
         '''
 
-        request = HTTPRequest(self.root_url + "login/json/", 
-                method="POST", body='{"password":"%s"}' % password,
-                validate_cert=False)
-        response = self.fetch(request)
-        
+        response = self.post("login/json/", body='{"password":"%s"}' % password)        
         assert response.headers["Set-Cookie"].startswith("password=")
         self.cookie = response.headers["Set-Cookie"]
 

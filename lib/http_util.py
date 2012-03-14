@@ -32,7 +32,6 @@ class ContactClient(object):
         request = HTTPRequest(url, validate_cert=False)
         return self.client.fetch(self, request)
 
-
     def post(self, contact, path, body, callback=None):
         '''
         Perform a POST request to given contact.

@@ -44,6 +44,12 @@ def set_browers():
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
+
+@step(u'Clear contacts')
+def clear_contacts(step):
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
+
 @step(u'Convert default user to contact')
 def convert_default_user_to_contact(step):
     world.contact = world.user.asContact()
@@ -57,11 +63,8 @@ def check_that_contact_has_same_properties_as_default_user(step):
 
 @step(u'Deletes contacts')
 def deletes_contacts(step):
-    contacts = ContactManager.getContacts()
-    while contacts:
-        for contact in contacts:
-            contact.delete()
-        contacts = ContactManager.getContacts()
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
 
 @step(u'Creates contacts')
 def creates_contacts(step):

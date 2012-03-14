@@ -29,8 +29,7 @@ Feature: Retrieve Activities
         Check that there is 0 contacts
 
     Scenario: Add a contact
-        Deletes contacts
-        Deletes seconde newebe contacts
+        Clear contacts
         On first newebe add second newebe as a contact
         Through handlers retrieve all contacts
         Check that there is 1 contacts
