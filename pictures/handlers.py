@@ -630,7 +630,8 @@ class PictureRetryHandler(NewebeAuthHandler):
 
 class PicturesTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/pictures.html")
+        self.render("templates/pictures.html", 
+                    isTheme=self.is_file_theme_exists())
 
 class PicturesTestsTHandler(NewebeAuthHandler):
     def get(self):

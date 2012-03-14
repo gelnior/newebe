@@ -28,7 +28,8 @@ class LoginHandler(NewebeHandler):
 
             if not password or  \
                user.password != hashlib.sha224(password).hexdigest():
-                self.render("../auth/templates/login.html")
+                self.render("../auth/templates/login.html",
+                            isTheme=self.is_file_theme_exists())
             else:
                 self.redirect("/")
 
@@ -122,9 +123,11 @@ class RegisterPasswordTHandler(NewebeHandler):
         if user and user.password:
             self.redirect("/") 
         else:
-            self.render("../auth/templates/password.html")
+            self.render("../auth/templates/password.html",
+                        isTheme=self.is_file_theme_exists())
 
-        self.render("../auth/templates/password.html")
+        self.render("../auth/templates/password.html",
+                    isTheme=self.is_file_theme_exists())
 
 
     def post(self):
@@ -182,7 +185,8 @@ class RegisterTHandler(NewebeHandler):
         if UserManager.getUser():
            self.redirect("/") 
         else:
-            self.render("../auth/templates/register.html")
+            self.render("../auth/templates/register.html",
+                        isTheme=self.is_file_theme_exists())
 
 
     def post(self):

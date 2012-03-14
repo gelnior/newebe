@@ -139,7 +139,8 @@ class ProfileMenuContentTHandler(NewebeAuthHandler):
 
 class ProfileTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/profile.html")
+        self.render("templates/profile.html",
+                    isTheme=self.is_file_theme_exists())
 
 class ProfileTutorial1THandler(NewebeAuthHandler):
     def get(self):
