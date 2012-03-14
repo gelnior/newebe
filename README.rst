@@ -50,7 +50,7 @@ Time zone is set in the same you. So if you want to set your own time zone, you 
 
 NB: The best way to deal with specific configuration is to set this variable in a file called *local_settings.py* in the same directory as *settings.py*.
 
-*local_settings.py* exemple:
+*local_settings.py* exemple::
 
     TORNADO_PORT = 8000
     COUCHDB_DB_NAME = "newebe"
@@ -59,7 +59,7 @@ NB: The best way to deal with specific configuration is to set this variable in 
     COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
 
-Create certificate for HTTPS. This will ask some questions, answer as you like:
+Create certificate for HTTPS. This will ask some questions, answer as you like::
 
     sudo openssl genrsa -out ./server.key 1024
     sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
@@ -78,7 +78,7 @@ everything is fine.
 
 **Client**
 
-To work on client you will need node.js. So first install it:
+To work on client you will need node.js. So first install it::
 
    git clone https://github.com/ry/node.git
 
