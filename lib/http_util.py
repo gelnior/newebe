@@ -117,7 +117,7 @@ class ContactClient(object):
             self.activity.save()
 
         elif contact and contact.name: 
-            logger.info("Request successfully sent to {}.".format(contact.name))
+            logger.info("Request successfully sent to %s." % contact.name)
         
         del self.contacts[response.request]
 
