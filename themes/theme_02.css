@@ -1,0 +1,71 @@
+body {
+    background-color: #c4ec9d;
+    color: #132a00;
+}
+
+input {
+    background-color: #f8fff3;
+} 
+
+#menu {
+    background-color: #f8fff3;
+    border: 1px solid #488812;
+    box-shadow:3px 3px 4px 1px #6f885a;
+    
+    padding: 10px;
+}
+
+a {
+    color: #2e6800;
+    text-decoration: underline;
+}
+
+a.news-micropost-author {
+    text-decoration: none;
+}
+
+#menu a {
+    color: #2e6800;
+    padding: 8px;
+}
+
+#menu a:hover {
+    border: 0;
+}
+
+.app {
+    background-color: #f8fff3;
+    border: 1px solid #488812;
+    box-shadow:3px 3px 4px 1px #6f885a;
+    padding: 20px;
+    width: 44%;
+}
+
+.preview {
+    background-color: #f8fff3;
+    border: 1px solid #488812;
+    box-shadow: 3px 3px 4px 1px #6f885a;
+    padding: 10px;
+    margin-right: 5px;
+}
+
+.disabled {
+    background-color: #DDEEFF;
+}
+
+#menu #logout-a {
+    padding: 0px;
+}
+
+.button{
+   background-color: ffde6d;
+}
+.ui-button-text {
+   background-color: ffde6d;
+   color: black;
+}
+
+.selected {
+   background-color: #ffefb9;
+}
+

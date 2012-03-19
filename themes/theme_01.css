@@ -1,0 +1,51 @@
+body {
+    background-color: #BDD8F0;
+}
+
+#menu {
+    background-color: white;
+    border: 2px solid black;
+    padding: 10px;
+    
+    -webkit-border-radius:6px 6px 6px 6px;
+    -moz-border-radius:6px 6px 6px 6px;
+    border-radius:6px 6px 6px 6px;
+    box-shadow:3px 3px 4px 1px #AAA;
+}
+
+#menu a {
+    padding: 8px;
+}
+
+.app {
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    width: 44%;
+    
+    -webkit-border-radius:6px 6px 6px 6px;
+    -moz-border-radius:6px 6px 6px 6px;
+    border-radius:6px 6px 6px 6px;
+    box-shadow:3px 3px 4px 1px #AAA;
+}
+
+.preview {
+    background-color: white;
+    border: 2px solid black;
+    padding: 10px;
+    margin-right: 5px;
+    
+    -webkit-border-radius:6px 6px 6px 6px;
+    -moz-border-radius:6px 6px 6px 6px;
+    border-radius:6px 6px 6px 6px;
+    box-shadow:3px 3px 4px 1px #AAA;
+}
+
+.disabled {
+    background-color: #DDEEFF;
+}
+
+#menu #logout-a {
+   padding: 0px;
+}
+
