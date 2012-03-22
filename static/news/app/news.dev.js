@@ -1,6 +1,8 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, loadingIndicator, newsApp, updater;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, loadingIndicator, newsApp, updater,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -101,9 +103,9 @@
 
   })();
 
-  Row = (function() {
+  Row = (function(_super) {
 
-    __extends(Row, Backbone.View);
+    __extends(Row, _super);
 
     function Row() {
       Row.__super__.constructor.apply(this, arguments);
@@ -126,11 +128,11 @@
 
     return Row;
 
-  })();
+  })(Backbone.View);
 
-  MicroPostRow = (function() {
+  MicroPostRow = (function(_super) {
 
-    __extends(MicroPostRow, Row);
+    __extends(MicroPostRow, _super);
 
     MicroPostRow.prototype.tagName = "div";
 
@@ -176,8 +178,8 @@
     };
 
     MicroPostRow.prototype.onDeleteClicked = function() {
-      var model;
-      var _this = this;
+      var model,
+        _this = this;
       model = this.model;
       return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
         confirmationDialog.hide();
@@ -284,11 +286,11 @@
 
     return MicroPostRow;
 
-  })();
+  })(Row);
 
-  NewsView = (function() {
+  NewsView = (function(_super) {
 
-    __extends(NewsView, Backbone.View);
+    __extends(NewsView, _super);
 
     NewsView.prototype.el = $("#news");
 
@@ -540,7 +542,7 @@
     };
 
     NewsView.prototype.setWidgets = function() {
-      $("input#news-post-button").button();
+      $("#news-post-button").button();
       $("#news-my-button").button();
       $("#news-all-button").button();
       $("#news-all-button").button("disable");
@@ -551,11 +553,11 @@
 
     return NewsView;
 
-  })();
+  })(Backbone.View);
 
-  MicroPost = (function() {
+  MicroPost = (function(_super) {
 
-    __extends(MicroPost, Backbone.Model);
+    __extends(MicroPost, _super);
 
     MicroPost.prototype.url = '/news/microposts/';
 
@@ -635,11 +637,11 @@
 
     return MicroPost;
 
-  })();
+  })(Backbone.Model);
 
-  MicroPostCollection = (function() {
+  MicroPostCollection = (function(_super) {
 
-    __extends(MicroPostCollection, Backbone.Collection);
+    __extends(MicroPostCollection, _super);
 
     function MicroPostCollection() {
       MicroPostCollection.__super__.constructor.apply(this, arguments);
@@ -659,7 +661,7 @@
 
     return MicroPostCollection;
 
-  })();
+  })(Backbone.Collection);
 
   newsApp = new NewsView;
 

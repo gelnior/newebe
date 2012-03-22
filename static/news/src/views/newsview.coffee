@@ -286,7 +286,7 @@ class NewsView extends Backbone.View
   
   # Build JQuery widgets.
   setWidgets: ->
-    $("input#news-post-button").button()
+    $("#news-post-button").button()
     $("#news-my-button").button()
     $("#news-all-button").button()
     $("#news-all-button").button("disable")
