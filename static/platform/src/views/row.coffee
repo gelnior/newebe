@@ -13,3 +13,14 @@ class Row extends Backbone.View
     @preview.offset({left: left, top: top})
 
 
+
+# Simplify put request with jquery.
+$.putJson = (options) ->
+    $.ajax
+      type: "PUT"
+      url: options.url
+      dataType: "json"
+      data: JSON.stringify(options.body)
+      success: options.success
+      error: options.error
+

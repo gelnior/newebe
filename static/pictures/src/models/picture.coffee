@@ -2,7 +2,7 @@
 class Picture extends Backbone.Model
 
   #  Url where micro posts lives.
-  url: '/pictures/last/'
+  url: '/pictures/all/'
 
   # Constructor initializes its field from a javascript raw object.
   # 
@@ -47,12 +47,15 @@ class Picture extends Backbone.Model
   
   # Returns server path where picture template is located.
   getPath: ->
-    "/pictures/" + @get("_id") + "/render/"
+    "/pictures/" + @get("_id") + "/html/"
    
   # Returns server path where download request must be sent.
   getDownloadPath: ->
     "/pictures/" + @get("_id") + "/download/"
    
+  getImagePreviewPath: ->
+    "/pictures/#{@id}/prev_#{@get('path')}"
+
 
   # Sends a delete request to services backend then ask view to remove micro 
   # post view.
@@ -72,7 +75,7 @@ class PictureCollection extends Backbone.Collection
   model: Picture
 
   # Url where micro posts lives.
-  url: '/pictures/last/'
+  url: '/pictures/all/'
 
   # Collection sorting is based on post publsh date.
   comparator: (picture) ->

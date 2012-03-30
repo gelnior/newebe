@@ -66,6 +66,8 @@ class PictureRow extends Row
             @preview.html(null)
     )
 
+  # When download is clicked, full image is downloaded. Once download is 
+  # finished the preview is reloaded.
   onDownloadClicked: (event) =>
     if event
       event.preventDefault()
@@ -79,6 +81,24 @@ class PictureRow extends Row
           confirmationDialog.display(
             "An error occured while downloading image file.")
     )
+
+  onPushNoteClicked: =>
+    selectorDialogPicture.display (noteId) =>
+      loadingIndicator.display()
+
+      $.get "/notes/#{noteId}/", (data) =>
+        note = data.rows[0]
+        note.content = note.content + "\n\n ![image](" + @model.getImagePreviewPath() + ")"
+
+        $.putJson
+          url: "/notes/#{noteId}/"
+          body: note
+          success: () ->
+            infoDialog.display "note successfully updated"
+            loadingIndicator.hide()
+          error: () ->
+            infoDialog.display "note update failed"
+            loadingIndicator.hide()
 
   ### Functions ###
 
@@ -114,11 +134,21 @@ class PictureRow extends Row
       $.get @model.getPath(), (data) =>
         loadingIndicator.hide()
         @preview.append(data)
-        $("#pictures-delete-button").button()
-        $("#pictures-delete-button").click(@onDeleteClicked)
-        $("#pictures-download-button").button()
-        $("#pictures-download-button").click(@onDownloadClicked)
-        $("#pictures-full-size-button").button()
+              
+        $("#pictures-preview").append('''
+        <p class="pictures-buttons button-bar">
+          <a id="pictures-note-button">push to note</a>
+          <a href="/pictures/#{@model._id}/{{ picture.path }}" target="blank"
+             id="pictures-download-button">download</a>
+          <a id="pictures-delete-button">delete</a>
+        </p>
+        ''')
+
+        $("#pictures-preview a").button()
+        
+        $("#pictures-note-button").click @onPushNoteClicked
+        $("#pictures-delete-button").click @onDeleteClicked
+        $("#pictures-download-button").click @onDownloadClicked
         @preview.fadeIn()
         @updatePreviewPosition()
     

@@ -84,12 +84,12 @@ class ActivityRow extends Row
   # in the preview section, same for notes.
   onDocRefClicked: (event) ->
     if @model.getDocType() == "micropost" and @model.getMethod() == "POST"
-        $.get "/news/micropost/" + @model.getDocId() + "/html/",  @onPreviewLoaded
+        $.get "/microposts/" + @model.getDocId() + "/html/",  @onPreviewLoaded
     else if @model.getDocType() == "note"
         $.get "/notes/#{@model.getDocId()}/html/", @onPreviewLoaded
     
     else if @model.getDocType() == "picture" and @model.getMethod() == "POST"
-        $.get "/pictures/#{@model.getDocId()}/render/", @onPreviewLoaded
+        $.get "/pictures/#{@model.getDocId()}/html/", @onPreviewLoaded
             
         if event
           event.preventDefault()
@@ -135,13 +135,13 @@ class ActivityRow extends Row
 
         when "POST"
           @sendRetryRequest("POST",
-                            "/news/micropost/" + @model.getDocId()  + "/retry/",
+                            "/microposts/" + @model.getDocId()  + "/retry/",
                             event)
 
 
         when "DELETE"
           @sendRetryRequest("PUT",
-                            "/news/micropost/" + @model.getDocId()  + "/retry/",
+                            "/microposts/" + @model.getDocId()  + "/retry/",
                             event,
                             extra)
 
@@ -156,7 +156,7 @@ class ActivityRow extends Row
 
         when "DELETE"
           @sendRetryRequest("PUT",
-                            "/news/pictures/" + @model.getDocId()  + "/retry/",
+                            "/pictures/" + @model.getDocId()  + "/retry/",
                             event,
                             extra)
 
@@ -208,9 +208,9 @@ class ActivityRow extends Row
     @onDocRefClicked(null)
     
     
-  # Hide delete button and remove "selected" style.
+  # Remove "selected" style.
   deselect: ->
     $(@el).removeClass("selected")
-    $("#news-preview").html(null)
+    $("#activities-preview").html(null)
     @authorDisplayed = false
 

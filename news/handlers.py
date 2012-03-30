@@ -3,7 +3,7 @@ import markdown
 
 from tornado.escape import json_decode
 from tornado import gen 
-from tornado.web import asynchronous, HTTPError
+from tornado.web import asynchronous
 
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
@@ -18,7 +18,7 @@ logger = logging.getLogger("newebe.news")
 # When a new post is created, it is forwarded to contacts via POST requests. 
 # CONTACT_PATH is the end of the URI where data are sent. Full URI is 
 # (contact URI + CONTACT_PATH).
-CONTACT_PATH = 'news/microposts/contacts/'
+CONTACT_PATH = 'microposts/contacts/'
 
 # Long polling queue
 connections = []
@@ -68,7 +68,7 @@ class MicropostHandler(NewebeAuthHandler):
         '''
 
         micropost = MicroPostManager.get_micropost(postId)
-        self.return_one_document_or_404(micropost)
+        self.return_one_document_or_404(micropost, "No post found")
 
 
     @asynchronous
@@ -142,7 +142,7 @@ class NewsHandler(NewebeAuthHandler):
         logger.info("Micropost post received.")
 
         data = self.get_body_as_dict()
-        if data and "content" in data:
+        if data and "content" in data and data["content"]:
 
             user = UserManager.getUser()
             micropost = MicroPost(
@@ -200,10 +200,10 @@ class NewsContactHandler(NewebeHandler):
                         isMine = False
                     )
                     micropost.save()
+                    self._notify_suscribers(micropost)
 
                 self.create_creation_activity(contact, micropost, 
                         "writes", "micropost")
-                self._notify_suscribers(micropost)
                 self._write_create_log(micropost)
             
                 self.return_json(micropost.toJson(), 201)
@@ -289,13 +289,12 @@ class MicropostTHandler(NewebeAuthHandler):
 
         micropost = MicroPostManager.get_micropost(postId)
         if micropost:
-
             if micropost.content:
                  micropost.content = markdown.markdown(micropost.content)
 
             self.render("templates/micropost.html", micropost=micropost)
         else:
-            raise HTTPError("Micropost not found.", 404)
+            self.return_failure("Micropost not found.", 404)
 
 
 class NewsRetryHandler(NewebeAuthHandler):

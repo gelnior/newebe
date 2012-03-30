@@ -1,10 +1,12 @@
 (function() {
-  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, Row, activitiesApp, confirmationDialog, infoDialog, loadingIndicator;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var ActivitiesView, Activity, ActivityCollection, ActivityRow, ConfirmationDialog, InfoDialog, LoadingIndicator, Row, activitiesApp, confirmationDialog, infoDialog, loadingIndicator,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  Row = (function() {
+  Row = (function(_super) {
 
-    __extends(Row, Backbone.View);
+    __extends(Row, _super);
 
     function Row() {
       Row.__super__.constructor.apply(this, arguments);
@@ -27,7 +29,18 @@
 
     return Row;
 
-  })();
+  })(Backbone.View);
+
+  $.putJson = function(options) {
+    return $.ajax({
+      type: "PUT",
+      url: options.url,
+      dataType: "json",
+      data: JSON.stringify(options.body),
+      success: options.success,
+      error: options.error
+    });
+  };
 
   InfoDialog = (function() {
 
@@ -56,7 +69,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -128,9 +141,9 @@
 
   })();
 
-  ActivitiesView = (function() {
+  ActivitiesView = (function(_super) {
 
-    __extends(ActivitiesView, Backbone.View);
+    __extends(ActivitiesView, _super);
 
     ActivitiesView.prototype.el = $("#activities");
 
@@ -325,11 +338,11 @@
 
     return ActivitiesView;
 
-  })();
+  })(Backbone.View);
 
-  ActivityRow = (function() {
+  ActivityRow = (function(_super) {
 
-    __extends(ActivityRow, Row);
+    __extends(ActivityRow, _super);
 
     ActivityRow.prototype.tagName = "div";
 
@@ -380,11 +393,11 @@
 
     ActivityRow.prototype.onDocRefClicked = function(event) {
       if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
-        $.get("/news/micropost/" + this.model.getDocId() + "/html/", this.onPreviewLoaded);
+        $.get("/microposts/" + this.model.getDocId() + "/html/", this.onPreviewLoaded);
       } else if (this.model.getDocType() === "note") {
         $.get("/notes/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
       } else if (this.model.getDocType() === "picture" && this.model.getMethod() === "POST") {
-        $.get("/pictures/" + (this.model.getDocId()) + "/render/", this.onPreviewLoaded);
+        $.get("/pictures/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
         if (event) event.preventDefault();
       }
       return false;
@@ -426,16 +439,16 @@
       if (this.model.getDocType() === "micropost") {
         switch (this.model.getMethod()) {
           case "POST":
-            return this.sendRetryRequest("POST", "/news/micropost/" + this.model.getDocId() + "/retry/", event);
+            return this.sendRetryRequest("POST", "/microposts/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
-            return this.sendRetryRequest("PUT", "/news/micropost/" + this.model.getDocId() + "/retry/", event, extra);
+            return this.sendRetryRequest("PUT", "/microposts/" + this.model.getDocId() + "/retry/", event, extra);
         }
       } else if (this.model.getDocType() === "picture") {
         switch (this.model.getMethod()) {
           case "POST":
             return this.sendRetryRequest("POST", "/pictures/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
-            return this.sendRetryRequest("PUT", "/news/pictures/" + this.model.getDocId() + "/retry/", event, extra);
+            return this.sendRetryRequest("PUT", "/pictures/" + this.model.getDocId() + "/retry/", event, extra);
         }
       }
     };
@@ -477,17 +490,17 @@
 
     ActivityRow.prototype.deselect = function() {
       $(this.el).removeClass("selected");
-      $("#news-preview").html(null);
+      $("#activities-preview").html(null);
       return this.authorDisplayed = false;
     };
 
     return ActivityRow;
 
-  })();
+  })(Row);
 
-  Activity = (function() {
+  Activity = (function(_super) {
 
-    __extends(Activity, Backbone.Model);
+    __extends(Activity, _super);
 
     Activity.prototype.url = '/activities/all/';
 
@@ -577,11 +590,11 @@
 
     return Activity;
 
-  })();
+  })(Backbone.Model);
 
-  ActivityCollection = (function() {
+  ActivityCollection = (function(_super) {
 
-    __extends(ActivityCollection, Backbone.Collection);
+    __extends(ActivityCollection, _super);
 
     function ActivityCollection() {
       ActivityCollection.__super__.constructor.apply(this, arguments);
@@ -601,7 +614,7 @@
 
     return ActivityCollection;
 
-  })();
+  })(Backbone.Collection);
 
   loadingIndicator = new LoadingIndicator;
 

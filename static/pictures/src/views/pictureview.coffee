@@ -24,7 +24,7 @@ class PicturesView extends Backbone.View
     @pictures.bind 'reset', @addAll
     @morePictures.bind 'reset', @addAllMore
 
-    @currentPath = "/pictures/last/"
+    @currentPath = "/pictures/all/"
 
     @selectedRow = null
 
@@ -50,7 +50,7 @@ class PicturesView extends Backbone.View
     datePicked = Date.parse(dateText)
     date = datePicked.toString "yyyy-MM-dd"
 
-    if @currentPath == "/pictures/last/my/"
+    if @currentPath == "/pictures/mine/"
       Backbone.history.navigate "pictures/mine/until/" + date + "/", true
     else
       Backbone.history.navigate "pictures/all/until/" + date + "/", true
@@ -74,7 +74,7 @@ class PicturesView extends Backbone.View
   displayMyPictures:(date) =>
     @myButton.button "disable"
     @allButton.button "enable"
-    @currentPath = "/pictures/last/my/"
+    @currentPath = "/pictures/mine/"
 
     @datepicker.val date
     @reloadPictures date
@@ -84,7 +84,7 @@ class PicturesView extends Backbone.View
   displayAllPictures: (date) =>
     @myButton.button "enable"
     @allButton.button "disable"
-    @currentPath = "/pictures/last/"
+    @currentPath = "/pictures/all/"
 
     @datepicker.val date
     @reloadPictures date
@@ -165,7 +165,7 @@ class PicturesView extends Backbone.View
   displayMyPictures:(date) =>
     @myButton.button "disable"
     @allButton.button "enable"
-    @currentPath = "/pictures/last/my/"
+    @currentPath = "/pictures/mine/"
     
     @datepicker.val date
     @reloadPictures date
@@ -175,7 +175,7 @@ class PicturesView extends Backbone.View
   displayAllPictures: (date) =>
     @myButton.button "enable"
     @allButton.button "disable"
-    @currentPath = "/pictures/last/"
+    @currentPath = "/pictures/all/"
 
     @datepicker.val date
     @reloadPictures date

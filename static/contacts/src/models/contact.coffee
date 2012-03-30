@@ -5,7 +5,7 @@
 class Contact extends Backbone.Model
 
   #  Url where contacts lives.
-  url: '/contacts/'
+  url: '/contacts/all/'
 
   # Constructors initialize its field from a javascript raw object.
   #
@@ -70,7 +70,7 @@ class ContactCollection extends Backbone.Collection
   model: Contact
 
   # Url where contacts lives.
-  url: '/contacts/'
+  url: '/contacts/all/'
 
   # Collection sorting is based on contact URI.
   comparator: (contact) ->

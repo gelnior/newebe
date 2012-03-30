@@ -94,7 +94,7 @@ class ContactRow extends Backbone.View
 
   # When author name is clicked, its data are displayed in the preview zone.
   onNameClicked: (event) ->
-    $.get("/contacts/render/#{@model.get("key")}/", (data) ->
+    $.get("/contacts/#{@model.get("key")}/html/", (data) ->
       $("#contact-preview").html(data)
     )
     if event

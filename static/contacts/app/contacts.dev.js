@@ -1,6 +1,8 @@
 (function() {
-  var ConfirmationDialog, Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, confirmationDialog, contactApp, infoDialog, loadingIndicator;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var ConfirmationDialog, Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, confirmationDialog, contactApp, infoDialog, loadingIndicator,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -29,7 +31,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -101,9 +103,9 @@
 
   })();
 
-  ContactRow = (function() {
+  ContactRow = (function(_super) {
 
-    __extends(ContactRow, Backbone.View);
+    __extends(ContactRow, _super);
 
     ContactRow.prototype.tagName = "div";
 
@@ -141,8 +143,8 @@
     };
 
     ContactRow.prototype.onDeleteClicked = function() {
-      var model;
-      var _this = this;
+      var model,
+        _this = this;
       model = this.model;
       return confirmationDialog.display("Are you sure you want to delete this contact ?", function() {
         confirmationDialog.hide();
@@ -174,7 +176,7 @@
     };
 
     ContactRow.prototype.onNameClicked = function(event) {
-      $.get("/contacts/render/" + (this.model.get("key")) + "/", function(data) {
+      $.get("/contacts/" + (this.model.get("key")) + "/html/", function(data) {
         return $("#contact-preview").html(data);
       });
       if (event) event.preventDefault();
@@ -218,7 +220,7 @@
 
     return ContactRow;
 
-  })();
+  })(Backbone.View);
 
   /* Main view for contact application
   */
@@ -229,9 +231,9 @@
     return this.match(regexp) !== null;
   };
 
-  ContactView = (function() {
+  ContactView = (function(_super) {
 
-    __extends(ContactView, Backbone.View);
+    __extends(ContactView, _super);
 
     ContactView.prototype.el = $("#news");
 
@@ -265,7 +267,7 @@
 
     ContactView.prototype.onAllClicked = function(event) {
       event.preventDefault();
-      return this.onFilterClicked("#contact-all-button", "/contacts/");
+      return this.onFilterClicked("#contact-all-button", "/contacts/all/");
     };
 
     ContactView.prototype.onPendingClicked = function(event) {
@@ -411,7 +413,7 @@
     };
 
     ContactView.prototype.displayTutorial = function(index) {
-      return $.get("/contact/tutorial/" + index + "/", function(data) {
+      return $.get("/contacts/tutorial/" + index + "/", function(data) {
         return $("#tutorial-contact").html(data);
       });
     };
@@ -453,13 +455,13 @@
 
     return ContactView;
 
-  })();
+  })(Backbone.View);
 
-  Contact = (function() {
+  Contact = (function(_super) {
 
-    __extends(Contact, Backbone.Model);
+    __extends(Contact, _super);
 
-    Contact.prototype.url = '/contacts/';
+    Contact.prototype.url = '/contacts/all/';
 
     function Contact(contact) {
       Contact.__super__.constructor.apply(this, arguments);
@@ -514,14 +516,14 @@
 
     return Contact;
 
-  })();
+  })(Backbone.Model);
 
   /* Model for a Micro Post collection
   */
 
-  ContactCollection = (function() {
+  ContactCollection = (function(_super) {
 
-    __extends(ContactCollection, Backbone.Collection);
+    __extends(ContactCollection, _super);
 
     function ContactCollection() {
       ContactCollection.__super__.constructor.apply(this, arguments);
@@ -529,7 +531,7 @@
 
     ContactCollection.prototype.model = Contact;
 
-    ContactCollection.prototype.url = '/contacts/';
+    ContactCollection.prototype.url = '/contacts/all/';
 
     ContactCollection.prototype.comparator = function(contact) {
       return contact.getUrl();
@@ -541,7 +543,7 @@
 
     return ContactCollection;
 
-  })();
+  })(Backbone.Collection);
 
   infoDialog = new InfoDialog;
 

@@ -1,0 +1,8 @@
+{% autoescape None %} 
+
+{% for note in notes %}
+<div class="row doc-row note-row" id="{{ note._id }}">
+    <h3 class="doc-row-title">{{ note.title }}</h3>
+    <p class="doc-row-date">{{ note.lastModified }}</p>
+</div>
+{% end %}

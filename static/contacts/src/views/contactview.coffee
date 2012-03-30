@@ -50,7 +50,7 @@ class ContactView extends Backbone.View
   # When all button is clicked, list is refreshed with the whole contact list.
   onAllClicked: (event) ->
     event.preventDefault()
-    @onFilterClicked("#contact-all-button", "/contacts/")
+    @onFilterClicked("#contact-all-button", "/contacts/all/")
 
 
   # When pending button is clicked, list is refreshed with the list of contacts
@@ -81,7 +81,6 @@ class ContactView extends Backbone.View
 
   # Select clicked row and deselect previously clicked row.
   onRowClicked: (row) ->
-
     if row != @selectedRow
       if @selectedRow
         @selectedRow.deselect()
@@ -208,7 +207,7 @@ class ContactView extends Backbone.View
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
     $.get(
-      "/contact/tutorial/" + index + "/",
+      "/contacts/tutorial/" + index + "/",
       (data) -> $("#tutorial-contact").html(data)
     )
 

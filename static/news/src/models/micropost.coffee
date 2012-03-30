@@ -2,7 +2,7 @@
 class MicroPost extends Backbone.Model
 
   #  Url where micro posts lives.
-  url: '/news/microposts/'
+  url: '/microposts/all/'
 
   # Constructor initializes its field from a javascript raw object.
   # Fields:
@@ -70,7 +70,7 @@ class MicroPost extends Backbone.Model
   # Sends a delete request to services backend then ask view to remove micro 
   # post view.
   delete: ->
-    @url = "/news/micropost/" + @id + "/"
+    @url = "/microposts/" + @id + "/"
     @destroy()
     @view.remove()
 
@@ -85,7 +85,7 @@ class MicroPostCollection extends Backbone.Collection
   model: MicroPost
 
   # Url where micro posts lives.
-  url: '/news/microposts/all/'
+  url: '/microposts/all/'
 
   # Collection sorting is based on post publsh date.
   comparator: (microPost) ->

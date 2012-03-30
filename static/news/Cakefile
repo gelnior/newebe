@@ -27,6 +27,7 @@ fs = require 'fs'
 appFiles = [
   '../platform/src/views/infodialog.coffee'
   '../platform/src/views/loadingindicator.coffee'
+  '../platform/src/views/documentselector.coffee'
   '../platform/src/views/row.coffee'
 ]
 # Source files (automatically filled)
