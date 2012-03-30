@@ -120,7 +120,7 @@ def from_seconde_newebe_clear_all_pictures(step):
         while pictures:
            for picture in pictures:
                world.browser2.delete("pictures/%s/" % picture["_id"])
-           pictures = world.browser2.fetch_documents("pictures/last/")
+           pictures = world.browser2.fetch_documents("pictures/all/")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
@@ -133,7 +133,7 @@ def post_a_new_picture_via_the_dedicated_resource(step):
     (contentType, body) = encode_multipart_formdata([], 
                             [("picture", "test.jpg", file.read())])
     headers = {'Content-Type':contentType} 
-    request = HTTPRequest(url=world.browser.root_url + "pictures/last/", 
+    request = HTTPRequest(url=world.browser.root_url + "pictures/all/", 
                           method="POST", body=body, headers=headers,
                           validate_cert=False)
     if hasattr(world.browser, "cookie"):
@@ -142,7 +142,7 @@ def post_a_new_picture_via_the_dedicated_resource(step):
 
 @step(u'Retrieve last pictures')
 def retrieve_last_pictures(step):
-    world.pictures = world.browser.fetch_documents("pictures/last/")
+    world.pictures = world.browser.fetch_documents("pictures/all/")
 
 @step(u'Download first returned picture')
 def download_first_returned_picture(step):
@@ -293,11 +293,11 @@ def add_three_pictures_to_the_database_with_different_dates(step):
 
 @step(u'Retrieve all pictures through handlers')
 def retrieve_all_pictures_through_handlers(step):
-    world.pictures = world.browser.fetch_documents("pictures/last/")
+    world.pictures = world.browser.fetch_documents("pictures/all/")
 
 @step(u'Retrieve all pictures before november 2, through handlers')
 def retrieve_all_pictures_before_november_2_through_handlers(step):
-    world.pictures = world.browser.fetch_documents("pictures/last/2011-11-02-23-59-00/")
+    world.pictures = world.browser.fetch_documents("pictures/all/2011-11-02-23-59-00/")
 
 @step(u'Check that there is three pictures with the most recent one as first picture')
 def check_that_there_is_three_pictures_with_the_most_recent_one_as_first_picture(step):
@@ -336,7 +336,7 @@ def check_that_last_activity_correspond_to_a_picture_deletion(step):
 
 @step(u'Retrieve all pictures through my pictures handlers')
 def retrieve_all_pictures_through_my_pictures_handlers(step):
-    world.pictures = world.browser.fetch_documents("pictures/last/my/")
+    world.pictures = world.browser.fetch_documents("pictures/mine/")
 
 @step(u'Check that there is two pictures with the most recent one as first picture')
 def check_that_there_is_two_pictures_with_the_most_recent_one_as_first_picture(step):    
@@ -346,7 +346,7 @@ def check_that_there_is_two_pictures_with_the_most_recent_one_as_first_picture(s
 
 @step(u'Retrieve all owner pictures before november 1, through handlers')
 def retrieve_all_owner_pictures_before_november_1_through_handlers(step):
-    world.pictures = world.browser.fetch_documents("pictures/last/my/2011-11-01-23-59-00/")
+    world.pictures = world.browser.fetch_documents("pictures/mine/2011-11-01-23-59-00/")
 
 @step(u'Check that there is one picture')
 def check_that_there_is_one_picture(step):

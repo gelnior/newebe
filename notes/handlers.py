@@ -162,6 +162,22 @@ class NoteTHandler(NewebeAuthHandler):
             self.return_failure("Note not found.", 404)
 
 
+class NoteRowsTHandler(NewebeAuthHandler):
+    '''
+    This handler allows to retrieve notes at HTML format.
+
+    * GET: Return the HTML representation of all notes.
+    '''
+
+
+    def get(self):
+        '''
+        * GET: Return the HTML representation of all notes.
+        '''
+
+        notes = NoteManager.get_all()
+        self.render("templates/note_rows.html", notes=notes)
+
 
 
 # Template handlers

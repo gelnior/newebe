@@ -66,7 +66,7 @@ class PlatformView extends Backbone.View
     if ev
       ev.preventDefault()
 
-    @switchTo("#contact", '/contact/content/', "Contact")
+    @switchTo("#contact", '/contacts/content/', "Contact")
     false
 
   # When activities is clicked, current page is hidden and activities

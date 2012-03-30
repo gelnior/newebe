@@ -140,7 +140,7 @@ def through_handlers_retrieve_trusted_contacts(step):
 
 @step(u'Through handlers retrieve all contacts')
 def through_handlers_retrieve_all_contacts(step):
-    world.contacts = world.browser.fetch_documents("contacts/")
+    world.contacts = world.browser.fetch_documents("contacts/all/")
 
 @step(u'Create a default contact')
 def create_a_default_contact(step):
@@ -199,7 +199,7 @@ def deletes_seconde_newebe_contacts(step):
 
 @step(u'On first newebe add second newebe as a contact')
 def on_first_newebe_add_second_newebe_as_a_contact(step):
-    world.browser.post("contacts/",
+    world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
     time.sleep(0.3)
 
@@ -211,7 +211,7 @@ def check_that_first_contact_status_is_pending(step):
 @step(u'From second newebe retrieve all contacts')
 def from_second_newebe_retrieve_all_contacts(step):
     time.sleep(0.3)
-    world.contacts = world.browser2.fetch_documents("contacts/")
+    world.contacts = world.browser2.fetch_documents("contacts/all/")
 
 @step(u'Check that first contact status is waiting for approval')
 def check_that_first_contact_status_is_waiting_for_approval(step):

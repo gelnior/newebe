@@ -1,6 +1,8 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesController, NotesView, Row, confirmationDialog, loadingIndicator, notesApp, notesController;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var ConfirmationDialog, InfoDialog, LoadingIndicator, Note, NoteCollection, NoteRow, NotesController, NotesView, Row, confirmationDialog, loadingIndicator, notesApp, notesController,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -29,7 +31,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -101,9 +103,9 @@
 
   })();
 
-  Row = (function() {
+  Row = (function(_super) {
 
-    __extends(Row, Backbone.View);
+    __extends(Row, _super);
 
     function Row() {
       Row.__super__.constructor.apply(this, arguments);
@@ -126,11 +128,22 @@
 
     return Row;
 
-  })();
+  })(Backbone.View);
 
-  NotesController = (function() {
+  $.putJson = function(options) {
+    return $.ajax({
+      type: "PUT",
+      url: options.url,
+      dataType: "json",
+      data: JSON.stringify(options.body),
+      success: options.success,
+      error: options.error
+    });
+  };
 
-    __extends(NotesController, Backbone.Router);
+  NotesController = (function(_super) {
+
+    __extends(NotesController, _super);
 
     function NotesController() {
       NotesController.__super__.constructor.apply(this, arguments);
@@ -166,11 +179,11 @@
 
     return NotesController;
 
-  })();
+  })(Backbone.Router);
 
-  NoteRow = (function() {
+  NoteRow = (function(_super) {
 
-    __extends(NoteRow, Row);
+    __extends(NoteRow, _super);
 
     NoteRow.prototype.tagName = "div";
 
@@ -312,11 +325,11 @@
 
     return NoteRow;
 
-  })();
+  })(Row);
 
-  NotesView = (function() {
+  NotesView = (function(_super) {
 
-    __extends(NotesView, Backbone.View);
+    __extends(NotesView, _super);
 
     NotesView.prototype.el = $("#notes-list");
 
@@ -496,11 +509,11 @@
 
     return NotesView;
 
-  })();
+  })(Backbone.View);
 
-  Note = (function() {
+  Note = (function(_super) {
 
-    __extends(Note, Backbone.Model);
+    __extends(Note, _super);
 
     Note.prototype.url = '/notes/all/';
 
@@ -593,11 +606,11 @@
 
     return Note;
 
-  })();
+  })(Backbone.Model);
 
-  NoteCollection = (function() {
+  NoteCollection = (function(_super) {
 
-    __extends(NoteCollection, Backbone.Collection);
+    __extends(NoteCollection, _super);
 
     function NoteCollection() {
       NoteCollection.__super__.constructor.apply(this, arguments);
@@ -613,7 +626,7 @@
 
     return NoteCollection;
 
-  })();
+  })(Backbone.Collection);
 
   notesController = new NotesController;
 

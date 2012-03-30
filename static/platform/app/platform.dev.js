@@ -1,10 +1,11 @@
 (function() {
-  var ConfirmationDialog, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, Row, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+  var ConfirmationDialog, DocumentSelector, FormDialog, InfoDialog, LoadingIndicator, LoginView, PlatformController, PlatformView, RegisterPasswordView, RegisterView, Row, infoDialog, loadingIndicator, loginView, platformController, platformView, registerPasswordView, registerView,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
-  PlatformController = (function() {
+  PlatformController = (function(_super) {
 
-    __extends(PlatformController, Backbone.Router);
+    __extends(PlatformController, _super);
 
     function PlatformController() {
       PlatformController.__super__.constructor.apply(this, arguments);
@@ -49,7 +50,7 @@
 
     return PlatformController;
 
-  })();
+  })(Backbone.Router);
 
   FormDialog = (function() {
 
@@ -90,8 +91,8 @@
     };
 
     FormDialog.prototype.display = function(text, callback) {
-      var field, _i, _len, _ref, _results;
-      var _this = this;
+      var field, _i, _len, _ref, _results,
+        _this = this;
       $("#form-dialog-text").empty();
       $("#form-dialog-text").append('<span>' + text + '</span>');
       $("#form-dialog-yes").click(callback);
@@ -125,9 +126,9 @@
 
   })();
 
-  RegisterView = (function() {
+  RegisterView = (function(_super) {
 
-    __extends(RegisterView, Backbone.View);
+    __extends(RegisterView, _super);
 
     RegisterView.prototype.el = $("body");
 
@@ -169,11 +170,11 @@
 
     return RegisterView;
 
-  })();
+  })(Backbone.View);
 
-  RegisterPasswordView = (function() {
+  RegisterPasswordView = (function(_super) {
 
-    __extends(RegisterPasswordView, Backbone.View);
+    __extends(RegisterPasswordView, _super);
 
     RegisterPasswordView.prototype.el = $("body");
 
@@ -217,11 +218,11 @@
 
     return RegisterPasswordView;
 
-  })();
+  })(Backbone.View);
 
-  LoginView = (function() {
+  LoginView = (function(_super) {
 
-    __extends(LoginView, Backbone.View);
+    __extends(LoginView, _super);
 
     LoginView.prototype.el = $("body");
 
@@ -238,8 +239,8 @@
     };
 
     LoginView.prototype.onPasswordFieldKeyUp = function(event) {
-      var dataPost, url;
-      var _this = this;
+      var dataPost, url,
+        _this = this;
       if ((event.keyCode === 13 || event.which === 13) && !this.isPosting) {
         this.isPosting = true;
         url = "/login/json/";
@@ -273,11 +274,11 @@
 
     return LoginView;
 
-  })();
+  })(Backbone.View);
 
-  Row = (function() {
+  Row = (function(_super) {
 
-    __extends(Row, Backbone.View);
+    __extends(Row, _super);
 
     function Row() {
       Row.__super__.constructor.apply(this, arguments);
@@ -300,7 +301,18 @@
 
     return Row;
 
-  })();
+  })(Backbone.View);
+
+  $.putJson = function(options) {
+    return $.ajax({
+      type: "PUT",
+      url: options.url,
+      dataType: "json",
+      data: JSON.stringify(options.body),
+      success: options.success,
+      error: options.error
+    });
+  };
 
   LoadingIndicator = (function() {
 
@@ -355,7 +367,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -401,9 +413,9 @@
 
   })();
 
-  PlatformView = (function() {
+  PlatformView = (function(_super) {
 
-    __extends(PlatformView, Backbone.View);
+    __extends(PlatformView, _super);
 
     PlatformView.prototype.el = $("body");
 
@@ -456,7 +468,7 @@
 
     PlatformView.prototype.onContactClicked = function(ev) {
       if (ev) ev.preventDefault();
-      this.switchTo("#contact", '/contact/content/', "Contact");
+      this.switchTo("#contact", '/contacts/content/', "Contact");
       return false;
     };
 
@@ -512,6 +524,65 @@
     };
 
     return PlatformView;
+
+  })(Backbone.View);
+
+  DocumentSelector = (function() {
+
+    function DocumentSelector() {
+      var div,
+        _this = this;
+      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
+        div = document.createElement('div');
+        div.id = "document-selector";
+        div.className = "dialog";
+        $("body").prepend(div);
+        this.element = $("#document-selector");
+        this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-list">\n</div>');
+        this.docList = $("#document-selector-list");
+        $("#document-selector-cancel").click(function() {
+          return _this.element.fadeOut(400);
+        });
+      } else {
+        this.element = $("#document-selector");
+        this.docList = $("#document-selector-list");
+      }
+      this.element.hide();
+    }
+
+    DocumentSelector.prototype.display = function(callback) {
+      var _this = this;
+      if (this.fun !== void 0) {
+        $("#document-selector-select").unbind("click", this.fun);
+      }
+      this.fun = function(event) {
+        if ($("#document-selector-list .selected")) {
+          callback($("#document-selector-list .selected")[0].id);
+        }
+        return _this.element.fadeOut(400);
+      };
+      $("#document-selector-select").click(this.fun);
+      this.docList.empty();
+      return $.get("/notes/all/html/", function(data) {
+        var selected;
+        _this.docList.html(data);
+        $(".note-row").mouseenter(function(event) {
+          return $(this).addClass("mouseover mouseover-dialog");
+        });
+        $(".note-row").mouseleave(function(event) {
+          return $(this).removeClass("mouseover mouseover-dialog");
+        });
+        selected = null;
+        $(".note-row").click(function(event) {
+          if (selected) selected.removeClass("selected selected-dialog");
+          $(this).addClass("selected selected-dialog");
+          return selected = $(this);
+        });
+        return _this.element.fadeIn(400);
+      });
+    };
+
+    return DocumentSelector;
 
   })();
 

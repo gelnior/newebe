@@ -9,63 +9,8 @@ sys.path.append("../")
 from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
                             PRIVATE_KEY, CERTIFICATE
 
+from newebe.routes import routes
 import newebe.lib.pid as pid
-
-
-from newebe.contacts.handlers import ContactUpdateHandler, \
-                                 ContactContentTHandler, \
-                                 ContactTutorial1THandler, \
-                                 ContactTutorial2THandler, \
-                                 ContactPushHandler, ContactConfirmHandler, \
-                                 ContactHandler, ContactsHandler, \
-                                 ContactsPendingHandler, \
-                                 ContactsRequestedHandler, \
-                                 ContactsTrustedHandler, \
-                                 ContactRenderTHandler, ContactRetryHandler
-
-from newebe.contacts.handlers import ContactTHandler
-
-from newebe.profile.handlers import UserHandler, \
-                                    ProfileTHandler, \
-                                    ProfileContentTHandler, \
-                                    ProfileMenuContentTHandler,  \
-                                    ProfileTutorial1THandler, \
-                                    ProfileTutorial2THandler
-
-from newebe.auth.handlers import LoginHandler, LogoutHandler, \
-                                 LoginJsonHandler,\
-                                 RegisterTHandler, RegisterPasswordTHandler, \
-                                 RegisterPasswordContentTHandler, \
-                                 UserPasswordHandler
-
-from newebe.news.handlers import NewsHandler, NewsContactHandler, \
-                                 NewsSuscribeHandler, MicropostHandler, \
-                                 MicropostTHandler, \
-                                 MyNewsHandler, \
-                                 NewsContentTHandler, NewsTHandler, \
-                                 NewsTutorial1THandler, NewsTutorial2THandler, \
-                                 NewsRetryHandler
-
-from newebe.activities.handlers import ActivityHandler, MyActivityHandler, \
-                                       ActivityContentHandler, \
-                                       ActivityPageHandler
-
-from newebe.notes.handlers import NotesHandler, \
-                                  NotesByDateHandler, NoteHandler, \
-                                  NotesPageTHandler, NotesContentTHandler, \
-                                  NoteTHandler
-
-from newebe.pictures.handlers import PicturesHandler, PictureFileHandler, \
-                                    PicturesMyHandler, \
-                                    PictureContactHandler, PictureHandler, \
-                                    PicturesTHandler, PicturesTestsTHandler, \
-                                    PicturesContentTHandler, \
-                                    PicturesQQHandler, PictureTHandler, \
-                                    PictureDownloadHandler, \
-                                    PictureContactDownloadHandler, \
-                                    PictureRetryHandler
-
-from newebe.sync.handlers import SynchronizeHandler, SynchronizeContactHandler
 
 
 # Set logging configuration
@@ -80,101 +25,12 @@ class Newebe(Application):
     '''
 
     def __init__(self):
-        handlers = [
-            ('/', NewsTHandler),
-
-            ('/login/', LoginHandler),
-            ('/login/json/', LoginJsonHandler),
-            ('/logout/', LogoutHandler),
-            ('/register/', RegisterTHandler),
-            ('/register/password/', RegisterPasswordTHandler),
-            ('/register/password/content/', RegisterPasswordContentTHandler),
-            ('/user/password/', UserPasswordHandler),
-            
-            ('/user/$', UserHandler),
-            ('/profile/$', ProfileTHandler),
-            ('/profile/content/$', ProfileContentTHandler),
-            ('/profile/menu-content/$', ProfileMenuContentTHandler),
-            ('/profile/tutorial/1/$', ProfileTutorial1THandler),
-            ('/profile/tutorial/2/$', ProfileTutorial2THandler),
-
-            ('/contacts/$', ContactsHandler),
-            ('/contacts/update-profile/$', ContactUpdateHandler),
-            ('/contacts/pending/$', ContactsPendingHandler),
-            ('/contacts/requested/$', ContactsRequestedHandler),
-            ('/contacts/trusted/$', ContactsTrustedHandler),
-            ('/contacts/confirm/$', ContactConfirmHandler),
-            ('/contacts/request/$', ContactPushHandler),
-            ('/contacts/render/([0-9A-Za-z-]+)/$', ContactRenderTHandler),
-            ('/contacts/([0-9A-Za-z-]+)/$', ContactHandler),
-            ('/contacts/([0-9A-Za-z-]+)/retry/$', ContactRetryHandler),
-
-            ('/contact/$', ContactTHandler),
-            ('/contact/content/$', ContactContentTHandler),
-            ('/contact/tutorial/1/$', ContactTutorial1THandler),
-            ('/contact/tutorial/2/$', ContactTutorial2THandler),
-
-            ('/news/', NewsTHandler),
-            ('/news/microposts/', NewsHandler),
-            ('/news/microposts/mine/([0-9\-]+)/', MyNewsHandler),
-            ('/news/microposts/mine/', MyNewsHandler),
-            ('/news/microposts/all/([0-9\-]+)/', NewsHandler),
-            ('/news/microposts/all/', NewsHandler),
-            ('/news/microposts/contacts/', NewsContactHandler),
-            ('/news/micropost/([0-9a-z]+)/', MicropostHandler),
-            ('/news/micropost/([0-9a-z]+)/html/', MicropostTHandler),
-            ('/news/micropost/([0-9a-z]+)/retry/', NewsRetryHandler),
-            ('/news/content/', NewsContentTHandler),
-            ('/news/tutorial/1/', NewsTutorial1THandler),
-            ('/news/tutorial/2/', NewsTutorial2THandler),
-            ('/news/suscribe/', NewsSuscribeHandler),
- 
-            ('/activities/', ActivityPageHandler),
-            ('/activities/content/', ActivityContentHandler),
-            ('/activities/all/', ActivityHandler),
-            ('/activities/all/([0-9\-]+)/', ActivityHandler),
-            ('/activities/mine/', MyActivityHandler),
-            ('/activities/mine/([0-9\-]+)/', MyActivityHandler),
-
-            ('/notes/', NotesPageTHandler),
-            ('/notes/content/', NotesContentTHandler),
-            ('/notes/all/', NotesHandler),
-            ('/notes/all/order-by-title/', NotesHandler),
-            ('/notes/all/order-by-date/', NotesByDateHandler),
-            ('/notes/([0-9a-z]+)/', NoteHandler),
-            ('/notes/([0-9a-z]+)/html/', NoteTHandler),
-
-            ('/synchronize/', SynchronizeHandler),
-            ('/synchronize/contact/', SynchronizeContactHandler),
-
-            ('/pictures/$', PicturesTHandler),
-            ('/pictures/tests/$', PicturesTestsTHandler),
-            ('/pictures/content/$', PicturesContentTHandler),            
-            ('/pictures/last/$', PicturesHandler),
-            ('/pictures/last/([0-9\-]+)/$', PicturesHandler),
-            ('/pictures/last/my/$', PicturesMyHandler),        
-            ('/pictures/last/my/([0-9\-]+)/$', PicturesMyHandler),
-            ('/pictures/fileuploader/$', PicturesQQHandler),
-            ('/pictures/contact/$', PictureContactHandler),
-            ('/pictures/contact/download/$', PictureContactDownloadHandler),
-            ('/pictures/([0-9a-z]+)/$', PictureHandler),
-            ('/pictures/([0-9a-z]+)/render/$', PictureTHandler),            
-            ('/pictures/([0-9a-z]+)/retry/$', PictureRetryHandler),
-            ('/pictures/([0-9a-z]+)/download/$', PictureDownloadHandler),
-            ('/pictures/([0-9a-z]+)/(.+)', PictureFileHandler),            
-        ]
-       
-        if DEBUG:
-            handlers.extend([
-                ('/pictures/tests/', PicturesTestsTHandler)
-            ])
-
         settings = {
           "static_path": os.path.join(os.path.dirname(__file__), "static"),
           "cookie_secret": COOKIE_KEY,
           "login_url": "/login",
         }
-        Application.__init__(self, handlers, debug=DEBUG, **settings)
+        Application.__init__(self, routes, debug=DEBUG, **settings)
 
 
 class NewebeIOLoop(IOLoop):

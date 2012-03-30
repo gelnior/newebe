@@ -3,7 +3,7 @@ import logging
 
 from tornado.web import asynchronous
 
-from newebe.lib import date_util, upload_util
+from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 
 from newebe.profile.models import UserManager

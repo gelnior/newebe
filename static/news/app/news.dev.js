@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, loadingIndicator, newsApp, updater,
+  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -31,7 +31,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -103,6 +103,65 @@
 
   })();
 
+  DocumentSelector = (function() {
+
+    function DocumentSelector() {
+      var div,
+        _this = this;
+      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
+        div = document.createElement('div');
+        div.id = "document-selector";
+        div.className = "dialog";
+        $("body").prepend(div);
+        this.element = $("#document-selector");
+        this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-list">\n</div>');
+        this.docList = $("#document-selector-list");
+        $("#document-selector-cancel").click(function() {
+          return _this.element.fadeOut(400);
+        });
+      } else {
+        this.element = $("#document-selector");
+        this.docList = $("#document-selector-list");
+      }
+      this.element.hide();
+    }
+
+    DocumentSelector.prototype.display = function(callback) {
+      var _this = this;
+      if (this.fun !== void 0) {
+        $("#document-selector-select").unbind("click", this.fun);
+      }
+      this.fun = function(event) {
+        if ($("#document-selector-list .selected")) {
+          callback($("#document-selector-list .selected")[0].id);
+        }
+        return _this.element.fadeOut(400);
+      };
+      $("#document-selector-select").click(this.fun);
+      this.docList.empty();
+      return $.get("/notes/all/html/", function(data) {
+        var selected;
+        _this.docList.html(data);
+        $(".note-row").mouseenter(function(event) {
+          return $(this).addClass("mouseover mouseover-dialog");
+        });
+        $(".note-row").mouseleave(function(event) {
+          return $(this).removeClass("mouseover mouseover-dialog");
+        });
+        selected = null;
+        $(".note-row").click(function(event) {
+          if (selected) selected.removeClass("selected selected-dialog");
+          $(this).addClass("selected selected-dialog");
+          return selected = $(this);
+        });
+        return _this.element.fadeIn(400);
+      });
+    };
+
+    return DocumentSelector;
+
+  })();
+
   Row = (function(_super) {
 
     __extends(Row, _super);
@@ -130,6 +189,17 @@
 
   })(Backbone.View);
 
+  $.putJson = function(options) {
+    return $.ajax({
+      type: "PUT",
+      url: options.url,
+      dataType: "json",
+      data: JSON.stringify(options.body),
+      success: options.success,
+      error: options.error
+    });
+  };
+
   MicroPostRow = (function(_super) {
 
     __extends(MicroPostRow, _super);
@@ -138,23 +208,23 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a class="news-micropost-delete">X</a>\n<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>');
 
     /* Events
     */
 
     MicroPostRow.prototype.events = {
-      "click .news-micropost-delete": "onDeleteClicked",
       "mouseover": "onMouseOver",
       "mouseout": "onMouseOut",
-      "click": "onClick",
-      "click .news-micropost-author": "onAuthorClicked"
+      "click": "onClick"
     };
 
     function MicroPostRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
-      this.onAuthorClicked = __bind(this.onAuthorClicked, this);
+      this.renderMicropost = __bind(this.renderMicropost, this);
+      this.onPushNoteClicked = __bind(this.onPushNoteClicked, this);
+      this.onDeleteClicked = __bind(this.onDeleteClicked, this);
       MicroPostRow.__super__.constructor.call(this);
       this.id = this.model.id;
       this.model.view = this;
@@ -178,26 +248,37 @@
     };
 
     MicroPostRow.prototype.onDeleteClicked = function() {
-      var model,
-        _this = this;
-      model = this.model;
+      var _this = this;
       return confirmationDialog.display("Are you sure you want to delete this post ?", function() {
         confirmationDialog.hide();
-        model["delete"]();
+        _this.model["delete"]();
         _this.mainView.selectedRow = null;
-        return $("#news-preview").html(null);
+        return _this.clearPreview();
       });
     };
 
-    MicroPostRow.prototype.onAuthorClicked = function(event) {
+    MicroPostRow.prototype.onPushNoteClicked = function() {
       var _this = this;
-      $.get("/contacts/render/" + (this.model.getAuthorKey()) + "/", function(data) {
-        _this.preview.append("<p>Post written by : </p>");
-        _this.preview.append(data);
-        return _this.updatePreviewPosition();
+      return selectorDialog.display(function(noteId) {
+        loadingIndicator.display();
+        return $.get("/notes/" + noteId + "/", function(data) {
+          var note;
+          note = data.rows[0];
+          note.content = note.content + "\n\n" + _this.model.getContent();
+          return $.putJson({
+            url: "/notes/" + noteId + "/",
+            body: note,
+            success: function() {
+              infoDialog.display("note successfully updated");
+              return loadingIndicator.hide();
+            },
+            error: function() {
+              infoDialog.display("note update failed");
+              return loadingIndicator.hide();
+            }
+          });
+        });
       });
-      if (event) event.preventDefault();
-      return false;
     };
 
     /* Functions
@@ -210,38 +291,54 @@
     MicroPostRow.prototype.render = function() {
       if (!this.model.getDisplayDate()) this.model.setDisplayDate();
       $(this.el).html(this.template(this.model.toJSON()));
-      this.$(".news-micropost-delete").button();
-      this.$(".news-micropost-delete").hide();
       return this.el;
     };
 
+    MicroPostRow.prototype.clearPreview = function() {
+      return $("#news-preview").html(null);
+    };
+
     MicroPostRow.prototype.select = function() {
-      this.$(".news-micropost-delete").show();
+      var _this = this;
       $(this.el).removeClass("mouseover");
       $(this.el).addClass("selected");
       $("#news-preview").html(null);
-      this.checkForVideo();
-      this.checkForImage();
-      return this.onAuthorClicked(null);
+      return this.renderMicropost(function() {
+        _this.checkForVideo();
+        _this.checkForImage();
+        return _this.updatePreviewPosition();
+      });
     };
 
     MicroPostRow.prototype.deselect = function() {
       this.$(".news-micropost-delete").hide();
       $(this.el).removeClass("selected");
-      return $("#news-preview").html(null);
+      return this.clearPreview();
+    };
+
+    MicroPostRow.prototype.renderMicropost = function(callback) {
+      var _this = this;
+      return $.get("/microposts/" + this.model.id + "/html/", function(data) {
+        _this.preview.append(data);
+        $("#news-preview").append('<p class="micropost-buttons button-bar">\n  <a class="micropost-note-button">push to note</a>\n  <a class="micropost-delete-button">delete</a>\n</p>');
+        $(".micropost-buttons a").button();
+        $(".micropost-note-button").click(_this.onPushNoteClicked);
+        $(".micropost-delete-button").click(_this.onDeleteClicked);
+        return callback();
+      });
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
-      var content, index, key, regexp, res, url, urls, _i, _len, _results;
+      var content, key, regexp, res, url, urls, _i, _len, _results;
       regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g;
       content = this.model.get("content");
       urls = content.match(regexp);
       if (urls) {
+        $("#news-preview").append("<p>Embedded videos: </p>");
         _results = [];
         for (_i = 0, _len = urls.length; _i < _len; _i++) {
           url = urls[_i];
-          index = url.indexOf("(");
-          url = url.substring(index + 1, url.length - 1);
+          url = this.getUrlFromMarkdown(url);
           res = url.match(/v=\S+&/);
           if (res != null) key = res[0];
           if (!key) {
@@ -264,16 +361,16 @@
     };
 
     MicroPostRow.prototype.checkForImage = function() {
-      var content, index, regexp, url, urls, _i, _len, _results;
+      var content, regexp, url, urls, _i, _len, _results;
       regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g;
       content = this.model.get("content");
       urls = content.match(regexp);
       if (urls) {
+        $("#news-preview").append("<p>Embedded pictures: </p>");
         _results = [];
         for (_i = 0, _len = urls.length; _i < _len; _i++) {
           url = urls[_i];
-          index = url.indexOf("(");
-          url = url.substring(index + 1, url.length - 1);
+          url = this.getUrlFromMarkdown(url);
           if (url) {
             _results.push($("#news-preview").append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Micropost preview\" />\n</img>\n</p>"));
           } else {
@@ -282,6 +379,12 @@
         }
         return _results;
       }
+    };
+
+    MicroPostRow.prototype.getUrlFromMarkdown = function(markdownLink) {
+      var index;
+      index = markdownLink.indexOf("(");
+      return markdownLink.substring(index + 1, markdownLink.length - 1);
     };
 
     return MicroPostRow;
@@ -301,7 +404,6 @@
 
     NewsView.prototype.events = {
       "click #news-post-button": "onPostClicked",
-      "submit #news-post-button": "onPostClicked",
       "click #news-my-button": "onMineClicked",
       "click #news-all-button": "onAllClicked",
       "click #news-more": "onMoreNewsClicked"
@@ -321,7 +423,7 @@
       this.microposts.bind('reset', this.addAll);
       this.moreMicroposts = new MicroPostCollection;
       this.moreMicroposts.bind('reset', this.addAllMore);
-      this.currentPath = '/news/microposts/all/';
+      this.currentPath = '/microposts/all/';
       return this.selectedRow = null;
     };
 
@@ -353,7 +455,7 @@
       $("#news-all-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
-      this.currentPath = '/news/microposts/mine/';
+      this.currentPath = '/microposts/mine/';
       this.reloadMicroPosts(null);
       return event;
     };
@@ -363,7 +465,7 @@
       $("#news-my-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
-      this.currentPath = '/news/microposts/all/';
+      this.currentPath = '/microposts/all/';
       this.reloadMicroPosts(null);
       return event;
     };
@@ -454,7 +556,7 @@
     };
 
     NewsView.prototype.displayTutorial = function(index) {
-      return $.get("/news/tutorial/" + index + "/", function(data) {
+      return $.get("/microposts/tutorial/" + index + "/", function(data) {
         return $("#tutorial-news").html(data);
       });
     };
@@ -482,21 +584,25 @@
 
     NewsView.prototype.postNewPost = function() {
       var content;
-      loadingIndicator.display();
       content = $("#id_content").val();
-      content = this.convertUrlToMarkdownLink(content);
-      this.microposts.create({
-        content: content
-      }, {
-        success: function(nextModel, resp) {
-          loadingIndicator.hide();
-          nextModel.view.el.id = resp._id;
-          return nextModel.id = resp._id;
-        }
-      });
-      $("#id_content").val(null);
-      $("#id_content").focus();
-      return false;
+      if (content) {
+        loadingIndicator.display();
+        content = this.convertUrlToMarkdownLink(content);
+        this.microposts.create({
+          content: content,
+          success: function(nextModel, resp) {
+            loadingIndicator.hide();
+            nextModel.view.el.id = resp._id;
+            return nextModel.id = resp._id;
+          },
+          error: function() {
+            infoDialog.display("An error occured micropost was not posted.");
+            return loadingIndicator.hide();
+          }
+        });
+        $("#id_content").val(null);
+        return $("#id_content").focus();
+      }
     };
 
     NewsView.prototype.convertUrlToMarkdownLink = function(content) {
@@ -559,7 +665,7 @@
 
     __extends(MicroPost, _super);
 
-    MicroPost.prototype.url = '/news/microposts/';
+    MicroPost.prototype.url = '/microposts/all/';
 
     function MicroPost(microPost) {
       var content, converter, html, postDate, urlDate;
@@ -626,7 +732,7 @@
     };
 
     MicroPost.prototype["delete"] = function() {
-      this.url = "/news/micropost/" + this.id + "/";
+      this.url = "/microposts/" + this.id + "/";
       this.destroy();
       return this.view.remove();
     };
@@ -649,7 +755,7 @@
 
     MicroPostCollection.prototype.model = MicroPost;
 
-    MicroPostCollection.prototype.url = '/news/microposts/all/';
+    MicroPostCollection.prototype.url = '/microposts/all/';
 
     MicroPostCollection.prototype.comparator = function(microPost) {
       return microPost.getDate();
@@ -665,9 +771,13 @@
 
   newsApp = new NewsView;
 
+  infoDialog = new InfoDialog;
+
   loadingIndicator = new LoadingIndicator;
 
   confirmationDialog = new ConfirmationDialog;
+
+  selectorDialog = new DocumentSelector;
 
   newsApp.setWidgets();
 
@@ -682,7 +792,7 @@
     cursor: null,
     poll: function() {
       return $.ajax({
-        url: "/news/suscribe/",
+        url: "/microposts/suscribe/",
         type: "GET",
         dataType: "text",
         success: updater.onSuccess,
@@ -701,7 +811,7 @@
         return;
       }
       updater.errorSleepTime = 500;
-      return window.setTimeout(updater.poll, 0);
+      return window.setTimeout(updater.poll, updater.errorSleepTime);
     },
     onError: function(response) {
       updater.errorSleepTime *= 2;

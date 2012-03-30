@@ -9,9 +9,11 @@ pictureRouter = new PicturesRouter app
 loadingIndicator = new LoadingIndicator
 confirmationDialog = new ConfirmationDialog
 infoDialog = new InfoDialog
+selectorDialogPicture = new DocumentSelector
 
 # Initialize widgets
 app.setWidgets()
 app.setListeners()
 
 app.displayAllPictures null
+

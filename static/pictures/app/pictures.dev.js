@@ -1,6 +1,8 @@
 (function() {
-  var ConfirmationDialog, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, Row, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, Row, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter, selectorDialogPicture,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   InfoDialog = (function() {
 
@@ -29,7 +31,7 @@
 
   ConfirmationDialog = (function() {
 
-    function ConfirmationDialog(callback) {
+    function ConfirmationDialog() {
       var div;
       if ($("#confirmation-dialog").length === 0) {
         div = document.createElement('div');
@@ -101,9 +103,68 @@
 
   })();
 
-  Row = (function() {
+  DocumentSelector = (function() {
 
-    __extends(Row, Backbone.View);
+    function DocumentSelector() {
+      var div,
+        _this = this;
+      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
+        div = document.createElement('div');
+        div.id = "document-selector";
+        div.className = "dialog";
+        $("body").prepend(div);
+        this.element = $("#document-selector");
+        this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-list">\n</div>');
+        this.docList = $("#document-selector-list");
+        $("#document-selector-cancel").click(function() {
+          return _this.element.fadeOut(400);
+        });
+      } else {
+        this.element = $("#document-selector");
+        this.docList = $("#document-selector-list");
+      }
+      this.element.hide();
+    }
+
+    DocumentSelector.prototype.display = function(callback) {
+      var _this = this;
+      if (this.fun !== void 0) {
+        $("#document-selector-select").unbind("click", this.fun);
+      }
+      this.fun = function(event) {
+        if ($("#document-selector-list .selected")) {
+          callback($("#document-selector-list .selected")[0].id);
+        }
+        return _this.element.fadeOut(400);
+      };
+      $("#document-selector-select").click(this.fun);
+      this.docList.empty();
+      return $.get("/notes/all/html/", function(data) {
+        var selected;
+        _this.docList.html(data);
+        $(".note-row").mouseenter(function(event) {
+          return $(this).addClass("mouseover mouseover-dialog");
+        });
+        $(".note-row").mouseleave(function(event) {
+          return $(this).removeClass("mouseover mouseover-dialog");
+        });
+        selected = null;
+        $(".note-row").click(function(event) {
+          if (selected) selected.removeClass("selected selected-dialog");
+          $(this).addClass("selected selected-dialog");
+          return selected = $(this);
+        });
+        return _this.element.fadeIn(400);
+      });
+    };
+
+    return DocumentSelector;
+
+  })();
+
+  Row = (function(_super) {
+
+    __extends(Row, _super);
 
     function Row() {
       Row.__super__.constructor.apply(this, arguments);
@@ -126,11 +187,22 @@
 
     return Row;
 
-  })();
+  })(Backbone.View);
 
-  PicturesRouter = (function() {
+  $.putJson = function(options) {
+    return $.ajax({
+      type: "PUT",
+      url: options.url,
+      dataType: "json",
+      data: JSON.stringify(options.body),
+      success: options.success,
+      error: options.error
+    });
+  };
 
-    __extends(PicturesRouter, Backbone.Router);
+  PicturesRouter = (function(_super) {
+
+    __extends(PicturesRouter, _super);
 
     PicturesRouter.prototype.routes = {
       "": "all",
@@ -162,11 +234,11 @@
 
     return PicturesRouter;
 
-  })();
+  })(Backbone.Router);
 
-  PicturesView = (function() {
+  PicturesView = (function(_super) {
 
-    __extends(PicturesView, Backbone.View);
+    __extends(PicturesView, _super);
 
     PicturesView.prototype.el = $("#pictures");
 
@@ -201,7 +273,7 @@
       this.pictures.bind('add', this.prependOne);
       this.pictures.bind('reset', this.addAll);
       this.morePictures.bind('reset', this.addAllMore);
-      this.currentPath = "/pictures/last/";
+      this.currentPath = "/pictures/all/";
       return this.selectedRow = null;
     };
 
@@ -225,7 +297,7 @@
       var date, datePicked;
       datePicked = Date.parse(dateText);
       date = datePicked.toString("yyyy-MM-dd");
-      if (this.currentPath === "/pictures/last/my/") {
+      if (this.currentPath === "/pictures/mine/") {
         return Backbone.history.navigate("pictures/mine/until/" + date + "/", true);
       } else {
         return Backbone.history.navigate("pictures/all/until/" + date + "/", true);
@@ -250,7 +322,7 @@
     PicturesView.prototype.displayMyPictures = function(date) {
       this.myButton.button("disable");
       this.allButton.button("enable");
-      this.currentPath = "/pictures/last/my/";
+      this.currentPath = "/pictures/mine/";
       this.datepicker.val(date);
       return this.reloadPictures(date);
     };
@@ -258,7 +330,7 @@
     PicturesView.prototype.displayAllPictures = function(date) {
       this.myButton.button("enable");
       this.allButton.button("disable");
-      this.currentPath = "/pictures/last/";
+      this.currentPath = "/pictures/all/";
       this.datepicker.val(date);
       return this.reloadPictures(date);
     };
@@ -337,7 +409,7 @@
     PicturesView.prototype.displayMyPictures = function(date) {
       this.myButton.button("disable");
       this.allButton.button("enable");
-      this.currentPath = "/pictures/last/my/";
+      this.currentPath = "/pictures/mine/";
       this.datepicker.val(date);
       return this.reloadPictures(date);
     };
@@ -345,7 +417,7 @@
     PicturesView.prototype.displayAllPictures = function(date) {
       this.myButton.button("enable");
       this.allButton.button("disable");
-      this.currentPath = "/pictures/last/";
+      this.currentPath = "/pictures/all/";
       this.datepicker.val(date);
       return this.reloadPictures(date);
     };
@@ -383,11 +455,11 @@
 
     return PicturesView;
 
-  })();
+  })(Backbone.View);
 
-  PictureRow = (function() {
+  PictureRow = (function(_super) {
 
-    __extends(PictureRow, Row);
+    __extends(PictureRow, _super);
 
     PictureRow.prototype.tagName = "div";
 
@@ -407,6 +479,7 @@
     function PictureRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.onPushNoteClicked = __bind(this.onPushNoteClicked, this);
       this.onDownloadClicked = __bind(this.onDownloadClicked, this);
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
       PictureRow.__super__.constructor.call(this);
@@ -458,6 +531,30 @@
       });
     };
 
+    PictureRow.prototype.onPushNoteClicked = function() {
+      var _this = this;
+      return selectorDialogPicture.display(function(noteId) {
+        loadingIndicator.display();
+        return $.get("/notes/" + noteId + "/", function(data) {
+          var note;
+          note = data.rows[0];
+          note.content = note.content + "\n\n ![image](" + _this.model.getImagePreviewPath() + ")";
+          return $.putJson({
+            url: "/notes/" + noteId + "/",
+            body: note,
+            success: function() {
+              infoDialog.display("note successfully updated");
+              return loadingIndicator.hide();
+            },
+            error: function() {
+              infoDialog.display("note update failed");
+              return loadingIndicator.hide();
+            }
+          });
+        });
+      });
+    };
+
     /* Functions
     */
 
@@ -487,11 +584,11 @@
         return $.get(_this.model.getPath(), function(data) {
           loadingIndicator.hide();
           _this.preview.append(data);
-          $("#pictures-delete-button").button();
+          $("#pictures-preview").append('<p class="pictures-buttons button-bar">\n  <a id="pictures-note-button">push to note</a>\n  <a href="/pictures/#{@model._id}/{{ picture.path }}" target="blank"\n     id="pictures-download-button">download</a>\n  <a id="pictures-delete-button">delete</a>\n</p>');
+          $("#pictures-preview a").button();
+          $("#pictures-note-button").click(_this.onPushNoteClicked);
           $("#pictures-delete-button").click(_this.onDeleteClicked);
-          $("#pictures-download-button").button();
           $("#pictures-download-button").click(_this.onDownloadClicked);
-          $("#pictures-full-size-button").button();
           _this.preview.fadeIn();
           return _this.updatePreviewPosition();
         });
@@ -500,13 +597,13 @@
 
     return PictureRow;
 
-  })();
+  })(Row);
 
-  Picture = (function() {
+  Picture = (function(_super) {
 
-    __extends(Picture, Backbone.Model);
+    __extends(Picture, _super);
 
-    Picture.prototype.url = '/pictures/last/';
+    Picture.prototype.url = '/pictures/all/';
 
     function Picture(picture) {
       var date;
@@ -547,11 +644,15 @@
     };
 
     Picture.prototype.getPath = function() {
-      return "/pictures/" + this.get("_id") + "/render/";
+      return "/pictures/" + this.get("_id") + "/html/";
     };
 
     Picture.prototype.getDownloadPath = function() {
       return "/pictures/" + this.get("_id") + "/download/";
+    };
+
+    Picture.prototype.getImagePreviewPath = function() {
+      return "/pictures/" + this.id + "/prev_" + (this.get('path'));
     };
 
     Picture.prototype["delete"] = function() {
@@ -566,11 +667,11 @@
 
     return Picture;
 
-  })();
+  })(Backbone.Model);
 
-  PictureCollection = (function() {
+  PictureCollection = (function(_super) {
 
-    __extends(PictureCollection, Backbone.Collection);
+    __extends(PictureCollection, _super);
 
     function PictureCollection() {
       PictureCollection.__super__.constructor.apply(this, arguments);
@@ -578,7 +679,7 @@
 
     PictureCollection.prototype.model = Picture;
 
-    PictureCollection.prototype.url = '/pictures/last/';
+    PictureCollection.prototype.url = '/pictures/all/';
 
     PictureCollection.prototype.comparator = function(picture) {
       var date;
@@ -592,7 +693,7 @@
 
     return PictureCollection;
 
-  })();
+  })(Backbone.Collection);
 
   app = new PicturesView;
 
@@ -603,6 +704,8 @@
   confirmationDialog = new ConfirmationDialog;
 
   infoDialog = new InfoDialog;
+
+  selectorDialogPicture = new DocumentSelector;
 
   app.setWidgets();
 

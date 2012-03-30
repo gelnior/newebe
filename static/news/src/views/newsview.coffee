@@ -14,7 +14,6 @@ class NewsView extends Backbone.View
 
   events:
     "click #news-post-button" : "onPostClicked"
-    "submit #news-post-button" : "onPostClicked"
     "click #news-my-button" : "onMineClicked"
     "click #news-all-button" : "onAllClicked"
     "click #news-more" : "onMoreNewsClicked"
@@ -39,7 +38,7 @@ class NewsView extends Backbone.View
     @moreMicroposts = new MicroPostCollection
     @moreMicroposts.bind 'reset', @addAllMore
 
-    @currentPath = '/news/microposts/all/'
+    @currentPath = '/microposts/all/'
 
     @selectedRow = null
 
@@ -78,7 +77,7 @@ class NewsView extends Backbone.View
     $("#news-all-button").button("enable")
     @clearNews(null)
     $("#news-from-datepicker").val(null)
-    @currentPath = '/news/microposts/mine/'
+    @currentPath = '/microposts/mine/'
     @reloadMicroPosts(null)
     event
 
@@ -89,7 +88,7 @@ class NewsView extends Backbone.View
     $("#news-my-button").button("enable")
     @clearNews(null)
     $("#news-from-datepicker").val(null)
-    @currentPath = '/news/microposts/all/'
+    @currentPath = '/microposts/all/'
     @reloadMicroPosts(null)
     event
 
@@ -105,7 +104,6 @@ class NewsView extends Backbone.View
 
   # Select clicked row and deselect previously clicked row.
   onRowClicked: (row) ->
-
     if row != @selectedRow
       if @selectedRow
         @selectedRow.deselect()
@@ -195,7 +193,7 @@ class NewsView extends Backbone.View
 
   # Displays tutorial in the tutorial DIV element.
   displayTutorial: (index) ->
-    $.get("/news/tutorial/" + index + "/", (data) ->
+    $.get("/microposts/tutorial/" + index + "/", (data) ->
       $("#tutorial-news").html(data)
     )
 
@@ -231,20 +229,25 @@ class NewsView extends Backbone.View
   # Urls are converted to markdown links to be displayed automatically as href
   # links.
   postNewPost: ()->
-    loadingIndicator.display()
     content = $("#id_content").val()
-    content = @convertUrlToMarkdownLink(content)
+    if content
+      loadingIndicator.display()
+      content = @convertUrlToMarkdownLink(content)
 
-    @microposts.create(content : content,
-                       success : (nextModel, resp) ->
-                         loadingIndicator.hide()
-                         nextModel.view.el.id = resp._id
-                         nextModel.id = resp._id
-                      )
-    $("#id_content").val(null)
-    $("#id_content").focus()
-    false
+      @microposts.create
+        content : content,
+        success : (nextModel, resp) ->
+          loadingIndicator.hide()
+          nextModel.view.el.id = resp._id
+          nextModel.id = resp._id
+        error: () ->
+          infoDialog.display "An error occured micropost was not posted."
+          loadingIndicator.hide()
 
+      $("#id_content").val(null)
+      $("#id_content").focus()
+
+  # Convert markdown url to href link for better display.
   convertUrlToMarkdownLink: (content) ->
     regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
 

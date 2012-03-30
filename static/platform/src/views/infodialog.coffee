@@ -34,7 +34,7 @@ class InfoDialog
 class ConfirmationDialog
 
   # Constructor : builds HTML element, then hides it.
-  constructor: (callback) ->
+  constructor: ->
     
     if $("#confirmation-dialog").length == 0
       div = document.createElement('div')
