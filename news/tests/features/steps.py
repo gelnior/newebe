@@ -134,12 +134,12 @@ def then_i_have_1_post_corresponding_to_given_contact_and_date(step):
 
 @step(u'When I send a request to retrieve the last posts')
 def when_i_send_a_request_to_retrieve_the_last_posts(step):
-    world.microposts = world.browser.fetch_documents("news/microposts/all/")
+    world.microposts = world.browser.fetch_documents("microposts/all/")
     time.sleep(0.6)
    
 @step(u'And I send a request to retrieve the last posts')
 def and_i_send_a_request_to_retrieve_the_last_posts(step):
-    world.microposts = world.browser.fetch_documents("news/microposts/all/")
+    world.microposts = world.browser.fetch_documents("microposts/all/")
 
 @step(u'Then I have (\d+) microposts ordered by date')
 def then_i_have_6_microposts_ordered_by_date(step, nbposts):
@@ -152,11 +152,11 @@ def then_i_have_6_microposts_ordered_by_date(step, nbposts):
 
 @step(u'When I send a request to retrieve my last posts')
 def when_i_send_a_request_to_retrieve_my_last_posts(step):
-    world.microposts = world.browser.fetch_documents("news/microposts/mine/")
+    world.microposts = world.browser.fetch_documents("microposts/mine/")
 
 @step(u'I send a request to post a micropost')
 def when_i_send_a_request_to_post_a_micropost(step):
-    response = world.browser.post("news/microposts/all/",                                                         '{"content":"test"}')
+    response = world.browser.post("microposts/all/",                                                         '{"content":"test"}')
     assert 201 == response.code
     world.posted_micropost = json_decode(response.body)
 
@@ -169,17 +169,17 @@ def then_i_have_1_micropost(step):
 
 @step(u'I send a request to second newebe to retrieve last posts')
 def when_i_send_a_request_to_second_newebe_to_retrieve_last_posts(step):
-    world.microposts = world.browser2.fetch_documents("news/microposts/all/")
+    world.microposts = world.browser2.fetch_documents("microposts/all/")
 
 @step(u'When I send a request to second newebe to retrieve owner last posts')
 def when_i_send_a_request_to_second_newebe_to_retrieve_owner_last_posts(step):
-    world.microposts = world.browser2.fetch_documents("news/microposts/mine/")
+    world.microposts = world.browser2.fetch_documents("microposts/mine/")
 
 @step(u'And I send a delete request for this micropost')
 def and_i_send_a_delete_request_for_this_micropost(step):
     micropost = world.microposts[0]
     response = world.browser.delete(
-                    "news/micropost/{}/".format(micropost.get("_id")))
+                    "micropost/{}/".format(micropost.get("_id")))
     assert 200 == response.code
     time.sleep(0.3)
 

@@ -71,7 +71,7 @@ def when_i_ask_for_synchronization(step):
 
 @step(u'5 posts from first newebe are stored in second newebe')
 def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
-    posts = world.browser2.fetch_documents("news/microposts/")
+    posts = world.browser2.fetch_documents("microposts/all/")
     assert 5 == len(posts), posts
 
 # Pictures
@@ -96,7 +96,7 @@ def and_5_pictures_are_created_on_first_newebe(step):
 
 @step(u'5 pictures from first newebe are stored in second newebe')
 def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
-    pictures = world.browser2.fetch_documents("pictures/last/")
+    pictures = world.browser2.fetch_documents("pictures/all/")
     assert 5 == len(pictures)
 
 # Profile

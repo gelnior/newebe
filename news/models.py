@@ -96,8 +96,8 @@ class MicroPost(NewebeDocument):
 
     def get_path(self):
         '''
-        Return path where micropost could be find.
+        Return path where micropost could be found.
         '''
 
-        return "news/micropost/{}/".format(self._id)
+        return "microposts/{}/".format(self._id)
 
