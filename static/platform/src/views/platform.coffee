@@ -48,7 +48,7 @@ class PlatformView extends Backbone.View
     if ev
       ev.preventDefault()
 
-    @switchTo("#news", '/news/content/', "News")
+    @switchTo("#news", '/microposts/content/', "News")
     false
 
   # When profile is clicked, current page is hidden and profile

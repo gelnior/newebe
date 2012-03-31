@@ -456,7 +456,7 @@
 
     PlatformView.prototype.onNewsClicked = function(ev) {
       if (ev) ev.preventDefault();
-      this.switchTo("#news", '/news/content/', "News");
+      this.switchTo("#news", '/microposts/content/', "News");
       return false;
     };
 
