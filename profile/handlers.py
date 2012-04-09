@@ -2,8 +2,10 @@ import logging
 
 from threading import Timer
 
-from tornado.escape import json_decode
-from tornado.httpclient import HTTPClient, HTTPRequest
+from tornado import gen
+from tornado.web import asynchronous
+
+from newebe.lib.http_util import ContactClient
 
 from newebe.core.handlers import NewebeAuthHandler
 from newebe.profile.models import UserManager
@@ -23,7 +25,8 @@ class ProfileUpdater:
     sending_data = False
     contact_requests = {}
 
-
+    @asynchronous
+    @gen.engine
     def send_profile_to_contacts(self):
         '''
         External methods to not send too much times the changed profile. 
@@ -31,7 +34,7 @@ class ProfileUpdater:
         function that sends modification requests to every contacts.
         '''
 
-        client = HTTPClient()
+        client = ContactClient()
         self.sending_data = False
 
         user = UserManager.getUser()
@@ -49,10 +52,9 @@ class ProfileUpdater:
         activity.save()     
 
         for contact in ContactManager.getTrustedContacts():
-            request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
-                         method="PUT", body=jsonbody)
-
-            response = client.fetch(request)
+            client.put("%scontacts/update-profile/" % contact.url, 
+                       body=jsonbody, callback=(yield gen.Callback("profile")))
+            response = yield gen.Wait("profile")
 
             if response.error:
                 logger.error("""
@@ -67,7 +69,7 @@ class ProfileUpdater:
     def forward_profile(self):
         '''
         Because profile modification occurs a lot in a short time. The 
-        profile is forwarded only every ten minutes. It avoids to create
+        profile is forwarded only every two minutes. It avoids to create
         too much activities for this profile modification.
         '''
         t = Timer(1.0 * 60 * 2, self.send_profile_to_contacts)
