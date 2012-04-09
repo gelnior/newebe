@@ -1,7 +1,6 @@
 import logging
 
 from newebe.core.handlers import NewebeAuthHandler
-from newebe.lib import date_util
 
 from newebe.activities.models import ActivityManager
 
@@ -46,7 +45,6 @@ class MyActivityHandler(NewebeAuthHandler):
         Arguments:
             *startKey* The date until where activities should be returned.
         '''
-
 
         self.return_documents_since(ActivityManager.get_mine, startKey)
 
