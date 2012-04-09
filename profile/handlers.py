@@ -70,7 +70,7 @@ class ProfileUpdater:
         profile is forwarded only every ten minutes. It avoids to create
         too much activities for this profile modification.
         '''
-        t = Timer(1.0 * 60 * 10, self.send_profile_to_contacts)
+        t = Timer(1.0 * 60 * 2, self.send_profile_to_contacts)
         if not self.sending_data:
             self.sending_data = True
             t.start()
