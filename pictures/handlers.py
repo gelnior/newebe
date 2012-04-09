@@ -15,7 +15,7 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 from newebe.contacts.models import ContactManager
 from newebe.activities.models import ActivityManager
 from newebe.pictures.models import PictureManager, Picture
-from newebe.lib import date_util, upload_util
+from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 
 logger = logging.getLogger("newebe.pictures")
@@ -37,16 +37,7 @@ class PicturesHandler(NewebeAuthHandler):
         last picture posted until *startKey*.
         '''
         
-        pictures = list()
-
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            pictures = PictureManager.get_last_pictures(startKey=dateString)
-
-        else:
-            pictures = PictureManager.get_last_pictures()
-
-        self.return_documents(pictures)
+        self.return_documents_since(PictureManager.get_last_pictures, startKey)
 
 
     @asynchronous
@@ -125,18 +116,9 @@ class PicturesMyHandler(NewebeAuthHandler):
         '''
         Returns last posted pictures.
         '''
-        pictures = PictureManager.get_owner_last_pictures()
-        
 
-        if startKey:
-            dateString = date_util.get_db_date_from_url_date(startKey)
-            pictures = PictureManager.get_owner_last_pictures(
-                    startKey=dateString)
-        else:
-            pictures = PictureManager.get_owner_last_pictures()
-
-        self.return_documents(pictures)
-
+        self.return_documents_since(PictureManager.get_owner_last_pictures, 
+                                    startKey)
 
 class PicturesQQHandler(PicturesHandler):
     '''

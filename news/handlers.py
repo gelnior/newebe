@@ -116,17 +116,7 @@ class NewsHandler(NewebeAuthHandler):
             *startKey* The date from where news should be returned.
         '''
 
-        microposts = list()
-
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            microposts = MicroPostManager.get_list(dateString)
-
-        else:
-            microposts = MicroPostManager.get_list()
-
-        self.return_documents(microposts)
-
+        self.return_documents_since(MicroPostManager.get_list, startKey)
 
     @asynchronous
     def post(self):
@@ -449,16 +439,7 @@ class MyNewsHandler(NewebeAuthHandler):
             *startKey* The date from where news should be returned.
         '''
 
-        microposts = list()
-
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            microposts = MicroPostManager.get_mine(dateString)
-
-        else:
-            microposts = MicroPostManager.get_mine()
-
-        self.return_documents(microposts)
+        self.return_documents_since(MicroPostManager.get_mine, startKey)
     
 
 # Template handlers

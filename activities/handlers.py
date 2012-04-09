@@ -26,13 +26,7 @@ class ActivityHandler(NewebeAuthHandler):
             *startKey* The date until where activities should be returned.
         '''
 
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            activities = ActivityManager.get_all(dateString)
-        else:
-            activities = ActivityManager.get_all()
-
-        self.return_documents(activities)
+        self.return_documents_since(ActivityManager.get_all, startKey)
 
         
 class MyActivityHandler(NewebeAuthHandler):
@@ -53,13 +47,8 @@ class MyActivityHandler(NewebeAuthHandler):
             *startKey* The date until where activities should be returned.
         '''
 
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            activities = ActivityManager.get_mine(dateString)
-        else:
-            activities = ActivityManager.get_mine()
 
-        self.return_documents(activities)
+        self.return_documents_since(ActivityManager.get_mine, startKey)
 
 
 # Template handlers

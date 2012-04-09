@@ -56,12 +56,35 @@ class NewebeHandler(RequestHandler):
 
     def return_one_document_or_404(self, document, text):
         '''
+        Return *document*. If *document* is null, a 404 response is returned
+        and it logs given *text*.
         '''
 
         if document:
             return self.return_json(document.toJson)
         else:
             self.return_failure(text, 404)
+
+
+    def return_documents_since(self, get_doc, startKey):
+        '''
+        Use the get doc function that takes a date converted from startKey
+        (startKey must be an url date or null) as parameter to send
+        desired documents to client.
+
+        Return documents by pack at JSON format. If a start key 
+        is given in URL (it means a date like 2010-10-05-12-30-48), 
+        documents until this date are returned. Else latest documents are 
+        returned.
+        '''
+
+        if startKey:
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
+            docs = get_doc(dateString)
+        else:
+            docs = get_doc()
+
+        self.return_documents(docs)
 
 
     def return_success(self, text, statusCode=200):
