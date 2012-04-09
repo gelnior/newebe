@@ -88,12 +88,7 @@ class NoteHandler(NewebeAuthHandler):
         '''
 
         note = NoteManager.get_note(noteid)
-
-        if note:
-            self.return_document(note)
-
-        else:
-            self.return_failure("No note exist for this id.", 404)
+        self.return_one_document_or_404(note, "No note exist for this id.")
 
 
     def put(self, noteid):

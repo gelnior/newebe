@@ -28,21 +28,19 @@ class ContactUpdateHandler(NewebeHandler):
         received ones.
         '''      
 
-        data = self.request.body
+        data = self.get_body_as_dict(["key", "url", "name", "description"])
 
         if data:
-            putContact = json_decode(data)
-            key = putContact["key"]            
+            key = data["key"]            
 
             contact = ContactManager.getTrustedContact(key)
             if contact:
-                contact.url = putContact["url"]
-                contact.description = putContact["description"]
-                contact.name = putContact["name"]
+                contact.url = data["url"]
+                contact.description = data["description"]
+                contact.name = data["name"]
                 contact.save()
          
                 self.create_modify_activity(contact, "modifies", "profile")
-
                 self.return_success("Contact successfully modified.")
        
             else:
@@ -50,7 +48,7 @@ class ContactUpdateHandler(NewebeHandler):
                         "No contact found corresponding to given contact", 404)
         
         else:
-            self.return_failure("Empty data.")
+            self.return_failure("Empty data or missing field.")
 
 
 class ContactsPendingHandler(NewebeAuthHandler):
@@ -118,11 +116,8 @@ class ContactHandler(NewebeAuthHandler):
 
         contact = ContactManager.getContact(slug)
 
-        if contact:
-            self.return_document(contact)
+        self.return_one_document_or_404(contact, "Contact does not exist.")
 
-        else:
-            self.return_failure("Contact does not exist.", 404)
 
     @asynchronous 
     def put(self, slug):
@@ -157,14 +152,12 @@ class ContactHandler(NewebeAuthHandler):
         '''
 
         try:
-             incomingData = response.body
-             newebeResponse = json_decode(incomingData)
-             if not newebeResponse["success"]:
-                 self.contact.state = STATE_ERROR
-                 self.contact.save()
-                 self.return_failure("Error occurs while confirming contact.")
-             else:
-                 self.return_success("Contact trusted.")
+            incomingData = response.body
+            newebeResponse = json_decode(incomingData)
+            if not newebeResponse["success"]:
+                raise Exception()
+
+            self.return_success("Contact trusted.")
         except:
             self.contact.state = STATE_ERROR
             self.contact.save()
@@ -211,11 +204,10 @@ class ContactsHandler(NewebeAuthHandler):
 
         logger = logging.getLogger("newebe.contact")
 
-        data = self.request.body
+        data = self.get_body_as_dict(["url"])
 
         if data:
-            postedContact = json_decode(data)
-            url = postedContact['url']
+            url = data["url"]
             owner = UserManager.getUser()
 
             if owner.url != url:
@@ -242,7 +234,7 @@ class ContactsHandler(NewebeAuthHandler):
                     self.contact.state = STATE_ERROR
                     self.contact.save()
 
-                return self.return_json(self.contact.toJson(), 201)
+                return self.return_one_document(self.contact, 201)
 
             else:
                 return self.return_failure(
@@ -264,9 +256,9 @@ class ContactsHandler(NewebeAuthHandler):
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
-        except Exception:
+        except:
             import traceback
-            logger.error("Error on adding contact:\n %s" % 
+            logger.error("Error on adding contact, stacktrace :\n %s" % 
                     traceback.format_exc())
 
             self.contact.state = STATE_ERROR
@@ -311,7 +303,7 @@ class ContactRetryHandler(NewebeAuthHandler):
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
-            self.return_json(self.contact.toJson(), 200)
+            self.return_one_document(self.contact)
         else:
             self.return_failure("Contact does not exist", 404)
 
@@ -340,14 +332,13 @@ class ContactPushHandler(NewebeHandler):
         Create a new contact from sent data (contact object at JSON format).
         Sets its status to Wait For Approval
         '''
-        data = self.request.body
+        data = self.get_body_as_dict(expectedFields=["url"])
 
         if data:
-            postedContact = json_decode(data)
-            url = postedContact["url"]
+            url = data["url"]
             owner = UserManager.getUser()
 
-            if url is not None and owner.url != url:
+            if owner.url != url:
                 slug = slugify(url)
 
                 contact = ContactManager.getContact(slug)
@@ -355,13 +346,13 @@ class ContactPushHandler(NewebeHandler):
 
                 if contact is None:
                     contact = Contact(
-                        name = postedContact["name"], 
+                        name = data["name"], 
                         url = url,
                         slug = slug,
-                        key = postedContact["key"],
+                        key = data["key"],
                         state = STATE_WAIT_APPROVAL,
                         requestDate = datetime.datetime.utcnow(),
-                        description = postedContact["description"]
+                        description = data["description"]
                     )
                     contact.save()
 
@@ -371,7 +362,7 @@ class ContactPushHandler(NewebeHandler):
                 self.return_success("Request received.")
 
             else:
-                self.return_failure("Sent data are incorrects.")
+                self.return_failure("Contact and owner have same url.")
 
         else:
             self.return_failure("Sent data are incorrects.")
@@ -389,21 +380,18 @@ class ContactConfirmHandler(NewebeHandler):
         Updates contact from sent data (contact object at JSON format).
         Sets its status to Trusted.
         '''
-        data = self.request.body
+        data = self.get_body_as_dict(expectedFields=["url", "key", "name"])
 
         if data:
-            postedContact = json_decode(data)
-            url = postedContact["url"]
+            url = data["url"]
             slug = slugify(url)
-            key = postedContact["key"]
-            name = postedContact["name"]
 
             contact = ContactManager.getContact(slug)
 
             if contact:
                 contact.state = STATE_TRUSTED
-                contact.key = key
-                contact.name = name
+                contact.key = data["key"]
+                contact.name = data["name"]
                 contact.save()
                 self.return_success("Contact trusted.")
             

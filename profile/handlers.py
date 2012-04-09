@@ -95,11 +95,9 @@ class UserHandler(NewebeAuthHandler):
         Retrieves current user (newebe owner) data at JSON format.
         '''
 
-        users = list()
         user = UserManager.getUser()
-        users.append(user)
 
-        self.return_documents(users)
+        self.return_document(user)
 
 
     def put(self):
@@ -110,20 +108,20 @@ class UserHandler(NewebeAuthHandler):
 
         user = UserManager.getUser()
     
-        data = self.request.body
+        data = self.get_body_as_dict(
+                expectedFields=["name", "url", "description"])
 
         if data:
-            postedUser = json_decode(data)
-            user.name = postedUser["name"]
-            user.url = postedUser["url"]
-            user.description = postedUser["description"]
+            user.name = data["name"]
+            user.url = data["url"]
+            user.description = data["description"]
             user.save()
 
             profile_updater.forward_profile()
 
             self.return_success("User successfully Modified.")
         else:
-            self.return_failure("No data were sent.")
+            self.return_failure("Wrong data were sent.")
 
 
 

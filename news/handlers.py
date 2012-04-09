@@ -131,8 +131,8 @@ class NewsHandler(NewebeAuthHandler):
         
         logger.info("Micropost post received.")
 
-        data = self.get_body_as_dict()
-        if data and "content" in data and data["content"]:
+        data = self.get_body_as_dict(expectedFields=["content"])
+        if data and data["content"]:
 
             user = UserManager.getUser()
             micropost = MicroPost(
@@ -169,9 +169,9 @@ class NewsContactHandler(NewebeHandler):
         are set from incoming data.
         '''
 
-        data = self.get_body_as_dict()
+        data = self.get_body_as_dict(expectedFields=["date", "authorKey"])
 
-        if data and "date" in data and "authorKey" in data:
+        if data:
             db_date = data.get("date")
             date = date_util.get_date_from_db_date(db_date)
             authorKey = data.get("authorKey")

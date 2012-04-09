@@ -70,11 +70,10 @@ class LoginJsonHandler(NewebeHandler):
         Get password via a json object.  Sets a secure cookie if password 
         is OK. Else it returns an error response.
         '''
-        data = self.request.body
+        data = self.get_body_as_dict(expectedFields=["password"])
 
         if data:
-            postedData = json_decode(data)
-            password = postedData["password"]
+            password = data["password"]
             user = UserManager.getUser()
     
             if user \
@@ -144,10 +143,10 @@ class RegisterPasswordTHandler(NewebeHandler):
             self.return_failure("Password is already set.")
 
         else:
-            data = self.request.body
+            data = self.get_body_as_dict(expectedFields=["password"])
 
             if data:
-                postedPassword = json_decode(data)['password']
+                postedPassword = data["password"]
 
                 if postedPassword and len(postedPassword) > 3:
                     password = \
@@ -199,12 +198,11 @@ class RegisterTHandler(NewebeHandler):
             self.return_failure("User already exists.")
 
         else:
-            data = self.request.body
+            data = self.get_body_as_dict(expectedFields=["name"])
         
             if data:
-                postedUser = json_decode(data)
                 user = User()
-                user.name = postedUser['name']
+                user.name = data['name']
                 user.save()
                 user.key = user._id
                 user.save()
@@ -230,10 +228,11 @@ class UserPasswordHandler(NewebeAuthHandler):
 
         if user:
 
-           data = self.request.body
+           data = self.get_body_as_dict(expectedFields=["password"])
+
         
            if data:
-               postedPassword = json_decode(data)['password']
+               postedPassword = data['password']
 
                if postedPassword and len(postedPassword) >= 3:
                    user.password =  \

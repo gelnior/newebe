@@ -53,6 +53,12 @@ class NewebeHandler(RequestHandler):
         self.return_json(json_util.get_json_from_doc_list([document]), 
                                                           statusCode)
 
+    def return_one_document(self, document, statusCode=200):
+        '''
+        Return document at JSON format.
+        '''
+
+        self.return_json(document.toJson(), statusCode)
 
     def return_one_document_or_404(self, document, text):
         '''
@@ -61,7 +67,7 @@ class NewebeHandler(RequestHandler):
         '''
 
         if document:
-            return self.return_json(document.toJson)
+            self.return_json(document.toJson())
         else:
             self.return_failure(text, 404)
 
@@ -107,15 +113,29 @@ class NewebeHandler(RequestHandler):
         self.return_json(json_encode({ "error" : text }), statusCode)
 
 
-    def get_body_as_dict(self):
+    def get_document(self, get_doc, id):
+        doc = get_doc(id)
+
+        if doc: 
+            return doc
+        else:
+            self.return_failure("Not found", 404)
+    
+    def get_body_as_dict(self, expectedFields=[]):
         '''
         Return request body as a dict if body is written in JSON. Else None
         is returned.
+        Return None if one given field is missing in the parsed dict.
         '''
 
         data = self.request.body
         if data:
             dataDict = json_decode(data)
+
+            for field in expectedFields:
+                if field not in dataDict:
+                    return None
+
             return dataDict
         else:
             return None

@@ -38,7 +38,6 @@ class ContactClient(object):
         '''
 
         url = contact.url + path
-
         request = HTTPRequest(url, method="POST", body=body, 
                               validate_cert=False)
         self.contacts[request] = contact
@@ -55,7 +54,6 @@ class ContactClient(object):
         '''
 
         url = contact.url + path
-
         request = HTTPRequest(url, method="PUT", body=body, 
                               validate_cert=False)
         self.contacts[request] = contact
@@ -76,7 +74,6 @@ class ContactClient(object):
         headers = { 'Content-Type': contentType } 
 
         url = contact.url + path
-
         request = HTTPRequest(url=url, method="POST", 
                               body=body, headers=headers, validate_cert=False)
         self.contacts[request] = contact
@@ -97,6 +94,7 @@ class ContactClient(object):
         request = HTTPRequest(url, method="PUT", body=body, validate_cert=False)
         self.contacts[request] = contact
         self.extra = extra
+
         return self.client.fetch(request, self.on_contact_response)
 
 
@@ -112,7 +110,6 @@ class ContactClient(object):
         if response.error: 
             logger.error(""" Request to a contact failed, error infos 
                              are stored inside activity.""")            
-
             self.activity.add_error(contact, extra=self.extra)
             self.activity.save()
 
