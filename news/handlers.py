@@ -231,9 +231,9 @@ class NewsContactHandler(NewebeHandler):
         to this deletion.
         '''
 
-        data = self.get_body_as_dict()
+        data = self.get_body_as_dict(expectedFields=["date", "authorKey"])
 
-        if data and "authorKey" in data and "date" in data:
+        if data:
             authorKey = data["authorKey"]
             date = data["date"]
 
@@ -299,14 +299,13 @@ class NewsRetryHandler(NewebeAuthHandler):
         '''
 
         micropost = MicroPostManager.get_micropost(key)
-        idInfos = self.request.body
+        
+        data = self.get_body_as_dict(expectedFields=["contactId", "activityId"])
 
-        ids = json_decode(idInfos)
+        if micropost and data:
 
-        if micropost and idInfos:
-
-            contactId = ids["contactId"]
-            activityId = ids["activityId"]
+            contactId = data["contactId"]
+            activityId = data["activityId"]
 
             contact = ContactManager.getTrustedContact(contactId)
             activity = ActivityManager.get_activity(activityId)
@@ -348,6 +347,7 @@ class NewsRetryHandler(NewebeAuthHandler):
                         activity.errors.remove(error)
                         activity.save()
                         self.return_success("Micropost correctly resent.")
+                # TODO: handle case where error is not found.
 
         except:
             self.return_failure("Posting micropost to contact failed.")
@@ -363,15 +363,15 @@ class NewsRetryHandler(NewebeAuthHandler):
         json.
         Here is the format : {"contactId":"data","activityId":"data"}
         '''
-        idInfos = self.request.body
+        
+        data = self.get_body_as_dict(
+                expectedFields=["contactId", "activityId", "extra"])
 
-        ids = json_decode(idInfos)
+        if data:
 
-        if ids:
-
-            contactId = ids["contactId"]
-            activityId = ids["activityId"]
-            date = ids["extra"]
+            contactId = data["contactId"]
+            activityId = data["activityId"]
+            date = data["extra"]
 
             contact = ContactManager.getTrustedContact(contactId)
             activity = ActivityManager.get_activity(activityId)

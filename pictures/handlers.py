@@ -528,15 +528,15 @@ class PictureRetryHandler(NewebeAuthHandler):
         json.
         Here is the format : {"contactId":"data","activityId":"data"}
         '''
-        idInfos = self.request.body
 
-        ids = json_decode(idInfos)
+        data = self.get_body_as_dict(
+            expectedFields=["contactId", "activityId", "extra"])
 
-        if ids:
+        if data:
 
-            contactId = ids["contactId"]
-            activityId = ids["activityId"]
-            date = ids["extra"]
+            contactId = data["contactId"]
+            activityId = data["activityId"]
+            date = data["extra"]
 
             contact = ContactManager.getTrustedContact(contactId)
             activity = ActivityManager.get_activity(activityId)

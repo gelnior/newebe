@@ -36,20 +36,20 @@ class NotesHandler(NewebeAuthHandler):
 
         logger.info("Note creation received.")
 
-        data = self.request.body
+        data = self.get_body_as_dict(expectedFields=["title", "content"])
 
         if data:
-            jsonNote = json_decode(data)
             note = Note(
                 author = UserManager.getUser().name,
-                title = jsonNote["title"],
-                content = jsonNote["content"],
+                title = data["title"],
+                content = data["content"],
                 isMine = True,
             )
+
             note.save()
             self.create_owner_creation_activity(note, "writes", "note")
 
-            self.return_json(note.toJson(), 201)
+            self.return_one_document(note, 201)
         else:
             self.return_failure("No data sent", 400)
 
@@ -98,13 +98,12 @@ class NoteHandler(NewebeAuthHandler):
 
         logger.info("Note modificiation received.")
 
-        note = NoteManager.get_note(noteid)
-        data = self.request.body
-        
+        note = NoteManager.get_note(noteid)      
+        data = self.get_body_as_dict(expectedFields=["title", "content"]) 
+
         if data and note:
-            jsonNote = json_decode(data)
-            note.title = jsonNote["title"]
-            note.content = jsonNote["content"]
+            note.title = data["title"]
+            note.content = data["content"]
             
             note.save()
 
