@@ -535,9 +535,7 @@
       var _this = this;
       return selectorDialogPicture.display(function(noteId) {
         loadingIndicator.display();
-        return $.get("/notes/" + noteId + "/", function(data) {
-          var note;
-          note = data.rows[0];
+        return $.get("/notes/" + noteId + "/", function(note) {
           note.content = note.content + "\n\n ![image](" + _this.model.getImagePreviewPath() + ")";
           return $.putJson({
             url: "/notes/" + noteId + "/",
@@ -584,11 +582,13 @@
         return $.get(_this.model.getPath(), function(data) {
           loadingIndicator.hide();
           _this.preview.append(data);
-          $("#pictures-preview").append('<p class="pictures-buttons button-bar">\n  <a id="pictures-note-button">push to note</a>\n  <a href="/pictures/#{@model._id}/{{ picture.path }}" target="blank"\n     id="pictures-download-button">download</a>\n  <a id="pictures-delete-button">delete</a>\n</p>');
-          $("#pictures-preview a").button();
-          $("#pictures-note-button").click(_this.onPushNoteClicked);
+          if ($("#pictures-preview img").length > 0) {
+            $("#pictures-preview").append("            <p class=\"pictures-buttons button-bar\">              <a id=\"pictures-note-button\">push to note</a>              <a href=\"" + (_this.model.get('imgPath')) + "\"                  target=\"blank\"                 id=\"pictures-full-size-button\">full-size</a>              <a id=\"pictures-delete-button\">delete</a>            </p>            ");
+            $("#pictures-note-button").click(_this.onPushNoteClicked);
+          }
           $("#pictures-delete-button").click(_this.onDeleteClicked);
           $("#pictures-download-button").click(_this.onDownloadClicked);
+          $("#pictures-preview a").button();
           _this.preview.fadeIn();
           return _this.updatePreviewPosition();
         });
@@ -644,11 +644,11 @@
     };
 
     Picture.prototype.getPath = function() {
-      return "/pictures/" + this.get("_id") + "/html/";
+      return "/pictures/" + this.id + "/html/";
     };
 
     Picture.prototype.getDownloadPath = function() {
-      return "/pictures/" + this.get("_id") + "/download/";
+      return "/pictures/" + this.id + "/download/";
     };
 
     Picture.prototype.getImagePreviewPath = function() {

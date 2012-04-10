@@ -86,8 +86,7 @@ class PictureRow extends Row
     selectorDialogPicture.display (noteId) =>
       loadingIndicator.display()
 
-      $.get "/notes/#{noteId}/", (data) =>
-        note = data.rows[0]
+      $.get "/notes/#{noteId}/", (note) =>
         note.content = note.content + "\n\n ![image](" + @model.getImagePreviewPath() + ")"
 
         $.putJson
@@ -134,21 +133,23 @@ class PictureRow extends Row
       $.get @model.getPath(), (data) =>
         loadingIndicator.hide()
         @preview.append(data)
-              
-        $("#pictures-preview").append('''
-        <p class="pictures-buttons button-bar">
-          <a id="pictures-note-button">push to note</a>
-          <a href="/pictures/#{@model._id}/{{ picture.path }}" target="blank"
-             id="pictures-download-button">download</a>
-          <a id="pictures-delete-button">delete</a>
-        </p>
-        ''')
-
-        $("#pictures-preview a").button()
         
-        $("#pictures-note-button").click @onPushNoteClicked
+        if $("#pictures-preview img").length > 0
+            $("#pictures-preview").append("
+            <p class=\"pictures-buttons button-bar\">
+              <a id=\"pictures-note-button\">push to note</a>
+              <a href=\"#{@model.get('imgPath')}\" 
+                 target=\"blank\"
+                 id=\"pictures-full-size-button\">full-size</a>
+              <a id=\"pictures-delete-button\">delete</a>
+            </p>
+            ")
+
+            
+            $("#pictures-note-button").click @onPushNoteClicked
         $("#pictures-delete-button").click @onDeleteClicked
         $("#pictures-download-button").click @onDownloadClicked
+        $("#pictures-preview a").button()
         @preview.fadeIn()
         @updatePreviewPosition()
     

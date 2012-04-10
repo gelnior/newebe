@@ -47,11 +47,11 @@ class Picture extends Backbone.Model
   
   # Returns server path where picture template is located.
   getPath: ->
-    "/pictures/" + @get("_id") + "/html/"
+    "/pictures/#{@id}/html/"
    
   # Returns server path where download request must be sent.
   getDownloadPath: ->
-    "/pictures/" + @get("_id") + "/download/"
+    "/pictures/#{@id}/download/"
    
   getImagePreviewPath: ->
     "/pictures/#{@id}/prev_#{@get('path')}"

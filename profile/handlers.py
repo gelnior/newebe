@@ -6,6 +6,8 @@ from tornado import gen
 from tornado.web import asynchronous
 
 from newebe.lib.http_util import ContactClient
+from tornado.httpclient import HTTPClient, HTTPRequest
+
 
 from newebe.core.handlers import NewebeAuthHandler
 from newebe.profile.models import UserManager
@@ -25,8 +27,7 @@ class ProfileUpdater:
     sending_data = False
     contact_requests = {}
 
-    @asynchronous
-    @gen.engine
+
     def send_profile_to_contacts(self):
         '''
         External methods to not send too much times the changed profile. 
@@ -34,7 +35,7 @@ class ProfileUpdater:
         function that sends modification requests to every contacts.
         '''
 
-        client = ContactClient()
+        client = HTTPClient()
         self.sending_data = False
 
         user = UserManager.getUser()
@@ -52,27 +53,38 @@ class ProfileUpdater:
         activity.save()     
 
         for contact in ContactManager.getTrustedContacts():
-            client.put("%scontacts/update-profile/" % contact.url, 
-                       body=jsonbody, callback=(yield gen.Callback("profile")))
-            response = yield gen.Wait("profile")
 
-            if response.error:
+            try:
+                request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
+                             method="PUT", body=jsonbody, validate_cert=False)
+        
+                response = client.fetch(request)
+
+                if response.error:
+                    logger.error("""
+                        Profile sending to a contact failed, error infos are 
+                        stored inside activity.
+                    """)
+                    activity.add_error(contact)
+                    activity.save()
+            except:
                 logger.error("""
                     Profile sending to a contact failed, error infos are 
                     stored inside activity.
                 """)
                 activity.add_error(contact)
-                activity.save()    
-            logger.info("Profile update successfully sent.")
+                activity.save()
 
+            logger.info("Profile update sent to all contacts.")
 
+  
     def forward_profile(self):
         '''
         Because profile modification occurs a lot in a short time. The 
         profile is forwarded only every two minutes. It avoids to create
         too much activities for this profile modification.
         '''
-        t = Timer(1.0 * 60 * 2, self.send_profile_to_contacts)
+        t = Timer(1.0 * 60, self.send_profile_to_contacts)
         if not self.sending_data:
             self.sending_data = True
             t.start()
