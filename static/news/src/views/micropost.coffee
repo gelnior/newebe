@@ -71,8 +71,7 @@ class MicroPostRow extends Row
     selectorDialog.display (noteId) =>
       loadingIndicator.display()
 
-      $.get "/notes/#{noteId}/", (data) =>
-        note = data.rows[0]
+      $.get "/notes/#{noteId}/", (note) =>
         note.content = note.content + "\n\n" + @model.getContent()
 
         $.putJson

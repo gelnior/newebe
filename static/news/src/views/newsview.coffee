@@ -14,6 +14,7 @@ class NewsView extends Backbone.View
 
   events:
     "click #news-post-button" : "onPostClicked"
+    "click #news-attach-button" : "onAttachClicked"
     "click #news-my-button" : "onMineClicked"
     "click #news-all-button" : "onAllClicked"
     "click #news-more" : "onMoreNewsClicked"
@@ -41,6 +42,7 @@ class NewsView extends Backbone.View
     @currentPath = '/microposts/all/'
 
     @selectedRow = null
+    @attachments = []
 
 
   ### Listeners  ###
@@ -69,6 +71,15 @@ class NewsView extends Backbone.View
     event.preventDefault()
     @postNewPost()
     event
+
+  # When attach button is clicked a new document selector dialog is displayed.
+  # Once attachment is selected, document is added to attachment list.
+  onAttachClicked: (event) ->
+    selectorDialog.display (noteId) =>
+        @attachments.push
+            type: "note"
+            id: noteId
+        $("#news-attach-note-button").show()
 
   
   # When my news is clicked it reloads all news from current user since today.
@@ -228,22 +239,27 @@ class NewsView extends Backbone.View
   # post list. 
   # Urls are converted to markdown links to be displayed automatically as href
   # links.
-  postNewPost: ()->
+  postNewPost: ->
     content = $("#id_content").val()
     if content
       loadingIndicator.display()
       content = @convertUrlToMarkdownLink(content)
 
-      @microposts.create
-        content : content,
-        success : (nextModel, resp) ->
-          loadingIndicator.hide()
-          nextModel.view.el.id = resp._id
-          nextModel.id = resp._id
-        error: () ->
-          infoDialog.display "An error occured micropost was not posted."
-          loadingIndicator.hide()
-
+      @microposts.create {
+          content: content
+          attachments: @attachments
+        },
+        {
+          success : (nextModel, resp) =>
+            loadingIndicator.hide()
+            nextModel.view.el.id = resp._id
+            nextModel.id = resp._id
+            $("#news-attach-note-button").hide()
+            @attachments = []
+          error: ->
+            infoDialog.display "An error occured micropost was not posted."
+            loadingIndicator.hide()
+        }
       $("#id_content").val(null)
       $("#id_content").focus()
 
@@ -290,10 +306,12 @@ class NewsView extends Backbone.View
   # Build JQuery widgets.
   setWidgets: ->
     $("#news-post-button").button()
+    $("#news-attach-button").button()
     $("#news-my-button").button()
     $("#news-all-button").button()
     $("#news-all-button").button("disable")
     $("#news-more").button()
     $("#news-from-datepicker").val(null)
     $("#news-a").addClass("disabled")
+    $("#news-attach-note-button").hide()
 

@@ -261,9 +261,7 @@
       var _this = this;
       return selectorDialog.display(function(noteId) {
         loadingIndicator.display();
-        return $.get("/notes/" + noteId + "/", function(data) {
-          var note;
-          note = data.rows[0];
+        return $.get("/notes/" + noteId + "/", function(note) {
           note.content = note.content + "\n\n" + _this.model.getContent();
           return $.putJson({
             url: "/notes/" + noteId + "/",
@@ -404,6 +402,7 @@
 
     NewsView.prototype.events = {
       "click #news-post-button": "onPostClicked",
+      "click #news-attach-button": "onAttachClicked",
       "click #news-my-button": "onMineClicked",
       "click #news-all-button": "onAllClicked",
       "click #news-more": "onMoreNewsClicked"
@@ -424,7 +423,8 @@
       this.moreMicroposts = new MicroPostCollection;
       this.moreMicroposts.bind('reset', this.addAllMore);
       this.currentPath = '/microposts/all/';
-      return this.selectedRow = null;
+      this.selectedRow = null;
+      return this.attachments = [];
     };
 
     /* Listeners
@@ -448,6 +448,17 @@
       event.preventDefault();
       this.postNewPost();
       return event;
+    };
+
+    NewsView.prototype.onAttachClicked = function(event) {
+      var _this = this;
+      return selectorDialog.display(function(noteId) {
+        _this.attachments.push({
+          type: "note",
+          id: noteId
+        });
+        return $("#news-attach-note-button").show();
+      });
     };
 
     NewsView.prototype.onMineClicked = function(event) {
@@ -583,17 +594,22 @@
     };
 
     NewsView.prototype.postNewPost = function() {
-      var content;
+      var content,
+        _this = this;
       content = $("#id_content").val();
       if (content) {
         loadingIndicator.display();
         content = this.convertUrlToMarkdownLink(content);
         this.microposts.create({
           content: content,
+          attachments: this.attachments
+        }, {
           success: function(nextModel, resp) {
             loadingIndicator.hide();
             nextModel.view.el.id = resp._id;
-            return nextModel.id = resp._id;
+            nextModel.id = resp._id;
+            $("#news-attach-note-button").hide();
+            return _this.attachments = [];
           },
           error: function() {
             infoDialog.display("An error occured micropost was not posted.");
@@ -649,12 +665,14 @@
 
     NewsView.prototype.setWidgets = function() {
       $("#news-post-button").button();
+      $("#news-attach-button").button();
       $("#news-my-button").button();
       $("#news-all-button").button();
       $("#news-all-button").button("disable");
       $("#news-more").button();
       $("#news-from-datepicker").val(null);
-      return $("#news-a").addClass("disabled");
+      $("#news-a").addClass("disabled");
+      return $("#news-attach-note-button").hide();
     };
 
     return NewsView;

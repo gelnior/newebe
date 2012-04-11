@@ -147,7 +147,7 @@ class NewsHandler(NewebeAuthHandler):
             self.send_creation_to_contacts(CONTACT_PATH, micropost)
                           
             logger.info("Micropost successfuly posted.") 
-            self.return_json(micropost.toJson(), 201)
+            self.return_json(micropost.toJson())
     
         else: 
             self.return_failure(
