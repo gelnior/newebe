@@ -1,7 +1,6 @@
 import logging
 import markdown
 
-from tornado.escape import json_decode
 from tornado import gen 
 from tornado.web import asynchronous
 
@@ -12,6 +11,7 @@ from newebe.activities.models import ActivityManager
 from newebe.contacts.models import ContactManager
 from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
+from newebe.core.attach import Converter
 
 logger = logging.getLogger("newebe.news")
 
@@ -135,10 +135,12 @@ class NewsHandler(NewebeAuthHandler):
         if data and data["content"]:
 
             user = UserManager.getUser()
+            converter = Converter()
             micropost = MicroPost(
                 authorKey = user.key,
                 author = user.name,
                 content = data['content'],
+                attachments = converter.convert(data)
             )
             micropost.save()
 
@@ -187,6 +189,7 @@ class NewsContactHandler(NewebeHandler):
                         author = data["author"],
                         content = data['content'],
                         date = date,
+                        attachments = data.get("attachments", []),
                         isMine = False
                     )
                     micropost.save()

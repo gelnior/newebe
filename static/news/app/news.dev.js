@@ -302,6 +302,7 @@
       $(this.el).addClass("selected");
       $("#news-preview").html(null);
       return this.renderMicropost(function() {
+        _this.checkForAttachments();
         _this.checkForVideo();
         _this.checkForImage();
         return _this.updatePreviewPosition();
@@ -324,6 +325,23 @@
         $(".micropost-delete-button").click(_this.onDeleteClicked);
         return callback();
       });
+    };
+
+    MicroPostRow.prototype.checkForAttachments = function() {
+      var converter, doc, docs, _i, _len, _ref, _results;
+      converter = new Showdown.converter();
+      docs = this.model.attachments;
+      if ((this.model.attachments != null) && this.model.attachments.length > 0) {
+        $("#news-preview").append("<p>attachments:</p><hr />");
+      }
+      _ref = this.model.attachments;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        doc = _ref[_i];
+        $("#news-preview").append("<h2>" + doc.title + "</h2>");
+        _results.push($("#news-preview").append(converter.makeHtml(doc.content)));
+      }
+      return _results;
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
@@ -692,6 +710,7 @@
       this.set('authorKey', microPost.authorKey);
       this.set('micropostId', microPost._id);
       this.set('content', microPost.content);
+      this.attachments = microPost.attachments;
       this.id = microPost._id;
       content = microPost.content.replace(/<(?:.|\s)*?>/g, "");
       converter = new Showdown.converter();

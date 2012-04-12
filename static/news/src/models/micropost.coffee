@@ -18,6 +18,7 @@ class MicroPost extends Backbone.Model
     @set('authorKey', microPost.authorKey)
     @set('micropostId', microPost._id)
     @set('content', microPost.content)
+    @attachments = microPost.attachments
     @id = microPost._id
 
     content = microPost.content.replace(/<(?:.|\s)*?>/g, "")
@@ -25,7 +26,6 @@ class MicroPost extends Backbone.Model
     html = converter.makeHtml(content)
     @set('contentHtml', html)
     @attributes['contentHtml'] = html
-    
 
     if microPost.date
       postDate = Date.parseExact(microPost.date, "yyyy-MM-ddTHH:mm:ssZ")

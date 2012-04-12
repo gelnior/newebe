@@ -113,6 +113,7 @@ class MicroPostRow extends Row
 
     $("#news-preview").html(null)
     @renderMicropost =>
+      @checkForAttachments()
       @checkForVideo()
       @checkForImage()
       @updatePreviewPosition()
@@ -140,6 +141,18 @@ class MicroPostRow extends Row
       $(".micropost-delete-button").click @onDeleteClicked
 
       callback()
+
+  checkForAttachments: ->
+    converter = new Showdown.converter()
+    docs = @model.attachments
+
+    if @model.attachments? and @model.attachments.length > 0
+      $("#news-preview").append("<p>attachments:</p><hr />")
+
+    for doc in @model.attachments
+      $("#news-preview").append("<h2>#{doc.title}</h2>")
+      $("#news-preview").append(converter.makeHtml(doc.content))
+
 
   # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.
