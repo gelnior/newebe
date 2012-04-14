@@ -254,6 +254,7 @@ class NewsView extends Backbone.View
             loadingIndicator.hide()
             nextModel.view.el.id = resp._id
             nextModel.id = resp._id
+            nextModel.attachments = resp.attachments
             $("#news-attach-note-button").hide()
             @attachments = []
           error: ->
@@ -273,7 +274,7 @@ class NewsView extends Backbone.View
      for url in urls
        urlIndex = content.indexOf(url)
        if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
-        content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
+         content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
     content
 
 

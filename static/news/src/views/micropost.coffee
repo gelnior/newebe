@@ -13,6 +13,9 @@ class MicroPostRow extends Row
     <p class="news-micropost-date">
      <%= displayDate %>     
     </p>
+    <% if (isAttachment) { %>
+        <p><img src="/static/images/note.png" alt="A note is attached"</p>
+    <% } %>
   ''')
 
 
@@ -63,9 +66,9 @@ class MicroPostRow extends Row
       )
 
 
-  # When note is pushed, a selector is displayed. Then the note is retrieved
-  # After that, its content is updated with current micropost content (added
-  # to bottom) and note is saved.
+  # When note is pushed, a selector is displayed. Then the note is 
+  # retrieved. After that, its content is updated with current micropost
+  # content (added to bottom) and note is saved.
   onPushNoteClicked: =>
 
     selectorDialog.display (noteId) =>
@@ -113,6 +116,7 @@ class MicroPostRow extends Row
 
     $("#news-preview").html(null)
     @renderMicropost =>
+      @checkForAttachments()
       @checkForVideo()
       @checkForImage()
       @updatePreviewPosition()
@@ -140,6 +144,20 @@ class MicroPostRow extends Row
       $(".micropost-delete-button").click @onDeleteClicked
 
       callback()
+
+  checkForAttachments: ->
+    converter = new Showdown.converter()
+    docs = @model.attachments
+
+    if @model.attachments? and @model.attachments.length > 0
+      $("#news-preview").append(
+          "<p class=\"attach-title\">attachments</p>")
+
+    for doc in @model.attachments
+      $("#news-preview").append(
+          "<h2 class=\"note-title\">note: #{doc.title}</h2>")
+      $("#news-preview").append(converter.makeHtml(doc.content))
+
 
   # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.

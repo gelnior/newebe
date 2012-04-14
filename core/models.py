@@ -8,7 +8,8 @@ from tornado.escape import json_encode
 
 from couchdbkit import Server
 from couchdbkit.schema import Document, StringProperty, \
-                                         DateTimeProperty
+                                         DateTimeProperty, \
+                                         ListProperty
 
 from newebe.settings import COUCHDB_DB_NAME
 
@@ -28,6 +29,7 @@ class NewebeDocument(Document):
 
     authorKey = StringProperty()
     date = DateTimeProperty(required=True)
+    attachments = ListProperty()
      
 
     def toDict(self, localized=True):
@@ -52,6 +54,15 @@ class NewebeDocument(Document):
         return docDict
 
 
+    def toDictForAttachment(self, localized=True):
+        docDict = self.toDict(localized)
+        del docDict["attachments"]
+        del docDict["isMine"]
+        del docDict["authorKey"]
+        del docDict["_id"]
+        return docDict
+
+    
     def toJson(self, localized=True):
         '''
         Return json representation of the document.
