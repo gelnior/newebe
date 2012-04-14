@@ -32,8 +32,9 @@ class MicroPost extends Backbone.Model
       urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
       @attributes['urlDate'] = urlDate
 
+    @attributes["isAttachment"] = \
+        @attachments? and @attachments.length > 0
 
-    
   ### Getters / Setters ###
 
   getDisplayDate: ->

@@ -592,6 +592,18 @@ h3.tutorial-text {
 .selected-dialog {
   color: #000;
 }
+.note-title {
+  text-transform: none;
+  font-style: normal;
+  font-size: 24px;
+}
+.preview img {
+  width: 100%;
+}
+.attach-title {
+  border-bottom: 1px solid #ccc;
+  margin-top: 50px;
+}
 .qq-uploader { position:relative; width: 100%;}
 
 .qq-upload-button {
