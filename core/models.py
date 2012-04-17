@@ -55,11 +55,17 @@ class NewebeDocument(Document):
 
 
     def toDictForAttachment(self, localized=True):
+        '''
+        Transform doc to dictionary. Removes all fields that are not useful
+        for attachments
+        '''
+
         docDict = self.toDict(localized)
         del docDict["attachments"]
         del docDict["isMine"]
         del docDict["authorKey"]
         del docDict["_id"]
+
         return docDict
 
     
