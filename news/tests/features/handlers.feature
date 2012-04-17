@@ -30,3 +30,12 @@ Feature: Retrieve, post and delete microposts
         Then I have 0 micropost
 
 
+    Scenario: Attach Note
+        When I send a new micropost with an attachment
+        And I send a request to retrieve the last posts
+        Then I have 1 micropost 
+        And my note is attached to it
+        When I send a request to second newebe to retrieve last posts    
+        Then I have 1 micropost 
+        And my note is attached to it
+

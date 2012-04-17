@@ -11,6 +11,7 @@ sys.path.append("../../../")
 
 from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
+from newebe.notes.models import Note
 from newebe.contacts.models import Contact, ContactManager
 from newebe.activities.models import Activity, ActivityManager
 
@@ -38,7 +39,7 @@ def set_browers():
         world.browser2.login("password")
 
         
-        world.browser.post("contacts/",
+        world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
         time.sleep(0.3)
         world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
@@ -132,7 +133,7 @@ def then_i_have_1_post_corresponding_to_given_contact_and_date(step):
 # Handlers
 
 
-@step(u'When I send a request to retrieve the last posts')
+@step(u'I send a request to retrieve the last posts')
 def when_i_send_a_request_to_retrieve_the_last_posts(step):
     world.microposts = world.browser.fetch_documents("microposts/all/")
     time.sleep(0.6)
@@ -157,7 +158,7 @@ def when_i_send_a_request_to_retrieve_my_last_posts(step):
 @step(u'I send a request to post a micropost')
 def when_i_send_a_request_to_post_a_micropost(step):
     response = world.browser.post("microposts/all/",                                                         '{"content":"test"}')
-    assert 201 == response.code
+    assert 200 == response.code
     world.posted_micropost = json_decode(response.body)
 
 @step(u'Then I have 1 micropost')
@@ -280,4 +281,29 @@ def when_i_send_a_delete_retry_request(step):
 
     world.browser.put(world.micropost.get_path() + "retry/",
                       json_encode(idsDict))
+
+
+@step(u'When I send a new micropost with an attachment')
+def when_i_send_a_new_micropost_with_an_attachment(step):
+    note = Note(
+        title="test note",
+        content="test content",
+        authorKey=world.browser2.user
+    )
+    note.save()
+
+    data = dict()
+    data["content"] = "test attach"
+    data["attachments"] = [{
+        "type": "Note",
+        "id": note._id
+    }]
+    response = world.browser.post("microposts/all/", json_encode(data))
+    assert 200 == response.code
+
+
+@step(u'And my note is attached to it')
+def and_my_note_is_attached_to_it(step):
+    assert len(world.microposts.attachments) == 1
+    assert world.microposts.attachments[0].title == "test note"
 
