@@ -76,7 +76,9 @@ routes = [
     ('/notes/([0-9a-z]+)/html/', notes.NoteTHandler),
       
     ('/pictures/all/$', pictures.PicturesHandler),
+    ('/pictures/all/html/$', pictures.PictureRowsTHandler),
     ('/pictures/all/([0-9\-]+)/$', pictures.PicturesHandler),
+    ('/pictures/all/([0-9\-]+)/html/$', pictures.PictureRowsTHandler),
     ('/pictures/mine/$', pictures.PicturesMyHandler),        
     ('/pictures/mine/([0-9\-]+)/$', pictures.PicturesMyHandler),
     ('/pictures/fileuploader/$', pictures.PicturesQQHandler),

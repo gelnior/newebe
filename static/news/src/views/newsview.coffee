@@ -75,11 +75,13 @@ class NewsView extends Backbone.View
   # When attach button is clicked a new document selector dialog is displayed.
   # Once attachment is selected, document is added to attachment list.
   onAttachClicked: (event) ->
-    selectorDialog.display (noteId) =>
-        @attachments.push
-            type: "note"
-            id: noteId
-        $("#news-attach-note-button").show()
+    selectorDialog.display (attachment) =>
+        console.log attachment
+        @attachments.push attachment
+        if attachment.type == "Note"
+            $("#news-attach-note-image").show()
+        else
+            $("#news-attach-picture-image").show()
 
   
   # When my news is clicked it reloads all news from current user since today.
@@ -255,7 +257,7 @@ class NewsView extends Backbone.View
             nextModel.view.el.id = resp._id
             nextModel.id = resp._id
             nextModel.attachments = resp.attachments
-            $("#news-attach-note-button").hide()
+            $("#news-attach-note-image").hide()
             @attachments = []
           error: ->
             infoDialog.display "An error occured micropost was not posted."
@@ -314,5 +316,6 @@ class NewsView extends Backbone.View
     $("#news-more").button()
     $("#news-from-datepicker").val(null)
     $("#news-a").addClass("disabled")
-    $("#news-attach-note-button").hide()
+    $("#news-attach-note-image").hide()
+    $("#news-attach-picture-image").hide()
 
