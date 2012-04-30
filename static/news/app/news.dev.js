@@ -272,7 +272,7 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<% if (isNoteAttached) { %>\n    <p><img src="/static/images/note.png" alt="A note is attached"</p>\n<% } %>\n<% if (isPictureAttached) { %>\n    <p><img src="/static/images/picture.png" alt="A picture is attached"</p>\n<% } %>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<p></p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
 
     /* Events
     */
@@ -286,6 +286,7 @@
     function MicroPostRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.appendPicture = __bind(this.appendPicture, this);
       this.renderMicropost = __bind(this.renderMicropost, this);
       this.onPushNoteClicked = __bind(this.onPushNoteClicked, this);
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
@@ -392,49 +393,19 @@
     };
 
     MicroPostRow.prototype.checkForAttachments = function() {
-      var converter, doc, docs, slugDate, _i, _len, _ref, _results,
-        _this = this;
-      converter = new Showdown.converter();
+      var doc, docs, _i, _len, _ref, _results;
       docs = this.model.attachments;
       if ((this.model.attachments != null) && this.model.attachments.length > 0) {
-        $("#news-preview").append("<p class=\"attach-title\">attachments</p>");
+        this.preview.append("<p class=\"attach-title\">attachments</p>");
       }
       _ref = this.model.attachments;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         doc = _ref[_i];
         if (doc.doc_type === "Note") {
-          $("#news-preview").append("<h2 class=\"note-title\">note: " + doc.title + "</h2>");
-          _results.push($("#news-preview").append(converter.makeHtml(doc.content)));
+          _results.push(this.appendNote(doc));
         } else if (doc.doc_type === "Picture") {
-          $("#news-preview").append("<p class=\"image-name\">picture: " + doc.path + "</p>");
-          slugDate = doc.date.replace(/:/g, "-");
-          $("#news-preview").append("<img id=\"attach-picture-" + slugDate + "\"  />");
-          $("#attach-picture-" + slugDate).load().error(function() {
-            $("#news-preview").append("<a id=\"attach-picture-button-" + slugDate + "\">Download</a>");
-            $("#attach-picture-button-" + slugDate).button();
-            $("#attach-picture-" + slugDate).hide();
-            return $("#attach-picture-button-" + slugDate).click(function() {
-              return $.ajax({
-                type: "POST",
-                url: "/microposts/" + _this.model.id + "/attach/download/",
-                contentType: "application/json",
-                data: JSON.stringify(doc),
-                dataType: "json",
-                success: function(data) {
-                  if (data.success != null) {
-                    return alert("download succeesds!");
-                  } else {
-                    return alert(data.msg);
-                  }
-                },
-                error: function() {
-                  return alert("A server error occured.");
-                }
-              });
-            });
-          });
-          _results.push($("#attach-picture-" + slugDate).attr('src', "/microposts/" + this.model.id + "/attach/" + doc.path));
+          _results.push(this.appendPicture(doc));
         } else {
           _results.push(void 0);
         }
@@ -442,20 +413,47 @@
       return _results;
     };
 
-    MicroPostRow.prototype.checkForVideo = function() {
-      var content, regexp, url, urls, _i, _len, _results;
-      regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g;
-      content = this.model.get("content");
-      urls = content.match(regexp);
-      if (urls) {
-        $("#news-preview").append("<p>Embedded videos: </p>");
-        _results = [];
-        for (_i = 0, _len = urls.length; _i < _len; _i++) {
-          url = urls[_i];
-          _results.push($("#attach-picture-" + slugDate).attr('src', "/microposts/" + this.model.id + "/attach/" + doc.path));
-        }
-        return _results;
-      }
+    MicroPostRow.prototype.appendNote = function(doc) {
+      var converter;
+      converter = new Showdown.converter();
+      this.preview.append("<p class=\"note-title\"><strong>note: " + doc.title + "</strong></p>");
+      this.preview.append(converter.makeHtml(doc.content));
+      return this.preview.append("<hr />");
+    };
+
+    MicroPostRow.prototype.appendPicture = function(doc) {
+      var picture, slugDate,
+        _this = this;
+      this.preview.append("<p class=\"image-name\"><strong>picture: " + doc.path + "</strong></p>");
+      slugDate = doc.date.replace(/:/g, "-");
+      this.preview.append("<img id=\"attach-picture-" + slugDate + "\"  />");
+      picture = $("#attach-picture-" + slugDate);
+      picture.load().error(function() {
+        var downloadButton;
+        picture.hide();
+        _this.preview.append("<a id=\"attach-picture-button-" + slugDate + "\">Download</a>");
+        downloadButton = $("#attach-picture-button-" + slugDate);
+        downloadButton.button();
+        return downloadButton.click(function() {
+          loadingIndicator.display();
+          return _this.model.downloadFile(doc, {
+            success: function(data) {
+              if (data.success != null) {
+                picture.attr("src", "/microposts/" + _this.model.id + "/attach/" + doc.path);
+                downloadButton.hide();
+                picture.show();
+              }
+              return loadingIndicator.hide();
+            },
+            error: function() {
+              loadingIndicator.hide();
+              return alert("A server error occured.");
+            }
+          });
+        });
+      });
+      picture.attr("src", "/microposts/" + this.model.id + "/attach/" + doc.path);
+      return this.preview.append("<hr />");
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
@@ -481,7 +479,8 @@
             } else {
               key = key.substring(2, key.length);
             }
-            _results.push($("#news-preview").append("<p>\n  <iframe width=\"100%\" height=\"315\" \n    src=\"http://www.youtube.com/embed/" + key + "\" \n    frameborder=\"0\" allowfullscreen>\n  </iframe>\n</p>"));
+            this.preview.append("<p>\n  <iframe width=\"100%\" height=\"315\" \n    src=\"http://www.youtube.com/embed/" + key + "\" \n    frameborder=\"0\" allowfullscreen>\n  </iframe>\n</p>");
+            _results.push(this.preview.append("<hr />"));
           } else {
             _results.push(void 0);
           }
@@ -502,7 +501,8 @@
           url = urls[_i];
           url = this.getUrlFromMarkdown(url);
           if (url) {
-            _results.push($("#news-preview").append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Micropost preview\" />\n</img>\n</p>"));
+            this.preview.append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Image " + url + "\" />\n</img>\n</p>");
+            _results.push(this.preview.append("<hr />"));
           } else {
             _results.push(void 0);
           }
@@ -906,6 +906,17 @@
 
     MicroPost.prototype.isNew = function() {
       return !this.getAuthor();
+    };
+
+    MicroPost.prototype.downloadFile = function(doc, callbacks) {
+      return $.ajax({
+        type: "POST",
+        url: "/microposts/" + this.id + "/attach/download/",
+        contentType: "application/json",
+        data: JSON.stringify(doc),
+        success: callbacks.success,
+        error: callbacks.error
+      });
     };
 
     return MicroPost;

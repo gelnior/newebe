@@ -106,6 +106,14 @@ div.news-micropost-row p {
 #news-more {
   margin: 20px 0px;
 }
+.image-name {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+.note-title {
+  padding-top: 20px;
+  padding-bottom: 5px;
+}
 #notes-list {
   margin-top: 20px;
 }

@@ -85,7 +85,15 @@ class MicroPost extends Backbone.Model
   isNew: ->
     !@getAuthor()
 
-    
+  downloadFile: (doc, callbacks) ->
+    $.ajax
+      type: "POST"
+      url: "/microposts/#{@id}/attach/download/"
+      contentType: "application/json"
+      data: JSON.stringify(doc)
+      success: callbacks.success
+      error: callbacks.error
+
 
 ## Micro Post collection
 class MicroPostCollection extends Backbone.Collection

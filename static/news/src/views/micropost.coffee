@@ -13,11 +13,12 @@ class MicroPostRow extends Row
     <p class="news-micropost-date">
      <%= displayDate %>     
     </p>
+    <p></p>
     <% if (isNoteAttached) { %>
-        <p><img src="/static/images/note.png" alt="A note is attached"</p>
+        <img src="/static/images/note.png" alt="A note is attached" />
     <% } %>
     <% if (isPictureAttached) { %>
-        <p><img src="/static/images/picture.png" alt="A picture is attached"</p>
+        <img src="/static/images/picture.png" alt="A picture is attached" />
     <% } %>
   ''')
 
@@ -148,71 +149,62 @@ class MicroPostRow extends Row
 
       callback()
 
+  # Look at all documents attachements and display them in the preview section.
   checkForAttachments: ->
-    converter = new Showdown.converter()
     docs = @model.attachments
 
     if @model.attachments? and @model.attachments.length > 0
-      $("#news-preview").append(
+      @preview.append(
           "<p class=\"attach-title\">attachments</p>")
 
     for doc in @model.attachments
       if doc.doc_type == "Note"
-        $("#news-preview").append(
-            "<h2 class=\"note-title\">note: #{doc.title}</h2>")
-        $("#news-preview").append(converter.makeHtml(doc.content))
+        @appendNote doc
       else if doc.doc_type == "Picture"
-        $("#news-preview").append(
-            "<p class=\"image-name\">picture: #{doc.path}</p>")
+        @appendPicture doc
 
-        slugDate = doc.date.replace(/:/g, "-")
-        $("#news-preview").append "<img id=\"attach-picture-#{slugDate}\"  />"
-        $("#attach-picture-#{slugDate}").load().error =>
-            $("#news-preview").append \
-                "<a id=\"attach-picture-button-#{slugDate}\">Download</a>"
-            $("#attach-picture-button-#{slugDate}").button()
-            $("#attach-picture-#{slugDate}").hide()
-            $("#attach-picture-button-#{slugDate}").click =>
-                $.ajax
-                  type: "POST"
-                  url: "/microposts/#{@model.id}/attach/download/"
-                  contentType: "application/json"
-                  data: JSON.stringify(doc)
-                  dataType: "json"
-                  success: (data) ->
-                    if data.success?
-                        alert "download succeesds!"
-                    else
-                        alert data.msg
-                  error: ->
-                    alert "A server error occured."
+  # Append a note document representation to micropost rendering.
+  appendNote: (doc) ->
+    converter = new Showdown.converter()
+    @preview.append(
+        "<p class=\"note-title\"><strong>note: #{doc.title}</strong></p>")
+    @preview.append(converter.makeHtml(doc.content))
+    @preview.append("<hr />")
 
-        $("#attach-picture-#{slugDate}").attr \
-            'src', "/microposts/#{@model.id}/attach/#{doc.path}"
+  # Append a picture document representation to micropost rendering.
+  # It is done in two steps, if no file exists on server for given picture
+  # it displays a download button to let user claims file from his contact.
+  appendPicture: (doc) =>
+    @preview.append(
+        "<p class=\"image-name\"><strong>picture: #{doc.path}</strong></p>")
 
+    slugDate = doc.date.replace(/:/g, "-")
+    @preview.append "<img id=\"attach-picture-#{slugDate}\"  />"
+    picture = $("#attach-picture-#{slugDate}")
 
+    picture.load().error =>
+      picture.hide()
 
+      @preview.append \
+        "<a id=\"attach-picture-button-#{slugDate}\">Download</a>"
+      downloadButton = $("#attach-picture-button-#{slugDate}")
 
+      downloadButton.button()
+      downloadButton.click =>
+        loadingIndicator.display()
+        @model.downloadFile doc,
+          success: (data) =>
+            if data.success?
+              picture.attr "src", "/microposts/#{@model.id}/attach/#{doc.path}"
+              downloadButton.hide()
+              picture.show()
+            loadingIndicator.hide()
+          error: ->
+            loadingIndicator.hide()
+            alert "A server error occured."
 
-  # Check if post contains a youtube link. If it is the case,
-  # it displays the embedded version of this video in the preview column.
-  checkForVideo: ->
-    # Remember we analyze markdown code, not displayed text.
-    regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g
-    content = @model.get("content")
-    urls = content.match(regexp)
-    
-    if urls
-      $("#news-preview").append("<p>Embedded videos: </p>")
-
-      for url in urls
-
-        $("#attach-picture-#{slugDate}").attr \
-            'src', "/microposts/#{@model.id}/attach/#{doc.path}"
-
-
-
-
+    picture.attr "src", "/microposts/#{@model.id}/attach/#{doc.path}"
+    @preview.append("<hr />")
 
   # Check if post contains a youtube link. If it is the case,
   # it displays the embedded version of this video in the preview column.
@@ -241,7 +233,7 @@ class MicroPostRow extends Row
           else
             key = key.substring(2, key.length)
   
-          $("#news-preview").append("""
+          @preview.append("""
            <p>
              <iframe width="100%" height="315" 
                src="http://www.youtube.com/embed/#{key}" 
@@ -249,6 +241,8 @@ class MicroPostRow extends Row
              </iframe>
            </p>
           """)
+          @preview.append("<hr />")
+
 
   # Check if mircropost contains an image link. If it is the case,
   # it displays the image in the preview column.
@@ -265,14 +259,16 @@ class MicroPostRow extends Row
         url = @getUrlFromMarkdown url
 
         if url
-          $("#news-preview").append("""
+          @preview.append("""
             <p>
             <img style="max-width: 100%;"
                  src="#{url}"
-                 alt="Micropost preview" />
+                 alt="Image #{url}" />
             </img>
             </p>
           """)
+          @preview.append("<hr />")
+
 
 
   # Extract url from markdown styling : take string which is between parenthesis
