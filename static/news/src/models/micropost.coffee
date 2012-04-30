@@ -32,8 +32,14 @@ class MicroPost extends Backbone.Model
       urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
       @attributes['urlDate'] = urlDate
 
-    @attributes["isAttachment"] = \
-        @attachments? and @attachments.length > 0
+    @attributes["isNoteAttached"] = false
+    @attributes["isPictureAttached"] = false
+    for doc in @attachments
+      if doc.doc_type == "Note"
+        @attributes["isNoteAttached"] = true
+      else
+        @attributes["isPictureAttached"] = true
+
 
   ### Getters / Setters ###
 

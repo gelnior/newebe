@@ -13,8 +13,11 @@ class MicroPostRow extends Row
     <p class="news-micropost-date">
      <%= displayDate %>     
     </p>
-    <% if (isAttachment) { %>
+    <% if (isNoteAttached) { %>
         <p><img src="/static/images/note.png" alt="A note is attached"</p>
+    <% } %>
+    <% if (isPictureAttached) { %>
+        <p><img src="/static/images/picture.png" alt="A picture is attached"</p>
     <% } %>
   ''')
 
@@ -154,9 +157,61 @@ class MicroPostRow extends Row
           "<p class=\"attach-title\">attachments</p>")
 
     for doc in @model.attachments
-      $("#news-preview").append(
-          "<h2 class=\"note-title\">note: #{doc.title}</h2>")
-      $("#news-preview").append(converter.makeHtml(doc.content))
+      if doc.doc_type == "Note"
+        $("#news-preview").append(
+            "<h2 class=\"note-title\">note: #{doc.title}</h2>")
+        $("#news-preview").append(converter.makeHtml(doc.content))
+      else if doc.doc_type == "Picture"
+        $("#news-preview").append(
+            "<p class=\"image-name\">picture: #{doc.path}</p>")
+
+        slugDate = doc.date.replace(/:/g, "-")
+        $("#news-preview").append "<img id=\"attach-picture-#{slugDate}\"  />"
+        $("#attach-picture-#{slugDate}").load().error =>
+            $("#news-preview").append \
+                "<a id=\"attach-picture-button-#{slugDate}\">Download</a>"
+            $("#attach-picture-button-#{slugDate}").button()
+            $("#attach-picture-#{slugDate}").hide()
+            $("#attach-picture-button-#{slugDate}").click =>
+                $.ajax
+                  type: "POST"
+                  url: "/microposts/#{@model.id}/attach/download/"
+                  contentType: "application/json"
+                  data: JSON.stringify(doc)
+                  dataType: "json"
+                  success: (data) ->
+                    if data.success?
+                        alert "download succeesds!"
+                    else
+                        alert data.msg
+                  error: ->
+                    alert "A server error occured."
+
+        $("#attach-picture-#{slugDate}").attr \
+            'src', "/microposts/#{@model.id}/attach/#{doc.path}"
+
+
+
+
+
+  # Check if post contains a youtube link. If it is the case,
+  # it displays the embedded version of this video in the preview column.
+  checkForVideo: ->
+    # Remember we analyze markdown code, not displayed text.
+    regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g
+    content = @model.get("content")
+    urls = content.match(regexp)
+    
+    if urls
+      $("#news-preview").append("<p>Embedded videos: </p>")
+
+      for url in urls
+
+        $("#attach-picture-#{slugDate}").attr \
+            'src', "/microposts/#{@model.id}/attach/#{doc.path}"
+
+
+
 
 
   # Check if post contains a youtube link. If it is the case,

@@ -72,6 +72,7 @@ class NewsView extends Backbone.View
     @postNewPost()
     event
 
+
   # When attach button is clicked a new document selector dialog is displayed.
   # Once attachment is selected, document is added to attachment list.
   onAttachClicked: (event) ->
@@ -258,6 +259,7 @@ class NewsView extends Backbone.View
             nextModel.id = resp._id
             nextModel.attachments = resp.attachments
             $("#news-attach-note-image").hide()
+            $("#news-attach-picture-image").hide()
             @attachments = []
           error: ->
             infoDialog.display "An error occured micropost was not posted."

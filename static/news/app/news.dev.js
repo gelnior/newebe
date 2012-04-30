@@ -272,7 +272,7 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<% if (isAttachment) { %>\n    <p><img src="/static/images/note.png" alt="A note is attached"</p>\n<% } %>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<% if (isNoteAttached) { %>\n    <p><img src="/static/images/note.png" alt="A note is attached"</p>\n<% } %>\n<% if (isPictureAttached) { %>\n    <p><img src="/static/images/picture.png" alt="A picture is attached"</p>\n<% } %>');
 
     /* Events
     */
@@ -392,7 +392,8 @@
     };
 
     MicroPostRow.prototype.checkForAttachments = function() {
-      var converter, doc, docs, _i, _len, _ref, _results;
+      var converter, doc, docs, slugDate, _i, _len, _ref, _results,
+        _this = this;
       converter = new Showdown.converter();
       docs = this.model.attachments;
       if ((this.model.attachments != null) && this.model.attachments.length > 0) {
@@ -402,10 +403,59 @@
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         doc = _ref[_i];
-        $("#news-preview").append("<h2 class=\"note-title\">note: " + doc.title + "</h2>");
-        _results.push($("#news-preview").append(converter.makeHtml(doc.content)));
+        if (doc.doc_type === "Note") {
+          $("#news-preview").append("<h2 class=\"note-title\">note: " + doc.title + "</h2>");
+          _results.push($("#news-preview").append(converter.makeHtml(doc.content)));
+        } else if (doc.doc_type === "Picture") {
+          $("#news-preview").append("<p class=\"image-name\">picture: " + doc.path + "</p>");
+          slugDate = doc.date.replace(/:/g, "-");
+          $("#news-preview").append("<img id=\"attach-picture-" + slugDate + "\"  />");
+          $("#attach-picture-" + slugDate).load().error(function() {
+            $("#news-preview").append("<a id=\"attach-picture-button-" + slugDate + "\">Download</a>");
+            $("#attach-picture-button-" + slugDate).button();
+            $("#attach-picture-" + slugDate).hide();
+            return $("#attach-picture-button-" + slugDate).click(function() {
+              return $.ajax({
+                type: "POST",
+                url: "/microposts/" + _this.model.id + "/attach/download/",
+                contentType: "application/json",
+                data: JSON.stringify(doc),
+                dataType: "json",
+                success: function(data) {
+                  if (data.success != null) {
+                    return alert("download succeesds!");
+                  } else {
+                    return alert(data.msg);
+                  }
+                },
+                error: function() {
+                  return alert("A server error occured.");
+                }
+              });
+            });
+          });
+          _results.push($("#attach-picture-" + slugDate).attr('src', "/microposts/" + this.model.id + "/attach/" + doc.path));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
+    };
+
+    MicroPostRow.prototype.checkForVideo = function() {
+      var content, regexp, url, urls, _i, _len, _results;
+      regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g;
+      content = this.model.get("content");
+      urls = content.match(regexp);
+      if (urls) {
+        $("#news-preview").append("<p>Embedded videos: </p>");
+        _results = [];
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          _results.push($("#attach-picture-" + slugDate).attr('src', "/microposts/" + this.model.id + "/attach/" + doc.path));
+        }
+        return _results;
+      }
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
@@ -694,6 +744,7 @@
             nextModel.id = resp._id;
             nextModel.attachments = resp.attachments;
             $("#news-attach-note-image").hide();
+            $("#news-attach-picture-image").hide();
             return _this.attachments = [];
           },
           error: function() {
@@ -772,7 +823,7 @@
     MicroPost.prototype.url = '/microposts/all/';
 
     function MicroPost(microPost) {
-      var content, converter, html, postDate, urlDate;
+      var content, converter, doc, html, postDate, urlDate, _i, _len, _ref;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('authorKey', microPost.authorKey);
@@ -790,7 +841,17 @@
         urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
         this.attributes['urlDate'] = urlDate;
       }
-      this.attributes["isAttachment"] = (this.attachments != null) && this.attachments.length > 0;
+      this.attributes["isNoteAttached"] = false;
+      this.attributes["isPictureAttached"] = false;
+      _ref = this.attachments;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        doc = _ref[_i];
+        if (doc.doc_type === "Note") {
+          this.attributes["isNoteAttached"] = true;
+        } else {
+          this.attributes["isPictureAttached"] = true;
+        }
+      }
     }
 
     /* Getters / Setters
