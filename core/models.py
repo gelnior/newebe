@@ -63,8 +63,10 @@ class NewebeDocument(Document):
         docDict = self.toDict(localized)
         del docDict["attachments"]
         del docDict["isMine"]
-        del docDict["authorKey"]
+        #del docDict["authorKey"]
         del docDict["_id"]
+        if "_attachments" in docDict:
+            del docDict["_attachments"]
 
         return docDict
 

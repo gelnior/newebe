@@ -1,4 +1,5 @@
 from newebe.notes.models import NoteManager
+from newebe.pictures.models import PictureManager
 
 class Converter():
     '''
@@ -15,7 +16,30 @@ class Converter():
         '''
 
         docs = []
+        self.fileDocs = []
         for doc in data.get("attachments", []):
-            note = NoteManager.get_note(doc["id"])
-            docs.append(note.toDictForAttachment())
+            if doc["type"] == "Note":
+                note = NoteManager.get_note(doc["id"])
+                docs.append(note.toDictForAttachment())
+            elif doc["type"] == "Picture":
+                picture = PictureManager.get_picture(doc["id"])
+                docs.append(picture.toDictForAttachment())
+                self.fileDocs.append(picture)
+
         return docs
+
+    def add_files(self, mainDoc):
+        '''
+        Attaches files linked to attached documents to the main document.
+
+        Call this method only after convertion of attachments has been done 
+        on mainDoc.
+        '''
+
+        for doc in self.fileDocs:
+            pic_file = doc.fetch_attachment("prev_" + doc.path)
+            mainDoc.put_attachment(pic_file, doc.path)
+            
+
+
+
