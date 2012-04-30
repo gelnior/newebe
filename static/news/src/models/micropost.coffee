@@ -32,8 +32,14 @@ class MicroPost extends Backbone.Model
       urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/")
       @attributes['urlDate'] = urlDate
 
-    @attributes["isAttachment"] = \
-        @attachments? and @attachments.length > 0
+    @attributes["isNoteAttached"] = false
+    @attributes["isPictureAttached"] = false
+    for doc in @attachments
+      if doc.doc_type == "Note"
+        @attributes["isNoteAttached"] = true
+      else
+        @attributes["isPictureAttached"] = true
+
 
   ### Getters / Setters ###
 
@@ -79,7 +85,15 @@ class MicroPost extends Backbone.Model
   isNew: ->
     !@getAuthor()
 
-    
+  downloadFile: (doc, callbacks) ->
+    $.ajax
+      type: "POST"
+      url: "/microposts/#{@id}/attach/download/"
+      contentType: "application/json"
+      data: JSON.stringify(doc)
+      success: callbacks.success
+      error: callbacks.error
+
 
 ## Micro Post collection
 class MicroPostCollection extends Backbone.Collection

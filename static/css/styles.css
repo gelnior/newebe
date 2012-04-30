@@ -106,6 +106,14 @@ div.news-micropost-row p {
 #news-more {
   margin: 20px 0px;
 }
+.image-name {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+.note-title {
+  padding-top: 20px;
+  padding-bottom: 5px;
+}
 #notes-list {
   margin-top: 20px;
 }
@@ -603,6 +611,28 @@ h3.tutorial-text {
 .attach-title {
   border-bottom: 1px solid #ccc;
   margin-top: 50px;
+}
+.document-selector-select-wrapper {
+  display: inline;
+}
+.document-selector-select-wrapper select {
+  background: transparent;
+  color: #fff;
+  width: 200px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  height: 34px;
+}
+#document-selector .picture-row p.date {
+  float: right;
+}
+#document-selector .picture-row {
+  padding: 10px;
+  border-bottom: 1px solid #aaa;
+}
+#document-selector-toolbar {
+  margin-top: 20px;
 }
 .qq-uploader { position:relative; width: 100%;}
 

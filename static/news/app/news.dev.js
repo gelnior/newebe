@@ -1,8 +1,8 @@
 (function() {
   var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   InfoDialog = (function() {
 
@@ -106,55 +106,119 @@
   DocumentSelector = (function() {
 
     function DocumentSelector() {
-      var div,
-        _this = this;
-      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
-        div = document.createElement('div');
-        div.id = "document-selector";
-        div.className = "dialog";
-        $("body").prepend(div);
-        this.element = $("#document-selector");
-        this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-list">\n</div>');
-        this.docList = $("#document-selector-list");
-        $("#document-selector-cancel").click(function() {
-          return _this.element.fadeOut(400);
-        });
+      this.onDatePicked = __bind(this.onDatePicked, this);      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
+        this.createWidget();
+        this.setListeners();
       } else {
         this.element = $("#document-selector");
-        this.docList = $("#document-selector-list");
       }
+      this.docList = $("#document-selector-list");
       this.element.hide();
     }
 
+    DocumentSelector.prototype.createWidget = function() {
+      var div;
+      div = document.createElement('div');
+      div.id = "document-selector";
+      div.className = "dialog";
+      $("body").prepend(div);
+      this.element = $("#document-selector");
+      return this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-toolbar">\n<div class="document-selector-select-wrapper">\n<select id="document-selector-type">\n    <option label="Note" value="1">Note</option>\n    <option label="Picture" value="1">Picture</option>\n</select>\n</div>\n<span id="document-selector-datepicker-label">until </span>\n<input type="text" id="document-selector-datepicker" />\n</div>\n<div id="document-selector-list">\n</div>');
+    };
+
+    DocumentSelector.prototype.setListeners = function() {
+      var _this = this;
+      $("#document-selector-datepicker").datepicker({
+        onSelect: this.onDatePicked
+      });
+      $("#document-selector-datepicker").hide();
+      $("#document-selector-datepicker-label").hide();
+      $("#document-selector-cancel").click(function() {
+        return _this.element.fadeOut(400);
+      });
+      return $("#document-selector-type").change(function(event) {
+        var type;
+        type = $("#document-selector-type :selected").text();
+        if (type === "Picture") {
+          $("#document-selector-datepicker").show();
+          $("#document-selector-datepicker-label").show();
+          return _this.loadPictures();
+        } else if (type === "Note") {
+          $("#document-selector-datepicker").hide();
+          $("#document-selector-datepicker-label").hide();
+          return _this.loadNotes();
+        }
+      });
+    };
+
     DocumentSelector.prototype.display = function(callback) {
+      this.setSelectDocListener(callback);
+      $("#document-selector-type").val("Note");
+      this.loadNotes();
+      return this.element.fadeIn(400);
+    };
+
+    DocumentSelector.prototype.setSelectDocListener = function(callback) {
       var _this = this;
       if (this.fun !== void 0) {
         $("#document-selector-select").unbind("click", this.fun);
       }
       this.fun = function(event) {
         if ($("#document-selector-list .selected")) {
-          callback($("#document-selector-list .selected")[0].id);
+          callback({
+            id: $("#document-selector-list .selected")[0].id,
+            type: $("#document-selector-type :selected").text()
+          });
         }
         return _this.element.fadeOut(400);
       };
-      $("#document-selector-select").click(this.fun);
-      this.docList.empty();
-      return $.get("/notes/all/html/", function(data) {
-        var selected;
+      return $("#document-selector-select").click(this.fun);
+    };
+
+    DocumentSelector.prototype.onDatePicked = function(dateText, event) {
+      var d, sinceDate,
+        _this = this;
+      d = Date.parse(dateText);
+      sinceDate = d.toString("yyyy-MM-dd");
+      return $.get("/pictures/all/" + sinceDate + "-00-00-00/html/", function(data) {
         _this.docList.html(data);
-        $(".note-row").mouseenter(function(event) {
-          return $(this).addClass("mouseover mouseover-dialog");
-        });
-        $(".note-row").mouseleave(function(event) {
-          return $(this).removeClass("mouseover mouseover-dialog");
-        });
-        selected = null;
-        $(".note-row").click(function(event) {
-          if (selected) selected.removeClass("selected selected-dialog");
-          $(this).addClass("selected selected-dialog");
-          return selected = $(this);
-        });
+        _this.setupList("picture-row");
+        if (typeof callback !== "undefined" && callback !== null) {
+          return callback();
+        }
+      });
+    };
+
+    DocumentSelector.prototype.loadNotes = function() {
+      var _this = this;
+      return $.get("/notes/all/html/", function(data) {
+        _this.docList.html(data);
+        _this.setupList("note-row");
         return _this.element.fadeIn(400);
+      });
+    };
+
+    DocumentSelector.prototype.loadPictures = function() {
+      var _this = this;
+      return $.get("/pictures/all/html/", function(data) {
+        _this.docList.html(data);
+        return _this.setupList("picture-row");
+      });
+    };
+
+    DocumentSelector.prototype.setupList = function(className) {
+      var selected;
+      $("." + className).mouseenter(function(event) {
+        return $(this).addClass("mouseover mouseover-dialog");
+      });
+      $("." + className).mouseleave(function(event) {
+        return $(this).removeClass("mouseover mouseover-dialog");
+      });
+      selected = null;
+      return $("." + className).click(function(event) {
+        if (selected) selected.removeClass("selected selected-dialog");
+        $(this).addClass("selected selected-dialog");
+        return selected = $(this);
       });
     };
 
@@ -208,7 +272,7 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<% if (isAttachment) { %>\n    <p><img src="/static/images/note.png" alt="A note is attached"</p>\n<% } %>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<p></p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
 
     /* Events
     */
@@ -222,6 +286,7 @@
     function MicroPostRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.appendPicture = __bind(this.appendPicture, this);
       this.renderMicropost = __bind(this.renderMicropost, this);
       this.onPushNoteClicked = __bind(this.onPushNoteClicked, this);
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
@@ -328,20 +393,67 @@
     };
 
     MicroPostRow.prototype.checkForAttachments = function() {
-      var converter, doc, docs, _i, _len, _ref, _results;
-      converter = new Showdown.converter();
+      var doc, docs, _i, _len, _ref, _results;
       docs = this.model.attachments;
       if ((this.model.attachments != null) && this.model.attachments.length > 0) {
-        $("#news-preview").append("<p class=\"attach-title\">attachments</p>");
+        this.preview.append("<p class=\"attach-title\">attachments</p>");
       }
       _ref = this.model.attachments;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         doc = _ref[_i];
-        $("#news-preview").append("<h2 class=\"note-title\">note: " + doc.title + "</h2>");
-        _results.push($("#news-preview").append(converter.makeHtml(doc.content)));
+        if (doc.doc_type === "Note") {
+          _results.push(this.appendNote(doc));
+        } else if (doc.doc_type === "Picture") {
+          _results.push(this.appendPicture(doc));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
+    };
+
+    MicroPostRow.prototype.appendNote = function(doc) {
+      var converter;
+      converter = new Showdown.converter();
+      this.preview.append("<p class=\"note-title\"><strong>note: " + doc.title + "</strong></p>");
+      this.preview.append(converter.makeHtml(doc.content));
+      return this.preview.append("<hr />");
+    };
+
+    MicroPostRow.prototype.appendPicture = function(doc) {
+      var picture, slugDate,
+        _this = this;
+      this.preview.append("<p class=\"image-name\"><strong>picture: " + doc.path + "</strong></p>");
+      slugDate = doc.date.replace(/:/g, "-");
+      this.preview.append("<img id=\"attach-picture-" + slugDate + "\"  />");
+      picture = $("#attach-picture-" + slugDate);
+      picture.load().error(function() {
+        var downloadButton;
+        picture.hide();
+        _this.preview.append("<a id=\"attach-picture-button-" + slugDate + "\">Download</a>");
+        downloadButton = $("#attach-picture-button-" + slugDate);
+        downloadButton.button();
+        return downloadButton.click(function() {
+          loadingIndicator.display();
+          return _this.model.downloadFile(doc, {
+            success: function(data) {
+              if (data.success != null) {
+                picture.attr("src", "/microposts/" + _this.model.id + "/attach/" + doc.path);
+                downloadButton.hide();
+                picture.show();
+              }
+              return loadingIndicator.hide();
+            },
+            error: function() {
+              loadingIndicator.hide();
+              return alert("A server error occured.");
+            }
+          });
+        });
+      });
+      picture.attr("src", "/microposts/" + this.model.id + "/attach/" + doc.path);
+      return this.preview.append("<hr />");
     };
 
     MicroPostRow.prototype.checkForVideo = function() {
@@ -367,7 +479,8 @@
             } else {
               key = key.substring(2, key.length);
             }
-            _results.push($("#news-preview").append("<p>\n  <iframe width=\"100%\" height=\"315\" \n    src=\"http://www.youtube.com/embed/" + key + "\" \n    frameborder=\"0\" allowfullscreen>\n  </iframe>\n</p>"));
+            this.preview.append("<p>\n  <iframe width=\"100%\" height=\"315\" \n    src=\"http://www.youtube.com/embed/" + key + "\" \n    frameborder=\"0\" allowfullscreen>\n  </iframe>\n</p>");
+            _results.push(this.preview.append("<hr />"));
           } else {
             _results.push(void 0);
           }
@@ -388,7 +501,8 @@
           url = urls[_i];
           url = this.getUrlFromMarkdown(url);
           if (url) {
-            _results.push($("#news-preview").append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Micropost preview\" />\n</img>\n</p>"));
+            this.preview.append("<p>\n<img style=\"max-width: 100%;\"\n     src=\"" + url + "\"\n     alt=\"Image " + url + "\" />\n</img>\n</p>");
+            _results.push(this.preview.append("<hr />"));
           } else {
             _results.push(void 0);
           }
@@ -470,12 +584,14 @@
 
     NewsView.prototype.onAttachClicked = function(event) {
       var _this = this;
-      return selectorDialog.display(function(noteId) {
-        _this.attachments.push({
-          type: "note",
-          id: noteId
-        });
-        return $("#news-attach-note-button").show();
+      return selectorDialog.display(function(attachment) {
+        console.log(attachment);
+        _this.attachments.push(attachment);
+        if (attachment.type === "Note") {
+          return $("#news-attach-note-image").show();
+        } else {
+          return $("#news-attach-picture-image").show();
+        }
       });
     };
 
@@ -627,7 +743,8 @@
             nextModel.view.el.id = resp._id;
             nextModel.id = resp._id;
             nextModel.attachments = resp.attachments;
-            $("#news-attach-note-button").hide();
+            $("#news-attach-note-image").hide();
+            $("#news-attach-picture-image").hide();
             return _this.attachments = [];
           },
           error: function() {
@@ -691,7 +808,8 @@
       $("#news-more").button();
       $("#news-from-datepicker").val(null);
       $("#news-a").addClass("disabled");
-      return $("#news-attach-note-button").hide();
+      $("#news-attach-note-image").hide();
+      return $("#news-attach-picture-image").hide();
     };
 
     return NewsView;
@@ -705,7 +823,7 @@
     MicroPost.prototype.url = '/microposts/all/';
 
     function MicroPost(microPost) {
-      var content, converter, html, postDate, urlDate;
+      var content, converter, doc, html, postDate, urlDate, _i, _len, _ref;
       MicroPost.__super__.constructor.apply(this, arguments);
       this.set('author', microPost.author);
       this.set('authorKey', microPost.authorKey);
@@ -723,7 +841,17 @@
         urlDate = postDate.toString("yyyy-MM-dd-HH-mm-ss/");
         this.attributes['urlDate'] = urlDate;
       }
-      this.attributes["isAttachment"] = (this.attachments != null) && this.attachments.length > 0;
+      this.attributes["isNoteAttached"] = false;
+      this.attributes["isPictureAttached"] = false;
+      _ref = this.attachments;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        doc = _ref[_i];
+        if (doc.doc_type === "Note") {
+          this.attributes["isNoteAttached"] = true;
+        } else {
+          this.attributes["isPictureAttached"] = true;
+        }
+      }
     }
 
     /* Getters / Setters
@@ -778,6 +906,17 @@
 
     MicroPost.prototype.isNew = function() {
       return !this.getAuthor();
+    };
+
+    MicroPost.prototype.downloadFile = function(doc, callbacks) {
+      return $.ajax({
+        type: "POST",
+        url: "/microposts/" + this.id + "/attach/download/",
+        contentType: "application/json",
+        data: JSON.stringify(doc),
+        success: callbacks.success,
+        error: callbacks.error
+      });
     };
 
     return MicroPost;

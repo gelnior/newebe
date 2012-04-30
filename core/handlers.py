@@ -1,6 +1,7 @@
 import logging
 import hashlib
 import os
+import mimetypes
 
 
 from tornado.escape import json_decode, json_encode
@@ -112,6 +113,17 @@ class NewebeHandler(RequestHandler):
         logger.error(text)
         self.return_json(json_encode({ "error" : text }), statusCode)
 
+    def return_file(self, fileName, fileContent):
+        '''
+        Return given file and set content type automatically by guessing it
+        from its extension.
+        '''
+
+        filetype = mimetypes.guess_type(fileName)[0] or \
+                    'application/octet-stream'
+        self.set_header("Content-Type", filetype)
+        self.write(fileContent)
+        self.finish()
 
     def get_document(self, get_doc, id):
         doc = get_doc(id)

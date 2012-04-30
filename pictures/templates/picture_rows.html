@@ -1,0 +1,12 @@
+{% autoescape None %} 
+
+{% for picture in pictures %}
+<div class="picture-row" id="{{ picture._id }}">
+<p class="date">{{ picture.date }}</p>
+<p>
+  <img src="/pictures/{{picture._id }}/th_{{ picture.path }}"
+       alt="{{ picture.title }}" 
+       />
+</p>
+</div>
+{% end %}

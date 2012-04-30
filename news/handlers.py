@@ -1,8 +1,11 @@
 import logging
+import mimetypes
 import markdown
 
 from tornado import gen 
 from tornado.web import asynchronous
+from tornado.escape import json_encode
+from couchdbkit.exceptions import ResourceNotFound
 
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
@@ -143,6 +146,7 @@ class NewsHandler(NewebeAuthHandler):
                 attachments = converter.convert(data)
             )
             micropost.save()
+            converter.add_files(micropost)
 
             self.create_owner_creation_activity(micropost, 
                                                 "writes", "micropost")
@@ -264,6 +268,111 @@ class NewsContactHandler(NewebeHandler):
         '''
 
         logger.info("Micropost deletion from %s received" % micropost.author)
+
+
+class MicropostAttachedFileHandler(NewebeAuthHandler):
+
+    def get(self, postId, fileName):
+        '''
+        Return file which corresponds to *filename* and which is attached to 
+        micropost of which ID is equal to postId.
+        '''
+
+        micropost = MicroPostManager.get_micropost(postId)
+        if micropost:
+            try:
+                fileContent = micropost.fetch_attachment(fileName)
+                self.return_file(fileName, fileContent)
+            except ResourceNotFound:
+                self.return_failure("File not found", 404)
+        else:
+            self.return_failure("Micropost not found.", 404)
+
+
+class MicropostDlAttachedFileHandler(NewebeAuthHandler):
+    '''
+    To not overload bandwidht, post attached file are downloaded on request.
+    This resource allows user to download files attached to micropost 
+    which missed.
+    '''
+
+    
+    @asynchronous
+    @gen.engine
+    def post(self, postId):
+        '''
+        Grab from contact the file corresponding to given path and given post
+        (post of which ID is equal to *postId*).
+        '''
+
+        data = self.get_body_as_dict(expectedFields=["path"])
+
+        micropost = MicroPostManager.get_micropost(postId)
+        contact = ContactManager.getTrustedContact(micropost.authorKey)
+        user = UserManager.getUser()
+        if micropost and data and contact:
+            path = data["path"]
+            client = ContactClient()
+            body = {
+                "date": date_util.get_db_date_from_date(micropost.date),
+                "contactKey": user.key,
+                "path": path
+            }
+
+            client.post(contact, "microposts/contacts/attach/",
+                        json_encode(body), 
+                        callback=(yield gen.Callback("getattach")))
+            response = yield gen.Wait("getattach")
+            
+            if response.error:
+                self.return_failure(
+                        "An error occured while retrieving picture.")
+            else:
+                micropost.put_attachment(response.body, data["path"])
+                self.return_success("Download succeeds.")
+
+        else:
+            if not data:
+                self.return_failure("Wrong data.", 400)
+            elif not contact:
+                self.return_failure("Contact no more available.", 400)
+            else:
+                self.return_failure("Micropost not found.", 404)
+
+
+class MicropostContactAttachedFileHandler(NewebeHandler):
+    '''
+    Handlers to allow other contacts to download file attached to a given
+    micropost.
+    '''
+
+    def post(self):
+        '''
+        Returns file which is attached to post corresponding to a given 
+        date (we assumed a user can't post two posts at the same time).
+        Expected data :
+        * path : file name
+        * date : date on which post was posted
+        * contactKey : the key of the contact which claims the file.
+        '''
+
+        data = self.get_body_as_dict(expectedFields=["path", "date",
+            "contactKey"])
+
+        if data:
+            contact = ContactManager.getTrustedContact(data["contactKey"])
+            micropost = MicroPostManager.get_first(data["date"])
+
+            if micropost and contact:
+                try:
+                    fileContent = micropost.fetch_attachment(data["path"])
+                    self.return_file(data["path"], fileContent)
+                except ResourceNotFound:
+                    self.return_failure("File not found", 404)
+            else:
+                self.return_failure("Micropost not found.", 404)
+        else:
+            self.return_failure("Wrong data.", 400)
 
 
 class MicropostTHandler(NewebeAuthHandler):

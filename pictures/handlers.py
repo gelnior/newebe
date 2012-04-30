@@ -607,6 +607,32 @@ class PictureRetryHandler(NewebeAuthHandler):
             self.return_failure("Picture resend to a contact failed again.")
 
 
+class PictureRowsTHandler(NewebeAuthHandler):
+    '''
+    This handler handles requests that retrieve last posted pictures.
+    
+    * GET: Retrieves all pictures ordered by title.
+    * POST: Create a picture.
+    '''
+
+
+    def get(self, startKey=None):
+        '''
+        Returns last posted pictures.  If *startKey* is provided, it returns 
+        last picture posted until *startKey*.
+        '''
+        
+        get_doc = PictureManager.get_last_pictures
+        if startKey:
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
+            docs = get_doc(dateString)
+        else:
+            docs = get_doc()
+        
+        self.render("templates/picture_rows.html", pictures=docs)
+
+
+
 
 # Template handlers
 
