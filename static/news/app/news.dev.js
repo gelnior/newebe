@@ -585,7 +585,6 @@
     NewsView.prototype.onAttachClicked = function(event) {
       var _this = this;
       return selectorDialog.display(function(attachment) {
-        console.log(attachment);
         _this.attachments.push(attachment);
         if (attachment.type === "Note") {
           return $("#news-attach-note-image").show();

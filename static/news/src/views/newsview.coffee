@@ -77,7 +77,6 @@ class NewsView extends Backbone.View
   # Once attachment is selected, document is added to attachment list.
   onAttachClicked: (event) ->
     selectorDialog.display (attachment) =>
-        console.log attachment
         @attachments.push attachment
         if attachment.type == "Note"
             $("#news-attach-note-image").show()
