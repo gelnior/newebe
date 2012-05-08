@@ -324,12 +324,12 @@
 
     MicroPostRow.prototype.onPushNoteClicked = function() {
       var _this = this;
-      return selectorDialog.display(function(noteId) {
+      return selectorDialog.display(function(noteData) {
         loadingIndicator.display();
-        return $.get("/notes/" + noteId + "/", function(note) {
+        return $.get("/notes/" + noteData.id + "/", function(note) {
           note.content = note.content + "\n\n" + _this.model.getContent();
           return $.putJson({
-            url: "/notes/" + noteId + "/",
+            url: "/notes/" + noteData.id + "/",
             body: note,
             success: function() {
               infoDialog.display("note successfully updated");

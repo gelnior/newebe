@@ -75,14 +75,14 @@ class MicroPostRow extends Row
   # content (added to bottom) and note is saved.
   onPushNoteClicked: =>
 
-    selectorDialog.display (noteId) =>
+    selectorDialog.display (noteData) =>
       loadingIndicator.display()
 
-      $.get "/notes/#{noteId}/", (note) =>
+      $.get "/notes/#{noteData.id}/", (note) =>
         note.content = note.content + "\n\n" + @model.getContent()
 
         $.putJson
-          url: "/notes/#{noteId}/"
+          url: "/notes/#{noteData.id}/"
           body: note
           success: () ->
             infoDialog.display "note successfully updated"
