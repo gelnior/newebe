@@ -67,11 +67,22 @@ class DocumentSelector
 
   # Displays dialog. Set a callback that will take document id as parameter.
   # When dialog is displayed, linked documents are displayed inside it.
-  display: (callback) ->
+  display: (types, callback) ->
 
     @setSelectDocListener callback
+    
     # Set document type to note
     $("#document-selector-type").val("Note")
+    $("#document-selector-datepicker").hide()
+    $("#document-selector-datepicker-label").hide()
+
+    # Hide toolbar if only note can be sel
+    if types.length == 1
+        $("#document-selector-type").val(types[0])
+        $("#document-selector-toolbar").hide()
+    else
+        $("#document-selector-toolbar").show()
+
     @loadNotes()
     @element.fadeIn(400)
 

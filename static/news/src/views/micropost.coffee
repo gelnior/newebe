@@ -75,7 +75,7 @@ class MicroPostRow extends Row
   # content (added to bottom) and note is saved.
   onPushNoteClicked: =>
 
-    selectorDialog.display (noteData) =>
+    selectorDialog.display ["Note"], (noteData) =>
       loadingIndicator.display()
 
       $.get "/notes/#{noteData.id}/", (note) =>

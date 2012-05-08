@@ -151,9 +151,17 @@
       });
     };
 
-    DocumentSelector.prototype.display = function(callback) {
+    DocumentSelector.prototype.display = function(types, callback) {
       this.setSelectDocListener(callback);
       $("#document-selector-type").val("Note");
+      $("#document-selector-datepicker").hide();
+      $("#document-selector-datepicker-label").hide();
+      if (types.length === 1) {
+        $("#document-selector-type").val(types[0]);
+        $("#document-selector-toolbar").hide();
+      } else {
+        $("#document-selector-toolbar").show();
+      }
       this.loadNotes();
       return this.element.fadeIn(400);
     };
@@ -324,7 +332,7 @@
 
     MicroPostRow.prototype.onPushNoteClicked = function() {
       var _this = this;
-      return selectorDialog.display(function(noteData) {
+      return selectorDialog.display(["Note"], function(noteData) {
         loadingIndicator.display();
         return $.get("/notes/" + noteData.id + "/", function(note) {
           note.content = note.content + "\n\n" + _this.model.getContent();
@@ -584,7 +592,7 @@
 
     NewsView.prototype.onAttachClicked = function(event) {
       var _this = this;
-      return selectorDialog.display(function(attachment) {
+      return selectorDialog.display(["Note", "Picture"], function(attachment) {
         _this.attachments.push(attachment);
         if (attachment.type === "Note") {
           return $("#news-attach-note-image").show();

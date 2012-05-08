@@ -576,9 +576,17 @@
       });
     };
 
-    DocumentSelector.prototype.display = function(callback) {
+    DocumentSelector.prototype.display = function(types, callback) {
       this.setSelectDocListener(callback);
       $("#document-selector-type").val("Note");
+      $("#document-selector-datepicker").hide();
+      $("#document-selector-datepicker-label").hide();
+      if (types.length === 1) {
+        $("#document-selector-type").val(types[0]);
+        $("#document-selector-toolbar").hide();
+      } else {
+        $("#document-selector-toolbar").show();
+      }
       this.loadNotes();
       return this.element.fadeIn(400);
     };
