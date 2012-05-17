@@ -1,6 +1,7 @@
 (function() {
+
   $(function() {
-    var element, lastSelected, lastSelectedMenu, path, url;
+    var displayInstall, element, lastSelected, lastSelectedMenu, path, url;
     $('#installation').hide();
     $('#documentation').hide();
     $('#contact').hide();
@@ -17,7 +18,7 @@
       lastSelectedMenu = $('#menu-home');
       return lastSelectedMenu.addClass('selected');
     });
-    $('#menu-installation').click(function(event) {
+    displayInstall = function(event) {
       lastSelected.fadeOut(300, function() {
         return $('#installation').fadeIn(500);
       });
@@ -25,7 +26,9 @@
       lastSelectedMenu.removeClass('selected');
       lastSelectedMenu = $('#menu-installation');
       return lastSelectedMenu.addClass('selected');
-    });
+    };
+    $('#menu-installation').click(displayInstall);
+    $('#download-text').click(displayInstall);
     $('#menu-documentation').click(function(event) {
       lastSelected.fadeOut(300, function() {
         return $('#documentation').fadeIn(300);
@@ -65,4 +68,5 @@
       return lastSelectedMenu.addClass('selected');
     }
   });
+
 }).call(this);

@@ -59,6 +59,9 @@ span.step {
 #download-text {
   margin-top: 135px;
 }
+#download-text span {
+  font-size: 8px;
+}
 #slogan {
   margin: 0 0 0 0;
   font-variant: small-caps;

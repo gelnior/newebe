@@ -16,7 +16,7 @@ $(() ->
         lastSelectedMenu = $('#menu-home')
         lastSelectedMenu.addClass('selected')
     )
-    $('#menu-installation').click((event) ->
+    displayInstall = (event) ->
         lastSelected.fadeOut(300, () ->
             $('#installation').fadeIn(500)
         )
@@ -24,7 +24,10 @@ $(() ->
         lastSelectedMenu.removeClass('selected')
         lastSelectedMenu = $('#menu-installation')
         lastSelectedMenu.addClass('selected')
-    )
+    
+    $('#menu-installation').click displayInstall
+    $('#download-text').click displayInstall
+
     $('#menu-documentation').click((event) ->
         lastSelected.fadeOut(300, () ->
             $('#documentation').fadeIn(300)
