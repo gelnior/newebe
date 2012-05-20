@@ -27,10 +27,18 @@ except:
     PRIVATE_KEY = os.path.join("./", "server.key")
     CERTIFICATE = os.path.join("./", "server.crt")
 
+# Credentials for database
+try:
+  from newebe.local_settings import USERNAME, PASSWORD, COUCHDB_SERVER_USERNAME, COUCHDB_SERVER_PASSWORD
+except:
+  USERNAME = "newebe"
+  PASSWORD = "newebe"
+  COUCHDB_SERVER_USERNAME = "admin"
+  COUCHDB_SERVER_PASSWORD = "admin"
 
 
 # Couchdb configuration
-COUCHDB_DB_URI =  'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME
+COUCHDB_DB_URI =  'http://%s:%s@127.0.0.1:5984/%s' % (USERNAME, PASSWORD, COUCHDB_DB_NAME)
 COUCHDB_DATABASES = (
     ('newebe.news', COUCHDB_DB_URI),
     ('newebe.core', COUCHDB_DB_URI),
