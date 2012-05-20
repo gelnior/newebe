@@ -29,10 +29,12 @@ except:
 
 # Credentials for database
 try:
-  from newebe.local_settings import USERNAME, PASSWORD
+  from newebe.local_settings import USERNAME, PASSWORD, COUCHDB_SERVER_USERNAME, COUCHDB_SERVER_PASSWORD
 except:
   USERNAME = "newebe"
   PASSWORD = "newebe"
+  COUCHDB_SERVER_USERNAME = "admin"
+  COUCHDB_SERVER_PASSWORD = "admin"
 
 
 # Couchdb configuration

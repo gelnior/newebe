@@ -7,6 +7,7 @@ Code adapted from Django Coucdhbkit handler.
 
 import sys
 import os
+import re
 sys.path.append("../")
 
 from couchdbkit import Server
@@ -15,6 +16,10 @@ from couchdbkit.resource import CouchdbResource
 from newebe import settings
 
 COUCHDB_DATABASES = getattr(settings, "COUCHDB_DATABASES", [])
+USERNAME = getattr(settings, "USERNAME", "")
+PASSWORD = getattr(settings, "PASSWORD", "")
+COUCHDB_SERVER_USERNAME = getattr(settings, "COUCHDB_SERVER_USERNAME", "")
+COUCHDB_SERVER_PASSWORD = getattr(settings, "COUCHDB_SERVER_PASSWORD", "")
 COUCHDB_TIMEOUT = 300
 
 class CouchdbkitHandler(object):
@@ -53,10 +58,27 @@ class CouchdbkitHandler(object):
                 raise ValueError("couchdb uri [%s:%s] invalid" % (
                     app_name, uri))
 
-                
-            res = CouchdbResource(server_uri, timeout=COUCHDB_TIMEOUT)
-            server = Server(server_uri, resource_instance=res)
 
+            res = CouchdbResource(server_uri, timeout=COUCHDB_TIMEOUT)
+
+            # Auth with couchdb_server credentials
+            super_server_uri = re.sub(USERNAME, COUCHDB_SERVER_USERNAME,
+                re.sub(PASSWORD, COUCHDB_SERVER_PASSWORD, server_uri))
+
+            # Create the db as a couchdb server admin, and create the
+            # _security doc with the right members
+            super_server = Server(super_server_uri, resource_instance =
+                res)
+            db = super_server.get_or_create_db(dbname)
+            securitydoc = db.get("_security")
+            if securitydoc == {} or USERNAME not in securitydoc["members"]["names"] and USERNAME not in securitydoc["admins"]["names"]:
+              print "%s is not set as newebe database admin. Setting it." % USERNAME
+              securitydoc = {"_id": "_security", "admins": {"names": [USERNAME], "roles":[]}, "members": {"names": [], "roles":[]}}
+              db.save_doc(securitydoc)
+
+            # Sync the applications
+            simple_server_uri = server_uri
+            server = Server(simple_server_uri, resource_instance=res)
             self.sync(app_name, server, dbname)
    
 
