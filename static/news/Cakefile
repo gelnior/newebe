@@ -25,6 +25,7 @@ fs = require 'fs'
 
 # Additional files to add to file that can be found in source directory.:
 appFiles = [
+  '../platform/src/utils/string.coffee'
   '../platform/src/views/infodialog.coffee'
   '../platform/src/views/loadingindicator.coffee'
   '../platform/src/views/documentselector.coffee'

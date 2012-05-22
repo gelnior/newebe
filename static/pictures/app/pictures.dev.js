@@ -292,7 +292,7 @@
     }
 
     PicturesRouter.prototype.all = function(date) {
-      return this.view.displayAllPictures(date);
+      if (date) return this.view.displayAllPictures(date);
     };
 
     PicturesRouter.prototype.mine = function(date) {
@@ -431,7 +431,7 @@
       if (this.morePictures.length >= 0 && this.morePictures.length < 10) {
         this.moreButton.hide();
       } else {
-        picture = pictures[0];
+        picture = this.morePictures.last();
         this.lastDate = picture.getUrlDate();
         this.moreButton.show();
       }

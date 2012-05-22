@@ -60,6 +60,7 @@ class NotesView extends Backbone.View
     @onRowClicked(row)
     row.focusTitle()
     event
+    false
 
   # When a click occurs on a row it selects it.
   onRowClicked: (row) ->
@@ -151,8 +152,9 @@ class NotesView extends Backbone.View
   # after that markdown elements get converted to HTML.
   displayText: (row) ->
     @notePreviewer.html(null)
-    html = @converter.makeHtml(row.getContent())
-    @notePreviewer.html(html)
+    content = convertUrlsToMarkdownLink row.getContent()
+    html = @converter.makeHtml content
+    @notePreviewer.html html
     row.updatePreviewPosition()
 
 
@@ -183,3 +185,4 @@ class NotesView extends Backbone.View
     @newButton.button()
 
     $("#notes-a").addClass("disabled")
+

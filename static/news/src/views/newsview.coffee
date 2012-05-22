@@ -245,7 +245,7 @@ class NewsView extends Backbone.View
     content = $("#id_content").val()
     if content
       loadingIndicator.display()
-      content = @convertUrlToMarkdownLink(content)
+      content = convertUrlsToMarkdownLink(content)
 
       @microposts.create {
           content: content
@@ -266,19 +266,6 @@ class NewsView extends Backbone.View
         }
       $("#id_content").val(null)
       $("#id_content").focus()
-
-  # Convert markdown url to href link for better display.
-  convertUrlToMarkdownLink: (content) ->
-    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
-
-    urls = content.match(regexp)
-
-    if urls
-     for url in urls
-       urlIndex = content.indexOf(url)
-       if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
-         content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
-    content
 
 
   # When more news is clicked, GET URL is updated with last register date,

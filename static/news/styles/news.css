@@ -44,6 +44,9 @@ a.news-micropost-author {
 a:visited.news-micropost-author {
   color: #000;
 }
+.preview p {
+  word-wrap: break-word;
+}
 div.news-micropost-row {
   word-wrap: break-word;
 }

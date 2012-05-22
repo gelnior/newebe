@@ -21,7 +21,8 @@ class PicturesRouter extends Backbone.Router
     @view = view
 
   all: (date) ->
-    @view.displayAllPictures date
+    if date
+        @view.displayAllPictures date
 
   mine: (date) ->
     @view.displayMyPictures date
