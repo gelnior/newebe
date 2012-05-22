@@ -1,8 +1,8 @@
 (function() {
   var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, Picture, PictureCollection, PictureRow, PicturesRouter, PicturesView, Row, app, confirmationDialog, infoDialog, loadingIndicator, pictureRouter, selectorDialogPicture,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   InfoDialog = (function() {
 
@@ -106,55 +106,127 @@
   DocumentSelector = (function() {
 
     function DocumentSelector() {
-      var div,
-        _this = this;
-      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
-        div = document.createElement('div');
-        div.id = "document-selector";
-        div.className = "dialog";
-        $("body").prepend(div);
-        this.element = $("#document-selector");
-        this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-list">\n</div>');
-        this.docList = $("#document-selector-list");
-        $("#document-selector-cancel").click(function() {
-          return _this.element.fadeOut(400);
-        });
+      this.onDatePicked = __bind(this.onDatePicked, this);      if ($("#document-selector") === void 0 || $("#document-selector").length === 0) {
+        this.createWidget();
+        this.setListeners();
       } else {
         this.element = $("#document-selector");
-        this.docList = $("#document-selector-list");
       }
+      this.docList = $("#document-selector-list");
       this.element.hide();
     }
 
-    DocumentSelector.prototype.display = function(callback) {
+    DocumentSelector.prototype.createWidget = function() {
+      var div;
+      div = document.createElement('div');
+      div.id = "document-selector";
+      div.className = "dialog";
+      $("body").prepend(div);
+      this.element = $("#document-selector");
+      return this.element.html('<div id="document-selector-buttons" class="dialog-buttons">\n  <span id="document-selector-select">Select</span>\n  <span id="document-selector-cancel">Cancel</span>\n</div>\n<div id="document-selector-toolbar">\n<div class="document-selector-select-wrapper">\n<select id="document-selector-type">\n    <option label="Note" value="1">Note</option>\n    <option label="Picture" value="1">Picture</option>\n</select>\n</div>\n<span id="document-selector-datepicker-label">until </span>\n<input type="text" id="document-selector-datepicker" />\n</div>\n<div id="document-selector-list">\n</div>');
+    };
+
+    DocumentSelector.prototype.setListeners = function() {
+      var _this = this;
+      $("#document-selector-datepicker").datepicker({
+        onSelect: this.onDatePicked
+      });
+      $("#document-selector-datepicker").hide();
+      $("#document-selector-datepicker-label").hide();
+      $("#document-selector-cancel").click(function() {
+        return _this.element.fadeOut(400);
+      });
+      return $("#document-selector-type").change(function(event) {
+        var type;
+        type = $("#document-selector-type :selected").text();
+        if (type === "Picture") {
+          $("#document-selector-datepicker").show();
+          $("#document-selector-datepicker-label").show();
+          return _this.loadPictures();
+        } else if (type === "Note") {
+          $("#document-selector-datepicker").hide();
+          $("#document-selector-datepicker-label").hide();
+          return _this.loadNotes();
+        }
+      });
+    };
+
+    DocumentSelector.prototype.display = function(types, callback) {
+      this.setSelectDocListener(callback);
+      $("#document-selector-type").val("Note");
+      $("#document-selector-datepicker").hide();
+      $("#document-selector-datepicker-label").hide();
+      if (types.length === 1) {
+        $("#document-selector-type").val(types[0]);
+        $("#document-selector-toolbar").hide();
+      } else {
+        $("#document-selector-toolbar").show();
+      }
+      this.loadNotes();
+      return this.element.fadeIn(400);
+    };
+
+    DocumentSelector.prototype.setSelectDocListener = function(callback) {
       var _this = this;
       if (this.fun !== void 0) {
         $("#document-selector-select").unbind("click", this.fun);
       }
       this.fun = function(event) {
         if ($("#document-selector-list .selected")) {
-          callback($("#document-selector-list .selected")[0].id);
+          callback({
+            id: $("#document-selector-list .selected")[0].id,
+            type: $("#document-selector-type :selected").text()
+          });
         }
         return _this.element.fadeOut(400);
       };
-      $("#document-selector-select").click(this.fun);
-      this.docList.empty();
-      return $.get("/notes/all/html/", function(data) {
-        var selected;
+      return $("#document-selector-select").click(this.fun);
+    };
+
+    DocumentSelector.prototype.onDatePicked = function(dateText, event) {
+      var d, sinceDate,
+        _this = this;
+      d = Date.parse(dateText);
+      sinceDate = d.toString("yyyy-MM-dd");
+      return $.get("/pictures/all/" + sinceDate + "-00-00-00/html/", function(data) {
         _this.docList.html(data);
-        $(".note-row").mouseenter(function(event) {
-          return $(this).addClass("mouseover mouseover-dialog");
-        });
-        $(".note-row").mouseleave(function(event) {
-          return $(this).removeClass("mouseover mouseover-dialog");
-        });
-        selected = null;
-        $(".note-row").click(function(event) {
-          if (selected) selected.removeClass("selected selected-dialog");
-          $(this).addClass("selected selected-dialog");
-          return selected = $(this);
-        });
+        _this.setupList("picture-row");
+        if (typeof callback !== "undefined" && callback !== null) {
+          return callback();
+        }
+      });
+    };
+
+    DocumentSelector.prototype.loadNotes = function() {
+      var _this = this;
+      return $.get("/notes/all/html/", function(data) {
+        _this.docList.html(data);
+        _this.setupList("note-row");
         return _this.element.fadeIn(400);
+      });
+    };
+
+    DocumentSelector.prototype.loadPictures = function() {
+      var _this = this;
+      return $.get("/pictures/all/html/", function(data) {
+        _this.docList.html(data);
+        return _this.setupList("picture-row");
+      });
+    };
+
+    DocumentSelector.prototype.setupList = function(className) {
+      var selected;
+      $("." + className).mouseenter(function(event) {
+        return $(this).addClass("mouseover mouseover-dialog");
+      });
+      $("." + className).mouseleave(function(event) {
+        return $(this).removeClass("mouseover mouseover-dialog");
+      });
+      selected = null;
+      return $("." + className).click(function(event) {
+        if (selected) selected.removeClass("selected selected-dialog");
+        $(this).addClass("selected selected-dialog");
+        return selected = $(this);
       });
     };
 
