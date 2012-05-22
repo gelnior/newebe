@@ -154,7 +154,7 @@ class NotesView extends Backbone.View
     @notePreviewer.html(null)
     content = convertUrlsToMarkdownLink row.getContent()
     html = @converter.makeHtml content
-    @notePreviewer.html(html)
+    @notePreviewer.html html
     row.updatePreviewPosition()
 
 
@@ -185,3 +185,4 @@ class NotesView extends Backbone.View
     @newButton.button()
 
     $("#notes-a").addClass("disabled")
+

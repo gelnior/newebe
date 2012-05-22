@@ -115,7 +115,7 @@ class PicturesView extends Backbone.View
     if @morePictures.length >= 0 and @morePictures.length < 10
       @moreButton.hide()
     else
-      picture = pictures[0]
+      picture = @morePictures.last()
       @lastDate = picture.getUrlDate()
       @moreButton.show()
 
