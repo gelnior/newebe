@@ -1,8 +1,24 @@
 (function() {
-  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
+  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, convertUrlsToMarkdownLink, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  convertUrlsToMarkdownLink = function(content) {
+    var regexp, url, urlIndex, urls, _i, _len;
+    regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+    urls = content.match(regexp);
+    if (urls) {
+      for (_i = 0, _len = urls.length; _i < _len; _i++) {
+        url = urls[_i];
+        urlIndex = content.indexOf(url);
+        if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
+          content = content.replace(url, "[" + url + "]" + "(" + url + ")");
+        }
+      }
+    }
+    return content;
+  };
 
   InfoDialog = (function() {
 
@@ -740,7 +756,7 @@
       content = $("#id_content").val();
       if (content) {
         loadingIndicator.display();
-        content = this.convertUrlToMarkdownLink(content);
+        content = convertUrlsToMarkdownLink(content);
         this.microposts.create({
           content: content,
           attachments: this.attachments
@@ -762,22 +778,6 @@
         $("#id_content").val(null);
         return $("#id_content").focus();
       }
-    };
-
-    NewsView.prototype.convertUrlToMarkdownLink = function(content) {
-      var regexp, url, urlIndex, urls, _i, _len;
-      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
-      urls = content.match(regexp);
-      if (urls) {
-        for (_i = 0, _len = urls.length; _i < _len; _i++) {
-          url = urls[_i];
-          urlIndex = content.indexOf(url);
-          if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
-            content = content.replace(url, "[" + url + "]" + "(" + url + ")");
-          }
-        }
-      }
-      return content;
     };
 
     NewsView.prototype.onMoreNewsClicked = function() {

@@ -152,7 +152,8 @@ class NotesView extends Backbone.View
   # after that markdown elements get converted to HTML.
   displayText: (row) ->
     @notePreviewer.html(null)
-    html = @converter.makeHtml(row.getContent())
+    content = convertUrlsToMarkdownLink row.getContent()
+    html = @converter.makeHtml content
     @notePreviewer.html(html)
     row.updatePreviewPosition()
 
