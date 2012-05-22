@@ -279,7 +279,8 @@
     };
 
     NoteRow.prototype.focusTitle = function() {
-      return this.titleField.focus();
+      this.titleField.focus();
+      return this.titleField.select();
     };
 
     NoteRow.prototype.registerView = function(view) {
@@ -384,7 +385,8 @@
       row = this.prependOne(note);
       this.onRowClicked(row);
       row.focusTitle();
-      return event;
+      event;
+      return false;
     };
 
     NotesView.prototype.onRowClicked = function(row) {

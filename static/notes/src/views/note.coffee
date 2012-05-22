@@ -108,6 +108,7 @@ class NoteRow extends Row
   # Focus pointer on current note title.
   focusTitle: () ->
     @titleField.focus()
+    @titleField.select()
 
   # Register main view to row to notify when an event occurs.
   registerView: (view) ->

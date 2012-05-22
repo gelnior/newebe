@@ -60,6 +60,7 @@ class NotesView extends Backbone.View
     @onRowClicked(row)
     row.focusTitle()
     event
+    false
 
   # When a click occurs on a row it selects it.
   onRowClicked: (row) ->
