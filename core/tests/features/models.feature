@@ -6,6 +6,7 @@ Feature: Test newebe document
         Sets a new user
         Saves it
         Checks that is date is set
+        Checks that tag list initialized 
 
     Scenario: Checks user convertion
         Gets Default User

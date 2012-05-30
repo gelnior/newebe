@@ -30,6 +30,7 @@ class NewebeDocument(Document):
     authorKey = StringProperty()
     date = DateTimeProperty(required=True)
     attachments = ListProperty()
+    tags = ListProperty(default=["all"])
      
 
     def toDict(self, localized=True):
