@@ -1,45 +1,51 @@
 #!/bin/sh
 #
 
-### BEGIN INIT INFO
-# Provides:          nginx
-# Required-Start:    $local_fs $remote_fs $network $syslog
-# Required-Stop:     $local_fs $remote_fs $network $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: starts the newebe daemon
-# Description:       starts newebe daemon
-### END INIT INFO
+DAEMON_DIR="/home/newebe/newebe"
+DAEMON="$DAEMON_DIR/newebe_server.py"
 
+DAEMON_OPT="" 
+DAEMON_USER="newebe" 
+DAEMON_NAME="newebe" 
+PIDFILE=/var/run/$DAEMON_NAME.pid 
 
-NEWEBE_PATH=/home/newebe/newebe/
-PIDFILE=$NEWEBE_PATH"newebe.pid"
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
-# Handle manual control parameters like start, stop, status, restart, etc.
+. /lib/lsb/init-functions
 
 case "$1" in
-  start)
-    echo "Starting newebe..."
-    cd $NEWEBE_PATH
-    python newebe_server.py
-    ;;
 
-  stop)
-    # Stop daemons.
-    echo "Shutting down newebe... "
-    kill `cat -- $PIDFILE`
+        start)
+                log_daemon_msg "Starting Newebe server..."
+                start-stop-daemon --start --pidfile $PIDFILE \
+                    --chdir $DAEMON_DIR --name $DAEMON_NAME \
+                    -c $DAEMON_USER \
+                    --make-pidfile --background --exec $DAEMON
+                  case "$?" in
+                    0|1) log_end_msg 0 ;;
+                    2) log_end_msg 1 ;;
+                  esac
+                ;;
+        
+        stop)
+                log_daemon_msg "Stopping Newebe server..."
+                start-stop-daemon --stop --quiet --oknodo \
+                    --pidfile $PIDFILE 
+                rm -f $PIDFILE 
+                case "$?" in
+                  0|1) log_end_msg 0 ;;
+                  2) log_end_msg 1 ;;
+                esac
+                ;;
 
-    ;;
-  restart)
-    $0 stop
-    $0 start
-    ;;
-
-  *)
-    echo $"Usage: $0 {start|stop|restart}"
-    exit 1
+        restart|force-reload)
+                $0 stop
+                sleep 1
+                $0 start
+                ;;
+        *)
+                echo "Usage: /etc/init.d/$DEAMON_NAME {start|stop|restart}"
+                exit 1
+                ;;
 esac
-
 exit 0
-
-

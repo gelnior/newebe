@@ -12,7 +12,6 @@ Dependencies
 * couchdb >= 0.11.0
 * couchdbkit >= 0.4.8
 * tornado >= 2.0.0
-* daemon >= 1.0.0
 * pycurl >= 1.0.0
 * markdown >= 2.0.0
 * pytz
@@ -27,7 +26,7 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git openssl
+    python python-setuptools python-pip python-pycurl ython-imaging couchdb git openssl
 
 Then via easy_install:
 
