@@ -3,5 +3,12 @@
 <div class="profile-display">
 <h1  class="profile-name">{{ contact.name }}</h1>
 <p class="profile-url">{{ contact.url }}</p>
+<p class="profile-tags">tags: 
+{% for tag in contact.tags %}
+ {{ tag }}
+ {% end %}
+ <button>+</button>
+ <input type="text" class="hidden" />
+</p>
 <p class="profile-description">{{ contact.description }}</p>
 </div>

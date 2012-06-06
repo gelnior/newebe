@@ -39,6 +39,7 @@ routes = [
     ('/contacts/tutorial/2/$', contacts.ContactTutorial2THandler),
     ('/contacts/([0-9A-Za-z-]+)/$', contacts.ContactHandler),
     ('/contacts/([0-9A-Za-z-]+)/retry/$', contacts.ContactRetryHandler),
+    ('/contacts/([0-9A-Za-z-]+)/tags/$', contacts.ContactTagsHandler),
     ('/contacts/([0-9A-Za-z-]+)/html/$', contacts.ContactRenderTHandler),
 
     ('/activities/', activities.ActivityPageHandler),
