@@ -87,6 +87,8 @@ class ContactView extends Backbone.View
       row.select()
       @selectedRow = row
 
+  # Display indication on how to writer contact url when something wrong is
+  # typed inside "add contact" field.
   onAddContactFieldKeyUp: =>
     contactUrl = $.trim(@addContactField.val())
 

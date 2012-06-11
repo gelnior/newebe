@@ -1,8 +1,8 @@
 (function() {
   var ConfirmationDialog, Contact, ContactCollection, ContactRow, ContactView, InfoDialog, LoadingIndicator, confirmationDialog, contactApp, infoDialog, loadingIndicator,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   InfoDialog = (function() {
 
@@ -111,7 +111,7 @@
 
     ContactRow.prototype.className = "platform-contact-row";
 
-    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confim</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a class="contact-name" href=""><%= name %></a> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
+    ContactRow.prototype.template = _.template('<span class="platform-contact-row-buttons">\n<% if (state === "Wait for approval") { %>\n  <a class="platform-contact-wap">Confirm</a>\n<% } %>\n<a class="platform-contact-retry">Retry</a>\n<a class="platform-contact-delete">X</a>    \n</span>\n<p class="platform-contact-url">\n <a class="contact-name" href=""><%= name %></a> | \n <%= url %>\n <span class="platform-contact-state"> (<%= state %>)</span>\n</p>');
 
     ContactRow.prototype.events = {
       "click .platform-contact-delete": "onDeleteClicked",
@@ -126,6 +126,9 @@
     function ContactRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
+      this.onTagFieldKeyUp = __bind(this.onTagFieldKeyUp, this);
+      this.onTagFieldKeyPress = __bind(this.onTagFieldKeyPress, this);
+      this.onDeleteTagButtonClicked = __bind(this.onDeleteTagButtonClicked, this);
       ContactRow.__super__.constructor.call(this);
       this.model.view = this;
     }
@@ -176,11 +179,77 @@
     };
 
     ContactRow.prototype.onNameClicked = function(event) {
+      var _this = this;
       $.get("/contacts/" + (this.model.get("key")) + "/html/", function(data) {
-        return $("#contact-preview").html(data);
+        $("#contact-preview").html(data);
+        $("#contact-preview input").keypress(_this.onTagFieldKeyPress);
+        $("#contact-preview input").keyup(_this.onTagFieldKeyUp);
+        _this.isTagFieldHidden = true;
+        _this.isRemoveTagButtonsHidden = true;
+        $("#contact-preview input").hide();
+        $("#profile-tag-list button").hide();
+        $("#profile-add-tag-button").click(_this.onAddTagButtonClicked);
+        $("#profile-remove-tag-button").click(_this.onRemoveTagButtonClicked);
+        return $("#profile-tag-list button").click(_this.onDeleteTagButtonClicked);
       });
       if (event) event.preventDefault();
       return false;
+    };
+
+    ContactRow.prototype.onAddTagButtonClicked = function(event) {
+      return $("#contact-preview input").toggle(this.isTagFieldHidden);
+    };
+
+    ContactRow.prototype.onRemoveTagButtonClicked = function(event) {
+      return $("#profile-tag-list button").toggle(this.isRemoveTagButtonsHidden);
+    };
+
+    ContactRow.prototype.onDeleteTagButtonClicked = function(event) {
+      var tag;
+      tag = $($(event.target).parent().children()[0]).text().trim();
+      return this.model.removeTag(tag, {
+        success: function() {
+          return $(event.target).parent().remove();
+        },
+        error: function() {
+          return infoDialog.display("Removing tag to contact failed.");
+        }
+      });
+    };
+
+    ContactRow.prototype.onTagFieldKeyPress = function(event) {
+      var key, keychar;
+      key = event.which;
+      keychar = String.fromCharCode(key).toLowerCase();
+      if ((key === null) || (key === 0) || (key === 8) || (key === 9) || (key === 13) || (key === 27)) {
+        return true;
+      }
+      if ("abcdefghijklmnopqrstuvwxyz0123456789".indexOf(keychar) === -1) {
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    ContactRow.prototype.onTagFieldKeyUp = function(event) {
+      var value;
+      value = $("#contact-preview input").val();
+      $("#contact-preview input").val(value.replace(/[^a-z0-9]/g, ''));
+      if (event.which === 13) {
+        if (this.model.isTagged(value)) {
+          return infoDialog.display("Tag already set");
+        } else {
+          this.model.tags.push(value);
+          return this.model.updateTags({
+            success: function() {
+              $("#contact-preview input").val(null);
+              return $("#profile-tag-list").append(" " + value);
+            },
+            error: function() {
+              return infoDialog.display("Adding tag to contact failed.");
+            }
+          });
+        }
+      }
     };
 
     ContactRow.prototype.remove = function() {
@@ -464,11 +533,12 @@
     Contact.prototype.url = '/contacts/all/';
 
     function Contact(contact) {
-      Contact.__super__.constructor.apply(this, arguments);
+      Contact.__super__.constructor.call(this, contact);
       this.set('url', contact.url);
       this.set('name', contact.name);
       this.set('key', contact.key);
       this.id = contact.slug + "/";
+      this.tags = contact.tags;
       if (contact.state) this.set('state', contact.state);
     }
 
@@ -508,6 +578,42 @@
         }
       });
       return this.url;
+    };
+
+    Contact.prototype.isTagged = function(tag) {
+      var currentTag, _i, _len, _ref;
+      _ref = this.tags;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        currentTag = _ref[_i];
+        if (currentTag === tag) return true;
+      }
+      return false;
+    };
+
+    Contact.prototype.removeTag = function(tag, callbacks) {
+      var currentTag, i, _i, _len, _ref;
+      i = 0;
+      _ref = this.tags;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        currentTag = _ref[_i];
+        if (currentTag === tag) {
+          break;
+        } else {
+          i++;
+        }
+      }
+      this.tags.splice(i, 1);
+      return this.updateTags(callbacks);
+    };
+
+    Contact.prototype.updateTags = function(callbacks) {
+      return $.ajax({
+        type: "PUT",
+        url: "/contacts/" + this.id + "tags/",
+        data: '{"tags":["' + this.tags.join("\", \"") + '"]}',
+        success: callbacks.success,
+        error: callbacks.success
+      });
     };
 
     Contact.prototype.isNew = function() {
