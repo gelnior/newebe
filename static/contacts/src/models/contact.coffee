@@ -14,12 +14,13 @@ class Contact extends Backbone.Model
   # * url : contact URL.
   # * state : contact request state.
   constructor: (contact) ->
-    super
+    super(contact)
 
     @set('url', contact.url)
     @set('name', contact.name)
     @set('key', contact.key)
     @id = contact.slug + "/"
+    @tags = contact.tags
     if contact.state
       @set('state', contact.state)
 
@@ -58,11 +59,34 @@ class Contact extends Backbone.Model
     )
     @url
 
+  isTagged: (tag) ->
+    for currentTag in @tags
+      if currentTag == tag
+        return true
+    return false
+
+  removeTag: (tag, callbacks) ->
+    i = 0
+    for currentTag in @tags
+      if currentTag == tag
+        break
+      else
+        i++
+    @tags.splice i, 1
+    @updateTags callbacks
+
+  updateTags: (callbacks) ->
+    $.ajax
+      type: "PUT"
+      url: "/contacts/" + @id + "tags/"
+      data: '{"tags":["' + @tags.join("\", \"") + '"]}'
+      success: callbacks.success
+      error: callbacks.success
+
   # Contact is considered as new if no state is set.
   isNew: ->
     !@getState()
 
-    
 
 ### Model for a Micro Post collection ###
 

@@ -4,11 +4,21 @@
 <h1  class="profile-name">{{ contact.name }}</h1>
 <p class="profile-url">{{ contact.url }}</p>
 <p class="profile-tags">tags: 
+<span id="profile-tag-list">
 {% for tag in contact.tags %}
- {{ tag }}
+<span>    
+<span class=".tag">
+    {{ tag }}
+</span>
+<button>x</button>
+</span>
  {% end %}
- <button>+</button>
+</span>
+ <button id="profile-add-tag-button">+</button>
+ <button id="profile-remove-tag-button">-</button>
  <input type="text" class="hidden" />
-</p>
+ </p>
+{% if contact.description %}
 <p class="profile-description">{{ contact.description }}</p>
+{% end %}
 </div>
