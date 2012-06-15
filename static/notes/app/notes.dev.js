@@ -384,7 +384,8 @@
     */
 
     NotesView.prototype.onNewNoteClicked = function(event) {
-      var note, noteObject, now, row;
+      var note, noteObject, now,
+        _this = this;
       now = new Date().toString("yyyy-MM-ddTHH:mm:ssZ");
       noteObject = {
         "title": "New Note",
@@ -393,16 +394,17 @@
         "content": ""
       };
       note = new Note(noteObject);
-      note.save("", {
+      loadingIndicator.display();
+      return note.save("", {
         success: function(model, response) {
-          return model.setId(response._id);
+          var row;
+          model.setId(response._id);
+          row = _this.prependOne(note);
+          _this.onRowClicked(row);
+          row.focusTitle();
+          return loadingIndicator.hide();
         }
       });
-      row = this.prependOne(note);
-      this.onRowClicked(row);
-      row.focusTitle();
-      event;
-      return false;
     };
 
     NotesView.prototype.onRowClicked = function(row) {
