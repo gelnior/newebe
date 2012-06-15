@@ -52,15 +52,14 @@ class NotesView extends Backbone.View
       "content": ""
 
     note = new Note noteObject
-    note.save("", success: (model, response) ->
+    loadingIndicator.display()
+    note.save "", success: (model, response) =>
         model.setId(response._id)
-      )
-    row = @prependOne(note)
+        row = @prependOne(note)
+        @onRowClicked(row)
+        row.focusTitle()
+        loadingIndicator.hide()
 
-    @onRowClicked(row)
-    row.focusTitle()
-    event
-    false
 
   # When a click occurs on a row it selects it.
   onRowClicked: (row) ->

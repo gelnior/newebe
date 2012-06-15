@@ -1,10 +1,10 @@
 ### Main view for contact application ###
 
 
-String.prototype.isNewebeUrl = ->
+String::isNewebeUrl = ->
   regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
 
-  @.match(regexp) != null
+  @.match(regexp) != null or @.length == 0
 
 
 class ContactView extends Backbone.View

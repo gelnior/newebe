@@ -39,6 +39,7 @@ a.contact-name:active {
 }
 .platform-contact-row {
   padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
   margin: 0;
 }
 .platform-contact-url {
@@ -47,9 +48,28 @@ a.contact-name:active {
 #contacts {
   border-top: 1px solid #ccc;
   margin-bottom: 20px;
+  margin-top: 50px;
 }
 #contact-url-error {
   margin: 10px 0;
+}
+.platform-contact-url {
+  padding: 12px 0 18px 0;
+}
+.platform-contact-row-buttons {
+  float: right;
+  height: 40px;
+  padding: 0;
+}
+#contact-url-field {
+  font-size: 20px;
+  width: 100%;
+  margin-top: 2px;
+  padding: 5px;
+  margin-bottom: 1px;
+}
+#contact-post-button {
+  float: right;
 }
 input.button {
   font-weight: bold;
@@ -537,40 +557,18 @@ img {
   font-size: 60px;
   text-align: center;
 }
+#help-a {
+  float: right;
+}
 #logout-a {
   float: right;
 }
 .modified {
   background: #fff url("/static/images/modification_marker.png") no-repeat right top;
 }
-#contact-url-field {
-  font-size: 20px;
-  width: 100%;
-  margin-top: 2px;
-  padding: 5px;
-  margin-bottom: 1px;
-}
-#contact-post-button {
-  float: right;
-}
-#contacts {
-  margin-top: 50px;
-}
 #user-menu {
   float: right;
   width: 200px;
-}
-.platform-contact-row {
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ccc;
-}
-.platform-contact-url {
-  padding: 12px 0 18px 0;
-}
-.platform-contact-row-buttons {
-  float: right;
-  height: 40px;
-  padding: 0;
 }
 .tutorial-text {
   padding-bottom: 10px;

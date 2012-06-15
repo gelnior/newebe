@@ -8,7 +8,7 @@ convertUrlsToMarkdownLink = (content) ->
   if urls
    for url in urls
      urlIndex = content.indexOf(url)
-     if urlIndex == 0 or content.charAt(urlIndex - 1) != '('
+     if urlIndex == 0 or (content.charAt(urlIndex - 1) != '(' and content.charAt(urlIndex - 1) != "[")
        content = content.replace(url, "[" + url + "]" + "(" + url + ")" )
   content
 
