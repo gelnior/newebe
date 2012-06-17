@@ -10,7 +10,6 @@ from tornado.web import Application
 sys.path.append("../")
 from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
                             PRIVATE_KEY, CERTIFICATE
-
 from newebe.routes import routes
 
 
@@ -40,6 +39,7 @@ class NewebeIOLoop(IOLoop):
     '''
     def handle_callback_exception(callback):
         pass
+
 
 if __name__ == '__main__':
 
@@ -77,7 +77,6 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt, e:
         ioloop.stop()
-        connections = []
         print ""
         logger.info("Server stopped.")
 
