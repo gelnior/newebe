@@ -67,10 +67,6 @@ Run server:
 
     python newebe_server.py
 
-and, at last run the server:
-
-   python newebe_server.py
-   
 In your browser, connect to http://localhost:8000/ and check that 
 everything is fine.
 
