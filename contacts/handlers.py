@@ -99,25 +99,6 @@ class ContactsTrustedHandler(NewebeAuthHandler):
 
         self.return_documents(contacts)
 
-class ContactTagsHandler(NewebeAuthHandler):
-
-    def put(self, slug):
-        '''
-        Grab tags sent inside request to set is on contact matching slug.
-        '''
-
-        contact = ContactManager.getContact(slug)    
-        data = self.get_body_as_dict(["tags"])
-        
-        if contact:
-            if data:
-                contact.tags = data["tags"]
-                contact.save()
-            else:
-                self.return_failure("No tags were sent")
-        else:
-            self.return_failure("Contact to modify does not exist.", 404)
-
 
 class ContactHandler(NewebeAuthHandler):
     '''
@@ -461,6 +442,29 @@ class ContactTagsHandler(NewebeAuthHandler):
         tags = ContactManager.getTags()
         self.return_list(tags)
 
+
+class ContactTagHandler(NewebeAuthHandler):
+    '''
+    Return the list of tags set on owner contacts.
+    '''
+
+
+    def put(self, slug):
+        '''
+        Grab tags sent inside request to set is on contact matching slug.
+        '''
+
+        contact = ContactManager.getContact(slug)    
+        data = self.get_body_as_dict(["tags"])
+        
+        if contact:
+            if data:
+                contact.tags = data["tags"]
+                contact.save()
+            else:
+                self.return_failure("No tags were sent")
+        else:
+            self.return_failure("Contact to modify does not exist.", 404)
 
 # Template handlers.
 
