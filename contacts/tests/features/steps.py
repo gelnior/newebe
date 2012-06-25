@@ -283,5 +283,5 @@ def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
 
 @step(u'When I retrieve through handler all tags')
 def when_i_retrieve_through_handler_all_tags(step):
-    world.tags = world.browser.get("contacts/tags")
+    world.tags = world.browser.fetch_documents("contacts/tags/")
 

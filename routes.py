@@ -33,6 +33,7 @@ routes = [
     ('/contacts/trusted/$', contacts.ContactsTrustedHandler),
     ('/contacts/confirm/$', contacts.ContactConfirmHandler),
     ('/contacts/request/$', contacts.ContactPushHandler),
+    ('/contacts/tags/$', contacts.ContactTagsHandler),
     ('/contacts/$', contacts.ContactTHandler),
     ('/contacts/content/$', contacts.ContactContentTHandler),
     ('/contacts/tutorial/1/$', contacts.ContactTutorial1THandler),
