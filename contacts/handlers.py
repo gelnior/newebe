@@ -448,6 +448,19 @@ class ContactRenderTHandler(NewebeAuthHandler):
         else:
             return self.return_failure("Contact not found.", 404)
 
+class ContactTagsHandler(NewebeAuthHandler):
+    '''
+    Return the list of tags set on owner contacts.
+    '''
+
+    def get(self):
+        '''
+        Return the list of tags set on owner contacts.
+        '''
+
+        tags = ContactManager.getTags()
+        self.return_list(tags)
+
 
 # Template handlers.
 

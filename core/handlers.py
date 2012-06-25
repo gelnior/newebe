@@ -36,6 +36,12 @@ class NewebeHandler(RequestHandler):
         self.write(json)
         self.finish()
 
+    def return_list(self, valueList, statusCode=200):
+        '''
+        Return a response containing a list of values at json format.
+        '''
+
+        self.return_json({ "rows": valueList, "total_rows": len(valueList) })
 
     def return_documents(self, documents, statusCode=200):
         '''

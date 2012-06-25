@@ -1,5 +1,6 @@
 import hashlib
 
+from nose.tools import assert_in
 from lettuce import world
 from couchdbkit import Server
 from tornado.escape import json_decode
@@ -171,7 +172,7 @@ class NewebeClient(HTTPClient):
         response = self.get(url)
 
         assert response.code == 200
-        assert response.headers["Content-Type"] == "application/json"
+        assert_in("application/json", response.headers["Content-Type"])
  
         world.data = json_decode(response.body)
         return world.data["rows"]
