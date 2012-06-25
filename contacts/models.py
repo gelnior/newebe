@@ -94,6 +94,15 @@ class ContactManager():
 
         return contact
 
+    @staticmethod
+    def getTags():
+        '''
+        Return the list of all tags that has been set on contacts.
+        '''
+
+        return [result["key"] for result in Contact.view("core/tags", 
+                                                         group=True)]
+
 
 class Contact(NewebeDocument):
     '''
