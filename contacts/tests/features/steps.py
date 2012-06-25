@@ -2,6 +2,7 @@ import sys
 import pytz
 import time
 
+from nose.tools import assert_equals, assert_true, assert_in
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
@@ -122,6 +123,30 @@ def check_contact_is_not_null(step):
 @step(u'Get trusted contact with key : ([0-9a-z-]+)')
 def get_trusted_contact_with_key(step, key):
     world.contact = ContactManager.getTrustedContact(key)
+
+@step(u'I create one contact with tag "([^"]*)"')
+def i_create_one_contact_with_tag_group1(step, tag):
+    contact = Contact(
+        url = "http://localhost/1/",
+        slug = slugify(unicode("http://localhost/1/")),
+        state = STATE_PENDING,
+        key = "key1",
+        tags = ["all", tag]
+    )
+    contact.save()
+
+
+@step(u'When I retrieve all tags')
+def when_i_retrieve_all_tags(step):
+    world.tags = ContactManager.getTags()
+
+@step(u'I got a list with "([^"]*)", "([^"]*)" and "([^"]*)" inside it')
+def i_got_a_list_with_group1_group2_and_group3_inside_it(step, tag1, tag2, tag3):
+    assert_equals(len(world.tags), 4)
+    assert_in(tag1, world.tags)
+    assert_in(tag2, world.tags)
+    assert_in(tag3, world.tags)
+    
 
 
 ## Handlers

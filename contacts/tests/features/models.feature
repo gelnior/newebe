@@ -33,3 +33,10 @@ Feature: Retrieve contacts
         Get trusted contact with key : key2
         Check contact is not null
 
+    Scenario: Get all tags set on contacts
+        Given I create one contact with tag "test"
+        And I create one contact with tag "friend"
+        And I create one contact with tag "family"
+        When I retrieve all tags
+        I got a list with "test", "friend" and "family" inside it
+
