@@ -65,3 +65,10 @@ Feature: Retrieve Activities
         Check that there is 1 contacts
         Check that first contact status is waiting for approval
 
+    
+    Scenario: Through handler, get all tags set on contacts
+        Given I create one contact with tag "test"
+        And I create one contact with tag "friend"
+        And I create one contact with tag "family"
+        When I retrieve through handler all tags
+        I got a list with "test", "friend" and "family" inside it
