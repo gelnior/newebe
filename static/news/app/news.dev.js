@@ -12,7 +12,7 @@
       for (_i = 0, _len = urls.length; _i < _len; _i++) {
         url = urls[_i];
         urlIndex = content.indexOf(url);
-        if (urlIndex === 0 || content.charAt(urlIndex - 1) !== '(') {
+        if (urlIndex === 0 || (content.charAt(urlIndex - 1) !== '(' && content.charAt(urlIndex - 1) !== "[")) {
           content = content.replace(url, "[" + url + "]" + "(" + url + ")");
         }
       }
