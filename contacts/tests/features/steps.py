@@ -2,7 +2,7 @@ import sys
 import pytz
 import time
 
-from nose.tools import assert_equals, assert_true, assert_in
+from nose.tools import assert_equals, assert_in
 
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
@@ -279,3 +279,9 @@ def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
     assert date_util.convert_utc_date_to_timezone(contact.requestDate, tz) == \
                 date
     
+# Tags
+
+@step(u'When I retrieve through handler all tags')
+def when_i_retrieve_through_handler_all_tags(step):
+    world.tags = world.browser.get("contacts/tags")
+
