@@ -31,7 +31,8 @@ class MicroPostManager():
 
 
     @staticmethod
-    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT):
+    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
+                 tag=None):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending.
         If *startKey* is given, it retrieves micro posts from startKey. 
@@ -43,9 +44,16 @@ class MicroPostManager():
         Arguments:
           *startKey* The date from where data should be retrieved
         '''
-        
-        return DocumentManager.get_documents(
-                           MicroPost, "news/all", startKey, skip, limit)
+       
+        if tag:
+            key = [tag, startKey]
+            return DocumentManager.get_documents(
+                    MicroPost, "news/tags", key, skip, limit, group=True)
+        else:
+            key = startKey
+            return DocumentManager.get_documents(
+                    MicroPost, "news/all", key, skip, limit)
+
 
 
     @staticmethod

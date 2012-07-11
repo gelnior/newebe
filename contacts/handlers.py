@@ -448,7 +448,6 @@ class ContactTagHandler(NewebeAuthHandler):
     Return the list of tags set on owner contacts.
     '''
 
-
     def put(self, slug):
         '''
         Grab tags sent inside request to set is on contact matching slug.

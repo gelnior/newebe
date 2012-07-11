@@ -54,6 +54,7 @@ routes = [
     ('/synchronize/contact/', sync.SynchronizeContactHandler),
 
     ('/microposts/all/([0-9\-]+)/$', news.NewsHandler),
+    ('/microposts/all/([0-9\-]+)/tags/([0-9a-z]+)/$', news.NewsHandler),
     ('/microposts/all/$', news.NewsHandler),
     ('/microposts/mine/([0-9\-]+)/$', news.MyNewsHandler),
     ('/microposts/mine/$', news.MyNewsHandler),

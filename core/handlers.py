@@ -79,7 +79,7 @@ class NewebeHandler(RequestHandler):
             self.return_failure(text, 404)
 
 
-    def return_documents_since(self, get_doc, startKey):
+    def return_documents_since(self, get_doc, startKey, tag=None):
         '''
         Use the get doc function that takes a date converted from startKey
         (startKey must be an url date or null) as parameter to send
@@ -93,7 +93,7 @@ class NewebeHandler(RequestHandler):
 
         if startKey:
             dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            docs = get_doc(dateString)
+            docs = get_doc(startKey=dateString, tag=tag)
         else:
             docs = get_doc()
 
@@ -279,7 +279,10 @@ class NewebeHandler(RequestHandler):
         Request body contains object to post at JSON format.
         '''
 
-        contacts = ContactManager.getTrustedContacts()
+        tag = None
+        if doc.tags:
+            tag = doc.tags[0]
+        contacts = ContactManager.getTrustedContacts(tag=tag)
         client = ContactClient(self.activity)
         for contact in contacts:
             try:

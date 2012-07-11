@@ -250,6 +250,7 @@ class NewsView extends Backbone.View
       @microposts.create {
           content: content
           attachments: @attachments
+          tags: [@tagCombo.getSelection()]
         },
         {
           success : (nextModel, resp) =>
@@ -306,4 +307,9 @@ class NewsView extends Backbone.View
     $("#news-a").addClass("disabled")
     $("#news-attach-note-image").hide()
     $("#news-attach-picture-image").hide()
+    
+
+    console.log $("#microposts-tag-combo")
+    @tagCombo = new TagCombo($("#microposts-tag-combo"))
+    @tagCombo.fetch()
 

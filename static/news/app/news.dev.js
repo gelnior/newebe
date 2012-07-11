@@ -1,5 +1,5 @@
 (function() {
-  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, confirmationDialog, convertUrlsToMarkdownLink, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
+  var ConfirmationDialog, DocumentSelector, InfoDialog, LoadingIndicator, MicroPost, MicroPostCollection, MicroPostRow, NewsView, Row, TagCombo, confirmationDialog, convertUrlsToMarkdownLink, infoDialog, loadingIndicator, newsApp, selectorDialog, updater,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -287,6 +287,40 @@
       error: options.error
     });
   };
+
+  TagCombo = (function(_super) {
+
+    __extends(TagCombo, _super);
+
+    TagCombo.prototype.el = "input";
+
+    function TagCombo(el) {
+      TagCombo.__super__.constructor.call(this);
+      this.tags = [];
+      this.element = el;
+    }
+
+    TagCombo.prototype.fetch = function() {
+      var _this = this;
+      return $.get("/contacts/tags/", function(data) {
+        _this.element.html(null);
+        return _.forEach(data.rows, function(tag) {
+          if (tag !== "all") {
+            return _this.element.append("<option>" + tag + "</option>");
+          } else {
+            return _this.element.append("<option selected=\"selected\">" + tag + "</option>");
+          }
+        });
+      });
+    };
+
+    TagCombo.prototype.getSelection = function() {
+      return this.element.val();
+    };
+
+    return TagCombo;
+
+  })(Backbone.View);
 
   MicroPostRow = (function(_super) {
 
@@ -759,7 +793,8 @@
         content = convertUrlsToMarkdownLink(content);
         this.microposts.create({
           content: content,
-          attachments: this.attachments
+          attachments: this.attachments,
+          tags: [this.tagCombo.getSelection()]
         }, {
           success: function(nextModel, resp) {
             loadingIndicator.hide();
@@ -816,7 +851,10 @@
       $("#news-from-datepicker").val(null);
       $("#news-a").addClass("disabled");
       $("#news-attach-note-image").hide();
-      return $("#news-attach-picture-image").hide();
+      $("#news-attach-picture-image").hide();
+      console.log($("#microposts-tag-combo"));
+      this.tagCombo = new TagCombo($("#microposts-tag-combo"));
+      return this.tagCombo.fetch();
     };
 
     return NewsView;

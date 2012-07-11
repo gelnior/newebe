@@ -109,7 +109,7 @@ class NewsHandler(NewebeAuthHandler):
 
 
     @asynchronous
-    def get(self, startKey=None):
+    def get(self, startKey=None, tag=None):
         '''
         Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
         is given in URL (it means a date like 2010-10-05-12-30-48), 
@@ -119,7 +119,7 @@ class NewsHandler(NewebeAuthHandler):
             *startKey* The date from where news should be returned.
         '''
 
-        self.return_documents_since(MicroPostManager.get_list, startKey)
+        self.return_documents_since(MicroPostManager.get_list, startKey, tag)
 
     @asynchronous
     def post(self):
@@ -134,7 +134,7 @@ class NewsHandler(NewebeAuthHandler):
         
         logger.info("Micropost post received.")
 
-        data = self.get_body_as_dict(expectedFields=["content"])
+        data = self.get_body_as_dict(expectedFields=["content", "tags"])
         if data and data["content"]:
 
             user = UserManager.getUser()
@@ -143,7 +143,8 @@ class NewsHandler(NewebeAuthHandler):
                 authorKey = user.key,
                 author = user.name,
                 content = data['content'],
-                attachments = converter.convert(data)
+                attachments = converter.convert(data),
+                tags = data["tags"]
             )
             micropost.save()
             converter.add_files(micropost)
@@ -194,7 +195,8 @@ class NewsContactHandler(NewebeHandler):
                         content = data['content'],
                         date = date,
                         attachments = data.get("attachments", []),
-                        isMine = False
+                        isMine = False,
+                        tags = contact.tags
                     )
                     micropost.save()
                     self._notify_suscribers(micropost)
