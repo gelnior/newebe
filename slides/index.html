@@ -1,0 +1,137 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Newebe un réseau social où chaque utilisateur héberge son compte</title>
+    
+    <meta name="description" content="Slides de la présentation Newebe" />
+    <meta name="author" content="Frank Rousseau" />
+
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div id="main-title" class="step slide" data-x="-1000" data-y="-1500">
+        <q>
+            <h1>Newebe</h1>
+            <p>Un réseau social où chaque utilisateur héberge son compte</p>
+        </q>
+    </div>
+
+    <div class="step slide" data-x="0" data-y="-1500">
+        <q>
+            <p>Il y avait le web...</p>
+            <p>ses sites de publication</p>
+            <p>et le peer-to-peer</p>
+            <p class="center">
+              <img src="distribue.jpg" alt="Schéma distribué" />
+            </p>
+        </q>
+    </div>
+
+    <div class="step slide" data-x="1200" data-y="-1200" data-rotate="45">
+        <q>
+            <p>Et puis nous avons bifurqués</p>
+            <p>vers le "cloud", la centralisation des données</p>
+            <p>notamment pour les réseaux sociaux</p>
+            <p class="center">
+              <img src="centralisation.jpg" alt="Schéma centralisation" />
+            </p>
+        </q>
+    </div>
+
+    <div class="step slide" data-x="2600" data-y="-1200" data-rotate="-35">
+        <q>
+            <p>Les réseaux fédératifs sont arrivés</p>
+            <p>et nous ont permis de repartir vers</p>
+            <p>le chemin initial...</p>
+            <p class="center">
+              <img src="federatif.jpg" alt="Schéma fédératif" />
+            </p>
+        </q>
+    </div>
+    <div class="step" data-x="3000" data-y="-1500" data-scale="3">
+        &nbsp;
+    </div>
+    <div class="step slide" data-x="4000" data-y="-1500">
+        <q>
+            <p>Avec les réseaux sociaux distribués</p>
+            <p>Ici chacun possède son noeud et se parlent
+            directement comme en peer-to-peer.</p>
+            <p class="center">
+              <img src="distribue.jpg" alt="Schéma distribué" />
+            </p>
+        </q>
+    </div>    
+    <div id="case-depart" class="step slide" data-x="5000" data-y="-1500">
+        <p>Retour à la <br /> case départ ?</p>
+    </div>
+    <div class="step slide" data-x="6000" data-y="-1500">
+        <q>
+        <p style="font-weight: bold; text-align: center;">Non, <br /> on garde les avantages du cloud</p>
+        </q>
+    </div>
+    <div id="share" 
+         class="step slide" data-x="7200" data-y="-1500" data-scale="1.3">
+        <p>On partage ses posts et ses images</p>
+    </div>
+    <div class="step slide" data-x="8700" data-y="-1500" data-scale="1.6">
+        <p>avec une interface accessible de partout et 
+           des données avec lesquelles on intéropere facilement !</p>
+        <pre>
+GET http://newebe.mydomain.net/microposts/all/ 
+=>
+[{
+    "doc_type": "MicroPost",
+    "attachments": [ ],
+    "author": "Nico",
+    "isMine": false,
+    "content": "Changement d'appart, Newebe marche toujours. Yeah !",
+    "date": "2012-06-24T12:08:10Z",
+    "_id": "acef82a0b1673fe31c65d425cbb93a7d"
+},
+...
+]
+        </pre>
+    </div>
+    <div id="newebe" class="step slide" data-x="10500" data-y="-1500" data-scale="2">
+        <p>C'est d'ailleurs grâce à cette interopérabilité que
+        deux newebes s'envoient des messages l'un à l'autre sans passer par 
+        un tiers.</p>
+    </div>
+
+
+    <div id="big-end" class="step" data-x="6000" data-y="4000" data-scale="6">
+        <img src="newebe_logo_birds.jpg" alt="Newebe logo" />
+        <p>newebe.org</p>
+        <p class="license">
+        licence AGPL
+        </p>
+        <p class="credits">
+        <span><em>credits</em></span><br />
+        Problèmes posés par le cloud : E. Moglen, B. Bayart...<br />
+        Photo slide retour case départ : JoeBenjamin sur Flickr<br />
+        Logo newebe : Stella Salumaa
+        </p>
+    </div>
+
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
+
+
