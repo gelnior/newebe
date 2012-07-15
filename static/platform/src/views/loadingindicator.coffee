@@ -11,8 +11,7 @@ class LoadingIndicator
 
       div = document.createElement('div')
       div.id = "loading-indicator"
-      div.innerHTML = '<img src="/static/images/clock_32.png" '
-      div.innterHTLML += 'alt="loading indicator" />'
+      div.innerHTML = '<img src="/static/images/clock_32.png" alt="loading indicator" />'
       $("body").prepend(div)
 
     @element = $("#loading-indicator")
