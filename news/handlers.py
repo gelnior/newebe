@@ -542,7 +542,7 @@ class MyNewsHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self, startKey=None):
+    def get(self, startKey=None, tag=None):
         '''
         Return microposts by pack of NEWS_LIMIT at JSON format. If a start key 
         is given in URL (it means a date like 2010-10-05-12-30-48), 
@@ -553,7 +553,7 @@ class MyNewsHandler(NewebeAuthHandler):
             *startKey* The date from where news should be returned.
         '''
 
-        self.return_documents_since(MicroPostManager.get_mine, startKey)
+        self.return_documents_since(MicroPostManager.get_mine, startKey, tag)
     
 
 # Template handlers

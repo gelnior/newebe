@@ -11,8 +11,9 @@ class MicroPostManager():
 
 
     @staticmethod
-    def get_mine(startKey=None, endKey=None, 
-                 skip=0, limit=news_settings.NEWS_LIMIT):
+    def get_mine(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
+                 tag=None):
+
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
@@ -26,8 +27,21 @@ class MicroPostManager():
           *startKey* The date from where data should be retrieved
         '''
 
-        return DocumentManager.get_documents(MicroPost, "news/mine", startKey,
-                                      endKey, skip, limit)
+
+        if tag:
+            key = [tag, startKey]
+            endKey = [tag + "0"]
+            return DocumentManager.get_documents(
+                    MicroPost, 
+                    "news/mine-tags", 
+                    key,
+                    endKey,
+                    skip, limit, group=True)
+        else:
+            key = startKey
+            return DocumentManager.get_documents(
+                    MicroPost, "news/mine", key, skip, limit, group=True)
+
 
 
     @staticmethod
@@ -45,14 +59,36 @@ class MicroPostManager():
           *startKey* The date from where data should be retrieved
         '''
        
+
         if tag:
             key = [tag, startKey]
-            return DocumentManager.get_documents(
-                    MicroPost, "news/tags", key, skip, limit, group=True)
+            endKey = [tag + "0"]
+            
+            docs =  DocumentManager.get_documents(
+                    MicroPost, 
+                    "news/tags", 
+                    key,
+                    endKey,
+                    skip, limit, group=True)
+            result = []
+
+            for doc in docs:
+                isTag = False
+                for docTag in doc.tags:
+                    if docTag == tag:
+                        isTag = True
+                        
+                if isTag:
+                    result.append(doc)
+                else:
+                    break
+
+            return result
+
         else:
             key = startKey
             return DocumentManager.get_documents(
-                    MicroPost, "news/all", key, skip, limit)
+                    MicroPost, "news/all", key, skip, limit, group=True)
 
 
 
