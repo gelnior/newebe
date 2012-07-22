@@ -57,6 +57,7 @@ routes = [
     ('/microposts/all/([0-9\-]+)/tags/([0-9a-z]+)/$', news.NewsHandler),
     ('/microposts/all/$', news.NewsHandler),
     ('/microposts/mine/([0-9\-]+)/$', news.MyNewsHandler),
+    ('/microposts/mine/([0-9\-]+)/tags/([0-9a-z]+)/$', news.MyNewsHandler),
     ('/microposts/mine/$', news.MyNewsHandler),
     ('/microposts/contacts/$', news.NewsContactHandler),    
     ('/microposts/contacts/attach/$', news.MicropostContactAttachedFileHandler),
