@@ -31,12 +31,13 @@ class MicroPostManager():
         if tag:
             key = [tag, startKey]
             endKey = [tag + "0"]
-            return DocumentManager.get_documents(
+            docs = DocumentManager.get_documents(
                     MicroPost, 
                     "news/mine-tags", 
                     key,
                     endKey,
                     skip, limit, group=True)
+            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
         else:
             key = startKey
             return DocumentManager.get_documents(
@@ -70,20 +71,8 @@ class MicroPostManager():
                     key,
                     endKey,
                     skip, limit, group=True)
-            result = []
 
-            for doc in docs:
-                isTag = False
-                for docTag in doc.tags:
-                    if docTag == tag:
-                        isTag = True
-                        
-                if isTag:
-                    result.append(doc)
-                else:
-                    break
-
-            return result
+            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
 
         else:
             key = startKey

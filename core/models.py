@@ -163,3 +163,27 @@ class DocumentManager():
 
         return document
 
+    @staticmethod
+    def remove_wrongly_tagged_docs(docs, tag):
+        '''
+        This method is needed because of Couchdb weird behavior. When you 
+        query your tag view to retrieve documents with a given tag, if there
+        are less documents with given tag than given limit, it returns what
+        follows in the view even if the documents do not have the tag in their
+        list. 
+        This method aims to remove undesirable documents.
+        '''
+
+        result = []
+        for doc in docs:
+            isTag = False
+            for docTag in doc.tags:
+                if docTag == tag:
+                    isTag = True
+                        
+            if isTag:
+                result.append(doc)
+            else:
+                break
+
+        return result
