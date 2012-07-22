@@ -331,7 +331,7 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n  <%= contentHtml %>\n<p class="news-micropost-date">\n  <%= displayDate %>\n</p>\n<p class="tags"><%= tags %></p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n  <%= contentHtml %>\n<p class="news-micropost-date">\n  <%= displayDate %>\n</p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
 
     /* Events
     */
@@ -442,6 +442,7 @@
     MicroPostRow.prototype.renderMicropost = function(callback) {
       var _this = this;
       return $.get("/microposts/" + this.model.id + "/html/", function(data) {
+        _this.preview.append("<p class=\"tags\">" + (_this.model.get("tags").join(", ")) + "</p>");
         _this.preview.append(data);
         $("#news-preview").append('<p class="micropost-buttons button-bar">\n  <a class="micropost-note-button">push to note</a>\n  <a class="micropost-delete-button">delete</a>\n</p>');
         $(".micropost-buttons a").button();
@@ -595,12 +596,12 @@
       "click #news-post-button": "onPostClicked",
       "click #news-attach-button": "onAttachClicked",
       "click #news-my-button": "onMineClicked",
-      "click #news-all-button": "onAllClicked",
+      "click #news-full-button": "onAllClicked",
       "click #news-more": "onMoreNewsClicked"
     };
 
     function NewsView() {
-      NewsView.__super__.constructor.call(this);
+      this.onTagChanged = __bind(this.onTagChanged, this);      NewsView.__super__.constructor.call(this);
     }
 
     NewsView.prototype.initialize = function() {
@@ -655,7 +656,7 @@
 
     NewsView.prototype.onMineClicked = function(event) {
       $("#news-my-button").button("disable");
-      $("#news-all-button").button("enable");
+      $("#news-full-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
       this.currentPath = '/microposts/mine/';
@@ -664,7 +665,7 @@
     };
 
     NewsView.prototype.onAllClicked = function(event) {
-      $("#news-all-button").button("disable");
+      $("#news-full-button").button("disable");
       $("#news-my-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
@@ -687,17 +688,6 @@
         row.select();
         return this.selectedRow = row;
       }
-    };
-
-    NewsView.prototype.onMoreNewsClicked = function() {
-      loadingIndicator.display();
-      if (this.lastDate) {
-        this.moreMicroposts.url = this.currentPath + this.lastDate;
-      } else {
-        this.moreMicroposts.url = this.currentPath;
-      }
-      this.moreMicroposts.fetch();
-      return this.moreMicroposts;
     };
 
     /* Functions
@@ -836,11 +826,17 @@
       return this.moreMicroposts;
     };
 
+    NewsView.prototype.onTagChanged = function() {
+      $("#micro-posts").html(null);
+      $("#news-preview").html(null);
+      this.currentTag = this.tagCombo.getSelection();
+      return this.reloadMicroPosts(null);
+    };
+
     /* UI Builders
     */
 
     NewsView.prototype.setListeners = function() {
-      var _this = this;
       $("#id_content").keyup(function(event) {
         return newsApp.onKeyUp(event);
       });
@@ -850,19 +846,15 @@
       $("input#news-from-datepicker").datepicker({
         onSelect: this.onDatePicked
       });
-      return this.tagCombo.element.change(function() {
-        _this.currentTag = _this.tagCombo.getSelection();
-        $("#micro-posts").html(null);
-        return _this.reloadMicroPosts(null);
-      });
+      return this.tagCombo.element.change(this.onTagChanged);
     };
 
     NewsView.prototype.setWidgets = function() {
       $("#news-post-button").button();
       $("#news-attach-button").button();
       $("#news-my-button").button();
-      $("#news-all-button").button();
-      $("#news-all-button").button("disable");
+      $("#news-full-button").button();
+      $("#news-full-button").button("disable");
       $("#news-more").button();
       $("#news-from-datepicker").val(null);
       $("#news-a").addClass("disabled");

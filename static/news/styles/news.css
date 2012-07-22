@@ -67,3 +67,7 @@ div.news-micropost-row p {
   padding-top: 20px;
   padding-bottom: 5px;
 }
+.tags {
+  color: #888;
+  text-align: right;
+}

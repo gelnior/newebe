@@ -16,7 +16,7 @@ class NewsView extends Backbone.View
     "click #news-post-button" : "onPostClicked"
     "click #news-attach-button" : "onAttachClicked"
     "click #news-my-button" : "onMineClicked"
-    "click #news-all-button" : "onAllClicked"
+    "click #news-full-button" : "onAllClicked"
     "click #news-more" : "onMoreNewsClicked"
 
 
@@ -87,7 +87,7 @@ class NewsView extends Backbone.View
   # When my news is clicked it reloads all news from current user since today.
   onMineClicked: (event) ->
     $("#news-my-button").button("disable")
-    $("#news-all-button").button("enable")
+    $("#news-full-button").button("enable")
     @clearNews(null)
     $("#news-from-datepicker").val(null)
     @currentPath = '/microposts/mine/'
@@ -97,12 +97,12 @@ class NewsView extends Backbone.View
 
   # When all news is clicked it reloads news from contacts and user since today.
   onAllClicked: (event) ->
-    $("#news-all-button").button("disable")
-    $("#news-my-button").button("enable")
-    @clearNews(null)
-    $("#news-from-datepicker").val(null)
+    $("#news-full-button").button "disable"
+    $("#news-my-button").button "enable"
+    @clearNews null
+    $("#news-from-datepicker").val null
     @currentPath = '/microposts/all/'
-    @reloadMicroPosts(null)
+    @reloadMicroPosts null
     event
 
   
@@ -124,20 +124,6 @@ class NewsView extends Backbone.View
       @selectedRow = row
 
   
-  # When more news is clicked, GET URL is updated with last register date,
-  # (because /news/news-item/*date* returns 10 last micro posts until *date*).
-  # Then it retrieves posts and display them after current post list.
-  onMoreNewsClicked: ->
-    loadingIndicator.display()
-    if @lastDate
-      @moreMicroposts.url = @currentPath + @lastDate
-    else
-      @moreMicroposts.url = @currentPath
-
-    @moreMicroposts.fetch()
-    @moreMicroposts
-
-
   ### Functions  ###
 
   
@@ -218,7 +204,8 @@ class NewsView extends Backbone.View
     $("#id_content")
 
   
-  # Clears micro posts lists and reload micro posts until *date*.
+  # Clears micro posts lists and reload micro posts until *date* for 
+  # currently selected tag in combobox.
   reloadMicroPosts: (date) ->
     loadingIndicator.display()
     @selectedRow = null
@@ -271,24 +258,34 @@ class NewsView extends Backbone.View
             infoDialog.display "An error occured micropost was not posted."
             loadingIndicator.hide()
         }
-      $("#id_content").val(null)
+      $("#id_content").val null
       $("#id_content").focus()
 
 
   # When more news is clicked, GET URL is updated with last register date,
   # (because /news/news-item/*date* returns 10 last micro posts until *date*).
-  # Then it retrieves posts and display it at the follown of current post list.
+  # Then it retrievens posts and display it at the follow of current post list.
+  # Moreove it adds the current selected tag.
   onMoreNewsClicked: ->
     loadingIndicator.display()
     if @lastDate?
-        date = @lastDate.toString("yyyy-MM-dd")
+        date = @lastDate.toString "yyyy-MM-dd"
     else
-        date = new Date().toString("yyyy-MM-dd-23-59-00/")
+        date = new Date().toString "yyyy-MM-dd-23-59-00/"
 
     @moreMicroposts.url = @currentPath + date
     @moreMicroposts.url += "tags/" + @currentTag + "/"
     @moreMicroposts.fetch()
     @moreMicroposts
+
+  # When tag is changed, preview section and currently displayed micropost list
+  # are cleared. Then microposts are loaded for selected tag.
+  onTagChanged: =>
+    $("#micro-posts").html null
+    $("#news-preview").html null
+
+    @currentTag = @tagCombo.getSelection()
+    @reloadMicroPosts null
 
 
   ### UI Builders  ###
@@ -301,10 +298,7 @@ class NewsView extends Backbone.View
     $("input#news-from-datepicker").datepicker({
       onSelect : @onDatePicked
     })
-    @tagCombo.element.change =>
-      @currentTag = @tagCombo.getSelection()
-      $("#micro-posts").html null
-      @reloadMicroPosts null
+    @tagCombo.element.change @onTagChanged
 
   
   # Build JQuery widgets.
@@ -312,13 +306,12 @@ class NewsView extends Backbone.View
     $("#news-post-button").button()
     $("#news-attach-button").button()
     $("#news-my-button").button()
-    $("#news-all-button").button()
-    $("#news-all-button").button("disable")
+    $("#news-full-button").button()
+    $("#news-full-button").button "disable"
     $("#news-more").button()
-    $("#news-from-datepicker").val(null)
-    $("#news-a").addClass("disabled")
+    $("#news-from-datepicker").val null
+    $("#news-a").addClass "disabled"
     $("#news-attach-note-image").hide()
     $("#news-attach-picture-image").hide()
 
-    @tagCombo = new TagCombo($("#microposts-tag-combo"))
-
+    @tagCombo = new TagCombo $("#microposts-tag-combo")
