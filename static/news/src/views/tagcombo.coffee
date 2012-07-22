@@ -9,7 +9,7 @@ class TagCombo extends Backbone.View
     @tags = []
     @element = el
     
-  fetch: ->
+  fetch: (callback) ->
     $.get "/contacts/tags/", (data) =>
       @element.html null
       _.forEach data.rows, (tag) =>
@@ -17,6 +17,7 @@ class TagCombo extends Backbone.View
           @element.append "<option>#{tag}</option>"
         else
           @element.append "<option selected=\"selected\">#{tag}</option>"
+      callback("all")
 
   getSelection: ->
     @element.val()

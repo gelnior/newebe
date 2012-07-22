@@ -35,7 +35,7 @@ class NewsView extends Backbone.View
     
     @microposts.bind 'add', @prependOne
     @microposts.bind 'reset', @addAll
-        
+ 
     @moreMicroposts = new MicroPostCollection
     @moreMicroposts.bind 'reset', @addAllMore
 
@@ -219,13 +219,17 @@ class NewsView extends Backbone.View
 
   
   # Clears micro posts lists and reload micro posts until *date*.
-  reloadMicroPosts: (date, path) ->
+  reloadMicroPosts: (date) ->
     loadingIndicator.display()
     @selectedRow = null
 
     @microposts.url = @currentPath
-    if date
-      @microposts.url = @currentPath + date + '-23-59-00/'
+    if not date?
+      date = (new Date()).toString("yyyy-MM-dd")
+
+    @microposts.url = @currentPath + date + '-23-59-00/'
+    @microposts.url += "tags/" + @currentTag + "/"
+
     @microposts.fetch()
     @microposts
 
@@ -233,7 +237,9 @@ class NewsView extends Backbone.View
   # Reloads micro post list.
   fetch: () ->
     @selectedRow = null
-    @microposts.fetch()
+    @tagCombo.fetch (tag) =>
+      @currentTag = tag
+      @reloadMicroPosts null
     @microposts
 
   
@@ -274,11 +280,13 @@ class NewsView extends Backbone.View
   # Then it retrieves posts and display it at the follown of current post list.
   onMoreNewsClicked: ->
     loadingIndicator.display()
-    if @lastDate
-      @moreMicroposts.url = @currentPath + @lastDate
+    if @lastDate?
+        date = @lastDate.toString("yyyy-MM-dd")
     else
-      @moreMicroposts.url = @currentPath
+        date = new Date().toString("yyyy-MM-dd-23-59-00/")
 
+    @moreMicroposts.url = @currentPath + date
+    @moreMicroposts.url += "tags/" + @currentTag + "/"
     @moreMicroposts.fetch()
     @moreMicroposts
 
@@ -293,6 +301,10 @@ class NewsView extends Backbone.View
     $("input#news-from-datepicker").datepicker({
       onSelect : @onDatePicked
     })
+    @tagCombo.element.change =>
+      @currentTag = @tagCombo.getSelection()
+      $("#micro-posts").html null
+      @reloadMicroPosts null
 
   
   # Build JQuery widgets.
@@ -307,9 +319,6 @@ class NewsView extends Backbone.View
     $("#news-a").addClass("disabled")
     $("#news-attach-note-image").hide()
     $("#news-attach-picture-image").hide()
-    
 
-    console.log $("#microposts-tag-combo")
     @tagCombo = new TagCombo($("#microposts-tag-combo"))
-    @tagCombo.fetch()
 

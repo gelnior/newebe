@@ -300,17 +300,18 @@
       this.element = el;
     }
 
-    TagCombo.prototype.fetch = function() {
+    TagCombo.prototype.fetch = function(callback) {
       var _this = this;
       return $.get("/contacts/tags/", function(data) {
         _this.element.html(null);
-        return _.forEach(data.rows, function(tag) {
+        _.forEach(data.rows, function(tag) {
           if (tag !== "all") {
             return _this.element.append("<option>" + tag + "</option>");
           } else {
             return _this.element.append("<option selected=\"selected\">" + tag + "</option>");
           }
         });
+        return callback("all");
       });
     };
 
@@ -330,7 +331,7 @@
 
     MicroPostRow.prototype.className = "news-micropost-row";
 
-    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n<%= contentHtml %>\n<p class="news-micropost-date">\n <%= displayDate %>     \n</p>\n<p></p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
+    MicroPostRow.prototype.template = _.template('<a href="#" class="news-micropost-author"><%= author %></a>\n  <%= contentHtml %>\n<p class="news-micropost-date">\n  <%= displayDate %>\n</p>\n<p class="tags"><%= tags %></p>\n<% if (isNoteAttached) { %>\n    <img src="/static/images/note.png" alt="A note is attached" />\n<% } %>\n<% if (isPictureAttached) { %>\n    <img src="/static/images/picture.png" alt="A picture is attached" />\n<% } %>');
 
     /* Events
     */
@@ -769,18 +770,24 @@
       return $("#id_content");
     };
 
-    NewsView.prototype.reloadMicroPosts = function(date, path) {
+    NewsView.prototype.reloadMicroPosts = function(date) {
       loadingIndicator.display();
       this.selectedRow = null;
       this.microposts.url = this.currentPath;
-      if (date) this.microposts.url = this.currentPath + date + '-23-59-00/';
+      if (!(date != null)) date = (new Date()).toString("yyyy-MM-dd");
+      this.microposts.url = this.currentPath + date + '-23-59-00/';
+      this.microposts.url += "tags/" + this.currentTag + "/";
       this.microposts.fetch();
       return this.microposts;
     };
 
     NewsView.prototype.fetch = function() {
+      var _this = this;
       this.selectedRow = null;
-      this.microposts.fetch();
+      this.tagCombo.fetch(function(tag) {
+        _this.currentTag = tag;
+        return _this.reloadMicroPosts(null);
+      });
       return this.microposts;
     };
 
@@ -816,12 +823,15 @@
     };
 
     NewsView.prototype.onMoreNewsClicked = function() {
+      var date;
       loadingIndicator.display();
-      if (this.lastDate) {
-        this.moreMicroposts.url = this.currentPath + this.lastDate;
+      if (this.lastDate != null) {
+        date = this.lastDate.toString("yyyy-MM-dd");
       } else {
-        this.moreMicroposts.url = this.currentPath;
+        date = new Date().toString("yyyy-MM-dd-23-59-00/");
       }
+      this.moreMicroposts.url = this.currentPath + date;
+      this.moreMicroposts.url += "tags/" + this.currentTag + "/";
       this.moreMicroposts.fetch();
       return this.moreMicroposts;
     };
@@ -830,14 +840,20 @@
     */
 
     NewsView.prototype.setListeners = function() {
+      var _this = this;
       $("#id_content").keyup(function(event) {
         return newsApp.onKeyUp(event);
       });
       $("#id_content").keydown(function(event) {
         return newsApp.onKeyDown(event);
       });
-      return $("input#news-from-datepicker").datepicker({
+      $("input#news-from-datepicker").datepicker({
         onSelect: this.onDatePicked
+      });
+      return this.tagCombo.element.change(function() {
+        _this.currentTag = _this.tagCombo.getSelection();
+        $("#micro-posts").html(null);
+        return _this.reloadMicroPosts(null);
       });
     };
 
@@ -852,9 +868,7 @@
       $("#news-a").addClass("disabled");
       $("#news-attach-note-image").hide();
       $("#news-attach-picture-image").hide();
-      console.log($("#microposts-tag-combo"));
-      this.tagCombo = new TagCombo($("#microposts-tag-combo"));
-      return this.tagCombo.fetch();
+      return this.tagCombo = new TagCombo($("#microposts-tag-combo"));
     };
 
     return NewsView;
