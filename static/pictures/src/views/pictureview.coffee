@@ -35,6 +35,7 @@ class PicturesView extends Backbone.View
   # loaded.
   onMoreClicked: =>
     @morePictures.url = @currentPath + @lastDate + "/"
+    @morePictures.url += "tags/" + @currentTag + "/"
     @morePictures.fetch()
 
   # Select clicked row and deselect previously clicked row.
@@ -68,6 +69,18 @@ class PicturesView extends Backbone.View
     $(rowEl).hide()
     $(row.render()).prependTo(@pictureList).slideDown()
     @onRowClicked(row)
+
+  # When tag is changed, preview section and currently displayed picture list
+  # are cleared. Then pictures are loaded for selected tag.
+  onTagChanged: =>
+    $("#picture-list").html null
+    $("#pictures-preview").html null
+
+    @currentTag = @tagCombo.getSelection()
+    @uploader.setParams
+      tag: @currentTag
+    @datepicker.val null
+    @reloadPictures null
 
   # Loads and displays last owner pictures.
   # Then my button is disabled and all button is enabled.
@@ -125,14 +138,14 @@ class PicturesView extends Backbone.View
     @morePictures.length
 
 
-  # Appends *micropost* to the beginning of current post list (render it).
+  # Appends *picture* to the beginning of current post list (render it).
   appendOne: (picture) =>
     row = new PictureRow picture, @
     el = row.render()
     @pictureList.append(el)
     row
 
-  # Prepends *micropost* to the end of current post list (render it).
+  # Prepends *picture* to the end of current post list (render it).
   prependOne: (picture) =>
     row = new PictureRow picture, @
     el = row.render()
@@ -145,19 +158,28 @@ class PicturesView extends Backbone.View
     @selectedRow = null
     loadingIndicator.display()
 
-    if date
-      @pictures.url = @currentPath + date + '-23-59-00/'
-    else
-      @pictures.url = @currentPath
-
-    @fetchData()
-  
-  # Reloads micro post list.
-  fetchData: () =>
+    if not date?
+      date = (new Date()).toString "yyyy-MM-dd"
+    @pictures.url = @currentPath
+    @pictures.url += date + '-23-59-00/'
+    @pictures.url += "tags/" + @currentTag + "/"
     @pictures.fetch
-      error: ->
-        infoDialog.display "Error occured while retrieving data."
+      error: =>
+        alert "An error occured while retrieving pictures"
         loadingIndicator.hide()
+        @moreButton.hide()
+
+    @pictures
+
+  
+  # Reloads picture list.
+  fetchData: () =>
+    @selectedRow = null
+    @tagCombo.fetch (tag) =>
+      @currentTag = tag
+      @uploader.setParams
+          tag: @currentTag
+      @reloadPictures date
     @pictures
 
   # When my button is clicked, it only displays owner pictures.
@@ -178,7 +200,9 @@ class PicturesView extends Backbone.View
     @currentPath = "/pictures/all/"
 
     @datepicker.val date
-    @reloadPictures date
+    @tagCombo.fetch (tag) =>
+      @currentTag = tag
+      @reloadPictures date
 
 
   ### UI Builders  ###
@@ -188,6 +212,7 @@ class PicturesView extends Backbone.View
   setListeners: ->
     @datepicker.datepicker
       onSelect : @onDatePicked
+    @tagCombo.element.change @onTagChanged
 
   # Build JQuery widgets.
   setWidgets: ->
@@ -203,8 +228,9 @@ class PicturesView extends Backbone.View
     @datepicker.val(null)
 
     @pictureList = $("#pictures-list")
+    @tagCombo = new TagCombo $("#pictures-tag-combo")
 
-    uploader = new qq.FileUploader
+    @uploader = new qq.FileUploader
       element: document.getElementById('pictures-file-uploader'),
       action: '/pictures/fileuploader/',
       debug: true,
@@ -214,3 +240,4 @@ class PicturesView extends Backbone.View
       #, onComplete: (id, fileName, responseJSON) =>
       #  alert responseJSON
       onComplete: @onFileUploadComplete
+

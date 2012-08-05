@@ -285,6 +285,7 @@ class NewsView extends Backbone.View
     $("#news-preview").html null
 
     @currentTag = @tagCombo.getSelection()
+    $("input#news-from-datepicker").val null
     @reloadMicroPosts null
 
 
