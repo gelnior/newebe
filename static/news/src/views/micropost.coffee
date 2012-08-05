@@ -134,11 +134,6 @@ class MicroPostRow extends Row
   # Get html representation of micropost form server, then add buttons.
   renderMicropost: (callback) =>
     $.get "/microposts/#{@model.id}/html/", (data) =>
-
-      @preview.append """
-         <p class="tags">#{@model.get("tags").join(", ")}</p>
-      """
-
       @preview.append(data)
       
       $("#news-preview").append('''

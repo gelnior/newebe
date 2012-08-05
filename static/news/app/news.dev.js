@@ -457,7 +457,6 @@
     MicroPostRow.prototype.renderMicropost = function(callback) {
       var _this = this;
       return $.get("/microposts/" + this.model.id + "/html/", function(data) {
-        _this.preview.append("<p class=\"tags\">" + (_this.model.get("tags").join(", ")) + "</p>");
         _this.preview.append(data);
         $("#news-preview").append('<p class="micropost-buttons button-bar">\n  <a class="micropost-note-button">push to note</a>\n  <a class="micropost-delete-button">delete</a>\n</p>');
         $(".micropost-buttons a").button();

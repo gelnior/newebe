@@ -1,6 +1,13 @@
 {% autoescape None %} 
 
 <p class="pictures-preview">
+  <p class="tags">
+  {% for tag in picture.tags %}
+    {% block tag %}
+      {{ tag }}
+    {% end %}
+  {% end %}
+  </p>
   <img id="pictures-picture-preview"
        src="/pictures/{{picture._id }}/prev_{{ picture.path }}"
        alt="{{ picture.title }}" 
