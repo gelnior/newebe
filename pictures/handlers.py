@@ -31,13 +31,14 @@ class PicturesHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self, startKey=None):
+    def get(self, startKey=None, tag=None):
         '''
         Returns last posted pictures.  If *startKey* is provided, it returns 
         last picture posted until *startKey*.
         '''
         
-        self.return_documents_since(PictureManager.get_last_pictures, startKey)
+        self.return_documents_since(PictureManager.get_last_pictures, startKey,
+                tag)
 
 
     @asynchronous
@@ -112,13 +113,13 @@ class PicturesMyHandler(NewebeAuthHandler):
     '''
 
 
-    def get(self, startKey=None):
+    def get(self, startKey=None, tag=None):
         '''
         Returns last posted pictures.
         '''
 
         self.return_documents_since(PictureManager.get_owner_last_pictures, 
-                                    startKey)
+                                    startKey, tag)
 
 class PicturesQQHandler(PicturesHandler):
     '''
@@ -138,6 +139,10 @@ class PicturesQQHandler(PicturesHandler):
 
         filebody = self.request.body
         filename = self.get_argument("qqfile")
+        try:
+            tag = self.get_argument("tag")
+        except:
+            tag = "all"
         filetype = mimetypes.guess_type(filename)[0] or \
                 'application/octet-stream'
 
@@ -150,7 +155,8 @@ class PicturesQQHandler(PicturesHandler):
                 authorKey = UserManager.getUser().key,
                 author = UserManager.getUser().name,
                 isMine = True,
-                isFile = True
+                isFile = True,
+                tags = [tag]
             )
             picture.save()
 
@@ -170,7 +176,8 @@ class PicturesQQHandler(PicturesHandler):
             self.send_files_to_contacts("pictures/contact/", 
                         fields = 
                           { "json": str(picture.toJson(localized=False)) },
-                        files = [("picture", str(picture.path), thbuffer)])
+                        files = [("picture", str(picture.path), thbuffer)],
+                        tag=tag)
             
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
@@ -216,6 +223,7 @@ class PictureContactHandler(NewebeHandler):
                         contentType = data.get("contentType", ""),
                         authorKey = data.get("authorKey", ""),
                         author = data.get("author", ""),
+                        tags = contact.tags,
                         date = date,
                         isMine = False,
                         isFile = False

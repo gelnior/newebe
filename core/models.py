@@ -30,6 +30,7 @@ class NewebeDocument(Document):
     authorKey = StringProperty()
     date = DateTimeProperty(required=True)
     attachments = ListProperty()
+    tags = ListProperty(default=["all"])
      
 
     def toDict(self, localized=True):
@@ -111,7 +112,7 @@ class DocumentManager():
 
     @staticmethod
     def get_documents(docType, view, startKey=None, endKey=None, 
-                      skip=0, limit=10):
+                      skip=0, limit=10, group=False):
 
         '''
         Returns documents of which type is *docType* from given *view*.
@@ -131,6 +132,16 @@ class DocumentManager():
                                  limit = limit+1,
                                  endKey = endKey, 
                                  skip = 0)
+        elif group:
+            documents = docType.view(view, 
+                                 startkey = startKey, 
+                                 descending = True, 
+                                 limit = limit+1,
+                                 endKey = endKey, 
+                                 skip = 0,
+                                 group=group, group_level=1)
+
+
         else:
           documents = docType.view(view, descending = True, limit = limit)
 
@@ -152,3 +163,46 @@ class DocumentManager():
 
         return document
 
+    @staticmethod
+    def get_tagged_documents(docType, view, tagView, 
+                             startKey, tag, limit, skip=0):
+        if tag:
+            key = [tag, startKey]
+            endKey = [tag + "0"]
+            docs = DocumentManager.get_documents(
+                    docType, 
+                    tagView, 
+                    key,
+                    endKey,
+                    skip, limit, group=True)
+            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
+        else:
+            key = startKey
+            return DocumentManager.get_documents(
+                    docType, view, key, skip, limit, group=True)
+
+
+    @staticmethod
+    def remove_wrongly_tagged_docs(docs, tag):
+        '''
+        This method is needed because of Couchdb weird behavior. When you 
+        query your tag view to retrieve documents with a given tag, if there
+        are less documents with given tag than given limit, it returns what
+        follows in the view even if the documents do not have the tag in their
+        list. 
+        This method aims to remove undesirable documents.
+        '''
+
+        result = []
+        for doc in docs:
+            isTag = False
+            for docTag in doc.tags:
+                if docTag == tag:
+                    isTag = True
+                        
+            if isTag:
+                result.append(doc)
+            else:
+                break
+
+        return result

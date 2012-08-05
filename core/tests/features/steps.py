@@ -53,6 +53,14 @@ def save_it(step):
 def checks_that_is_date_is_set(step):
     assert world.user.date is not None
 
+@step(u'Checks that tag list initialized')
+def checks_that_tag_list_initialized(step):
+    print world.user.tags
+    import pdb
+    pdb.set_trace()
+    assert world.user.tags == ["all"]
+
+
 @step(u'Gets Default User')
 def get_default_user(step):
     world.user = UserManager.getUser()

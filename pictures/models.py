@@ -11,35 +11,26 @@ class PictureManager():
     '''
     
     @staticmethod
-    def get_last_pictures(startKey=None, skip=0):
+    def get_last_pictures(startKey=None, skip=0, 
+            limit=PICTURE_LIMIT, tag=None):
         '''
         Returns all pictures. If *startKey* is provided, it returns last
         picture posted until *startKey*.
         '''
 
-        if startKey:
-            return Picture.view("pictures/last", 
-                             startkey=startKey, 
-                             descending=True, 
-                             limit=PICTURE_LIMIT,
-                             skip=0)
-        else:
-            return Picture.view("pictures/last", 
-                             descending=True, 
-                             limit=PICTURE_LIMIT)
-
+        return DocumentManager.get_tagged_documents(Picture, "pictures/last",
+            "pictures/tags", startKey, tag, limit, skip)
     
     @staticmethod
-    def get_owner_last_pictures(startKey=None, endKey=None, 
-                 skip=0, limit=PICTURE_LIMIT):
+    def get_owner_last_pictures(startKey=None,  
+                 skip=0, limit=PICTURE_LIMIT, tag=None):
         '''
         Returns owner pictures. If *startKey* is provided, it returns last
         picture posted by owner until *startKey*.
         '''
 
-        return DocumentManager.get_documents(Picture, "pictures/owner", 
-                                             startKey, endKey, skip, limit)
-
+        return DocumentManager.get_tagged_documents(Picture, "pictures/owner",
+            "pictures/mine-tags", startKey, tag, limit, skip)
 
     @staticmethod
     def get_picture(id):

@@ -11,8 +11,9 @@ class MicroPostManager():
 
 
     @staticmethod
-    def get_mine(startKey=None, endKey=None, 
-                 skip=0, limit=news_settings.NEWS_LIMIT):
+    def get_mine(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
+                 tag=None):
+
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
         from current user. If *startKey* is given, it retrieves micro posts from
@@ -21,17 +22,15 @@ class MicroPostManager():
         Ex: If you need post from November, 2nd 2010, set *startKey*
         as 2010-11-02T23:59:00Z. First element is never included (because of
         pagination).
-
-        Arguments:
-          *startKey* The date from where data should be retrieved
         '''
 
-        return DocumentManager.get_documents(MicroPost, "news/mine", startKey,
-                                      endKey, skip, limit)
+        return DocumentManager.get_tagged_documents(MicroPost, 
+                "news/mine", "news/mine-tags", startKey, tag, limit, skip)
 
 
     @staticmethod
-    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT):
+    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
+                 tag=None):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending.
         If *startKey* is given, it retrieves micro posts from startKey. 
@@ -43,9 +42,9 @@ class MicroPostManager():
         Arguments:
           *startKey* The date from where data should be retrieved
         '''
-        
-        return DocumentManager.get_documents(
-                           MicroPost, "news/all", startKey, skip, limit)
+       
+        return DocumentManager.get_tagged_documents(MicroPost, 
+                "news/all", "news/tags", startKey, tag, limit, skip)
 
 
     @staticmethod

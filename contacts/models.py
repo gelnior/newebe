@@ -55,12 +55,15 @@ class ContactManager():
 
 
     @staticmethod
-    def getTrustedContacts():
+    def getTrustedContacts(tag=None):
         '''
         Returns contacts of which state is equal to *trusted*.
         '''
 
-        contacts = Contact.view("core/trusted")
+        if tag:
+            contacts = Contact.view("core/contacttags", key=tag)
+        else:
+            contacts = Contact.view("core/trusted")
  
         return contacts 
 
@@ -93,6 +96,15 @@ class ContactManager():
             contact = contacts.first() 
 
         return contact
+
+    @staticmethod
+    def getTags():
+        '''
+        Return the list of all tags that has been set on contacts.
+        '''
+
+        return [result["key"] for result in Contact.view("core/tags", 
+                                                         group=True)]
 
 
 class Contact(NewebeDocument):

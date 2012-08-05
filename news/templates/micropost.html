@@ -1,4 +1,11 @@
 {% autoescape None %} 
+<p class="tags">
+{% for tag in micropost.tags %}
+    {% block tag %}
+        {{ tag }}
+    {% end %}
+{% end %}
+</p>
 
 <p class="micropost-preview-content">{{ micropost.content }}</p>
 

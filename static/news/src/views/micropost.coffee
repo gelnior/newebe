@@ -9,11 +9,10 @@ class MicroPostRow extends Row
   # HTML representation
   template:  _.template('''
     <a href="#" class="news-micropost-author"><%= author %></a>
-    <%= contentHtml %>
+      <%= contentHtml %>
     <p class="news-micropost-date">
-     <%= displayDate %>     
+      <%= displayDate %>
     </p>
-    <p></p>
     <% if (isNoteAttached) { %>
         <img src="/static/images/note.png" alt="A note is attached" />
     <% } %>
@@ -268,7 +267,6 @@ class MicroPostRow extends Row
             </p>
           """)
           @preview.append("<hr />")
-
 
 
   # Extract url from markdown styling : take string which is between parenthesis

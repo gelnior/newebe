@@ -36,6 +36,12 @@ class NewebeHandler(RequestHandler):
         self.write(json)
         self.finish()
 
+    def return_list(self, valueList, statusCode=200):
+        '''
+        Return a response containing a list of values at json format.
+        '''
+
+        self.return_json({ "rows": valueList, "total_rows": len(valueList) })
 
     def return_documents(self, documents, statusCode=200):
         '''
@@ -73,7 +79,7 @@ class NewebeHandler(RequestHandler):
             self.return_failure(text, 404)
 
 
-    def return_documents_since(self, get_doc, startKey):
+    def return_documents_since(self, get_doc, startKey, tag=None):
         '''
         Use the get doc function that takes a date converted from startKey
         (startKey must be an url date or null) as parameter to send
@@ -87,7 +93,7 @@ class NewebeHandler(RequestHandler):
 
         if startKey:
             dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            docs = get_doc(dateString)
+            docs = get_doc(startKey=dateString, tag=tag)
         else:
             docs = get_doc()
 
@@ -273,7 +279,10 @@ class NewebeHandler(RequestHandler):
         Request body contains object to post at JSON format.
         '''
 
-        contacts = ContactManager.getTrustedContacts()
+        tag = None
+        if doc.tags:
+            tag = doc.tags[0]
+        contacts = ContactManager.getTrustedContacts(tag=tag)
         client = ContactClient(self.activity)
         for contact in contacts:
             try:
@@ -284,7 +293,7 @@ class NewebeHandler(RequestHandler):
 
     
     @asynchronous
-    def send_files_to_contacts(self, path, fields, files):
+    def send_files_to_contacts(self, path, fields, files, tag=None):
         '''
         Sends in a form given file and fields to all trusted contacts (at given
         path).
@@ -292,7 +301,7 @@ class NewebeHandler(RequestHandler):
         If any error occurs, it is stored in linked activity.
         '''
 
-        contacts = ContactManager.getTrustedContacts()
+        contacts = ContactManager.getTrustedContacts(tag=tag)
         client = ContactClient(self.activity)
         for contact in contacts:
             try:

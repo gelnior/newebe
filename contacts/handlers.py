@@ -429,6 +429,43 @@ class ContactRenderTHandler(NewebeAuthHandler):
         else:
             return self.return_failure("Contact not found.", 404)
 
+class ContactTagsHandler(NewebeAuthHandler):
+    '''
+    Return the list of tags set on owner contacts.
+    '''
+
+    def get(self):
+        '''
+        Return the list of tags set on owner contacts.
+        '''
+
+        tags = ContactManager.getTags()
+        if "all" not in tags:
+            tags.append("all")
+        self.return_list(tags)
+
+
+class ContactTagHandler(NewebeAuthHandler):
+    '''
+    Return the list of tags set on owner contacts.
+    '''
+
+    def put(self, slug):
+        '''
+        Grab tags sent inside request to set is on contact matching slug.
+        '''
+
+        contact = ContactManager.getContact(slug)    
+        data = self.get_body_as_dict(["tags"])
+        
+        if contact:
+            if data:
+                contact.tags = data["tags"]
+                contact.save()
+            else:
+                self.return_failure("No tags were sent")
+        else:
+            self.return_failure("Contact to modify does not exist.", 404)
 
 # Template handlers.
 
