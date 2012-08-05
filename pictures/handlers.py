@@ -176,7 +176,8 @@ class PicturesQQHandler(PicturesHandler):
             self.send_files_to_contacts("pictures/contact/", 
                         fields = 
                           { "json": str(picture.toJson(localized=False)) },
-                        files = [("picture", str(picture.path), thbuffer)])
+                        files = [("picture", str(picture.path), thbuffer)],
+                        tag=tag)
             
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
@@ -222,6 +223,7 @@ class PictureContactHandler(NewebeHandler):
                         contentType = data.get("contentType", ""),
                         authorKey = data.get("authorKey", ""),
                         author = data.get("author", ""),
+                        tags = contact.tags,
                         date = date,
                         isMine = False,
                         isFile = False

@@ -293,7 +293,7 @@ class NewebeHandler(RequestHandler):
 
     
     @asynchronous
-    def send_files_to_contacts(self, path, fields, files):
+    def send_files_to_contacts(self, path, fields, files, tag=None):
         '''
         Sends in a form given file and fields to all trusted contacts (at given
         path).
@@ -301,7 +301,7 @@ class NewebeHandler(RequestHandler):
         If any error occurs, it is stored in linked activity.
         '''
 
-        contacts = ContactManager.getTrustedContacts()
+        contacts = ContactManager.getTrustedContacts(tag=tag)
         client = ContactClient(self.activity)
         for contact in contacts:
             try:

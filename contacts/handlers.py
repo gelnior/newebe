@@ -440,6 +440,8 @@ class ContactTagsHandler(NewebeAuthHandler):
         '''
 
         tags = ContactManager.getTags()
+        if "all" not in tags:
+            tags.append("all")
         self.return_list(tags)
 
 
