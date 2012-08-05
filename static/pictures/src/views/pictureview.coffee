@@ -82,26 +82,6 @@ class PicturesView extends Backbone.View
     @datepicker.val null
     @reloadPictures null
 
-  # Loads and displays last owner pictures.
-  # Then my button is disabled and all button is enabled.
-  displayMyPictures:(date) =>
-    @myButton.button "disable"
-    @allButton.button "enable"
-    @currentPath = "/pictures/mine/"
-
-    @datepicker.val date
-    @reloadPictures date
-
-  # Loads and dispay last pictures.
-  # Then all button is disabled and my button is enabled.
-  displayAllPictures: (date) =>
-    @myButton.button "enable"
-    @allButton.button "disable"
-    @currentPath = "/pictures/all/"
-
-    @datepicker.val date
-    @reloadPictures date
-
 
   ### Functions  ###
 

@@ -331,9 +331,7 @@
     }
 
     PicturesRouter.prototype.all = function(date) {
-      if (date) {
-        return this.view.displayAllPictures(date);
-      }
+      return this.view.displayAllPictures(date);
     };
 
     PicturesRouter.prototype.mine = function(date) {
@@ -379,10 +377,6 @@
       this.addAllMore = __bind(this.addAllMore, this);
 
       this.addAll = __bind(this.addAll, this);
-
-      this.displayAllPictures = __bind(this.displayAllPictures, this);
-
-      this.displayMyPictures = __bind(this.displayMyPictures, this);
 
       this.onTagChanged = __bind(this.onTagChanged, this);
 
@@ -463,22 +457,6 @@
       });
       this.datepicker.val(null);
       return this.reloadPictures(null);
-    };
-
-    PicturesView.prototype.displayMyPictures = function(date) {
-      this.myButton.button("disable");
-      this.allButton.button("enable");
-      this.currentPath = "/pictures/mine/";
-      this.datepicker.val(date);
-      return this.reloadPictures(date);
-    };
-
-    PicturesView.prototype.displayAllPictures = function(date) {
-      this.myButton.button("enable");
-      this.allButton.button("disable");
-      this.currentPath = "/pictures/all/";
-      this.datepicker.val(date);
-      return this.reloadPictures(date);
     };
 
     /* Functions
