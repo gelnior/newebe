@@ -22,27 +22,10 @@ class MicroPostManager():
         Ex: If you need post from November, 2nd 2010, set *startKey*
         as 2010-11-02T23:59:00Z. First element is never included (because of
         pagination).
-
-        Arguments:
-          *startKey* The date from where data should be retrieved
         '''
 
-
-        if tag:
-            key = [tag, startKey]
-            endKey = [tag + "0"]
-            docs = DocumentManager.get_documents(
-                    MicroPost, 
-                    "news/mine-tags", 
-                    key,
-                    endKey,
-                    skip, limit, group=True)
-            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
-        else:
-            key = startKey
-            return DocumentManager.get_documents(
-                    MicroPost, "news/mine", key, skip, limit, group=True)
-
+        return DocumentManager.get_tagged_documents(MicroPost, 
+                "news/mine", "news/mine-tags", startKey, tag, limit, skip)
 
 
     @staticmethod
@@ -60,25 +43,8 @@ class MicroPostManager():
           *startKey* The date from where data should be retrieved
         '''
        
-
-        if tag:
-            key = [tag, startKey]
-            endKey = [tag + "0"]
-            
-            docs =  DocumentManager.get_documents(
-                    MicroPost, 
-                    "news/tags", 
-                    key,
-                    endKey,
-                    skip, limit, group=True)
-
-            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
-
-        else:
-            key = startKey
-            return DocumentManager.get_documents(
-                    MicroPost, "news/all", key, skip, limit, group=True)
-
+        return DocumentManager.get_tagged_documents(MicroPost, 
+                "news/all", "news/tags", startKey, tag, limit, skip)
 
 
     @staticmethod

@@ -164,6 +164,25 @@ class DocumentManager():
         return document
 
     @staticmethod
+    def get_tagged_documents(docType, view, tagView, 
+                             startKey, tag, limit, skip=0):
+        if tag:
+            key = [tag, startKey]
+            endKey = [tag + "0"]
+            docs = DocumentManager.get_documents(
+                    docType, 
+                    tagView, 
+                    key,
+                    endKey,
+                    skip, limit, group=True)
+            return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
+        else:
+            key = startKey
+            return DocumentManager.get_documents(
+                    docType, view, key, skip, limit, group=True)
+
+
+    @staticmethod
     def remove_wrongly_tagged_docs(docs, tag):
         '''
         This method is needed because of Couchdb weird behavior. When you 
