@@ -100,11 +100,9 @@ class NewebeDocument(Document):
         '''
         db = getattr(cls, '_db', None)
         if db is None:
-            db = server.get_or_create_db(NewebeDocument.db_name)
+            db = server.get_or_create_db(COUCHDB_DB_NAME)
             cls._db = db
         return db
-
-NewebeDocument.db_name = COUCHDB_DB_NAME
 
 
 class DocumentManager():
@@ -183,7 +181,6 @@ class DocumentManager():
             key = startKey
             return DocumentManager.get_documents(
                     docType, view, key, skip, limit, group=False)
-
 
     @staticmethod
     def remove_wrongly_tagged_docs(docs, tag):
