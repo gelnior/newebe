@@ -9,8 +9,8 @@ from tornado.httpclient import HTTPClient, HTTPRequest
 from newebe.settings import TORNADO_PORT, COUCHDB_DB_NAME
 from newebe.profile.models import UserManager, User
 
-ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = u"https://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = "http://localhost:8888/"
+SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
 
 server = Server()
 server2 = Server()
