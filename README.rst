@@ -54,7 +54,7 @@ Then, still in Newebe directory set DB by running:
 Set DEBUG constant to True in *settings.py* or *local_settings.py*
 
 To change database name or port change, you must modify your *settings.py* file by settings the following constants : TORNADO_PORT and COUCHDB_DB_NAME. Default port is 8000 and default database name is newebe. 
-Time zone is set in the same you. So if you want to set your own time zone, you must change the TIMEZONE constant value by your timezone (cf. wiki). 
+Time zone is set in the same way. So if you want to set your own time zone, you must change the TIMEZONE constant value by your timezone (cf. wiki). 
 
 NB: The best way to deal with specific configuration is to set this variable in a file called *local_settings.py* in the same directory as *settings.py*.
 
@@ -103,6 +103,7 @@ Run tests (backend)
 
 Activate your virtual env, then install test dependencies:
     
+    virtualenv --distribute --no-site-packages virtualenv
     . virtualenv/bin/activate
     pip install -r deploy/requirements-dev.txt
 
