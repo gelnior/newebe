@@ -6,7 +6,7 @@ import pytz
 from lettuce import step, world, before
 from tornado.escape import json_decode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.notes.models import Note, NoteManager
 from newebe.activities.models import ActivityManager
@@ -151,16 +151,15 @@ def checks_that_notes_are_sorted_by_title(step):
 
 @step(u'Retrieve, through handler, the note with note id')
 def retrieve_through_handler_the_note_with_note_id(step):
-    notes = client.fetch_documents("notes/" + world.note._id + "/")
-    assert len(notes) == 1
+    note = client.fetch_document("notes/" + world.note._id + "/")
     world.test_note = Note(
-        author = notes[0]["author"],
-        title = notes[0]["title"],
-        content = notes[0]["content"],
+        author = note["author"],
+        title = note["title"],
+        content = note["content"],
         lastModified = \
             date_util.convert_timezone_date_to_utc(
-                date_util.get_date_from_db_date(notes[0]["lastModified"])),
-        isMine = notes[0]["isMine"],
+                date_util.get_date_from_db_date(note["lastModified"])),
+        isMine = note["isMine"],
     )
 
 @step(u'Modifiy the note')
