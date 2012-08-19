@@ -39,11 +39,4 @@ COUCHDB_DATABASES = (
     ('newebe.pictures', COUCHDB_DB_URI),
 )
 
-INSTALLED_APPS = (
-    'newebe.core',
-    'newebe.activities',
-    'newebe.news',
-    'newebe.notes',
-    'newebe.pictures',
-)
 
