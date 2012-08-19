@@ -63,12 +63,18 @@ if __name__ == '__main__':
         logger.setLevel(logging.INFO)
 
     try:
-        # Server running.
-        http_server = HTTPServer(tornado_app, xheaders=True,
+        # SSL mode only in production
+        if not DEBUG:
             ssl_options = {
                 "certfile": CERTIFICATE,
                 "keyfile": PRIVATE_KEY,
-            })
+            }
+        else:
+            ssl_options = None 
+
+        # Server running.
+        http_server = HTTPServer(tornado_app, xheaders=True,
+                                 ssl_options = ssl_options)
 
         http_server.listen(TORNADO_PORT)
         logger.info("Starts Newebe on port %d." % TORNADO_PORT)
