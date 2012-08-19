@@ -141,9 +141,8 @@ class DocumentManager():
                                  skip = 0,
                                  group=group, group_level=1)
 
-
         else:
-          documents = docType.view(view, descending = True, limit = limit)
+            documents = docType.view(view, descending = True, limit = limit)
 
         return documents
 
@@ -170,11 +169,12 @@ class DocumentManager():
             key = [tag, startKey]
             endKey = [tag + "0"]
             docs = DocumentManager.get_documents(
-                    docType, 
-                    tagView, 
-                    key,
-                    endKey,
-                    skip, limit, group=True)
+                docType, 
+                tagView, 
+                key,
+                endKey,
+                skip, limit, group=True
+            )
             return DocumentManager.remove_wrongly_tagged_docs(docs, tag)
         else:
             key = startKey
