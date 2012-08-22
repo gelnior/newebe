@@ -21,6 +21,7 @@ routes = [
             
     ('/user/$', profile.UserHandler),
     ('/profile/$', profile.ProfileTHandler),
+    ('/profile/public/$', profile.ProfilePublicTHandler),
     ('/profile/content/$', profile.ProfileContentTHandler),
     ('/profile/menu-content/$', profile.ProfileMenuContentTHandler),
     ('/profile/tutorial/1/$', profile.ProfileTutorial1THandler),
