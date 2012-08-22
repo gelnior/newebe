@@ -6,22 +6,15 @@ from lxml import html
 
 from tornado.httpclient import HTTPRequest, HTTPError
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.lib.test_util import NewebeClient
-from newebe.settings import TORNADO_PORT
-
 from newebe.profile.models import User, UserManager
 
-ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "https://localhost:%d/" % (TORNADO_PORT + 10)
-
-
+ROOT_URL = "http://localhost:8888/"
 
 
 # Auth steps
-
-
 
 @before.all
 def set_browser():
@@ -59,7 +52,7 @@ def save_default_user(step):
 
 @step(u'Open root url')
 def open_root_url(step):
-    request = HTTPRequest(ROOT_URL, validate_cert=False)
+    request = HTTPRequest(ROOT_URL)
     if world.cookie:
         request.headers["Cookie"] = world.cookie
     world.response = world.browser.fetch(request)
