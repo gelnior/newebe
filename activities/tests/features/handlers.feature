@@ -7,7 +7,7 @@ Feature: Retrieve Activities
         Assert that there is 0 activities retrieved.
         Creates 35 activities - 10 for owner, at 2010-09-01T11:05:12Z 
         Get last activities from handler
-        Assert that there are, from handler, 30 activities retrieved
+        Assert that there are, from handler, 31 activities retrieved
 
     Scenario: Retrieve last activities of newebe owner
         Clear all activities from database

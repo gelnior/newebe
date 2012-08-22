@@ -2,14 +2,10 @@ import logging
 
 from threading import Timer
 
-from tornado import gen
-from tornado.web import asynchronous
-
-from newebe.lib.http_util import ContactClient
 from tornado.httpclient import HTTPClient, HTTPRequest
 
 
-from newebe.core.handlers import NewebeAuthHandler
+from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 from newebe.profile.models import UserManager
 from newebe.contacts.models import ContactManager
 
@@ -144,6 +140,12 @@ class UserHandler(NewebeAuthHandler):
 class ProfileContentTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/profile_content.html")
+
+class ProfilePublicTHandler(NewebeHandler):
+    def get(self):
+        self.render("templates/profile_public.html",
+                    profile=UserManager.getUser(),
+                    isTheme=self.is_file_theme_exists())
 
 class ProfileMenuContentTHandler(NewebeAuthHandler):
     def get(self):

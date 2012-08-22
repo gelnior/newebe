@@ -5,7 +5,7 @@ import datetime
 from tornado.escape import json_decode
 from lettuce import step, world
 
-sys.path.append("../../../")
+sys.path.append("..")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 
 from newebe.lib import date_util, json_util, slugify

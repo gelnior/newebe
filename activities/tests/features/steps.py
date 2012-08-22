@@ -4,7 +4,7 @@ import pytz
 
 from lettuce import step, world, before
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.activities.models import Activity, ActivityManager
 from newebe.contacts.models import Contact
@@ -113,7 +113,8 @@ def creates_x_activities(step, nb_activities, nb_owner_activities, date):
 
 @step(u'Assert that there is (\d+) activities retrieved.')
 def assert_that_there_is_x_activities_retrieved(step, nb_activities):
-    assert int(nb_activities) == len(world.activities)
+    assert int(nb_activities) == len(world.activities), "%d should be %d" % \
+    (int(nb_activities), len(world.activities))
 
 @step(u'Retrieve owner last activities')
 def retrieve_last_activities_of_owner(step):

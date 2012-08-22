@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import logging
 import sys, os
 
@@ -8,9 +10,7 @@ from tornado.web import Application
 sys.path.append("../")
 from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
                             PRIVATE_KEY, CERTIFICATE
-
 from newebe.routes import routes
-import newebe.lib.pid as pid
 
 
 # Set logging configuration
@@ -40,6 +40,7 @@ class NewebeIOLoop(IOLoop):
     def handle_callback_exception(callback):
         pass
 
+
 if __name__ == '__main__':
 
     '''
@@ -52,60 +53,38 @@ if __name__ == '__main__':
     logger.info("Sets up application server.")
     tornado_app = Newebe()
 
-    if DEBUG:
-        try:
-            # Server running.
-            http_server = HTTPServer(tornado_app, xheaders=True,
-                ssl_options = {
-                    "certfile": CERTIFICATE,
-                    "keyfile": PRIVATE_KEY,
-                })
-
-            http_server.listen(TORNADO_PORT)
-            logger.debug("Starts Newebe on port %d." % TORNADO_PORT)
-            ioloop = NewebeIOLoop.instance()
-            ioloop.start()
-
-        except KeyboardInterrupt, e:
-            ioloop.stop()
-            connections = []
-            print ""
-            logger.info("Server stopped.")
-
-    else:
-        from daemon import daemon
+    if not DEBUG:
         # Send log ouptut to a file.
         log_file = 'newebe.%s.log' % TORNADO_PORT
-        log = open(os.path.join("./", log_file), 'a+')
-        logging.getLogger().setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+        hdlr = logging.FileHandler(os.path.join("./", log_file))
+        hdlr.setFormatter(formatter)
+        logger.addHandler(hdlr)
+        logger.setLevel(logging.INFO)
+
+    try:
+        # SSL mode only in production
+        if not DEBUG:
+            ssl_options = {
+                "certfile": CERTIFICATE,
+                "keyfile": PRIVATE_KEY,
+            }
+        else:
+            ssl_options = None 
+
+        # Server running.
+        http_server = HTTPServer(tornado_app, xheaders=True,
+                                 ssl_options = ssl_options)
+
+        http_server.listen(TORNADO_PORT)
+        logger.info("Starts Newebe on port %d." % TORNADO_PORT)
+        ioloop = NewebeIOLoop.instance()
+        ioloop.start()
+
+    except KeyboardInterrupt, e:
+        ioloop.stop()
+        print ""
+        logger.info("Server stopped.")
+
         
-        # Check pidfile.
-        pidfile_path = "./newebe.pid"
-        pid.check(pidfile_path)
-
-        # Daemonize.
-        daemon_context = daemon.DaemonContext(stdout=log, stderr=log, 
-                                              working_directory='.')
-        with daemon_context:
-            # Write the pidfile.
-            pid.write(pidfile_path)
-
-            # Starts server.
-            try:
-                http_server = HTTPServer(tornado_app, xheaders=True,
-                                         ssl_options = {
-                                            "certfile": CERTIFICATE,
-                                            "keyfile": PRIVATE_KEY,
-                                        })
-                http_server.listen(TORNADO_PORT)
-
-                logger.info("Starts Newebe on port %d." % TORNADO_PORT)
-                ioloop = IOLoop.instance()
-                ioloop.start()
-            except:
-                pass
-            finally:
-                # Ensure that the pidfile is removed.
-                pid.remove(pidfile_path)
-
 

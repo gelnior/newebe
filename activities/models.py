@@ -1,7 +1,7 @@
 from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          ListProperty
 
-from newebe.core.models import NewebeDocument
+from newebe.core.models import NewebeDocument, DocumentManager
 from newebe.activities import activity_settings
 
 
@@ -26,42 +26,26 @@ class ActivityManager():
 
 
     @staticmethod
-    def get_mine(startKey=None, skip=0):
+    def get_mine(startKey=None, tag=None):
         '''
         Return last 30 activities of newebe owner. If *startKey* (date) 
         is given, last 30 activities until *startKey* will be returned.
         '''
 
-        if startKey:
-            return Activity.view("activities/mine", 
-                                 startkey = startKey, 
-                                 descending = True, 
-                                 limit = activity_settings.LIMIT + 1, 
-                                 skip = 0)
-        else:
-            return Activity.view("activities/mine", 
-                                 descending=True, 
-                                 limit = activity_settings.LIMIT)
+        return DocumentManager.get_documents(Activity, "activities/mine", 
+                startKey = startKey, limit = activity_settings.LIMIT + 1)
 
 
     @staticmethod
-    def get_all(startKey=None, skip=0):
+    def get_all(startKey=None, tag=None):
         '''
         Return last 30 activities of newebe owner and of his contacts. If
         *startKey* (date) is given, last 30 activities until *startKey* 
         will be returned.
         '''
         
-        if startKey:
-            return Activity.view("activities/all", 
-                                 startkey = startKey, 
-                                 descending=True, 
-                                 limit=activity_settings.LIMIT+1, 
-                                 skip=0)
-        else:
-            return Activity.view("activities/all", 
-                                 descending=True, 
-                                 limit=activity_settings.LIMIT)
+        return DocumentManager.get_documents(Activity, "activities/all", 
+                startKey = startKey, limit = activity_settings.LIMIT + 1)
 
 
 class Activity(NewebeDocument):
