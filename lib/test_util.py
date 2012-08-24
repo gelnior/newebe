@@ -6,11 +6,11 @@ from couchdbkit import Server
 from tornado.escape import json_decode
 from tornado.httpclient import HTTPClient, HTTPRequest
 
-from newebe.settings import TORNADO_PORT, COUCHDB_DB_NAME
+from newebe.settings import COUCHDB_DB_NAME
 from newebe.profile.models import UserManager, User
 
-ROOT_URL = "http://localhost:8888/"
-SECOND_NEWEBE_ROOT_URL = u"http://localhost:%d/" % (TORNADO_PORT + 10)
+ROOT_URL = u"http://localhost:8888/"
+SECOND_NEWEBE_ROOT_URL = u"http://localhost:8889/"
 
 server = Server()
 server2 = Server()

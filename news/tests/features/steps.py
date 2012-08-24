@@ -7,7 +7,7 @@ from lettuce import step, world, before
 from tornado.httpclient import HTTPError
 from tornado.escape import json_decode, json_encode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
