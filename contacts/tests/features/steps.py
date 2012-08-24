@@ -7,13 +7,12 @@ from nose.tools import assert_equals, assert_in
 from lettuce import step, world, before
 from tornado.httpclient import HTTPError
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.lib.slugify import slugify
 
 from newebe.contacts.models import Contact, ContactManager
 from newebe.activities.models import ActivityManager
-from newebe.settings import TORNADO_PORT
 
 from newebe.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
 from newebe.contacts.models import STATE_PENDING, STATE_ERROR
@@ -22,8 +21,7 @@ from newebe.lib.test_util import NewebeClient, db, db2, reset_documents
 from newebe.lib import date_util
 
 
-ROOT_URL = u"https://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = u"https://localhost:%d/" % (TORNADO_PORT + 10)
+from newebe.lib.test_util import ROOT_URL, SECOND_NEWEBE_ROOT_URL
 
 
 @before.all
@@ -224,6 +222,7 @@ def deletes_seconde_newebe_contacts(step):
 
 @step(u'On first newebe add second newebe as a contact')
 def on_first_newebe_add_second_newebe_as_a_contact(step):
+    print world.browser2.root_url
     world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
     time.sleep(0.3)
@@ -231,7 +230,7 @@ def on_first_newebe_add_second_newebe_as_a_contact(step):
 @step(u'Check that first contact status is pending')
 def check_that_first_contact_status_is_pending(step):
     assert 1 == len(world.contacts)
-    assert STATE_PENDING == world.contacts[0]["state"]
+    assert_equals(STATE_PENDING, world.contacts[0]["state"])
 
 @step(u'From second newebe retrieve all contacts')
 def from_second_newebe_retrieve_all_contacts(step):
@@ -267,7 +266,7 @@ def send_a_retry_request_for_this_contact(step):
 
 # Timezone
 
-@step(u'Check that request date is set to ([a-zA-Z//]+) timezone')
+@step(u'Check that request date is set to "([a-zA-Z//]+)" timezone')
 def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
     Contact._db = db2
     contact = ContactManager.getRequestedContacts().first()
@@ -276,8 +275,9 @@ def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
     date = date_util.get_date_from_db_date(world.contacts[0]["requestDate"])
     tz = pytz.timezone(timezone)
     date = date.replace(tzinfo=tz)
-    assert date_util.convert_utc_date_to_timezone(contact.requestDate, tz) == \
-                date
+    assert_equals(
+            date_util.convert_utc_date_to_timezone(contact.requestDate, tz),
+            date)
     
 # Tags
 

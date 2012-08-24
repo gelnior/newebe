@@ -252,7 +252,8 @@ class ContactsHandler(NewebeAuthHandler):
 
         try:
             newebeResponse = json_decode(response.body)
-            if not newebeResponse["success"]:
+            print newebeResponse
+            if not "success" in newebeResponse or not newebeResponse["success"]:
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
