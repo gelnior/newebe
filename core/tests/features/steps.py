@@ -8,7 +8,7 @@ from lettuce import step, world, before
 
 from tornado.escape import json_decode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.settings import TORNADO_PORT
 from newebe.profile.models import UserManager, User

@@ -22,10 +22,12 @@ server = Server()
 
 # Base document 
 
+
 class NewebeDocument(Document):
     '''
     Base class for document used by newebe apps. Contains some utility methods.
     '''
+
 
     authorKey = StringProperty()
     date = DateTimeProperty(required=True)
@@ -98,10 +100,11 @@ class NewebeDocument(Document):
         '''
         db = getattr(cls, '_db', None)
         if db is None:
-            db = server.get_or_create_db(COUCHDB_DB_NAME)
+            db = server.get_or_create_db(NewebeDocument.db_name)
             cls._db = db
         return db
 
+NewebeDocument.db_name = COUCHDB_DB_NAME
 
 
 class DocumentManager():
@@ -179,7 +182,7 @@ class DocumentManager():
         else:
             key = startKey
             return DocumentManager.get_documents(
-                    docType, view, key, skip, limit, group=True)
+                    docType, view, key, skip, limit, group=False)
 
 
     @staticmethod
