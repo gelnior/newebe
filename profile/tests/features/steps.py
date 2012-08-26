@@ -5,15 +5,11 @@ import datetime
 from lettuce import step, world
 from tornado.escape import json_decode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.profile.models import User, UserManager
-from newebe.settings import TORNADO_PORT
-from newebe.lib.test_util import NewebeClient
+from newebe.lib.test_util import NewebeClient, ROOT_URL
 
-
-ROOT_URL = "https://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "https://localhost:%d/" % (TORNADO_PORT + 10)
 
 
 @step(u'Send login request with password as password')
