@@ -92,7 +92,7 @@ Now install tools we need, Coffeescript, Cake, Stylus and UglifyJS:
 Then when you finish to work on client code. At the root of the module you
 worked on, type:
 
-     cake build 
+    cake build 
 
 or for automatic build:
 
@@ -103,13 +103,13 @@ Run tests (backend)
 
 Activate your virtual env, then install test dependencies:
     
-    virtualenv --distribute --no-site-packages virtualenv
-    . virtualenv/bin/activate
-    pip install -r deploy/requirements-dev.txt
+   virtualenv --distribute --no-site-packages virtualenv
+   . virtualenv/bin/activate
+   pip install -r deploy/requirements-dev.txt
 
 Then run tests for each module
 
-    lettuce activities/tests
-    lettuce auth/tests
-    lettuce lib/tests
-    lettuce notes/tests
+   lettuce activities/tests
+   lettuce auth/tests
+   lettuce lib/tests
+   lettuce notes/tests
