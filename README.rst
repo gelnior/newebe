@@ -101,13 +101,13 @@ or for automatic build:
 Run tests (backend)
 ===================
 
-Activate your virtual env, then install test dependencies:
+Activate your virtual env, then install test dependencies::
     
    virtualenv --distribute --no-site-packages virtualenv
    . virtualenv/bin/activate
    pip install -r deploy/requirements-dev.txt
 
-Then run tests for each module
+Then run tests for each module::
 
    lettuce activities/tests
    lettuce auth/tests
