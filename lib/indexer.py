@@ -8,6 +8,7 @@ from lxml import html
 from whoosh.fields import Schema, ID, KEYWORD, TEXT
 from whoosh import index
 from whoosh.qparser import QueryParser
+from whoosh.query import Variations
 
 schema = Schema(content=TEXT, docType=TEXT, docId=ID(stored=True), tags=KEYWORD)
 
@@ -72,7 +73,8 @@ class Indexer():
         Return a list of microposts that contains given word.
         """
 
-        parser = QueryParser("content", schema=schema)
+        parser = QueryParser("content", schema=schema, 
+                             termclass=Variations)
         query = parser.parse(word)
 
         with self.index.searcher() as searcher:
