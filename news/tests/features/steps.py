@@ -157,7 +157,8 @@ def when_i_send_a_request_to_retrieve_my_last_posts(step):
 
 @step(u'I send a request to post a micropost')
 def when_i_send_a_request_to_post_a_micropost(step):
-    response = world.browser.post("microposts/all/",                                                         '{"content":"test"}')
+    response = world.browser.post("microposts/all/", 
+            '{"content":"test", "tags":["all"]}')
     assert 200 == response.code
     world.posted_micropost = json_decode(response.body)
 
@@ -180,7 +181,7 @@ def when_i_send_a_request_to_second_newebe_to_retrieve_owner_last_posts(step):
 def and_i_send_a_delete_request_for_this_micropost(step):
     micropost = world.microposts[0]
     response = world.browser.delete(
-                    "micropost/{}/".format(micropost.get("_id")))
+                    "microposts/{}/".format(micropost.get("_id")))
     assert 200 == response.code
     time.sleep(0.3)
 
@@ -288,12 +289,13 @@ def when_i_send_a_new_micropost_with_an_attachment(step):
     note = Note(
         title="test note",
         content="test content",
-        authorKey=world.browser2.user
+        authorKey=world.browser2.user.key
     )
     note.save()
 
     data = dict()
-    data["content"] = "test attach"
+    data["content"] = "test"
+    data["tags"] = ["all"]
     data["attachments"] = [{
         "type": "Note",
         "id": note._id
@@ -304,6 +306,6 @@ def when_i_send_a_new_micropost_with_an_attachment(step):
 
 @step(u'And my note is attached to it')
 def and_my_note_is_attached_to_it(step):
-    assert len(world.microposts.attachments) == 1
-    assert world.microposts.attachments[0].title == "test note"
+    assert len(world.microposts) == 1
+    assert world.microposts[0]["attachments"][0]["title"] == "test note"
 
