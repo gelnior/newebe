@@ -11,6 +11,12 @@ from newebe.news.models import MicroPost, MicroPostManager
 from newebe.profile.models import UserManager
 
 from newebe.lib.indexer import Indexer
+from newebe.lib.test_util import NewebeClient
+
+@before.all
+def create_default_user():
+    client = NewebeClient()
+    client.set_default_user()
 
 @before.each_scenario
 def delete_posts(scenario):
@@ -46,11 +52,12 @@ def given_i_create_five_microposts_with_tags_and_text(step):
             anyone"))
 
 
-
 @step(u'And I index them')
 def and_i_index_them(step):
     world.indexer = Indexer()
     world.indexer.index_microposts(world.microposts)
+    for post in world.microposts:
+        print world.indexer._extract_urls(post.content)
 
 @step(u'When I ask for search "([^"]*)"')
 def when_i_ask_for_search_group1(step, word):
@@ -61,3 +68,21 @@ def then_i_got_it_returns_me_micropost_the_micropost_about_group1(step, group1):
     assert_equals(len(world.ids), 1)
     assert_equals(world.ids[0], world.microposts[3]._id)
 
+
+@step(u'Given I create three microposts with links')
+def given_i_create_three_microposts_with_links(step):
+    world.microposts = []
+    world.microposts.append(
+            createMicropost("This a long story about knights. \
+                http://www.twitter.com/"))
+    world.microposts.append(
+            createMicropost("They battle for faeries and queens\
+                http://www.facebook.com"))
+    world.microposts.append(
+        createMicropost("But they don't http://www.google.fr/ \
+                        know about karetaka or ninjutsu"))
+
+@step(u'Then It returns the micropost about with twitter link')
+def then_it_returns_the_micropost_about_with_google_link(step):
+    assert_equals(len(world.ids), 1)
+    assert_equals(world.ids[0], world.microposts[0]._id)

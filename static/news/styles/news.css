@@ -71,3 +71,6 @@ div.news-micropost-row p {
   color: #888;
   text-align: right;
 }
+#news-search-field {
+  margin-top: 20px;
+}

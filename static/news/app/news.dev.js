@@ -101,7 +101,7 @@
       if ($("#loading-indicator").length === 0) {
         div = document.createElement('div');
         div.id = "loading-indicator";
-        div.innerHTML = '<img src="/static/images/clock_32.png" />';
+        div.innerHTML = '<img src="/static/images/clock_32.png" alt="loading indicator" />';
         $("body").prepend(div);
       }
       this.element = $("#loading-indicator");
@@ -621,6 +621,8 @@
 
     function NewsView() {
       this.onTagChanged = __bind(this.onTagChanged, this);
+
+      this.onSearchKeyUp = __bind(this.onSearchKeyUp, this);
       NewsView.__super__.constructor.call(this);
     }
 
@@ -684,6 +686,7 @@
       $("#news-full-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
+      $("#news-search-field").val(null);
       this.currentPath = '/microposts/mine/';
       this.reloadMicroPosts(null);
       return event;
@@ -694,6 +697,7 @@
       $("#news-my-button").button("enable");
       this.clearNews(null);
       $("#news-from-datepicker").val(null);
+      $("#news-search-field").val(null);
       this.currentPath = '/microposts/all/';
       this.reloadMicroPosts(null);
       return event;
@@ -703,6 +707,7 @@
       var d, sinceDate;
       d = Date.parse(dateText);
       sinceDate = d.toString("yyyy-MM-dd");
+      $("#news-search-field").val(null);
       this.clearNews();
       return this.reloadMicroPosts(sinceDate);
     };
@@ -714,6 +719,26 @@
         }
         row.select();
         return this.selectedRow = row;
+      }
+    };
+
+    NewsView.prototype.onSearchKeyUp = function(event) {
+      var _this = this;
+      if (event.keyCode === 13) {
+        $("#news-full-button").button("enable");
+        $("#news-my-button").button("enable");
+        $("input#news-from-datepicker").val(null);
+        return $.ajax({
+          url: "microposts/search/",
+          type: 'POST',
+          data: '{"query": "' + $("#news-search-field").val() + '"}',
+          dataType: "json",
+          success: function(data) {
+            _this.lastDate = null;
+            _this.clearNews(null);
+            return _this.microposts.reset(data.rows);
+          }
+        });
       }
     };
 
@@ -882,7 +907,8 @@
       $("input#news-from-datepicker").datepicker({
         onSelect: this.onDatePicked
       });
-      return this.tagCombo.element.change(this.onTagChanged);
+      this.tagCombo.element.change(this.onTagChanged);
+      return $("#news-search-field").keyup(this.onSearchKeyUp);
     };
 
     NewsView.prototype.setWidgets = function() {

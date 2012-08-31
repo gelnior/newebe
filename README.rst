@@ -110,3 +110,6 @@ Activate your virtual env, then install test dependencies:
 Then run tests for each module
 
     lettuce activities/tests
+    lettuce auth/tests
+    lettuce lib/tests
+    lettuce notes/tests

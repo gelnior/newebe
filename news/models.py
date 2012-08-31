@@ -71,6 +71,13 @@ class MicroPostManager():
 
         return DocumentManager.get_document(MicroPost, "news/full", mid)
 
+    @staticmethod
+    def get_microposts(mids):
+        '''
+        Returns posts of which id match given *ids*.
+        '''
+
+        return MicroPost.view("news/full", keys=mids) 
 
     @staticmethod
     def get_contact_micropost(contactKey, date):

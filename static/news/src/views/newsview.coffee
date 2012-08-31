@@ -90,6 +90,7 @@ class NewsView extends Backbone.View
     $("#news-full-button").button("enable")
     @clearNews(null)
     $("#news-from-datepicker").val(null)
+    $("#news-search-field").val null
     @currentPath = '/microposts/mine/'
     @reloadMicroPosts(null)
     event
@@ -101,6 +102,7 @@ class NewsView extends Backbone.View
     $("#news-my-button").button "enable"
     @clearNews null
     $("#news-from-datepicker").val null
+    $("#news-search-field").val null
     @currentPath = '/microposts/all/'
     @reloadMicroPosts null
     event
@@ -110,7 +112,7 @@ class NewsView extends Backbone.View
   onDatePicked: (dateText, event) ->
     d = Date.parse(dateText)
     sinceDate = d.toString("yyyy-MM-dd")
-
+    $("#news-search-field").val null
     @clearNews()
     @reloadMicroPosts(sinceDate)
 
@@ -122,6 +124,23 @@ class NewsView extends Backbone.View
         @selectedRow.deselect()
       row.select()
       @selectedRow = row
+
+  onSearchKeyUp: (event) =>
+    if event.keyCode == 13
+      $("#news-full-button").button "enable"
+      $("#news-my-button").button "enable"
+      $("input#news-from-datepicker").val null
+      
+      $.ajax
+        url: "microposts/search/"
+        type: 'POST'
+        data: '{"query": "' + $("#news-search-field").val() + '"}'
+        dataType: "json"
+        success: (data) =>
+          @lastDate = null
+          @clearNews null
+          @microposts.reset(data.rows)
+
 
   
   ### Functions  ###
@@ -288,7 +307,6 @@ class NewsView extends Backbone.View
     $("input#news-from-datepicker").val null
     @reloadMicroPosts null
 
-
   ### UI Builders  ###
 
   
@@ -300,6 +318,7 @@ class NewsView extends Backbone.View
       onSelect : @onDatePicked
     })
     @tagCombo.element.change @onTagChanged
+    $("#news-search-field").keyup @onSearchKeyUp
 
   
   # Build JQuery widgets.

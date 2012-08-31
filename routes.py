@@ -54,9 +54,9 @@ routes = [
     ('/synchronize/', sync.SynchronizeHandler),
     ('/synchronize/contact/', sync.SynchronizeContactHandler),
 
+    ('/microposts/all/$', news.NewsHandler),
     ('/microposts/all/([0-9\-]+)/$', news.NewsHandler),
     ('/microposts/all/([0-9\-]+)/tags/([0-9a-z]+)/$', news.NewsHandler),
-    ('/microposts/all/$', news.NewsHandler),
     ('/microposts/mine/([0-9\-]+)/$', news.MyNewsHandler),
     ('/microposts/mine/([0-9\-]+)/tags/([0-9a-z]+)/$', news.MyNewsHandler),
     ('/microposts/mine/$', news.MyNewsHandler),
@@ -68,6 +68,7 @@ routes = [
     ('/microposts/tutorial/1/$', news.NewsTutorial1THandler),
     ('/microposts/tutorial/2/$', news.NewsTutorial2THandler),
     ('/microposts/suscribe/$', news.NewsSuscribeHandler),
+    ('/microposts/search/$', news.NewsSearchHandler),
     ('/microposts/([0-9a-z]+)/retry/$', news.NewsRetryHandler),
     ('/microposts/([0-9a-z]+)/$', news.MicropostHandler),
     ('/microposts/([0-9a-z]+)/html/$', news.MicropostTHandler),

@@ -1,5 +1,4 @@
 import logging
-import mimetypes
 import markdown
 
 from tornado import gen 
@@ -7,7 +6,7 @@ from tornado.web import asynchronous
 from tornado.escape import json_encode
 from couchdbkit.exceptions import ResourceNotFound
 
-from newebe.lib import date_util
+from newebe.lib import date_util, indexer
 from newebe.lib.http_util import ContactClient
 from newebe.news.models import MicroPostManager, MicroPost
 from newebe.activities.models import ActivityManager
@@ -135,8 +134,8 @@ class NewsHandler(NewebeAuthHandler):
         logger.info("Micropost post received.")
 
         data = self.get_body_as_dict(expectedFields=["content", "tags"])
-        if data and data["content"]:
 
+        if data and data["content"]:
             user = UserManager.getUser()
             converter = Converter()
             micropost = MicroPost(
@@ -147,6 +146,8 @@ class NewsHandler(NewebeAuthHandler):
                 tags = data["tags"]
             )
             micropost.save()
+            postIndexer = indexer.Indexer()
+            postIndexer.index_micropost(micropost, False)
             converter.add_files(micropost)
 
             self.create_owner_creation_activity(micropost, 
@@ -158,7 +159,7 @@ class NewsHandler(NewebeAuthHandler):
     
         else: 
             self.return_failure(
-                    "Sent data were incorrects. No post was created.", 405)
+                    "Sent data were incorrects. No post was created.", 400)
 
         
 
@@ -199,6 +200,8 @@ class NewsContactHandler(NewebeHandler):
                         tags = contact.tags
                     )
                     micropost.save()
+                    postIndexer = indexer.Indexer()
+                    postIndexer.index_micropost(micropost, False)
                     self._notify_suscribers(micropost)
 
                 self.create_creation_activity(contact, micropost, 
@@ -555,6 +558,28 @@ class MyNewsHandler(NewebeAuthHandler):
 
         self.return_documents_since(MicroPostManager.get_mine, startKey, tag)
     
+
+class NewsSearchHandler(NewebeAuthHandler):
+    """
+    Handler that allows user to search through its microposts.
+    """
+
+
+    def post(self):
+        '''
+        Expect query in sent JSON. Process search for this query then
+        send results as response.
+        '''
+
+        data = self.get_body_as_dict(expectedFields=["query"])
+        if data:
+            postIndexer = indexer.Indexer()
+            ids = postIndexer.search_microposts(data["query"])
+            posts = MicroPostManager.get_microposts(ids)
+            self.return_documents(posts)
+        else:
+            self.return_failure("No query given", 400)
+
 
 # Template handlers
 
