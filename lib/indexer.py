@@ -29,7 +29,6 @@ class Indexer():
         else:
             self.index = index.open_dir("indexes")
         
-        self.writer = self.index.writer()
 
 
     def index_microposts(self, microposts, checkUrl=True):
@@ -37,6 +36,7 @@ class Indexer():
         Add given microposts to index, tag and content are stored.
         """
 
+        self.writer = self.index.writer()
         for post in microposts:
 
             if checkUrl:
@@ -56,6 +56,7 @@ class Indexer():
         Add given micropost to index, tag and content are stored.
         """
 
+        self.writer = self.index.writer()
         self.writer.update_document(content=micropost.content,
                                     docType=u"micropost",
                                     docId=unicode(micropost._id),
