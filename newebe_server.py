@@ -8,9 +8,9 @@ from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 sys.path.append("../")
+from newebe.routes import routes
 from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
                             PRIVATE_KEY, CERTIFICATE
-from newebe.routes import routes
 
 
 # Set logging configuration
@@ -62,16 +62,15 @@ if __name__ == '__main__':
         logger.addHandler(hdlr)
         logger.setLevel(logging.INFO)
 
-    try:
         # SSL mode only in production
-        if not DEBUG:
-            ssl_options = {
-                "certfile": CERTIFICATE,
-                "keyfile": PRIVATE_KEY,
-            }
-        else:
-            ssl_options = None 
+        ssl_options = {
+            "certfile": CERTIFICATE,
+            "keyfile": PRIVATE_KEY,
+        }
+    else:
+        ssl_options = None 
 
+    try:
         # Server running.
         http_server = HTTPServer(tornado_app, xheaders=True,
                                  ssl_options = ssl_options)
