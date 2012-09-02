@@ -28,6 +28,19 @@ $(() ->
     $('#menu-installation').click displayInstall
     $('#download-text').click displayInstall
 
+    displayPage = (event) ->
+        page = event.target.id.substring(5)
+        console.log page
+        lastSelected.fadeOut 300, () ->
+            $("##{page}").fadeIn(300)
+        
+        lastSelected = $("#{page}")
+        lastSelectedMenu.removeClass('selected')
+        lastSelectedMenu = $("#menu-#{page}")
+        lastSelectedMenu.addClass('selected')
+    $('#menu-faq').click displayPage
+    
+
     $('#menu-documentation').click((event) ->
         lastSelected.fadeOut(300, () ->
             $('#documentation').fadeIn(300)

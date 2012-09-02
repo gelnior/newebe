@@ -46,7 +46,7 @@
       <div id="download-text">
         install
         <a href="#install">
-            newebe 0.5.0
+            newebe 0.6.0
         </a>
         <span>beta</span>
       </div>
@@ -58,6 +58,7 @@
     <ul id="menu">
         <li><a id="menu-home" href="#home">home</></li>
         <li><a id="menu-installation" href="#install">install</a></li>
+        <li><a id="menu-faq" href="#faq">faq</a></li>
         <li><a id="menu-documentation" href="#documentation">
             doc</a></li>
         <li><a id="menu-contact" href="#contact">contact</a></li>
@@ -176,35 +177,34 @@
  wget https://raw.github.com/gelnior/newebe/master/deploy/install_deb.sh --no-check-certificate
  sh install_deb.sh</pre>
 
-    <h3>Dependencies</h3>
-    <ul>
-        <li>Python &gt; 2.6</li>
-        <li>Couchdb &gt;= 0.11.0</li>
-        <li>Coucdbkit &gt;= 0.4.8</li>
-        <li>Tornado &gt;= 2.0.0</li>
-        <li>Pycurl &gt;= 1.0.0</li>
-        <li>Daemon &gt;= 1.0.0</li>
-        <li>Markdown &gt;= 2.0.0</li>
-        <li>PIL &gt;= 1.1.6</li>
-        <li>Pytz</li>
-    </ul>    
-    <h3>Procedure (For Debian 6.0)</h3>
+    <h3>Installation on a remote server for  Debian or Ubuntu users</h3>
+    <p>
+      This one will setup newebe on your remote server directly from your
+      desktop computer. It requires root ssh access to your server.
+    </p>
+    <pre> 
+    apt-get install python python-setuptools python-pip
+    pip install fabric fabtools
+    wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py --no-check-certificate
+    fab setup -H myrootuser@myhosturlorip
+    </pre>
+
+    <h3>Manual way for Debian or Ubuntu user</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
     (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>), prefixed it with <em>sudo</em> if needed :
     </p>
     <pre>
   apt-get install python python-setuptools python-pip python-pycurl 
-  apt-get install python-daemon python-imaging couchdb git openssl </pre>
+  apt-get install python-imaging couchdb git openssl </pre>
     <p>
-        Via easy_install install <em>couchdbkit</em>, <em>markdown</em>,
-        <em>pytz</em> and <em>tornado</em> :
+        Via easy_install install other dependencies:
     </p>
     <pre>
-  pip install couchdbkit tornado markdown pytz</pre>
+        pip install -r deploy/requirements.txt</pre>
     <p>
         <span class="step"> step 2 </span> Get <em>Newebe</em> from 
-        <em>Github</em> or unpack the downloaded archive. In both case
+        <em>Github</em>. It 
         it will create a new sub-directory called <em>newebe</em> (NB: It's 
         important that you don't change the name of this folder) :
     </p>
@@ -286,7 +286,7 @@
     sudo openssl genrsa -out ./server.key 1024
     sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
     sudo chmod 640 server.key
-    sudo chown root:ssl-cert server.key
+    sudo chown newebe:newebe server.key
 </pre>
     <p>
     <span class="step"> tep 6 bis</span>
@@ -308,17 +308,67 @@
     <p>
         <span class="step"> step 7</span> Check that everything is fine via 
         your web browser : go to the URL
-        <em>http://localhost:port/</em> (remplace port by <em>TORNADO_PORT</em> 
+        <em>https://localhost:port/</em> (remplace port by 
+        <em>TORNADO_PORT</em> 
         value, default is 8000). 
-    </p>
-        <h2>Warning</h2>
-    <p>
-        Newebe is in its early stage of development. For now, it is only a 
-        prototype without security features. Use it just for fun and don't 
-        expect reliability from it.
     </p>
     </div>
 
+    <div id="faq">
+        <p><strong>
+        Why Newebe is different from Diaspora, Friendica, Movim, SàT... ?
+        </strong></p>
+        <p>
+        Newebe differs from the federated approach because it is designed
+        to be only self-hosted. You can't suscribe to any server, you have
+        to setup your own. <br />
+        This bring several advantages:
+        <ul>
+            <li>
+         real privacy: your data are at home and no third party is involved
+          during communications
+            </li>
+            <li>
+         you can take advantage of your data by
+          reusing them, making search
+          on them or mix them.
+            </li>
+            <li>
+         highly interoperable: your data are accessible through a 
+          complete REST API.
+            </li>
+            <li>
+            It's fast, newebe does not need to serve millions of connections
+            each day, only yours and your contact ones.
+            </li>
+        </ul>
+        </p>
+        <p><strong>
+        Does it work or is it another Vaporware ?
+        </strong></p>
+        <p>
+        It works pretty well, Newebe is built in an agile way, short iterations
+        and working software. I use it every day since almost two years.
+        </p>
+        <p><strong>
+        Do I need a web server to host Newebe ?
+        </strong></p>
+        <p>
+        Yes you need a web server. Don't be afraid, nowadays
+        owning a web server is a common practice! You can either 
+        <ul>
+            <li>
+            Rent it online <br />
+            providers: OVH, Online.net, Rackspace, Gandhi...
+            </li>
+            <li>
+            Or buy it and plug it at home <br />
+            devices: RaspberryPi, Sheevaplug, Dreamplug, Guruplug, 
+            Tonidoplug, Synology
+            </li>
+        </ul>
+        </p>
+    </div>
     <div id="documentation">
     <h2>Documentation</h2>
     <h3>Main concepts</h3>
@@ -339,6 +389,12 @@
     <p><strong>Contact</strong> A contact is described by its URL. At this
     URL lives its Newebe. So to add a friend in your contact list, you need to 
     add the URL of its Newebe to your contact list.
+    </p>
+    <p><strong>Contact list</strong> 
+    All contacts can be annotated with tags. Once a contact is tagged, it
+    is part of the list corresponding to this tags. When you share
+    you must select a tag to tell which list of contacts will receive
+    your post or your picture.
     </p>
     <h3>Tutorials</h3>
     <p>
@@ -422,11 +478,8 @@
     <p>Here are the main issues to solve :</p>
     <ul>
         <li>Packaging</li>
-        <li>Indexation</li>
         <li>Security</li>
         <li>Internationalization</li>
-        <li>File sharing</li>
-        <li>Indexation</li>
     </ul>
     <p>For more details about a subject, send an email to the mailing
     list and I will answer as soon as I can.
