@@ -147,7 +147,7 @@ class NewsHandler(NewebeAuthHandler):
             )
             micropost.save()
             postIndexer = indexer.Indexer()
-            postIndexer.index_micropost(micropost, False)
+            postIndexer.index_micropost(micropost)
             converter.add_files(micropost)
 
             self.create_owner_creation_activity(micropost, 
@@ -201,7 +201,7 @@ class NewsContactHandler(NewebeHandler):
                     )
                     micropost.save()
                     postIndexer = indexer.Indexer()
-                    postIndexer.index_micropost(micropost, False)
+                    postIndexer.index_micropost(micropost)
                     self._notify_suscribers(micropost)
 
                 self.create_creation_activity(contact, micropost, 
