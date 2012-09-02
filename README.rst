@@ -15,9 +15,9 @@ collaborative work. Unfortunately, to enjoy these new tools, we have traded
 our privacy. Newebe aims to solve this problem by providing a social 
 tool you host at your home and that connects directly with your contacts. 
 
-And no Newebe is not like the diaspora, it is thinked distributed in a
-peer-2-peer manner : it is designed to be self-hosted. It does not require
-any 3rd party server.
+Before you ask, Newebe is not like Diaspora, it is thinked distributed in a
+peer-2-peer manner : it is designed to be self-hosted and does not require
+3rd party server.
 
 
 Installation Instructions
