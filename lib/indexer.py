@@ -44,7 +44,6 @@ class Indexer():
                 urls = self._extract_urls(post.content)
                 self._augment_micropost(post, urls)
 
-
             self.writer.update_document(content=post.content,
                                         docType=u"micropost",
                                         docId=unicode(post._id),
@@ -57,14 +56,15 @@ class Indexer():
         Add given micropost to index, tag and content are stored.
         """
 
+        if checkUrl:
+            urls = self._extract_urls(micropost.content)
+            self._augment_micropost(micropost, urls)
+
         self.writer = self.index.writer()
         self.writer.update_document(content=micropost.content,
                                     docType=u"micropost",
                                     docId=unicode(micropost._id),
                                     tags=micropost.tags)
-        if checkUrl:
-            urls = self._extract_urls(micropost.content)
-            self._augment_micropost(micropost, urls)
         self.writer.commit()
 
 
@@ -91,6 +91,7 @@ class Indexer():
 
     def _augment_micropost(self, post, urls, checkUrl=True):
         for url in urls:
+            print "fecth url %s" % url
             client = HTTPClient()
             response = client.fetch(url)
             doc = html.fromstring(response.body)
@@ -103,5 +104,7 @@ class Indexer():
                 post.content += " " + title[0].text_content()
             if description:
                 post.content += " " + description[0]
+                print description[0]
+
 
 
