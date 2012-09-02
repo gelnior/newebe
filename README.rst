@@ -13,20 +13,17 @@ Feel free to share
 Growth of web applications has been a huge improvement for social sharing and
 collaborative work. Unfortunately, to enjoy these new tools, we have traded 
 our privacy. Newebe aims to solve this problem by providing a social 
-platform you host at your home and that connect directly to your contacts. 
+tool you host at your home and that connects directly with your contacts. 
 
-Dependencies
-============
-* python >= 2.6
-* couchdb >= 0.11.0
-* couchdbkit >= 0.4.8
-* tornado >= 2.0.0
-* pycurl >= 1.0.0
-* markdown >= 2.0.0
-* pytz
-* PIL >= 1.1.6
-* lettuce >= 0.1.9
+And no Newebe is not like the diaspora, it is thinked distributed in a
+peer-2-peer manner : it is designed to be self-hosted. It does not require
+any 3rd party server.
 
+
+Installation Instructions
+=========================
+
+Check the website install section : http://newebe.org/#install
 
 Set up a development environment (Ubuntu and Debian)
 ==============================================
@@ -113,3 +110,5 @@ Then run tests for each module::
    lettuce auth/tests
    lettuce lib/tests
    lettuce notes/tests
+   lettuce news/tests
+
