@@ -35,8 +35,8 @@ def run_server():
         if path.endswith('bin'):
             del sys.path[i]
 
-    from newebe.newebe_server import Newebe
-    app = Newebe()
+    from newebe.core.tests.fake_server import FakeServer
+    app = FakeServer()
     world.server = Server(app)
     try:
         world.server.start()

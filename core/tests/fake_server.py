@@ -2,7 +2,7 @@ import sys
 import tornado.ioloop
 import tornado.web
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.core.handlers import NewebeHandler
 from newebe.profile.models import UserManager
@@ -27,7 +27,7 @@ class FailureHandler(NewebeHandler):
     def get(self):
         self.return_failure("Test failed")
 
-application = tornado.web.Application([
+routes = ([
     (r"/json/", JSONHandler),
     (r"/document/", DocumentHandler),
     (r"/documents/", DocumentsHandler),
@@ -35,6 +35,12 @@ application = tornado.web.Application([
     (r"/failure/", FailureHandler),
 ])
 
-if __name__ == "__main__":
-    application.listen(7000)
-    tornado.ioloop.IOLoop.instance().start()
+class FakeServer(tornado.web.Application):
+    '''
+    Main application that allows access to Newebe data via REST services.
+    '''
+
+    def __init__(self):
+        tornado.web.Application.__init__(self, routes, debug=True)
+
+

@@ -10,14 +10,11 @@ from tornado.escape import json_decode
 
 sys.path.append("../")
 
-from newebe.settings import TORNADO_PORT
 from newebe.profile.models import UserManager, User
-from newebe.lib.test_util import NewebeClient
+from newebe.lib.test_util import NewebeClient, ROOT_URL
 from newebe.lib import date_util
 from tornado.httpclient import HTTPError
 
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
-SECOND_NEWEBE_ROOT_URL = "http://localhost:%d/" % (TORNADO_PORT + 10)
 
 ## Before running this test suite, fake server should be started.
 ##
@@ -27,7 +24,8 @@ logger = logging.getLogger(__name__)
 @before.all
 def set_browser():
     world.browser = NewebeClient()
-    world.browser.root_url = "http://localhost:7000/" 
+    world.browser.root_url="http://localhost:8888/"
+    
 
 @step(u'Deletes current user')
 def delete_current_user(step):
@@ -55,9 +53,6 @@ def checks_that_is_date_is_set(step):
 
 @step(u'Checks that tag list initialized')
 def checks_that_tag_list_initialized(step):
-    print world.user.tags
-    import pdb
-    pdb.set_trace()
     assert world.user.tags == ["all"]
 
 
@@ -104,7 +99,7 @@ def when_i_send_a_request_to_document_resource(step):
 
 @step(u'Then I got the user in response')
 def then_i_got_the_user_in_response(step):
-    assert world.response.get("name", None) is not None
+    assert world.response["rows"][0].get("name", None) is not None
 
 @step(u'When I send a request to documents resource')
 def when_i_send_a_request_to_documents_resource(step):
