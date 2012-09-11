@@ -1,14 +1,6 @@
-===========
-Newebe
-===========
-:Info: Newebe is a distributed social network
-:Author: Gelnior (http://gelnior.wordpress.com)
-:License: AGPL v3.0
-:Version: 0.5.0
-
-
-Feel free to share
-==================
+==========================
+Newebe, Feel Free to Share
+==========================
 
 Growth of web applications has been a huge improvement for social sharing and
 collaborative work. Unfortunately, to enjoy these new tools, we have traded 
@@ -111,4 +103,12 @@ Then run tests for each module::
    lettuce lib/tests
    lettuce notes/tests
    lettuce news/tests
+
+Infos
+=====
+
+:Description: Newebe is a distributed social network
+:Author: Gelnior (http://gelnior.wordpress.com)
+:License: AGPL v3.0
+:Version: 0.5.0
 
