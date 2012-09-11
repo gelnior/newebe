@@ -24,7 +24,10 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pip python-pycurl ython-imaging couchdb git openssl
+    python python-setuptools python-pip python-pycurl ython-imaging couchdb git openssl libjpeg8-dev
+
+Add link required by PIL
+    ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
 
 Then via easy_install:
 
@@ -100,9 +103,14 @@ Then run tests for each module::
 
    lettuce activities/tests
    lettuce auth/tests
+   lettuce core/tests
+   lettuce contacts/tests # require a second newebe running on port 8889
    lettuce lib/tests
-   lettuce notes/tests
-   lettuce news/tests
+   lettuce news/tests # require a second newebe running on port 8889
+   lettuce notes/tests # require a second newebe running on port 8889
+   lettuce pictures/tests # require a second newebe running on port 8889
+   lettuce profile/tests # require a second newebe running on port 8889
+
 
 Infos
 =====

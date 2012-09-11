@@ -8,7 +8,7 @@ from lettuce import step, world, before
 from tornado.httpclient import HTTPError, HTTPRequest
 from tornado.escape import json_encode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.pictures.models import PictureManager, Picture
 from newebe.activities.models import ActivityManager, Activity
@@ -21,7 +21,7 @@ from newebe.lib.test_util import NewebeClient, reset_documents, \
 
 
 @before.all
-def set_browers():
+def set_browsers():
 
     reset_documents(Contact, ContactManager.getContacts)
     reset_documents(Contact, ContactManager.getContacts, db2)
@@ -35,7 +35,7 @@ def set_browers():
         world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
         world.browser2.login("password")
 
-        world.browser.post("contacts/",
+        world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
         time.sleep(0.3)
         world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
@@ -128,7 +128,7 @@ def from_seconde_newebe_clear_all_pictures(step):
 @step(u'Post a new picture via the dedicated resource')
 def post_a_new_picture_via_the_dedicated_resource(step):
     time.sleep(1)
-    file = open("test.jpg", "r")
+    file = open("pictures/tests/test.jpg", "r")
     
     (contentType, body) = encode_multipart_formdata([], 
                             [("picture", "test.jpg", file.read())])
@@ -166,13 +166,13 @@ def download_thumbnail_of_first_returned_picture(step):
 @step(u'Check that thumbnail is the posted picture thumbnail')
 def check_that_thumbnail_is_the_posted_picture_thumbnail(step):
     size = 200, 200
-    image = Image.open("test.jpg")
+    image = Image.open("pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
 
-    file = open("th_test.jpg", "w")
+    file = open("pictures/tests/th_test.jpg", "w")
     file.write(world.response.body)
     file.close()
-    thumbnail = Image.open("th_test.jpg")
+    thumbnail = Image.open("pictures/tests/th_test.jpg")
 
     assert image.getbbox() == thumbnail.getbbox()
 
@@ -195,20 +195,20 @@ def from_second_newebe_download_the_preview_of_first_returned_picture(step):
 @step(u'Check that preview is the posted picture preview')
 def check_that_preview_is_the_posted_picture_preview(step):
     size = 1000, 1000
-    image = Image.open("test.jpg")
+    image = Image.open("pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
 
-    file = open("prev_test.jpg", "w")
+    file = open("pictures/tests/prev_test.jpg", "w")
     file.write(world.response.body)
     file.close()
-    preview = Image.open("prev_test.jpg")
+    preview = Image.open("pictures/tests/prev_test.jpg")
 
     assert image.getbbox() == preview.getbbox()
 
 
 @step(u'Ensure it is the same that posted picture')
 def ensure_it_is_the_same_that_posted_picture(step):
-    file = open("test.jpg", "r")
+    file = open("pictures/tests/test.jpg", "r")
     assert file.read() == world.response.body
 
 @step(u'Ensure that picture date is ok with time zone')
@@ -236,7 +236,7 @@ def check_that_last_activity_correspond_to_a_picture_creation(step):
 @step(u'From second Newebe, retrieve pictures')
 def from_second_newebe_retrieve_last_pictures(step):
     world.pictures = []
-    world.pictures = world.browser2.fetch_documents("pictures/last/")
+    world.pictures = world.browser2.fetch_documents("pictures/all/")
 
 @step(u'From second Newebe, retrieve activities')
 def from_second_newebe_retrieve_activities(step):
@@ -273,10 +273,10 @@ def from_second_newebe_request_for_download(step):
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):
     size = 200, 200
-    image = Image.open("test.jpg")
+    image = Image.open("pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
-    image.save("th_test.jpg")
-    file = open("th_test.jpg")
+    image.save("pictures/tests/th_test.jpg")
+    file = open("pictures/tests/th_test.jpg")
 
     for i in range(1, 4):
         picture = Picture(
@@ -314,7 +314,7 @@ def retrieve_first_picture_hrough_handler_via_its_id(step):
 
 @step(u'Check that picture title is the same that first picture')
 def check_that_picture_title_is_the_same_that_first_picture(step):
-    assert world.picture["title"] == world.pictures[0].get("title", "")
+    assert world.picture["rows"][0]["title"] == world.pictures[0].get("title", "")
 
 @step(u'Through handler delete first picture')
 def through_handler_delete_first_picture(step):
@@ -381,8 +381,9 @@ def when_i_send_a_retry_request(step):
                 "activityId" : world.activity._id,
                 "extra": "" }
 
-    world.browser.post(world.picture.get_path() + "retry/",
-                      json_encode(idsDict))
+    url = world.picture.get_path() + "retry/"
+    print url
+    world.browser.post(url, json_encode(idsDict))
 
 @step(u'Then I have a picture and an activity for it')
 def then_i_have_a_picture_and_an_activity_for_it(step):
