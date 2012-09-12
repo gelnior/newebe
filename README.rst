@@ -27,20 +27,20 @@ Install following packages:
     python python-setuptools python-pip python-pycurl python-imaging couchdb
     git libjpeg8-dev libxml2-dev libxslt-dev
 
-Add link required by PIL:
+Add link required by PIL::
 
     ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
 
-Install virtualenv:
+Install virtualenv::
 
     sudo pip install virtualenv
 
-Retrieve Newebe project:
+Retrieve Newebe project::
 
    git clone http://github.com/gelnior/newebe.git 
    cd newebe
 
-Create and activate virtualenv:
+Create and activate virtualenv::
 
     virtualenv --no-site-packages virtualenv
     . virtualenv/bin/activate
@@ -52,7 +52,7 @@ Then via easy_install::
 
 In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
-Then, still in Newebe directory set DB by running:
+Then, still in Newebe directory set DB by running::
 
    python syncdb.py
 
@@ -71,7 +71,7 @@ NB: The best way to deal with specific configuration is to set this variable in 
     DEBUG = True
     COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
-Run server:
+Run server::
 
     python newebe_server.py
 
