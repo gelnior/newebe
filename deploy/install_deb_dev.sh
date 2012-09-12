@@ -38,9 +38,9 @@ sudo apt-get build-dep python-imaging
 sudo pip install virtualenv
 git clone http://github.com/gelnior/newebe.git
 
-virtualenv --no-site-packages virtualenv
 
 cd newebe
+virtualenv --no-site-packages virtualenv
 . virtualenv/bin/activate
 
 pip install -r deploy/requirements.txt
