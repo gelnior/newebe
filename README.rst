@@ -25,7 +25,12 @@ Set up a development environment (Ubuntu and Debian)
 Install following packages:
 
     python python-setuptools python-pip python-pycurl python-imaging couchdb
-    git libjpeg8-dev libxml2-dev libxslt-dev
+    git libxml2-dev libxslt-dev
+
+
+For ubuntu::
+
+    sudo apt-get build-dep python-imaging
 
 Add link required by PIL::
 
