@@ -32,13 +32,15 @@ echo "Which time zone do you want for your database (default is Europe/Paris) ?"
     esac
 done
 
-sudo apt-get install python python-setuptools python-pip python-pycurl python-imaging couchdb git libjpeg8-dev libxml2-dev libxslt-dev
+sudo apt-get install python python-setuptools python-pip python-pycurl python-imaging couchdb git libxml2-dev libxslt-dev
+sudo apt-get build-dep python-imaging
 
 sudo pip install virtualenv
 git clone http://github.com/gelnior/newebe.git
-cd newebe
 
 virtualenv --no-site-packages virtualenv
+
+cd newebe
 . virtualenv/bin/activate
 
 pip install -r deploy/requirements.txt
