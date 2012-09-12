@@ -24,8 +24,8 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pip python-pycurl python-imaging couchdb git openssl libjpeg8-dev
-    libxml2-dev libxslt-dev
+    python python-setuptools python-pip python-pycurl python-imaging couchdb
+    git libjpeg8-dev libxml2-dev libxslt-dev
 
 Add link required by PIL:
 
@@ -45,7 +45,7 @@ Create and activate virtualenv:
     virtualenv --no-site-packages virtualenv
     . virtualenv/bin/activate
 
-Then via easy_install:
+Then via easy_install::
 
     pip install -r deploy/requirements.txt
     pip install -r deploy/requirements-dev.txt
