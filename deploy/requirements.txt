@@ -3,3 +3,5 @@ Tornado==2.2.0
 markdown==2.0
 pytz
 PIL
+whoosh
+lxml

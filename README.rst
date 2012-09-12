@@ -24,18 +24,31 @@ Set up a development environment (Ubuntu and Debian)
 
 Install following packages:
 
-    python python-setuptools python-pip python-pycurl ython-imaging couchdb git openssl libjpeg8-dev
+    python python-setuptools python-pip python-pycurl python-imaging couchdb git openssl libjpeg8-dev
+    libxml2-dev libxslt-dev
 
-Add link required by PIL
+Add link required by PIL:
+
     ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
 
-Then via easy_install:
+Install virtualenv:
 
-    pip install -r deploy/requirements.txt
+    sudo pip install virtualenv
 
 Retrieve Newebe project:
 
    git clone http://github.com/gelnior/newebe.git 
+   cd newebe
+
+Create and activate virtualenv:
+
+    virtualenv --no-site-packages virtualenv
+    . virtualenv/bin/activate
+
+Then via easy_install:
+
+    pip install -r deploy/requirements.txt
+    pip install -r deploy/requirements-dev.txt
 
 In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
