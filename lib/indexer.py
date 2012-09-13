@@ -84,13 +84,13 @@ class Indexer():
             return [result["docId"] for result in results]
 
 
-    def remove_doc(self, _id):
+    def remove_doc(self, doc):
         """
         Remove given doc from index (doc of which docId is equal to id).
         """
    
         self.writer = self.index.writer()
-        self.writer.delete_by_term("docId", unicode(_id))
+        self.writer.delete_by_term("docId", unicode(doc._id))
         self.writer.commit()
 
 

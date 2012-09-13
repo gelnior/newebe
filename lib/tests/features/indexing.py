@@ -66,7 +66,6 @@ def then_i_got_it_returns_me_micropost_the_micropost_about_group1(step, group1):
     assert_equals(len(world.ids), 1)
     assert_equals(world.ids[0], world.microposts[3]._id)
 
-
 @step(u'Given I create three microposts with links')
 def given_i_create_three_microposts_with_links(step):
     world.microposts = []
@@ -87,7 +86,7 @@ def then_it_returns_the_micropost_about_with_google_link(step):
 
 @step(u'And I remove from index the micropost about "([^"]*)"')
 def and_i_remove_from_index_the_micropost_about_group1(step, group1):
-    world.indexer.remove_doc(world.microposts[3]._id)
+    world.indexer.remove_doc(world.microposts[3])
     
 @step(u'Then there is no micropost returned')
 def then_there_is_no_micropost_returned(step):
