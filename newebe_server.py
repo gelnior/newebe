@@ -38,7 +38,8 @@ class NewebeIOLoop(IOLoop):
     '''
     Override of Tornado IO loop to avoid logging when async requests fail.
     '''
-    def handle_callback_exception(callback):
+    def handle_callback_exception(self, callback):
+        print "test"
         pass
 
 

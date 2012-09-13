@@ -144,13 +144,13 @@ class NewsHandler(NewebeAuthHandler):
                 tags=data["tags"]
             )
             micropost.save()
-            postIndexer = indexer.Indexer()
-            postIndexer.index_micropost(micropost)
             converter.add_files(micropost)
 
             self.create_owner_creation_activity(micropost,
                                                 "writes", "micropost")
             self.send_creation_to_contacts(CONTACT_PATH, micropost)
+            postIndexer = indexer.Indexer()
+            postIndexer.index_micropost(micropost)
 
             logger.info("Micropost successfuly posted.")
             self.return_json(micropost.toJson())
@@ -197,13 +197,13 @@ class NewsContactHandler(NewebeHandler):
                     )
                     micropost.save()
 
-                    postIndexer = indexer.Indexer()
-                    postIndexer.index_micropost(micropost)
-                    self._notify_suscribers(micropost)
-
                     self.create_creation_activity(contact, micropost,
                             "writes", "micropost")
                     self._write_create_log(micropost)
+
+                    postIndexer = indexer.Indexer()
+                    postIndexer.index_micropost(micropost)
+                    self._notify_suscribers(micropost)
 
                 self.return_json(micropost.toJson(), 201)
 

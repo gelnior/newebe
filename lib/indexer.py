@@ -50,11 +50,12 @@ class Indexer():
         self.writer = self.index.writer()
         for post in microposts:
 
+            text = post.content
             if checkUrl:
                 urls = self._extract_urls(post.content)
-                self._augment_micropost(post, urls)
+                text = self._augment_micropost(post, urls)
 
-            self.writer.update_document(content=post.content,
+            self.writer.update_document(content=text,
                                         docType=u"micropost",
                                         docId=unicode(post._id),
                                         tags=post.tags)
@@ -65,12 +66,13 @@ class Indexer():
         Add given micropost to index, tag and content are stored.
         """
 
+        text = micropost.content
         if checkUrl:
             urls = self._extract_urls(micropost.content)
-            self._augment_micropost(micropost, urls)
+            text = self._augment_micropost(micropost, urls)
 
         self.writer = self.index.writer()
-        self.writer.update_document(content=micropost.content,
+        self.writer.update_document(content=text,
                                     docType=u"micropost",
                                     docId=unicode(micropost._id),
                                     tags=micropost.tags)
@@ -116,6 +118,7 @@ class Indexer():
         to given micropost (for indexation purpose).
         '''
 
+        text = unicode(post.content)
         for url in urls:
             client = HTTPClient()
             response = client.fetch(url)
@@ -127,6 +130,8 @@ class Indexer():
                     '/html/head/meta[@name="description"]/@content')
 
             if title:
-                post.content += " " + title[0].text_content()
+                text += " " + title[0].text_content()
             if description:
-                post.content += " " + description[0]
+                text += " " + description[0]
+
+        return text
