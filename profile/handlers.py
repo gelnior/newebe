@@ -23,14 +23,12 @@ class ProfileUpdater:
     sending_data = False
     contact_requests = {}
 
-
     def send_profile_to_contacts(self):
         '''
-        External methods to not send too much times the changed profile. 
+        External methods to not send too much times the changed profile.
         A timer is set to wait for other modifications before running this
         function that sends modification requests to every contacts.
         '''
-
         client = HTTPClient()
         self.sending_data = False
 
@@ -38,34 +36,37 @@ class ProfileUpdater:
         jsonbody = user.toJson()
 
         activity = Activity(
-            authorKey = user.key,
-            author = user.name,
-            verb = "modifies",
-            docType = "profile",
-            method = "PUT",
-            docId = "none",
-            isMine = True
+            authorKey=user.key,
+            author=user.name,
+            verb="modifies",
+            docType="profile",
+            method="PUT",
+            docId="none",
+            isMine=True
         )
-        activity.save()     
+        activity.save()
 
         for contact in ContactManager.getTrustedContacts():
 
             try:
-                request = HTTPRequest("%scontacts/update-profile/" % contact.url, 
-                             method="PUT", body=jsonbody, validate_cert=False)
-        
+                request = HTTPRequest(
+                    "%scontacts/update-profile/" % contact.url,
+                    method="PUT",
+                    body=jsonbody,
+                    validate_cert=False)
+
                 response = client.fetch(request)
 
                 if response.error:
                     logger.error("""
-                        Profile sending to a contact failed, error infos are 
+                        Profile sending to a contact failed, error infos are
                         stored inside activity.
                     """)
                     activity.add_error(contact)
                     activity.save()
             except:
                 logger.error("""
-                    Profile sending to a contact failed, error infos are 
+                    Profile sending to a contact failed, error infos are
                     stored inside activity.
                 """)
                 activity.add_error(contact)
@@ -73,10 +74,9 @@ class ProfileUpdater:
 
             logger.info("Profile update sent to all contacts.")
 
-  
     def forward_profile(self):
         '''
-        Because profile modification occurs a lot in a short time. The 
+        Because profile modification occurs a lot in a short time. The
         profile is forwarded only every two minutes. It avoids to create
         too much activities for this profile modification.
         '''
@@ -89,7 +89,6 @@ class ProfileUpdater:
 profile_updater = ProfileUpdater()
 
 
-
 class UserHandler(NewebeAuthHandler):
     '''
     This resource allows :
@@ -99,25 +98,20 @@ class UserHandler(NewebeAuthHandler):
      after a pre-defined time.
     '''
 
-
     def get(self):
         '''
         Retrieves current user (newebe owner) data at JSON format.
         '''
-
         user = UserManager.getUser()
-
         self.return_document(user)
-
 
     def put(self):
         '''
         Modifies current user data with sent data (user object at JSON format).
         Then forwards it to contacts after a pre-defined time.
         '''
-
         user = UserManager.getUser()
-    
+
         data = self.get_body_as_dict(
                 expectedFields=["name", "url", "description"])
 
@@ -134,12 +128,12 @@ class UserHandler(NewebeAuthHandler):
             self.return_failure("Wrong data were sent.")
 
 
-
 # Template handlers.
 
 class ProfileContentTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/profile_content.html")
+
 
 class ProfilePublicTHandler(NewebeHandler):
     def get(self):
@@ -147,21 +141,23 @@ class ProfilePublicTHandler(NewebeHandler):
                     profile=UserManager.getUser(),
                     isTheme=self.is_file_theme_exists())
 
+
 class ProfileMenuContentTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/profile_menu_content.html")
+
 
 class ProfileTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/profile.html",
                     isTheme=self.is_file_theme_exists())
 
+
 class ProfileTutorial1THandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/tutorial_1.html")
 
+
 class ProfileTutorial2THandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/tutorial_2.html")
-
-

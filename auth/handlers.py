@@ -10,11 +10,10 @@ from newebe.core.handlers import NewebeAuthHandler
 class LoginHandler(NewebeHandler):
     '''
     * GET:  displaying page for logging in.
-    * POST: Get password via a form. Set a secure cookie if password is OK 
+    * POST: Get password via a form. Set a secure cookie if password is OK
     then redirects to root page.
     Else it redirects to login page.
     '''
-
 
     def get(self):
         '''
@@ -39,10 +38,9 @@ class LoginHandler(NewebeHandler):
         elif not user:
             self.redirect("/register/")
 
-
     def post(self):
         '''
-        Get password via a form. Set a secure cookie if password is OK 
+        Get password via a form. Set a secure cookie if password is OK
         then redirects to root page.
         Else it redirects to login page.
         '''
@@ -50,7 +48,7 @@ class LoginHandler(NewebeHandler):
         password = self.get_argument("password")
         user = UserManager.getUser()
 
-        if user and user.password == hashlib.sha224(password).hexdigest():  
+        if user and user.password == hashlib.sha224(password).hexdigest():
             self.set_secure_cookie("password", password)
             self.redirect("/")
 
@@ -60,14 +58,13 @@ class LoginHandler(NewebeHandler):
 
 class LoginJsonHandler(NewebeHandler):
     '''
-    * POST: Get password via a json object.  Sets a secure cookie if password 
-    is OK. Else it returns an error response. 
+    * POST: Get password via a json object.  Sets a secure cookie if password
+    is OK. Else it returns an error response.
     '''
-
 
     def post(self):
         '''
-        Get password via a json object.  Sets a secure cookie if password 
+        Get password via a json object.  Sets a secure cookie if password
         is OK. Else it returns an error response.
         '''
         data = self.get_body_as_dict(expectedFields=["password"])
@@ -75,7 +72,7 @@ class LoginJsonHandler(NewebeHandler):
         if data:
             password = data["password"]
             user = UserManager.getUser()
-    
+
             if user \
                and user.password == hashlib.sha224(password).hexdigest():
                 self.set_secure_cookie("password", password)
@@ -83,16 +80,15 @@ class LoginJsonHandler(NewebeHandler):
 
             else:
                 self.return_failure("Wrong password.", 400)
-            
+
         else:
             self.return_failure("Wrong password.", 400)
-        
+
 
 class LogoutHandler(NewebeHandler):
     '''
     GET : Removes secure cookie for password then redirects to login page.
     '''
-
 
     def get(self):
         '''
@@ -107,11 +103,10 @@ class RegisterPasswordTHandler(NewebeHandler):
     '''
     Handler for handling user password registration.
 
-    * GET: If user does not have password it displays password registration 
+    * GET: If user does not have password it displays password registration
            page.
     * POST: Sets given password as user password (after sha-224 encryption).
     '''
-
 
     def get(self):
         '''
@@ -120,14 +115,13 @@ class RegisterPasswordTHandler(NewebeHandler):
 
         user = UserManager.getUser()
         if user and user.password:
-            self.redirect("/") 
+            self.redirect("/")
         else:
             self.render("../auth/templates/password.html",
                         isTheme=self.is_file_theme_exists())
 
         self.render("../auth/templates/password.html",
                     isTheme=self.is_file_theme_exists())
-
 
     def post(self):
         '''
@@ -154,26 +148,27 @@ class RegisterPasswordTHandler(NewebeHandler):
                     user.password = password
                     user.save()
                     self.set_secure_cookie("password", postedPassword)
-    
+
                     self.return_json(user.toJson())
 
                 else:
                     self.return_failure(
-                        "Password is too short. User password is not set.", 400)
+                        "Password is too short. User password is not set.",
+                        400)
 
             else:
                 self.return_failure(
-                        "Data are not correct. User password is not set.", 400)
+                    "Data are not correct. User password is not set.",
+                    400)
 
 
 class RegisterTHandler(NewebeHandler):
     '''
     * GET: If no user exist, it redirects to register root page, else
     it returns register page.
-    * POST: Creates a new user (if user exists, error response is returned) from
-    sent data (user object at JSON format).
+    * POST: Creates a new user (if user exists, error response is returned)
+    from sent data (user object at JSON format).
     '''
-
 
     def get(self):
         '''
@@ -182,24 +177,23 @@ class RegisterTHandler(NewebeHandler):
         '''
 
         if UserManager.getUser():
-           self.redirect("/") 
+            self.redirect("/")
         else:
             self.render("../auth/templates/register.html",
                         isTheme=self.is_file_theme_exists())
-
 
     def post(self):
         '''
         Create a new user (if user exists, error response is returned) from
         sent data (user object at JSON format).
-        '''      
+        '''
 
         if UserManager.getUser():
             self.return_failure("User already exists.")
 
         else:
             data = self.get_body_as_dict(expectedFields=["name"])
-        
+
             if data:
                 user = User()
                 user.name = data['name']
@@ -211,7 +205,8 @@ class RegisterTHandler(NewebeHandler):
 
             else:
                 self.return_failure(
-                        "Data are not correct. User has not been created.", 400)
+                    "Data are not correct. User has not been created.",
+                    400)
 
 
 class UserPasswordHandler(NewebeAuthHandler):
@@ -221,29 +216,27 @@ class UserPasswordHandler(NewebeAuthHandler):
 
     def put(self):
         '''
-        If user exists, it changes his password. 
+        If user exists, it changes his password.
         '''
 
         user = UserManager.getUser()
 
         if user:
 
-           data = self.get_body_as_dict(expectedFields=["password"])
+            data = self.get_body_as_dict(expectedFields=["password"])
 
-        
-           if data:
-               postedPassword = data['password']
+            if data:
+                postedPassword = data['password']
 
-               if postedPassword and len(postedPassword) >= 3:
-                   user.password =  \
-                       hashlib.sha224(postedPassword).hexdigest()
-                   user.save()
-                   self.set_secure_cookie("password", user.password)
-               
-               else:
-                   self.return_failure(
+                if postedPassword and len(postedPassword) >= 3:
+                    user.password =  \
+                        hashlib.sha224(postedPassword).hexdigest()
+                    user.save()
+                    self.set_secure_cookie("password", user.password)
+
+                else:
+                    self.return_failure(
                         "Password must be at least 3 characters long.", 400)
-
 
 
 # Template handlers
@@ -251,5 +244,3 @@ class UserPasswordHandler(NewebeAuthHandler):
 class RegisterPasswordContentTHandler(NewebeHandler):
     def get(self):
         self.render("templates/password_content.html")
-
-

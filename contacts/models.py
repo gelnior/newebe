@@ -20,7 +20,6 @@ class ContactManager():
     Methods to easily retrieve contacts from database.
     '''
 
-
     @staticmethod
     def getContacts():
         '''
@@ -28,9 +27,8 @@ class ContactManager():
         '''
 
         contacts = Contact.view("core/contact")
- 
-        return contacts 
 
+        return contacts
 
     @staticmethod
     def getPendingContacts():
@@ -39,9 +37,8 @@ class ContactManager():
         '''
 
         contacts = Contact.view("core/pending")
- 
-        return contacts 
 
+        return contacts
 
     @staticmethod
     def getRequestedContacts():
@@ -50,9 +47,8 @@ class ContactManager():
         '''
 
         contacts = Contact.view("core/requested")
- 
-        return contacts 
 
+        return contacts
 
     @staticmethod
     def getTrustedContacts(tag=None):
@@ -64,9 +60,8 @@ class ContactManager():
             contacts = Contact.view("core/contacttags", key=tag)
         else:
             contacts = Contact.view("core/trusted")
- 
-        return contacts 
 
+        return contacts
 
     @staticmethod
     def getTrustedContact(key):
@@ -75,13 +70,12 @@ class ContactManager():
         '''
 
         contacts = Contact.view("core/trusted", key=key)
-      
+
         contact = None
         if contacts:
-            contact = contacts.first() 
+            contact = contacts.first()
 
         return contact
-
 
     @staticmethod
     def getContact(slug):
@@ -90,10 +84,10 @@ class ContactManager():
         '''
 
         contacts = Contact.view("core/contact", key=slug)
-      
+
         contact = None
         if contacts:
-            contact = contacts.first() 
+            contact = contacts.first()
 
         return contact
 
@@ -103,16 +97,16 @@ class ContactManager():
         Return the list of all tags that has been set on contacts.
         '''
 
-        return [result["key"] for result in Contact.view("core/tags", 
+        return [result["key"] for result in Contact.view("core/tags",
                                                          group=True)]
 
 
 class Contact(NewebeDocument):
     '''
-    Contact describes another newebe with which you are going to share thing 
+    Contact describes another newebe with which you are going to share thing
     (a "friend").
     '''
-    
+
     name = StringProperty()
     key = StringProperty()
     url = StringProperty(required=True)
@@ -120,7 +114,6 @@ class Contact(NewebeDocument):
     slug = StringProperty(required=True)
     requestDate = DateTimeProperty()
     description = StringProperty()
-    
 
     def toDict(self, localized=True):
         '''
@@ -133,7 +126,7 @@ class Contact(NewebeDocument):
         docDict = NewebeDocument.toDict(self, localized)
 
         if localized and docDict.get("requestDate", ""):
-            
+
             utc_date = date_util.get_date_from_db_date(
                             docDict.get("requestDate"))
             date = date_util.convert_utc_date_to_timezone(utc_date)

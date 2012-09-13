@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import logging
-import sys, os
+import sys
+import os
 
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
@@ -35,7 +36,7 @@ class Newebe(Application):
 
 class NewebeIOLoop(IOLoop):
     '''
-    Override of Tornado IO loop to avoid logging when async requests fail.    
+    Override of Tornado IO loop to avoid logging when async requests fail.
     '''
     def handle_callback_exception(callback):
         pass
@@ -44,7 +45,7 @@ class NewebeIOLoop(IOLoop):
 if __name__ == '__main__':
 
     '''
-    Main function : it is here where tornado server is configured and launched 
+    Main function : it is here where tornado server is configured and launched
     as a Newebe instance.
     '''
 
@@ -68,23 +69,19 @@ if __name__ == '__main__':
             "keyfile": PRIVATE_KEY,
         }
     else:
-        ssl_options = None 
+        ssl_options = None
 
     try:
         # Server running.
         http_server = HTTPServer(tornado_app, xheaders=True,
-                                 ssl_options = ssl_options)
+                                 ssl_options=ssl_options)
 
         http_server.listen(TORNADO_PORT)
         logger.info("Starts Newebe on port %d." % TORNADO_PORT)
         ioloop = NewebeIOLoop.instance()
         ioloop.start()
 
-
     except KeyboardInterrupt, e:
         ioloop.stop()
         print ""
         logger.info("Server stopped.")
-
-        
-

@@ -23,23 +23,22 @@ class SynchronizeHandler(NewebeAuthHandler):
     '''
     Handles synchronization request.
 
-    * GET: Asks for all contacts to resend their data from last month. As answer
-    contacts send their profile. So contact data are updated, then contacts
-    resend all their from their last month just like they were posted now.
+    * GET: Asks for all contacts to resend their data from last month. As
+    answer contacts send their profile. So contact data are updated, then
+    contacts resend all their from their last month just like they were posted
+    now.
     Current newebe has to check himself if he already has these data.
     '''
-
 
     @asynchronous
     def get(self):
         '''
-        Asks for all contacts to resend their data from last month. 
-        As answer contacts send their profile. So contact data are updated, 
-        then contacts resend all their from their last month just like they 
+        Asks for all contacts to resend their data from last month.
+        As answer contacts send their profile. So contact data are updated,
+        then contacts resend all their from their last month just like they
         were posted now.
         Current newebe has to check himself if he already has these data.
         '''
-
         client = ContactClient()
         user = UserManager.getUser()
 
@@ -49,42 +48,38 @@ class SynchronizeHandler(NewebeAuthHandler):
 
         self.return_success("", 200)
 
-
     @asynchronous
     def ask_to_contact_for_sync(self, client, user, contact):
         '''
         Sends a sync request to *contact*.
         '''
-
         body = user.asContact().toJson()
         logger.info("Start syncing with : " + contact.url)
         url = "%ssynchronize/contact/" % contact.url
         self.contacts[url] = contact
-        client.post(contact, "synchronize/contact/", body, 
-                    callback=self.on_synchronize_posts) 
-
+        client.post(contact, "synchronize/contact/", body,
+                    callback=self.on_synchronize_posts)
 
     def on_synchronize_posts(self, response, **kwargs):
         '''
         When sync response is received, it extracts contact data from it
         then update local contact with it.
         '''
-
         if not response.error:
             contact = self.contacts[response.request.url]
 
             if contact:
-                remoteContact = self.get_json_from_response(response)["rows"][0]
+                json_from_response = self.get_json_from_response(response)
+                remoteContact = json_from_response["rows"][0]
                 contact.name = remoteContact.get("name", "")
                 contact.description = remoteContact.get("description", "")
                 contact.save()
-        
+
 
 class SynchronizeContactHandler(NewebeHandler):
     '''
     Handler used to handle sync request.
     '''
-
 
     @asynchronous
     def post(self):
@@ -92,10 +87,9 @@ class SynchronizeContactHandler(NewebeHandler):
         When sync request is received, if contact is a trusted contact, it
         sends again all posts from last month to contact.
         '''
-            
         client = ContactClient()
-        now = datetime.datetime.utcnow() 
-        date = now - datetime.timedelta(365/12)
+        now = datetime.datetime.utcnow()
+        date = now - datetime.timedelta(365 / 12)
 
         contact = self.get_body_as_dict()
         localContact = ContactManager.getTrustedContact(contact.get("key", ""))
@@ -108,14 +102,12 @@ class SynchronizeContactHandler(NewebeHandler):
         else:
             self.return_failure("Contact does not exist.")
 
-
     def send_posts_to_contact(self, client, contact, now, date):
         '''
         Send microposts from last month to given contact.
         '''
-
         microposts = MicroPostManager.get_mine(
-                startKey=date_util.get_db_date_from_date(now), 
+                startKey=date_util.get_db_date_from_date(now),
                 endKey=date_util.get_db_date_from_date(date))
 
         for micropost in microposts:
@@ -123,24 +115,24 @@ class SynchronizeContactHandler(NewebeHandler):
 
             client.post(contact, MICROPOST_PATH, body, self.onContactResponse)
 
-
     def send_pictures_to_contact(self, client, contact, now, date):
         '''
         Send pictures from last month to given contact.
         '''
-
         pictures = PictureManager.get_owner_last_pictures(
-                startKey=date_util.get_db_date_from_date(now), 
+                startKey=date_util.get_db_date_from_date(now),
                 endKey=date_util.get_db_date_from_date(date))
 
         for picture in pictures:
-            client.post_files(contact, PICTURE_PATH, 
-                    { "json": str(picture.toJson(localized=False)) },
-                    [("picture", str(picture.path), 
-                            picture.fetch_attachment("th_" + picture.path))]
-                    , self.onContactResponse)
-
+            client.post_files(
+                contact,
+                PICTURE_PATH,
+                {"json": str(picture.toJson(localized=False))},
+                [("picture",
+                  str(picture.path),
+                  picture.fetch_attachment("th_" + picture.path))
+                ],
+                self.onContactResponse)
 
     def onContactResponse(self, response, **kwargs):
         pass
-

@@ -20,7 +20,7 @@ db2 = server.get_or_create_db(COUCHDB_DB_NAME + "2")
 
 def reset_documents(cls, get_func, database=db):
     '''
-    Clear all documents corresponding to *cls*. 
+    Clear all documents corresponding to *cls*.
     '''
 
     cls._db = database
@@ -37,44 +37,42 @@ class NewebeClient(HTTPClient):
     Tornado client wrapper to write requests to Newebe faster.
     '''
 
-
     def login(self, password):
         '''
         Grab authentication cookie from login request.
         '''
 
-        response = self.post("login/json/", body='{"password":"%s"}' % password)        
+        response = self.post("login/json/",
+                             body='{"password":"%s"}' % password)
         assert response.headers["Set-Cookie"].startswith("password=")
         self.cookie = response.headers["Set-Cookie"]
-
 
     def set_default_user(self, url=ROOT_URL):
         '''
         Set to DB default user. This is useful for automatic login.
         '''
-        
+
         self.root_url = url
 
         self.user = UserManager.getUser()
         if self.user:
             self.user.delete()
-        
+
         self.user = User(
-            name = "John Doe",
-            password = hashlib.sha224("password").hexdigest(),
-            key = "key",
-            authorKey = "authorKey",
-            url = url,
-            description = "my description"
+            name="John Doe",
+            password=hashlib.sha224("password").hexdigest(),
+            key="key",
+            authorKey="authorKey",
+            url=url,
+            description="my description"
         )
         self.user.save()
-
 
     def set_default_user_2(self, url=ROOT_URL):
         '''
         Set to DB default user. This is useful for automatic login.
         '''
-        
+
         self.root_url = url
         User._db = db2
 
@@ -83,16 +81,15 @@ class NewebeClient(HTTPClient):
             self.user.delete()
 
         self.user = User(
-            name = "Dan Frazer",
-            password = hashlib.sha224("password").hexdigest(),
-            key = "key2",
-            authorKey = "authorKey2",
-            url = url,
-            description = "my description"
+            name="Dan Frazer",
+            password=hashlib.sha224("password").hexdigest(),
+            key="key2",
+            authorKey="authorKey2",
+            url=url,
+            description="my description"
         )
         self.user.save()
         User._db = db
-
 
     def get(self, url):
         '''
@@ -107,7 +104,6 @@ class NewebeClient(HTTPClient):
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
 
-
     def post(self, url, body):
         '''
         Perform a POST request.
@@ -116,11 +112,13 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url, method="POST", body=body, validate_cert=False)
+        request = HTTPRequest(url,
+                              method="POST",
+                              body=body,
+                              validate_cert=False)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
-
 
     def put(self, url, body):
         '''
@@ -130,12 +128,14 @@ class NewebeClient(HTTPClient):
         if hasattr(self, "root_url") and self.root_url:
             url = self.root_url + url
 
-        request = HTTPRequest(url, method="PUT", body=body, validate_cert=False)
+        request = HTTPRequest(url,
+                              method="PUT",
+                              body=body,
+                              validate_cert=False)
         if hasattr(self, "cookie") and self.cookie:
             request.headers["Cookie"] = self.cookie
-            
-        return HTTPClient.fetch(self, request)
 
+        return HTTPClient.fetch(self, request)
 
     def delete(self, url):
         '''
@@ -150,7 +150,6 @@ class NewebeClient(HTTPClient):
             request.headers["Cookie"] = self.cookie
         return HTTPClient.fetch(self, request)
 
-
     def fetch_document_from_url(self, url):
         '''
         Retrieve newebe document from a givent url
@@ -160,9 +159,8 @@ class NewebeClient(HTTPClient):
 
         assert response.code == 200
         assert response.headers["Content-Type"] == "application/json"
- 
-        return json_decode(response.body)
 
+        return json_decode(response.body)
 
     def fetch_documents_from_url(self, url):
         '''
@@ -173,10 +171,9 @@ class NewebeClient(HTTPClient):
 
         assert response.code == 200
         assert_in("application/json", response.headers["Content-Type"])
- 
+
         world.data = json_decode(response.body)
         return world.data["rows"]
-
 
     def fetch_document(self, path):
         '''
@@ -185,11 +182,9 @@ class NewebeClient(HTTPClient):
 
         return self.fetch_document_from_url(path)
 
-
     def fetch_documents(self, path):
         '''
         Retrieve document list from path located on localhost server.
         '''
 
-        return self.fetch_documents_from_url(path)    
-        
+        return self.fetch_documents_from_url(path)

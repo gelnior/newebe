@@ -10,7 +10,6 @@ from threading import Thread
 from lettuce import before, after, world
 
 
-
 class Server(Thread):
     def __init__(self, app):
         self.http = tornado.httpserver.HTTPServer(app)
@@ -29,6 +28,7 @@ class Server(Thread):
             print ""
             logger.info("Newebe stopped.")
 
+
 @before.all
 def run_server():
     for i, path in enumerate(sys.path):
@@ -40,10 +40,11 @@ def run_server():
     world.server = Server(app)
     try:
         world.server.start()
-        
+
     except KeyboardInterrupt:
         world.server.http.stop()
         tornado.ioloop.IOLoop.instance().stop()
+
 
 @after.all
 def kill_server(total):
@@ -54,5 +55,3 @@ def kill_server(total):
     world.server.http.stop()
     tornado.ioloop.IOLoop.instance().stop()
     sys.exit()
-
-

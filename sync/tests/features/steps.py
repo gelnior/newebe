@@ -31,12 +31,13 @@ def set_default_user():
     world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
     world.browser.login("password")
     world.browser2.login("password")
-    
+
     world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
     time.sleep(0.3)
-    world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
-
+    world.browser2.put(
+        "contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")),
+        "")
 
 
 @before.each_scenario
@@ -50,15 +51,16 @@ def delete_all_pictures(scenario):
     reset_documents(Picture, PictureManager.get_last_pictures)
     reset_documents(Picture, PictureManager.get_last_pictures, db2)
 
+
 # Microposts
 
 @step(u'5 posts are created on first newebe')
 def posts_on_first_newebe(step):
     for i in range(5):
         micropost = MicroPost(
-            author = world.user.name,
-            authorKey = world.user.key,
-            content = "content %s" % i,
+            author=world.user.name,
+            authorKey=world.user.key,
+            content="content %s" % i,
         )
         time.sleep(1)
         micropost.save()
@@ -69,10 +71,12 @@ def when_i_ask_for_synchronization(step):
     response = world.browser2.get("synchronize/")
     assert response.code == 200
 
+
 @step(u'5 posts from first newebe are stored in second newebe')
 def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
     posts = world.browser2.fetch_documents("microposts/all/")
     assert 5 == len(posts), posts
+
 
 # Pictures
 
@@ -81,13 +85,13 @@ def and_5_pictures_are_created_on_first_newebe(step):
     file = open("../../pictures/tests/test.jpg")
     for i in range(1, 6):
         picture = Picture(
-            title = "Pic 0%d" % i,
-            author =  world.user.name,
-            authorKey = world.user.key,
-            date = datetime.datetime(2011, 11, i),
-            path = "test.jpg",
-            contentType = "image/jpeg",
-            isMine = True
+            title="Pic 0%d" % i,
+            author=world.user.name,
+            authorKey=world.user.key,
+            date=datetime.datetime(2011, 11, i),
+            path="test.jpg",
+            contentType="image/jpeg",
+            isMine=True
         )
         picture.save()
         picture.put_attachment(file.read(), "th_test.jpg")
@@ -99,12 +103,14 @@ def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
     pictures = world.browser2.fetch_documents("pictures/all/")
     assert 5 == len(pictures)
 
+
 # Profile
 
 @step(u'Modify first newebe profile directly to DB')
 def modify_first_newebe_profile_directly_to_db(step):
     world.user.description = "new description"
     world.user.save()
+
 
 @step(u'Check that profile saved on second newebe is the one set on first one')
 def check_that_profile_saved_on_second_newebe_is_the_one_set_on_first_one(step):
@@ -113,7 +119,7 @@ def check_that_profile_saved_on_second_newebe_is_the_one_set_on_first_one(step):
     contact = contacts[0]
     assert world.user.name == contact.get("name", "")
 
+
 @step(u'Wait for 3 seconds')
 def wait_for_3_seconds(step):
     time.sleep(3)
-

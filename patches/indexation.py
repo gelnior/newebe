@@ -17,7 +17,7 @@ while len(posts) > 9:
     if len(posts) > 0:
         lastPost = list(posts)[-1]
     indexer.index_microposts(posts)
-        
+
     if lastPost:
         date = get_db_date_from_date(lastPost.date)
         print date
@@ -25,5 +25,5 @@ while len(posts) > 9:
     else:
         posts = []
 
-    
+
 print "indexation finished"

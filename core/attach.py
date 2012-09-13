@@ -1,6 +1,7 @@
 from newebe.notes.models import NoteManager
 from newebe.pictures.models import PictureManager
 
+
 class Converter():
     '''
     Convert data send by user as attachment to real data to send to newebe
@@ -32,14 +33,10 @@ class Converter():
         '''
         Attaches files linked to attached documents to the main document.
 
-        Call this method only after convertion of attachments has been done 
+        Call this method only after convertion of attachments has been done
         on mainDoc.
         '''
 
         for doc in self.fileDocs:
             pic_file = doc.fetch_attachment("prev_" + doc.path)
             mainDoc.put_attachment(pic_file, doc.path)
-            
-
-
-
