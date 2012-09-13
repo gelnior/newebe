@@ -1,5 +1,6 @@
 import os
 import re
+import time
 
 
 from tornado.httpclient import HTTPClient
@@ -73,6 +74,7 @@ class Indexer():
         Return a list of microposts that contains given word.
         """
 
+        time.sleep(1)
         parser = QueryParser("content", schema=schema, 
                              termclass=Variations)
         query = parser.parse(word)
@@ -82,6 +84,16 @@ class Indexer():
             return [result["docId"] for result in results]
 
 
+    def remove_doc(self, _id):
+        """
+        Remove given doc from index (doc of which docId is equal to id).
+        """
+   
+        self.writer = self.index.writer()
+        self.writer.delete_by_term("docId", unicode(_id))
+        self.writer.commit()
+
+
     def _extract_urls(self, text):
         """
         Extract Urls from given text.
@@ -89,9 +101,14 @@ class Indexer():
 
         return re.findall("https?://[\da-z\.-]+\.[a-z\.]{2,6}/[/\w\.-]*/?", text)
 
+
     def _augment_micropost(self, post, urls, checkUrl=True):
+        '''
+        Grab meta field from each url given in parameter. then add its content
+        to given micropost (for indexation purpose).
+        '''
+
         for url in urls:
-            print "fecth url %s" % url
             client = HTTPClient()
             response = client.fetch(url)
             doc = html.fromstring(response.body)
@@ -100,11 +117,11 @@ class Indexer():
             doc.xpath('/html/head/meta[@name="description"]/@content')
             description =  doc.xpath(
                     '/html/head/meta[@name="description"]/@content')
+
             if title:
                 post.content += " " + title[0].text_content()
             if description:
                 post.content += " " + description[0]
-                print description[0]
 
 
 
