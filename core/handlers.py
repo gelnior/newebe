@@ -21,10 +21,9 @@ logger = logging.getLogger("newebe.core")
 
 class NewebeHandler(RequestHandler):
     '''
-    NewebeHandler is a base class to provide utility methods for handlers used 
+    NewebeHandler is a base class to provide utility methods for handlers used
     by the newebe application.
     '''
-
 
     def return_json(self, json, statusCode=200):
         '''
@@ -41,7 +40,7 @@ class NewebeHandler(RequestHandler):
         Return a response containing a list of values at json format.
         '''
 
-        self.return_json({ "rows": valueList, "total_rows": len(valueList) })
+        self.return_json({"rows": valueList, "total_rows": len(valueList)})
 
     def return_documents(self, documents, statusCode=200):
         '''
@@ -51,13 +50,12 @@ class NewebeHandler(RequestHandler):
         self.return_json(
                 json_util.get_json_from_doc_list(documents), statusCode)
 
-
     def return_document(self, document, statusCode=200):
         '''
-        Return a response containing a list of newebe documents at json format. 
+        Return a response containing a list of newebe documents at json format.
         '''
 
-        self.return_json(json_util.get_json_from_doc_list([document]), 
+        self.return_json(json_util.get_json_from_doc_list([document]),
                                                           statusCode)
 
     def return_one_document(self, document, statusCode=200):
@@ -78,16 +76,15 @@ class NewebeHandler(RequestHandler):
         else:
             self.return_failure(text, 404)
 
-
     def return_documents_since(self, get_doc, startKey, tag=None):
         '''
         Use the get doc function that takes a date converted from startKey
         (startKey must be an url date or null) as parameter to send
         desired documents to client.
 
-        Return documents by pack at JSON format. If a start key 
-        is given in URL (it means a date like 2010-10-05-12-30-48), 
-        documents until this date are returned. Else latest documents are 
+        Return documents by pack at JSON format. If a start key
+        is given in URL (it means a date like 2010-10-05-12-30-48),
+        documents until this date are returned. Else latest documents are
         returned.
         '''
 
@@ -99,7 +96,6 @@ class NewebeHandler(RequestHandler):
 
         self.return_documents(docs)
 
-
     def return_success(self, text, statusCode=200):
         '''
         Return a success response containing a JSON object that describes
@@ -107,17 +103,16 @@ class NewebeHandler(RequestHandler):
         '''
 
         logger.info(text)
-        self.return_json(json_encode({ "success" : text }), statusCode)
- 
+        self.return_json(json_encode({"success": text}), statusCode)
 
     def return_failure(self, text, statusCode=500):
         '''
         Return an error response containing a JSON object that describes
         the error.
         '''
-       
+
         logger.error(text)
-        self.return_json(json_encode({ "error" : text }), statusCode)
+        self.return_json(json_encode({"error": text}), statusCode)
 
     def return_file(self, fileName, fileContent):
         '''
@@ -134,11 +129,11 @@ class NewebeHandler(RequestHandler):
     def get_document(self, get_doc, id):
         doc = get_doc(id)
 
-        if doc: 
+        if doc:
             return doc
         else:
             self.return_failure("Not found", 404)
-    
+
     def get_body_as_dict(self, expectedFields=[]):
         '''
         Return request body as a dict if body is written in JSON. Else None
@@ -158,7 +153,6 @@ class NewebeHandler(RequestHandler):
         else:
             return None
 
-
     def get_json_from_response(self, response):
         '''
         Extracts json from response and convert it as a dict.
@@ -170,7 +164,6 @@ class NewebeHandler(RequestHandler):
             return dataDict
         else:
             return None
-
 
     def create_owner_creation_activity(self, doc, verb, docType):
         '''
@@ -185,8 +178,7 @@ class NewebeHandler(RequestHandler):
         self.create_creation_activity(
             UserManager.getUser().asContact(), doc, verb, docType, True)
 
-    
-    def create_creation_activity(self, contact, doc, verb, docType, 
+    def create_creation_activity(self, contact, doc, verb, docType,
                                  isMine=False):
         '''
         Creates a new activity corresponding to a document creation.
@@ -199,20 +191,19 @@ class NewebeHandler(RequestHandler):
         '''
 
         self.activity = Activity(
-            authorKey = contact.key,
-            author = contact.name,
-            verb = verb,
-            docType = docType,
-            docId = doc._id,
-            isMine = isMine,
-            method = "POST"
+            authorKey=contact.key,
+            author=contact.name,
+            verb=verb,
+            docType=docType,
+            docId=doc._id,
+            isMine=isMine,
+            method="POST"
         )
         self.activity.save()
 
-
     def create_owner_deletion_activity(self, doc, verb, docType):
         '''
-        Creates a new activity corresponding to a document deletion made 
+        Creates a new activity corresponding to a document deletion made
         by owner.
 
         * doc: The deleted document.
@@ -223,8 +214,7 @@ class NewebeHandler(RequestHandler):
         self.create_deletion_activity(
             UserManager.getUser().asContact(), doc, verb, docType, True)
 
-
-    def create_deletion_activity(self, contact, doc, verb, docType, 
+    def create_deletion_activity(self, contact, doc, verb, docType,
                                  isMine=False):
         '''
         Creates a new activity corresponding to a document deletion.
@@ -237,16 +227,15 @@ class NewebeHandler(RequestHandler):
         '''
 
         self.activity = Activity(
-            authorKey = contact.key,
-            author = contact.name,
-            verb = verb,
-            docType = docType,
-            docId = doc._id,
-            method = "DELETE",
-            isMine = isMine
+            authorKey=contact.key,
+            author=contact.name,
+            verb=verb,
+            docType=docType,
+            docId=doc._id,
+            method="DELETE",
+            isMine=isMine
         )
         self.activity.save()
-
 
     def create_modify_activity(self, contact, verb, docType, doc=None):
         '''
@@ -259,17 +248,15 @@ class NewebeHandler(RequestHandler):
             docId = "none"
 
         activity = Activity(
-             authorKey = contact.key,
-             author = contact.name,
-             verb = verb,
-             docType = docType,
-             method = "PUT",
-             docId = docId,
-             isMine = False
+             authorKey=contact.key,
+             author=contact.name,
+             verb=verb,
+             docType=docType,
+             method="PUT",
+             docId=docId,
+             isMine=False
         )
         activity.save()
-
-
 
     @asynchronous
     def send_creation_to_contacts(self, path, doc):
@@ -291,7 +278,6 @@ class NewebeHandler(RequestHandler):
                 self.activity.add_error(contact)
                 self.activity.save()
 
-    
     @asynchronous
     def send_files_to_contacts(self, path, fields, files, tag=None):
         '''
@@ -305,11 +291,10 @@ class NewebeHandler(RequestHandler):
         client = ContactClient(self.activity)
         for contact in contacts:
             try:
-                client.post_files(contact, path, fields = fields, files = files)
+                client.post_files(contact, path, fields=fields, files=files)
             except HTTPError:
                 self.activity.add_error(contact)
                 self.activity.save()
-
 
     @asynchronous
     def send_deletion_to_contacts(self, path, doc):
@@ -333,7 +318,6 @@ class NewebeHandler(RequestHandler):
                 self.activity.add_error(contact, extra=date)
                 self.activity.save()
 
-
     def is_file_theme_exists(self):
         '''
         True if theme.css exists in CSS static folder. This stylesheet is
@@ -341,13 +325,12 @@ class NewebeHandler(RequestHandler):
         '''
 
         return os.path.isfile(os.path.join("static", "css", "theme.css"))
-        
 
 
 class NewebeAuthHandler(NewebeHandler):
     '''
-    Base handler for every services that needs authentication. 
-    For each request to this kind of handler, if user 
+    Base handler for every services that needs authentication.
+    For each request to this kind of handler, if user
     is not logged in, it is directly redirected to login page. If no user
     exists, it is redirected to register page.
     '''
@@ -360,7 +343,6 @@ class NewebeAuthHandler(NewebeHandler):
         user = self.current_user
         if not user:
             self._finished = True
-
 
     def get_current_user(self):
         '''
@@ -389,4 +371,3 @@ class NewebeAuthHandler(NewebeHandler):
         else:
             logger.error("User is not authenticated")
             self.redirect("/register/")
-

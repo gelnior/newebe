@@ -1,12 +1,13 @@
 '''
 Code of this file has been taken from :
-http://blog.perplexedlabs.com/2010/07/01/pythons-tornado-has-swept-me-off-my-feet/ 
+http://blog.perplexedlabs.com/2010/07/01/pythons-tornado-has-swept-me-off-my-feet/
 '''
 
 import os
 import logging
 import fcntl
 import errno
+
 
 def check(path):
     # try to read the pid from the pidfile
@@ -29,6 +30,7 @@ def check(path):
         if code != errno.ESRCH:
             raise
 
+
 def write(path):
     try:
         pid = os.getpid()
@@ -49,6 +51,7 @@ def write(path):
         except:
             pass
 
+
 def remove(path):
     try:
         # make sure we delete our pidfile
@@ -56,4 +59,3 @@ def remove(path):
         os.unlink(path)
     except:
         pass
-

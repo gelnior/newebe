@@ -18,7 +18,7 @@ routes = [
     ('/register/password/', auth.RegisterPasswordTHandler),
     ('/register/password/content/', auth.RegisterPasswordContentTHandler),
     ('/user/password/', auth.UserPasswordHandler),
-            
+
     ('/user/$', profile.UserHandler),
     ('/profile/$', profile.ProfileTHandler),
     ('/profile/public/$', profile.ProfilePublicTHandler),
@@ -60,7 +60,7 @@ routes = [
     ('/microposts/mine/([0-9\-]+)/$', news.MyNewsHandler),
     ('/microposts/mine/([0-9\-]+)/tags/([0-9a-z]+)/$', news.MyNewsHandler),
     ('/microposts/mine/$', news.MyNewsHandler),
-    ('/microposts/contacts/$', news.NewsContactHandler),    
+    ('/microposts/contacts/$', news.NewsContactHandler),
     ('/microposts/contacts/attach/$', news.MicropostContactAttachedFileHandler),
     ('/microposts/suscribe/$', news.NewsSuscribeHandler),
     ('/microposts/$', news.NewsTHandler),
@@ -74,9 +74,9 @@ routes = [
     ('/microposts/([0-9a-z]+)/html/$', news.MicropostTHandler),
     ('/microposts/([0-9a-z]+)/attach/download/$',
         news.MicropostDlAttachedFileHandler),
-    ('/microposts/([0-9a-z]+)/attach/(.+)$', 
+    ('/microposts/([0-9a-z]+)/attach/(.+)$',
         news.MicropostAttachedFileHandler),
- 
+
     ('/notes/all/', notes.NotesHandler),
     ('/notes/all/html/', notes.NoteRowsTHandler),
     ('/notes/all/order-by-title/', notes.NotesHandler),
@@ -85,26 +85,26 @@ routes = [
     ('/notes/content/', notes.NotesContentTHandler),
     ('/notes/([0-9a-z]+)/', notes.NoteHandler),
     ('/notes/([0-9a-z]+)/html/', notes.NoteTHandler),
-      
+
     ('/pictures/all/$', pictures.PicturesHandler),
     ('/pictures/all/html/$', pictures.PictureRowsTHandler),
     ('/pictures/all/([0-9\-]+)/$', pictures.PicturesHandler),
     ('/pictures/all/([0-9\-]+)/html/$', pictures.PictureRowsTHandler),
     ('/pictures/all/([0-9\-]+)/tags/([0-9a-z]+)/$', pictures.PicturesHandler),
-    ('/pictures/mine/$', pictures.PicturesMyHandler),        
+    ('/pictures/mine/$', pictures.PicturesMyHandler),
     ('/pictures/mine/([0-9\-]+)/$', pictures.PicturesMyHandler),
-    ('/pictures/mine/([0-9\-]+)/tags/([0-9a-z]+)/$', 
+    ('/pictures/mine/([0-9\-]+)/tags/([0-9a-z]+)/$',
         pictures.PicturesMyHandler),
     ('/pictures/fileuploader/$', pictures.PicturesQQHandler),
     ('/pictures/contact/$', pictures.PictureContactHandler),
     ('/pictures/contact/download/$', pictures.PictureContactDownloadHandler),
-    ('/pictures/content/$', pictures.PicturesContentTHandler),   
+    ('/pictures/content/$', pictures.PicturesContentTHandler),
     ('/pictures/tests/$', pictures.PicturesTestsTHandler),
     ('/pictures/([0-9a-z]+)/$', pictures.PictureHandler),
-    ('/pictures/([0-9a-z]+)/html/$', pictures.PictureTHandler),            
+    ('/pictures/([0-9a-z]+)/html/$', pictures.PictureTHandler),
     ('/pictures/([0-9a-z]+)/retry/$', pictures.PictureRetryHandler),
     ('/pictures/([0-9a-z]+)/download/$', pictures.PictureDownloadHandler),
-    ('/pictures/([0-9a-z]+)/(.+)', pictures.PictureFileHandler),  
+    ('/pictures/([0-9a-z]+)/(.+)', pictures.PictureFileHandler),
     ('/pictures/$', pictures.PicturesTHandler),
 ]
 
@@ -112,4 +112,3 @@ if DEBUG:
     routes.extend([
         ('/pictures/tests/', pictures.PicturesTestsTHandler)
     ])
-

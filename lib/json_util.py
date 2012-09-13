@@ -10,10 +10,9 @@ def get_json_from_doc_list(docs):
     It sets doc in a field called *rows* and put the number of return object
     in a field called *total_rows*.
 
-    Arguments : 
+    Arguments :
         *docs* List of documents to convert.
     '''
-
     response_dict = {}
     response_dict['total_rows'] = len(docs)
 
@@ -23,4 +22,3 @@ def get_json_from_doc_list(docs):
     response_dict['rows'] = docsDictList
 
     return json_encode(response_dict)
-

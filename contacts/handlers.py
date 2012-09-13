@@ -18,20 +18,20 @@ from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 # Template handlers for contact pages.
 logger = logging.getLogger(__name__)
 
-class ContactUpdateHandler(NewebeHandler):
 
+class ContactUpdateHandler(NewebeHandler):
 
     def put(self):
         '''
         When a put request is received, contact data are expected. If contact
-        key is one of the trusted contact key, its data are updated with 
+        key is one of the trusted contact key, its data are updated with
         received ones.
-        '''      
+        '''
 
         data = self.get_body_as_dict(["key", "url", "name", "description"])
 
         if data:
-            key = data["key"]            
+            key = data["key"]
 
             contact = ContactManager.getTrustedContact(key)
             if contact:
@@ -39,24 +39,23 @@ class ContactUpdateHandler(NewebeHandler):
                 contact.description = data["description"]
                 contact.name = data["name"]
                 contact.save()
-         
+
                 self.create_modify_activity(contact, "modifies", "profile")
                 self.return_success("Contact successfully modified.")
-       
+
             else:
                 self.return_failure(
                         "No contact found corresponding to given contact", 404)
-        
+
         else:
             self.return_failure("Empty data or missing field.")
 
 
 class ContactsPendingHandler(NewebeAuthHandler):
     '''
-     * GET : retrieve only contacts that have not approved your contact 
+     * GET : retrieve only contacts that have not approved your contact
               request or  contacts that returned an error.
     '''
-
 
     def get(self):
         '''
@@ -73,7 +72,6 @@ class ContactsRequestedHandler(NewebeAuthHandler):
      * GET : contacts that wait for approval.
     '''
 
-
     def get(self):
         '''
         Retrieve whole contact list at JSON format.
@@ -88,7 +86,6 @@ class ContactsTrustedHandler(NewebeAuthHandler):
     '''
      * GET : retrieve only contacts that are trusted by newebe owner
     '''
-
 
     def get(self):
         '''
@@ -108,7 +105,6 @@ class ContactHandler(NewebeAuthHandler):
     DELETE: Deletes contact corresponding to given slug.
     '''
 
-
     def get(self, slug):
         '''
         Retrieves contact corresponding to slug at JSON format.
@@ -118,8 +114,7 @@ class ContactHandler(NewebeAuthHandler):
 
         self.return_one_document_or_404(contact, "Contact does not exist.")
 
-
-    @asynchronous 
+    @asynchronous
     def put(self, slug):
         '''
         Confirm contact request.
@@ -134,9 +129,9 @@ class ContactHandler(NewebeAuthHandler):
             data = user.asContact().toJson(localized=False)
 
             try:
-                 client = ContactClient()
-                 client.post(self.contact, "contacts/confirm/", data, 
-                             self.on_contact_response)
+                client = ContactClient()
+                client.post(self.contact, "contacts/confirm/", data,
+                            self.on_contact_response)
             except:
                 self.contact.state = STATE_ERROR
                 self.contact.save()
@@ -144,10 +139,9 @@ class ContactHandler(NewebeAuthHandler):
         else:
             self.return_failure("Contact to confirm does not exist.")
 
-
     def on_contact_response(self, response, **kwargs):
         '''
-        Check contact response and set contact status depending on this 
+        Check contact response and set contact status depending on this
         response.
         '''
 
@@ -162,7 +156,6 @@ class ContactHandler(NewebeAuthHandler):
             self.contact.state = STATE_ERROR
             self.contact.save()
             self.return_failure("Error occurs while confirming contact.")
-
 
     def delete(self, slug):
         '''
@@ -184,7 +177,6 @@ class ContactsHandler(NewebeAuthHandler):
      * POST : creates a new contact.
     '''
 
-
     def get(self):
         '''
         Retrieves whole contact list at JSON format.
@@ -193,11 +185,10 @@ class ContactsHandler(NewebeAuthHandler):
 
         self.return_documents(contacts)
 
-
     @asynchronous
     def post(self):
         '''
-        Creates a new contact from web client data 
+        Creates a new contact from web client data
         (contact object at JSON format). And send a contact request to the
         newly created contact. State of contact is set to PENDING.
         '''
@@ -214,8 +205,8 @@ class ContactsHandler(NewebeAuthHandler):
                 slug = slugify(url)
 
                 self.contact = Contact(
-                  url = url,
-                  slug = slug
+                  url=url,
+                  slug=slug
                 )
                 self.contact.save()
 
@@ -228,7 +219,7 @@ class ContactsHandler(NewebeAuthHandler):
 
                 except Exception:
                     import traceback
-                    logger.error("Error on adding contact:\n %s" % 
+                    logger.error("Error on adding contact:\n %s" %
                             traceback.format_exc())
 
                     self.contact.state = STATE_ERROR
@@ -243,7 +234,6 @@ class ContactsHandler(NewebeAuthHandler):
             return self.return_failure(
                     "Wrong data. Contact has not been created.", 400)
 
-
     def on_contact_response(self, response, **kwargs):
         '''
         On contact response, checks if no error occured. If error occured,
@@ -253,13 +243,14 @@ class ContactsHandler(NewebeAuthHandler):
         try:
             newebeResponse = json_decode(response.body)
             print newebeResponse
-            if not "success" in newebeResponse or not newebeResponse["success"]:
+            if not "success" in newebeResponse or \
+               not newebeResponse["success"]:
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
         except:
             import traceback
-            logger.error("Error on adding contact, stacktrace :\n %s" % 
+            logger.error("Error on adding contact, stacktrace :\n %s" %
                     traceback.format_exc())
 
             self.contact.state = STATE_ERROR
@@ -273,7 +264,6 @@ class ContactRetryHandler(NewebeAuthHandler):
     * POST: Send a new contact request to given contact if its state is
     set as Pending or Error.
     '''
-
 
     @asynchronous
     def post(self, slug):
@@ -293,12 +283,12 @@ class ContactRetryHandler(NewebeAuthHandler):
                 data = owner.asContact().toJson()
 
                 client = ContactClient()
-                client.post(self.contact, "contacts/request/", data, 
+                client.post(self.contact, "contacts/request/", data,
                             self.on_contact_response)
 
             except Exception:
                 import traceback
-                logger.error("Error on adding contact:\n %s" % 
+                logger.error("Error on adding contact:\n %s" %
                         traceback.format_exc())
 
                 self.contact.state = STATE_ERROR
@@ -308,9 +298,8 @@ class ContactRetryHandler(NewebeAuthHandler):
         else:
             self.return_failure("Contact does not exist", 404)
 
-
     def on_contact_response(self, response, **kwargs):
-        
+
         if response.code != 200:
             self.contact.state = STATE_ERROR
             self.contact.save()
@@ -320,13 +309,11 @@ class ContactRetryHandler(NewebeAuthHandler):
             self.contact.save()
 
 
-
 class ContactPushHandler(NewebeHandler):
     '''
     This is the resource for contact request. It allows :
      * POST : asks for a contact authorization.
     '''
-
 
     def post(self):
         '''
@@ -347,13 +334,13 @@ class ContactPushHandler(NewebeHandler):
 
                 if contact is None:
                     contact = Contact(
-                        name = data["name"], 
-                        url = url,
-                        slug = slug,
-                        key = data["key"],
-                        state = STATE_WAIT_APPROVAL,
-                        requestDate = datetime.datetime.utcnow(),
-                        description = data["description"]
+                        name=data["name"],
+                        url=url,
+                        slug=slug,
+                        key=data["key"],
+                        state=STATE_WAIT_APPROVAL,
+                        requestDate=datetime.datetime.utcnow(),
+                        description=data["description"]
                     )
                     contact.save()
 
@@ -375,7 +362,6 @@ class ContactConfirmHandler(NewebeHandler):
      * POST : confirm a contact and set its state to TRUSTED.
     '''
 
-
     def post(self):
         '''
         Updates contact from sent data (contact object at JSON format).
@@ -395,10 +381,10 @@ class ContactConfirmHandler(NewebeHandler):
                 contact.name = data["name"]
                 contact.save()
                 self.return_success("Contact trusted.")
-            
+
             else:
                 self.return_failure("No contact for this slug.", 400)
-             
+
         else:
             self.return_failure("Sent data are incorrects.", 400)
 
@@ -408,7 +394,6 @@ class ContactRenderTHandler(NewebeAuthHandler):
     * GET: returns an HTML representation of contact corresponding to given
     ID. If ID is equal to null Newebe owner representation is returned.
     '''
-    
 
     def get(self, key):
         '''
@@ -425,10 +410,11 @@ class ContactRenderTHandler(NewebeAuthHandler):
             if contact.description:
                 contact.description = markdown.markdown(contact.description)
 
-            self.render("templates/contact_render.html", 
-                            contact=contact)            
+            self.render("templates/contact_render.html",
+                            contact=contact)
         else:
             return self.return_failure("Contact not found.", 404)
+
 
 class ContactTagsHandler(NewebeAuthHandler):
     '''
@@ -456,9 +442,9 @@ class ContactTagHandler(NewebeAuthHandler):
         Grab tags sent inside request to set is on contact matching slug.
         '''
 
-        contact = ContactManager.getContact(slug)    
+        contact = ContactManager.getContact(slug)
         data = self.get_body_as_dict(["tags"])
-        
+
         if contact:
             if data:
                 contact.tags = data["tags"]
@@ -468,24 +454,24 @@ class ContactTagHandler(NewebeAuthHandler):
         else:
             self.return_failure("Contact to modify does not exist.", 404)
 
-# Template handlers.
 
+# Template handlers.
 class ContactContentTHandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/contact_content.html")
+
 
 class ContactTutorial1THandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/tutorial_1.html")
 
+
 class ContactTutorial2THandler(NewebeAuthHandler):
     def get(self):
         self.render("templates/tutorial_2.html")
 
+
 class ContactTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/contact.html", 
+        self.render("templates/contact.html",
                     isTheme=self.is_file_theme_exists())
-
-
-

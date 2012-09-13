@@ -28,9 +28,8 @@ except:
     CERTIFICATE = os.path.join("./", "server.crt")
 
 
-
 # Couchdb configuration
-COUCHDB_DB_URI =  'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME
+COUCHDB_DB_URI = 'http://127.0.0.1:5984/%s' % COUCHDB_DB_NAME
 COUCHDB_DATABASES = (
     ('newebe.news', COUCHDB_DB_URI),
     ('newebe.core', COUCHDB_DB_URI),
@@ -38,5 +37,3 @@ COUCHDB_DATABASES = (
     ('newebe.notes', COUCHDB_DB_URI),
     ('newebe.pictures', COUCHDB_DB_URI),
 )
-
-

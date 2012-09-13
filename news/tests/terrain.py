@@ -19,6 +19,7 @@ from newebe.lib.slugify import slugify
 from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL,\
                                  db2, reset_documents
 
+
 class Server(Thread):
     def __init__(self, app):
         self.http = tornado.httpserver.HTTPServer(app)
@@ -37,6 +38,7 @@ class Server(Thread):
             print ""
             logger.info("Newebe stopped.")
 
+
 @before.all
 def run_server():
     for i, path in enumerate(sys.path):
@@ -48,10 +50,11 @@ def run_server():
     world.server = Server(app)
     try:
         world.server.start()
-        
+
     except KeyboardInterrupt:
         world.server.http.stop()
         tornado.ioloop.IOLoop.instance().stop()
+
 
 @after.all
 def kill_server(total):
@@ -73,17 +76,15 @@ def set_browers():
     world.browser.set_default_user()
     world.browser.login("password")
 
-    try: 
+    try:
         world.browser2 = NewebeClient()
         world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
         world.user2 = world.browser2.user
         world.browser2.login("password")
-        
+
         world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
         time.sleep(0.3)
         world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
-
-
