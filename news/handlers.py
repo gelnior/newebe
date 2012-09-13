@@ -200,13 +200,14 @@ class NewsContactHandler(NewebeHandler):
                         tags = contact.tags
                     )
                     micropost.save()
+
                     postIndexer = indexer.Indexer()
                     postIndexer.index_micropost(micropost)
                     self._notify_suscribers(micropost)
 
-                self.create_creation_activity(contact, micropost, 
-                        "writes", "micropost")
-                self._write_create_log(micropost)
+                    self.create_creation_activity(contact, micropost, 
+                            "writes", "micropost")
+                    self._write_create_log(micropost)
             
                 self.return_json(micropost.toJson(), 201)
 
