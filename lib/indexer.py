@@ -4,21 +4,23 @@ import time
 
 
 from tornado.httpclient import HTTPClient
-from lxml import html 
+from lxml import html
 
 from whoosh.fields import Schema, ID, KEYWORD, TEXT
 from whoosh import index
 from whoosh.qparser import QueryParser
 from whoosh.query import Variations
 
-schema = Schema(content=TEXT, docType=TEXT, docId=ID(stored=True), tags=KEYWORD)
+schema = Schema(content=TEXT,
+                docType=TEXT,
+                docId=ID(stored=True),
+                tags=KEYWORD)
 
 
 class Indexer():
     """
     Indexer simplifies objects indexation and search with the whoosh api.
     """
-
 
     def __init__(self):
         """
@@ -30,8 +32,6 @@ class Indexer():
             self.index = index.create_in("indexes", schema)
         else:
             self.index = index.open_dir("indexes")
-        
-
 
     def index_microposts(self, microposts, checkUrl=True):
         """
@@ -51,7 +51,6 @@ class Indexer():
                                         tags=post.tags)
         self.writer.commit()
 
-
     def index_micropost(self, micropost, checkUrl=True):
         """
         Add given micropost to index, tag and content are stored.
@@ -68,14 +67,13 @@ class Indexer():
                                     tags=micropost.tags)
         self.writer.commit()
 
-
     def search_microposts(self, word):
         """
         Return a list of microposts that contains given word.
         """
 
         time.sleep(1)
-        parser = QueryParser("content", schema=schema, 
+        parser = QueryParser("content", schema=schema,
                              termclass=Variations)
         query = parser.parse(word)
 
@@ -88,7 +86,7 @@ class Indexer():
         """
         Remove given doc from index (doc of which docId is equal to id).
         """
-   
+
         self.writer = self.index.writer()
         self.writer.delete_by_term("docId", unicode(doc._id))
         self.writer.commit()
@@ -99,7 +97,8 @@ class Indexer():
         Extract Urls from given text.
         """
 
-        return re.findall("https?://[\da-z\.-]+\.[a-z\.]{2,6}/[/\w\.-]*/?", text)
+        return re.findall("https?://[\da-z\.-]+\.[a-z\.]{2,6}/[/\w\.-]*/?",
+                          text)
 
 
     def _augment_micropost(self, post, urls, checkUrl=True):
@@ -112,16 +111,13 @@ class Indexer():
             client = HTTPClient()
             response = client.fetch(url)
             doc = html.fromstring(response.body)
-            
+
             title = doc.xpath('//head/title')
             doc.xpath('/html/head/meta[@name="description"]/@content')
-            description =  doc.xpath(
+            description = doc.xpath(
                     '/html/head/meta[@name="description"]/@content')
 
             if title:
                 post.content += " " + title[0].text_content()
             if description:
                 post.content += " " + description[0]
-
-
-

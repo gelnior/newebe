@@ -16,18 +16,15 @@ class ContactClient(object):
         Register activity in which errors will be stored if a request to a
         contact failed.
         '''
-        
         self.contacts = dict()
         self.client = AsyncHTTPClient()
         self.activity = activity
         self.extra = ""
 
-
     def get(self, contact, path):
         '''
         Perform a GET request to given contact.
         '''
-
         url = contact.url + path
         request = HTTPRequest(url, validate_cert=False)
         return self.client.fetch(self, request)
@@ -36,9 +33,8 @@ class ContactClient(object):
         '''
         Perform a POST request to given contact.
         '''
-
         url = contact.url + path
-        request = HTTPRequest(url, method="POST", body=body, 
+        request = HTTPRequest(url, method="POST", body=body,
                               validate_cert=False)
         self.contacts[request] = contact
 
@@ -46,15 +42,13 @@ class ContactClient(object):
             callback = self.on_contact_response
 
         return self.client.fetch(request, callback)
-
 
     def put(self, contact, path, body, callback=None):
         '''
         Perform a PUT request to given contact.
         '''
-
         url = contact.url + path
-        request = HTTPRequest(url, method="PUT", body=body, 
+        request = HTTPRequest(url, method="PUT", body=body,
                               validate_cert=False)
         self.contacts[request] = contact
 
@@ -63,18 +57,16 @@ class ContactClient(object):
 
         return self.client.fetch(request, callback)
 
-
     def post_files(self, contact, path, fields={}, files={}, callback=None):
         '''
         Post file and fields to givent contact.
         '''
-
-        (contentType, body) = encode_multipart_formdata(fields=fields, 
+        (contentType, body) = encode_multipart_formdata(fields=fields,
                                                         files=files)
-        headers = { 'Content-Type': contentType } 
+        headers = {'Content-Type': contentType}
 
         url = contact.url + path
-        request = HTTPRequest(url=url, method="POST", 
+        request = HTTPRequest(url=url, method="POST",
                               body=body, headers=headers, validate_cert=False)
         self.contacts[request] = contact
 
@@ -83,39 +75,35 @@ class ContactClient(object):
 
         return self.client.fetch(request, callback)
 
-
     def delete(self, contact, path, body, extra=None):
         '''
         Perform a DELETE request to given contact (PUT is send because tornado
         does not handle DELETE request with body).
         '''
-
         url = contact.url + path
-        request = HTTPRequest(url, method="PUT", body=body, validate_cert=False)
+        request = HTTPRequest(url, method="PUT", body=body,
+                              validate_cert=False)
         self.contacts[request] = contact
         self.extra = extra
 
         return self.client.fetch(request, self.on_contact_response)
 
-
     def on_contact_response(self, response, **kwargs):
         '''
-        Callback for requests sent to contacts. If error occurs it 
-        marks it inside the activity for which error occurs. Else 
+        Callback for requests sent to contacts. If error occurs it
+        marks it inside the activity for which error occurs. Else
         it logs that micropost posting succeeds.
         '''
-        
+
         contact = self.contacts[response.request]
 
-        if response.error: 
-            logger.error(""" Request to a contact failed, error infos 
-                             are stored inside activity.""")            
+        if response.error:
+            logger.error(""" Request to a contact failed, error infos
+                             are stored inside activity.""")
             self.activity.add_error(contact, extra=self.extra)
             self.activity.save()
 
-        elif contact and contact.name: 
+        elif contact and contact.name:
             logger.info("Request successfully sent to %s." % contact.name)
-        
+
         del self.contacts[response.request]
-
-
