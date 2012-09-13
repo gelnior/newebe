@@ -56,8 +56,6 @@ def given_i_create_five_microposts_with_tags_and_text(step):
 def and_i_index_them(step):
     world.indexer = Indexer()
     world.indexer.index_microposts(world.microposts)
-    for post in world.microposts:
-        print world.indexer._extract_urls(post.content)
 
 @step(u'When I ask for search "([^"]*)"')
 def when_i_ask_for_search_group1(step, word):
@@ -67,7 +65,6 @@ def when_i_ask_for_search_group1(step, word):
 def then_i_got_it_returns_me_micropost_the_micropost_about_group1(step, group1):
     assert_equals(len(world.ids), 1)
     assert_equals(world.ids[0], world.microposts[3]._id)
-
 
 @step(u'Given I create three microposts with links')
 def given_i_create_three_microposts_with_links(step):
@@ -86,3 +83,12 @@ def given_i_create_three_microposts_with_links(step):
 def then_it_returns_the_micropost_about_with_google_link(step):
     assert_equals(len(world.ids), 1)
     assert_equals(world.ids[0], world.microposts[0]._id)
+
+@step(u'And I remove from index the micropost about "([^"]*)"')
+def and_i_remove_from_index_the_micropost_about_group1(step, group1):
+    world.indexer.remove_doc(world.microposts[3])
+    
+@step(u'Then there is no micropost returned')
+def then_there_is_no_micropost_returned(step):
+    assert_equals(len(world.ids), 0)
+

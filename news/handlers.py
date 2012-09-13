@@ -92,6 +92,8 @@ class MicropostHandler(NewebeAuthHandler):
                 self.create_owner_deletion_activity(
                     micropost, "deletes", "micropost")  
                 self.send_deletion_to_contacts(CONTACT_PATH, micropost)
+            postIndexer = indexer.Indexer()
+            postIndexer.remove_doc(micropost)
             micropost.delete()
             self.return_success("Micropost deletion succeeds.")
             
@@ -200,13 +202,14 @@ class NewsContactHandler(NewebeHandler):
                         tags = contact.tags
                     )
                     micropost.save()
+
                     postIndexer = indexer.Indexer()
                     postIndexer.index_micropost(micropost)
                     self._notify_suscribers(micropost)
 
-                self.create_creation_activity(contact, micropost, 
-                        "writes", "micropost")
-                self._write_create_log(micropost)
+                    self.create_creation_activity(contact, micropost, 
+                            "writes", "micropost")
+                    self._write_create_log(micropost)
             
                 self.return_json(micropost.toJson(), 201)
 
@@ -255,6 +258,8 @@ class NewsContactHandler(NewebeHandler):
             if micropost and contact:
                 self.create_deletion_activity(contact, micropost, "deletes",
                         "micropost")
+                postIndexer = indexer.Indexer()
+                postIndexer.remove_doc(micropost)
                 micropost.delete()
 
                 self._write_delete_log(micropost)

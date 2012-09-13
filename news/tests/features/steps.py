@@ -4,7 +4,6 @@ import pytz
 import time
 
 from lettuce import step, world, before
-from tornado.httpclient import HTTPError
 from tornado.escape import json_decode, json_encode
 
 sys.path.append("../")
@@ -12,51 +11,20 @@ sys.path.append("../")
 from newebe.profile.models import UserManager
 from newebe.news.models import MicroPost, MicroPostManager
 from newebe.notes.models import Note
-from newebe.contacts.models import Contact, ContactManager
 from newebe.activities.models import Activity, ActivityManager
 
-from newebe.lib.test_util import NewebeClient, SECOND_NEWEBE_ROOT_URL,\
-                                 db2, reset_documents
+from newebe.lib.test_util import db2, reset_documents
 from newebe.lib import date_util
 
-from newebe.lib.slugify import slugify
 
-
-@before.all
-def set_browers():
-
-    reset_documents(Contact, ContactManager.getContacts)
-    reset_documents(Contact, ContactManager.getContacts, db2)
-
-    world.browser = NewebeClient()
-    world.browser.set_default_user()
-    world.browser.login("password")
-
-    try: 
-        world.browser2 = NewebeClient()
-        world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
-        world.user2 = world.browser2.user
-        world.browser2.login("password")
-
-        
-        world.browser.post("contacts/all/",
-                       body='{"url":"%s"}' % world.browser2.root_url)
-        time.sleep(0.3)
-        world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
-    except HTTPError:
-        print "[WARNING] Second newebe instance does not look started"
-    
 
 @before.each_scenario
 def delete_posts(scenario):
-    
     reset_documents(MicroPost, MicroPostManager.get_list)
     reset_documents(MicroPost, MicroPostManager.get_list, db2)
 
     reset_documents(Activity, ActivityManager.get_all)
     reset_documents(Activity, ActivityManager.get_all, db2)
-
-
 
 
 # Models
@@ -309,31 +277,3 @@ def and_my_note_is_attached_to_it(step):
     assert len(world.microposts) == 1
     assert world.microposts[0]["attachments"][0]["title"] == "test note"
 
-# Indexation
-
-@step(u'I created post through handlers with text "([^"]*)"')
-def i_created_post_through_handlers_with_text_group1(step, content):
-    data = {
-            "content": content,
-            "tags": ["all"]
-    }
-    response = world.browser.post("microposts/all/", json_encode(data))
-    if not hasattr(world,"index_posts"):
-        world.index_posts = list()
-    world.index_posts.append(json_decode(response.body))
-    assert 200 == response.code
-
-@step(u'When I send a request to search the posts containing "([^"]*)"')
-
-def when_i_send_a_request_to_search_the_posts_containing_group1(step, query):
-    data = {
-            "query": query
-    }
-    response = world.browser.post("microposts/search/", json_encode(data))
-    assert 200 == response.code
-    world.microposts = json_decode(response.body)["rows"]
-
-@step(u'this micropost is the second micropost I created')
-def this_micropost_is_the_second_micropost_i_created(step):
-    assert len(world.microposts) == 1
-    assert world.microposts[0]["_id"] == world.index_posts[1]["_id"]
