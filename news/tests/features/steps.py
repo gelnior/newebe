@@ -295,3 +295,44 @@ def when_i_send_a_new_micropost_with_an_attachment(step):
 def and_my_note_is_attached_to_it(step):
     assert len(world.microposts) == 1
     assert world.microposts[0]["attachments"][0]["title"] == "test note"
+
+
+# Indexation
+
+@step(u'I created post through handlers with text "([^"]*)"')
+def i_created_post_through_handlers_with_text_group1(step, content):
+    data = {
+            "content": content,
+            "tags": ["all"]
+    }
+    response = world.browser.post("microposts/all/", json_encode(data))
+    if not hasattr(world,"index_posts"):
+        world.index_posts = list()
+    world.index_posts.append(json_decode(response.body))
+    assert 200 == response.code
+
+@step(u'When I send a request to search the posts containing "([^"]*)"')
+
+def when_i_send_a_request_to_search_the_posts_containing_group1(step, query):
+    data = {
+            "query": query
+    }
+    response = world.browser.post("microposts/search/", json_encode(data))
+    assert 200 == response.code
+    world.microposts = json_decode(response.body)["rows"]
+
+@step(u'this micropost is the second micropost I created')
+def this_micropost_is_the_second_micropost_i_created(step):
+    assert len(world.microposts) == 1
+    assert world.microposts[0]["_id"] == world.index_posts[1]["_id"]
+
+@step(u'Given I delete second micropost')
+def given_i_delete_second_micropost(step):
+    id = world.index_posts[1]["_id"]
+    response = world.browser.delete("microposts/%s/" % id)
+    assert 200 == response.code
+
+@step(u'Then nothing is returned')
+def then_nothing_is_returned(step):
+    assert len(world.microposts) == 0
+
