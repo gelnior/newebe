@@ -38,5 +38,3 @@ COUCHDB_DATABASES = (
     ('newebe.notes', COUCHDB_DB_URI),
     ('newebe.pictures', COUCHDB_DB_URI),
 )
-
-

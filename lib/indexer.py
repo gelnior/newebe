@@ -11,6 +11,15 @@ from whoosh import index
 from whoosh.qparser import QueryParser
 from whoosh.query import Variations
 
+from whoosh.support.charset import accent_map
+from whoosh.analysis import RegexTokenizer
+from whoosh.analysis import CharsetFilter, LowercaseFilter, StopFilter
+from lib.stopwords import stoplists
+
+chfilter = CharsetFilter(accent_map)
+stoplist = stoplists["en"].union(stoplists["fr"])
+analyzer = RegexTokenizer() | LowercaseFilter() | \
+           StopFilter(stoplist=stoplist) | chfilter
 schema = Schema(content=TEXT, docType=TEXT, docId=ID(stored=True), tags=KEYWORD)
 
 
