@@ -1,0 +1,25 @@
+.commons-preview {
+  text-align: center;
+}
+#commons-picture-preview {
+  max-width: 100%;
+}
+#commons-preview-toolbar {
+  text-align: right;
+  margin-top: 20px;
+}
+#commons-list {
+  margin: 20px 0;
+  border-top: 1px solid #ccc;
+}
+.commons-row {
+  padding: 20px;
+  border-bottom: 1px solid #ccc;
+}
+.commons-row a {
+  color: #000;
+  font-weight: bold;
+}
+.commons-row img {
+  float: right;
+}
