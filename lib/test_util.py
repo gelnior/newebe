@@ -6,7 +6,7 @@ from couchdbkit import Server
 from tornado.escape import json_decode
 from tornado.httpclient import HTTPClient, HTTPRequest
 
-from newebe.settings import COUCHDB_DB_NAME
+from newebe.config import CONFIG
 from newebe.profile.models import UserManager, User
 
 ROOT_URL = u"http://localhost:8888/"
@@ -14,8 +14,8 @@ SECOND_NEWEBE_ROOT_URL = u"http://localhost:8889/"
 
 server = Server()
 server2 = Server()
-db = server.get_or_create_db(COUCHDB_DB_NAME)
-db2 = server.get_or_create_db(COUCHDB_DB_NAME + "2")
+db = server.get_or_create_db(CONFIG.db.name)
+db2 = server.get_or_create_db(CONFIG.db.name + "2")
 
 
 def reset_documents(cls, get_func, database=db):

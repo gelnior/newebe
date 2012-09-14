@@ -13,8 +13,8 @@ from newebe.activities.models import ActivityManager
 from newebe.lib import date_util
 from newebe.lib.test_util import NewebeClient
 
-from newebe.settings import TORNADO_PORT
-ROOT_URL = "http://localhost:%d/" % TORNADO_PORT
+from newebe.config import CONFIG
+ROOT_URL = "http://localhost:%d/" % CONFIG.main.port
 
 client = NewebeClient()
 

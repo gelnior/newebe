@@ -1,10 +1,10 @@
 import datetime
 import pytz
 
-from newebe.settings import TIMEZONE
+from newebe.config import CONFIG
 
 utc = pytz.utc
-timezone = pytz.timezone(TIMEZONE)
+timezone = pytz.timezone(CONFIG.main.timezone)
 
 DB_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 URL_DATETIME_FORMAT = "%Y-%m-%d-%H-%M-%S"

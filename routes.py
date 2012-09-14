@@ -7,7 +7,7 @@ from newebe.notes import handlers as notes
 from newebe.pictures import handlers as pictures
 from newebe.sync import handlers as sync
 
-from newebe.settings import DEBUG
+from newebe.config import CONFIG
 
 routes = [
     ('/', news.NewsTHandler),
@@ -108,7 +108,7 @@ routes = [
     ('/pictures/$', pictures.PicturesTHandler),
 ]
 
-if DEBUG:
+if CONFIG.main.debug:
     routes.extend([
         ('/pictures/tests/', pictures.PicturesTestsTHandler)
     ])
