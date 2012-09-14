@@ -136,6 +136,7 @@ except:
                              'newebe.core'
                              'newebe.activities',
                              'newebe.notes',
+                             'newebe.commons',
                              'newebe.pictures']
 
 
