@@ -1,0 +1,16 @@
+{% autoescape None %} 
+
+<p class="commons-preview">
+  <p class="tags">
+  {% for tag in common.tags %}
+    {% block tag %}
+      {{ tag }}
+    {% end %}
+  {% end %}
+  </p>
+  <img id="commons-common-preview"
+       src="/commons/{{common._id }}/prev_{{ common.path }}"
+       alt="{{ common.path }}" 
+       />
+</p>
+
