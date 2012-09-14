@@ -1,4 +1,3 @@
-import os
 import logging
 import mimetypes
 
@@ -7,7 +6,6 @@ from tornado.web import asynchronous
 from tornado.httpclient import HTTPError
 from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
-from PIL import Image
 
 from newebe.profile.models import UserManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
@@ -30,6 +28,7 @@ class CommonsHandler(NewebeAuthHandler):
     * GET: Retrieves all commons ordered by title.
     * POST: Create a common.
     '''
+
     def get(self, startKey=None, tag=None):
         '''
         Returns last posted commons.  If *startKey* is provided, it returns
