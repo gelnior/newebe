@@ -2,8 +2,8 @@ import hashlib
 
 from tornado.escape import json_decode
 
-from newebe.profile.models import User, UserManager
-from newebe.contacts.handlers import NewebeHandler
+from newebe.apps.profile.models import User, UserManager
+from newebe.apps.contacts.handlers import NewebeHandler
 from newebe.core.handlers import NewebeAuthHandler
 
 

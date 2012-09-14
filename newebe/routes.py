@@ -1,11 +1,11 @@
-from newebe.contacts import handlers as contacts
-from newebe.profile import handlers as profile
-from newebe.auth import handlers as auth
-from newebe.news import handlers as news
-from newebe.activities import handlers as activities
-from newebe.notes import handlers as notes
-from newebe.pictures import handlers as pictures
-from newebe.sync import handlers as sync
+from newebe.apps.contacts import handlers as contacts
+from newebe.apps.profile import handlers as profile
+from newebe.apps.auth import handlers as auth
+from newebe.apps.news import handlers as news
+from newebe.apps.activities import handlers as activities
+from newebe.apps.notes import handlers as notes
+from newebe.apps.pictures import handlers as pictures
+from newebe.apps.sync import handlers as sync
 
 from newebe.settings import DEBUG
 

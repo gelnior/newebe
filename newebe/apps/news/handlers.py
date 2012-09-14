@@ -8,10 +8,10 @@ from couchdbkit.exceptions import ResourceNotFound
 
 from newebe.lib import date_util, indexer
 from newebe.lib.http_util import ContactClient
-from newebe.news.models import MicroPostManager, MicroPost
-from newebe.activities.models import ActivityManager
-from newebe.contacts.models import ContactManager
-from newebe.profile.models import UserManager
+from newebe.apps.news.models import MicroPostManager, MicroPost
+from newebe.apps.activities.models import ActivityManager
+from newebe.apps.contacts.models import ContactManager
+from newebe.apps.profile.models import UserManager
 from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
 from newebe.core.attach import Converter
 

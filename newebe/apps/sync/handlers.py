@@ -6,14 +6,14 @@ from tornado.web import asynchronous
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 
-from newebe.profile.models import UserManager
-from newebe.contacts.models import ContactManager
-from newebe.news.models import MicroPostManager
-from newebe.pictures.models import PictureManager
+from newebe.apps.profile.models import UserManager
+from newebe.apps.contacts.models import ContactManager
+from newebe.apps.news.models import MicroPostManager
+from newebe.apps.pictures.models import PictureManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
-from newebe.news.handlers import CONTACT_PATH as MICROPOST_PATH
-from newebe.pictures.handlers import CONTACT_PATH as PICTURE_PATH
+from newebe.apps.news.handlers import CONTACT_PATH as MICROPOST_PATH
+from newebe.apps.pictures.handlers import CONTACT_PATH as PICTURE_PATH
 
 
 logger = logging.getLogger("newebe.sync")

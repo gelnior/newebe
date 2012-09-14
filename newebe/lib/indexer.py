@@ -14,7 +14,7 @@ from whoosh.query import Variations
 from whoosh.support.charset import accent_map
 from whoosh.analysis import RegexTokenizer
 from whoosh.analysis import CharsetFilter, LowercaseFilter, StopFilter
-from lib.stopwords import stoplists
+from newebe.lib.stopwords import stoplists
 
 chfilter = CharsetFilter(accent_map)
 stoplist = stoplists["en"].union(stoplists["fr"])

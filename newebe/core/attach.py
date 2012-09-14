@@ -1,5 +1,5 @@
-from newebe.notes.models import NoteManager
-from newebe.pictures.models import PictureManager
+from newebe.apps.notes.models import NoteManager
+from newebe.apps.pictures.models import PictureManager
 
 
 class Converter():

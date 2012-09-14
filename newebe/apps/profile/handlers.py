@@ -6,10 +6,10 @@ from tornado.httpclient import HTTPClient, HTTPRequest
 
 
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
-from newebe.profile.models import UserManager
-from newebe.contacts.models import ContactManager
+from newebe.apps.profile.models import UserManager
+from newebe.apps.contacts.models import ContactManager
 
-from newebe.activities.models import Activity
+from newebe.apps.activities.models import Activity
 
 logger = logging.getLogger("newebe.core")
 

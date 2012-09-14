@@ -1,7 +1,7 @@
 import logging
 
 from newebe.core.handlers import NewebeAuthHandler
-from newebe.activities.models import ActivityManager
+from newebe.apps.activities.models import ActivityManager
 
 
 logger = logging.getLogger("newebe.activities")

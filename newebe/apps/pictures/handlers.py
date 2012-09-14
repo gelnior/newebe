@@ -9,12 +9,12 @@ from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
 from PIL import Image
 
-from newebe.profile.models import UserManager
+from newebe.apps.profile.models import UserManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
-from newebe.contacts.models import ContactManager
-from newebe.activities.models import ActivityManager
-from newebe.pictures.models import PictureManager, Picture
+from newebe.apps.contacts.models import ContactManager
+from newebe.apps.activities.models import ActivityManager
+from newebe.apps.pictures.models import PictureManager, Picture
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 

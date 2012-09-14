@@ -4,7 +4,7 @@ from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          DateTimeProperty
 
 from newebe.core.models import NewebeDocument
-from newebe.profile.models import UserManager
+from newebe.apps.profile.models import UserManager
 
 from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_date, \

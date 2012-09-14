@@ -12,9 +12,9 @@ from tornado.httpclient import HTTPError
 from newebe.lib import json_util, date_util
 from newebe.lib.http_util import ContactClient
 
-from newebe.profile.models import UserManager
-from newebe.contacts.models import ContactManager
-from newebe.activities.models import Activity
+from newebe.apps.profile.models import UserManager
+from newebe.apps.contacts.models import ContactManager
+from newebe.apps.activities.models import Activity
 
 logger = logging.getLogger("newebe.core")
 

@@ -1,7 +1,7 @@
 from couchdbkit.schema import StringProperty, BooleanProperty
 
 from newebe.core.models import NewebeDocument, DocumentManager
-from newebe.news import news_settings
+from newebe.apps.news import news_settings
 
 
 class MicroPostManager():

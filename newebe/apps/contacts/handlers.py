@@ -8,8 +8,8 @@ from tornado.escape import json_decode
 from newebe.lib.slugify import slugify
 from newebe.lib.http_util import ContactClient
 
-from newebe.profile.models import UserManager
-from newebe.contacts.models import Contact, ContactManager, \
+from newebe.apps.profile.models import UserManager
+from newebe.apps.contacts.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED, STATE_PENDING
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler

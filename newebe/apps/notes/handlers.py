@@ -3,9 +3,9 @@ import markdown
 
 from tornado.escape import json_decode
 
-from newebe.profile.models import UserManager
-from newebe.contacts.handlers import NewebeAuthHandler
-from newebe.notes.models import Note, NoteManager
+from newebe.apps.profile.models import UserManager
+from newebe.apps.contacts.handlers import NewebeAuthHandler
+from newebe.apps.notes.models import Note, NoteManager
 
 
 logger = logging.getLogger("newebe.notes")
