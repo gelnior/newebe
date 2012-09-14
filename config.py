@@ -86,8 +86,8 @@ class Config(KeyDict):
         self['security']['private_key'] = settings.PRIVATE_KEY
         self['db']['name'] = settings.COUCHDB_DB_NAME
         self['db']['uri'] = settings.COUCHDB_DB_URI.rsplit('/', 1)[0]
-        self['db']['views'] = [table[0]
-                                for table in settings.COUCHDB_DATABASES]
+        self['db']['views'] = [view[0]
+                                for view in settings.COUCHDB_DATABASES]
 
     def _load_settings(self, settings):
         """
