@@ -29,7 +29,10 @@ class Newebe(Application):
           "cookie_secret": CONFIG.security.cookie_key,
           "login_url": "/login",
         }
-        Application.__init__(self, routes, debug=CONFIG.main.debug, **settings)
+        Application.__init__(self,
+                             routes,
+                             debug=CONFIG.main.debug,
+                             **settings)
 
 
 class NewebeIOLoop(IOLoop):

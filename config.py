@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # * File Name : config.py
 #
 # * Copyright (C) 2010 Gaston TJEBBES <g.t@majerti.fr>
@@ -10,7 +9,7 @@
 # * Creation Date : 15-09-2012
 # * Last Modified :
 #
-# * Project :
+# * Project : Newebe
 #
 """
     Provide a main config object to uniformize configuration access
@@ -21,6 +20,7 @@ from tornado.options import define
 from tornado.options import options
 from tornado.options import parse_command_line
 
+
 class KeyDict(dict):
     """
         Usefull dict wrapper to allow key access as attributes
@@ -28,6 +28,7 @@ class KeyDict(dict):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
         self.__dict__ = self
+
 
 class Config(KeyDict):
     """
@@ -58,11 +59,11 @@ class Config(KeyDict):
             Return the settings
         """
         try:
-            print("Loading the config file")
+            print("Loading the config file: ".format(modulename))
             settings = importlib.import_module(modulename)
         except ImportError, e:
             print("ImportError : The following file {0} is not well formed"\
-                                                           .format(modulename))
+                   .format(modulename))
             raise e
         return settings
 
@@ -110,18 +111,39 @@ class Config(KeyDict):
             Load the modulename
         """
         settings = self._get_settings_module(modulename)
+        print settings
         if self._is_old_style_settings(settings):
             self._load_old_style_settings(settings)
         else:
             self._load_settings(settings)
 
+# Set default values
 CONFIG = Config()
-CONFIG.load("settings")
+try:
+    CONFIG.load("settings")
+except:
+    CONFIG['main']['port'] = 8000
+    CONFIG['main']['debug'] = False
+    CONFIG['main']['timezone'] = "Europe/Paris"
 
-define('uri', default=CONFIG.db.uri,
-               help="Couch DB Uri              : --uri=http://127.0.0.1:5984")
-define('name', default=CONFIG.db.name,
-               help="Couch DB Name             : --name=newebe (default)")
+    CONFIG['security']['cookie_key'] = \
+        "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+    CONFIG['security']['certificate'] = "./server.crt"
+    CONFIG['security']['private_key'] = "./server.key"
+    CONFIG['db']['name'] = "newebe"
+    CONFIG['db']['uri'] = "http://127.0.0.1:5984"
+    CONFIG['db']['views'] = ['newebe.news',
+                             'newebe.core'
+                             'newebe.activities',
+                             'newebe.notes',
+                             'newebe.pictures']
+
+
+# Define config from command line arguments
+define('dburi', default=CONFIG.db.uri,
+               help="Couch DB Uri              : --dburi=http://127.0.0.1:5984")
+define('dbname', default=CONFIG.db.name,
+               help="Couch DB Name             : --dbname=newebe (default)")
 define('port', default=CONFIG.main.port,
                help="Port newebe may be run on : --port=8000 (default)")
 define('debug', default=CONFIG.main.debug,
