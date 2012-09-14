@@ -106,11 +106,11 @@ routes = [
     ('/pictures/([0-9a-z]+)/(.+)', pictures.PictureFileHandler),
     ('/pictures/$', pictures.PicturesTHandler),
 
+    ('/commons/all/([0-9\-]+)/tags/([0-9a-z]+)/$', commons.CommonsHandler),
     ('/commons/all/$', commons.CommonsHandler),
     ('/commons/all/html/$', commons.CommonRowsTHandler),
     ('/commons/all/([0-9\-]+)/$', commons.CommonsHandler),
     ('/commons/all/([0-9\-]+)/html/$', commons.CommonRowsTHandler),
-    ('/commons/all/([0-9\-]+)/tags/([0-9a-z]+)/$', commons.CommonsHandler),
     ('/commons/mine/$', commons.CommonsMyHandler),
     ('/commons/mine/([0-9\-]+)/$', commons.CommonsMyHandler),
     ('/commons/mine/([0-9\-]+)/tags/([0-9a-z]+)/$',
