@@ -61,10 +61,9 @@ class Config(KeyDict):
         try:
             print("Loading the config file: ".format(modulename))
             settings = importlib.import_module(modulename)
-        except ImportError, e:
+        except ImportError:
             print("ImportError : The following file {0} is not well formed"\
                    .format(modulename))
-            raise e
         return settings
 
     def _is_old_style_settings(self, settings):
@@ -77,16 +76,28 @@ class Config(KeyDict):
         """
             Load old style settings file
         """
-        self['main']['port'] = settings.TORNADO_PORT
-        self['main']['debug'] = settings.DEBUG
-        self['main']['timezone'] = settings.TIMEZONE
 
-        self['security']['cookie_key'] = settings.COOKIE_KEY
-        self['security']['certificate'] = settings.CERTIFICATE
-        self['security']['private_key'] = settings.PRIVATE_KEY
-        self['db']['name'] = settings.COUCHDB_DB_NAME
-        self['db']['uri'] = settings.COUCHDB_DB_URI.rsplit('/', 1)[0]
-        self['db']['views'] = [view[0]
+        print "ok"
+        if hasattr(settings, "TORNADO_PORT"):
+            self['main']['port'] = settings.TORNADO_PORT
+        if hasattr(settings, "DEBUG"):
+            print settings.DEBUG
+            self['main']['debug'] = settings.DEBUG
+        if hasattr(settings, "TIMEZONE"):
+            self['main']['timezone'] = settings.TIMEZONE
+
+        if hasattr(settings, "COOKIE_KEY"):
+            self['security']['cookie_key'] = settings.COOKIE_KEY
+        if hasattr(settings, "CERTIFICATE"):
+            self['security']['certificate'] = settings.CERTIFICATE
+        if hasattr(settings, "PRIVATE_KEY"):
+            self['security']['private_key'] = settings.PRIVATE_KEY
+        if hasattr(settings, "COUCHDB_DB_NAME"):
+            self['db']['name'] = settings.COUCHDB_DB_NAME
+        if hasattr(settings, "COUCH_DB_URI"):
+            self['db']['uri'] = settings.COUCHDB_DB_URI.rsplit('/', 1)[0]
+        if hasattr(settings, "COUCHDB_DATABASES"):
+            self['db']['views'] = [view[0]
                                 for view in settings.COUCHDB_DATABASES]
 
     def _load_settings(self, settings):
@@ -102,16 +113,18 @@ class Config(KeyDict):
                         debug=DEBUG,
                         timezone=TIMEZONE)
         """
-        self['db'].update(settings.DB)
-        self['main'].update(settings.MAIN)
-        self['security'].update(settings.SECURITY)
+        if hasattr(settings, "MAIN"):
+            self['main'].update(settings.MAIN)
+        if hasattr(settings, "SECURITY"):
+            self['security'].update(settings.SECURITY)
+        if hasattr(settings, "DB"):
+            self['db'].update(settings.DB)
 
     def load(self, modulename):
         """
             Load the modulename
         """
         settings = self._get_settings_module(modulename)
-        print settings
         if self._is_old_style_settings(settings):
             self._load_old_style_settings(settings)
         else:
@@ -119,26 +132,24 @@ class Config(KeyDict):
 
 # Set default values
 CONFIG = Config()
-try:
-    CONFIG.load("settings")
-except:
-    CONFIG['main']['port'] = 8000
-    CONFIG['main']['debug'] = False
-    CONFIG['main']['timezone'] = "Europe/Paris"
+CONFIG['main']['port'] = 8000
+CONFIG['main']['debug'] = False
+CONFIG['main']['timezone'] = "Europe/Paris"
 
-    CONFIG['security']['cookie_key'] = \
-        "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
-    CONFIG['security']['certificate'] = "./server.crt"
-    CONFIG['security']['private_key'] = "./server.key"
-    CONFIG['db']['name'] = "newebe"
-    CONFIG['db']['uri'] = "http://127.0.0.1:5984"
-    CONFIG['db']['views'] = ['newebe.news',
-                             'newebe.core'
-                             'newebe.activities',
-                             'newebe.notes',
-                             'newebe.commons',
-                             'newebe.pictures']
+CONFIG['security']['cookie_key'] = \
+    "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+CONFIG['security']['certificate'] = "./server.crt"
+CONFIG['security']['private_key'] = "./server.key"
+CONFIG['db']['name'] = "newebe"
+CONFIG['db']['uri'] = "http://127.0.0.1:5984"
+CONFIG['db']['views'] = ['newebe.news',
+                         'newebe.core'
+                         'newebe.activities',
+                         'newebe.notes',
+                         'newebe.commons',
+                         'newebe.pictures']
 
+CONFIG.load("settings")
 
 # Define config from command line arguments
 define('dburi', default=CONFIG.db.uri,
@@ -150,7 +161,7 @@ define('port', default=CONFIG.main.port,
 define('debug', default=CONFIG.main.debug,
                help="Debug mode                : --debug=True")
 parse_command_line()
-CONFIG.db.uri = options.uri
-CONFIG.db.name = options.name
+CONFIG.db.uri = options.dburi
+CONFIG.db.name = options.dbname
 CONFIG.main.port = options.port
 CONFIG.main.debug = options.debug
