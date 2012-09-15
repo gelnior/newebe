@@ -1,17 +1,15 @@
 #!/usr/bin/python
 
 import logging
-import sys
-import os
+import sys, os
 
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 sys.path.append("../")
+from newebe.config import CONFIG
 from newebe.routes import routes
-from newebe.settings import TORNADO_PORT, DEBUG, COOKIE_KEY, \
-                            PRIVATE_KEY, CERTIFICATE
 
 
 # Set logging configuration
@@ -28,18 +26,17 @@ class Newebe(Application):
     def __init__(self):
         settings = {
           "static_path": os.path.join(os.path.dirname(__file__), "static"),
-          "cookie_secret": COOKIE_KEY,
+          "cookie_secret": CONFIG.security.cookie_key,
           "login_url": "/login",
         }
-        Application.__init__(self, routes, debug=DEBUG, **settings)
+        Application.__init__(self, routes, debug=CONFIG.main.debug, **settings)
 
 
 class NewebeIOLoop(IOLoop):
     '''
     Override of Tornado IO loop to avoid logging when async requests fail.
     '''
-    def handle_callback_exception(self, callback):
-        print "test"
+    def handle_callback_exception(callback):
         pass
 
 
@@ -55,34 +52,39 @@ if __name__ == '__main__':
     logger.info("Sets up application server.")
     tornado_app = Newebe()
 
-    if not DEBUG:
+    if not CONFIG.main.debug:
         # Send log ouptut to a file.
-        log_file = 'newebe.%s.log' % TORNADO_PORT
+        log_file = 'newebe.%s.log' % CONFIG.main.port
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
         hdlr = logging.FileHandler(os.path.join("./", log_file))
         hdlr.setFormatter(formatter)
         logger.addHandler(hdlr)
         logger.setLevel(logging.INFO)
 
-        # SSL mode only in production
-        ssl_options = {
-            "certfile": CERTIFICATE,
-            "keyfile": PRIVATE_KEY,
-        }
-    else:
-        ssl_options = None
-
     try:
+        # SSL mode only in production
+        if not CONFIG.main.debug:
+            ssl_options = {
+                "certfile": CONFIG.security.certificate,
+                "keyfile": CONFIG.security.private_key,
+            }
+        else:
+            ssl_options = None
+
         # Server running.
         http_server = HTTPServer(tornado_app, xheaders=True,
-                                 ssl_options=ssl_options)
+                                 ssl_options = ssl_options)
 
-        http_server.listen(TORNADO_PORT)
-        logger.info("Starts Newebe on port %d." % TORNADO_PORT)
+        http_server.listen(CONFIG.main.port)
+        logger.info("Starts Newebe on port %d." % CONFIG.main.port)
         ioloop = NewebeIOLoop.instance()
         ioloop.start()
+
 
     except KeyboardInterrupt, e:
         ioloop.stop()
         print ""
         logger.info("Server stopped.")
+
+
+
