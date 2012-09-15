@@ -11,7 +11,7 @@ from couchdbkit.schema import Document, StringProperty, \
                                          DateTimeProperty, \
                                          ListProperty
 
-from newebe.settings import COUCHDB_DB_NAME
+from newebe.config import CONFIG
 
 from newebe.lib.date_util import get_date_from_db_date, \
                                  get_db_date_from_date, \
@@ -94,7 +94,7 @@ class NewebeDocument(Document):
         '''
         db = getattr(cls, '_db', None)
         if db is None:
-            db = server.get_or_create_db(COUCHDB_DB_NAME)
+            db = server.get_or_create_db(CONFIG.db.name)
             cls._db = db
         return db
 
