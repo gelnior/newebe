@@ -141,7 +141,7 @@ CONFIG['security']['private_key'] = "./server.key"
 CONFIG['db']['name'] = "newebe"
 CONFIG['db']['uri'] = "http://127.0.0.1:5984"
 CONFIG['db']['views'] = ['newebe.apps.news',
-                         'newebe.core',
+                         'newebe.apps.core',
                          'newebe.apps.activities',
                          'newebe.apps.notes',
                          'newebe.apps.commons',
