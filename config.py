@@ -77,7 +77,6 @@ class Config(KeyDict):
             Load old style settings file
         """
 
-        print "ok"
         if hasattr(settings, "TORNADO_PORT"):
             self['main']['port'] = settings.TORNADO_PORT
         if hasattr(settings, "DEBUG"):

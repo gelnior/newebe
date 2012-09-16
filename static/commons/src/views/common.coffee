@@ -9,9 +9,9 @@ class CommonRow extends Row
 
   # HTML representation
   template:  _.template('''
-    <a href="#" class="commons-picture-author"><%= author %></a>
-    <img src="<%= thumbnailPath %>" alt="<%= title %>" />
-    <p class="commons-picture-date">
+    <a href="#" class="commons-author"><%= author %></a>
+    <p><%= path %></p>
+    <p class="commons-date">
      <%= displayDate %>
     </p>
     <div class="spacer"></div>
@@ -82,23 +82,6 @@ class CommonRow extends Row
             "An error occured while downloading image file.")
     )
 
-  onPushNoteClicked: =>
-    selectorDialogCommon.display (noteId) =>
-      loadingIndicator.display()
-
-      $.get "/notes/#{noteId}/", (note) =>
-        note.content = note.content + "\n\n ![image](" + @model.getImagePreviewPath() + ")"
-
-        $.putJson
-          url: "/notes/#{noteId}/"
-          body: note
-          success: () ->
-            infoDialog.display "note successfully updated"
-            loadingIndicator.hide()
-          error: () ->
-            infoDialog.display "note update failed"
-            loadingIndicator.hide()
-
   ### Functions ###
 
 
@@ -134,13 +117,13 @@ class CommonRow extends Row
         loadingIndicator.hide()
         @preview.append(data)
         
-        if $("#commons-preview img").length > 0
+        console.log @model
+        if @model.get "isFile"
             $("#commons-preview").append("
             <p class=\"commons-buttons button-bar\">
-              <a id=\"commons-note-button\">push to note</a>
               <a href=\"#{@model.get('imgPath')}\" 
                  target=\"blank\"
-                 id=\"commons-full-size-button\">full-size</a>
+                 id=\"commons-full-size-button\">download</a>
               <a id=\"commons-delete-button\">delete</a>
             </p>
             ")

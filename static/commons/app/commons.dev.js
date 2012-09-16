@@ -311,6 +311,42 @@
 
   })(Backbone.View);
 
+  CommonsRouter = (function(_super) {
+
+    __extends(CommonsRouter, _super);
+
+    CommonsRouter.prototype.routes = {
+      "": "all",
+      "commons": "all",
+      "commons/all/": "all",
+      "commons/all/until/:date/": "all",
+      "commons/mine/": "mine",
+      "commons/mine/until/:date/": "mine",
+      "commons/mine/:id/": "mineWithSelection"
+    };
+
+    function CommonsRouter(view) {
+      CommonsRouter.__super__.constructor.apply(this, arguments);
+      this.view = view;
+    }
+
+    CommonsRouter.prototype.all = function(date) {
+      return this.view.displayAllCommons(date);
+    };
+
+    CommonsRouter.prototype.mine = function(date) {
+      return this.view.displayMyCommons(date);
+    };
+
+    CommonsRouter.prototype.mineWithSelection = function(id) {
+      this.view.lastSelectedId = id;
+      return this.view.displayMyCommons(null);
+    };
+
+    return CommonsRouter;
+
+  })(Backbone.Router);
+
   CommonsView = (function(_super) {
 
     __extends(CommonsView, _super);
@@ -571,7 +607,7 @@
 
     CommonRow.prototype.className = "commons-row";
 
-    CommonRow.prototype.template = _.template('<a href="#" class="commons-picture-author"><%= author %></a>\n<img src="<%= thumbnailPath %>" alt="<%= title %>" />\n<p class="commons-picture-date">\n <%= displayDate %>\n</p>\n<div class="spacer"></div>');
+    CommonRow.prototype.template = _.template('<a href="#" class="commons-author"><%= author %></a>\n<p><%= path %></p>\n<p class="commons-date">\n <%= displayDate %>\n</p>\n<div class="spacer"></div>');
 
     /* Events
     */
@@ -586,8 +622,6 @@
     function CommonRow(model, mainView) {
       this.model = model;
       this.mainView = mainView;
-      this.onPushNoteClicked = __bind(this.onPushNoteClicked, this);
-
       this.onDownloadClicked = __bind(this.onDownloadClicked, this);
 
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
@@ -648,28 +682,6 @@
       });
     };
 
-    CommonRow.prototype.onPushNoteClicked = function() {
-      var _this = this;
-      return selectorDialogCommon.display(function(noteId) {
-        loadingIndicator.display();
-        return $.get("/notes/" + noteId + "/", function(note) {
-          note.content = note.content + "\n\n ![image](" + _this.model.getImagePreviewPath() + ")";
-          return $.putJson({
-            url: "/notes/" + noteId + "/",
-            body: note,
-            success: function() {
-              infoDialog.display("note successfully updated");
-              return loadingIndicator.hide();
-            },
-            error: function() {
-              infoDialog.display("note update failed");
-              return loadingIndicator.hide();
-            }
-          });
-        });
-      });
-    };
-
     /* Functions
     */
 
@@ -700,8 +712,9 @@
         return $.get(_this.model.getPath(), function(data) {
           loadingIndicator.hide();
           _this.preview.append(data);
-          if ($("#commons-preview img").length > 0) {
-            $("#commons-preview").append("            <p class=\"commons-buttons button-bar\">              <a id=\"commons-note-button\">push to note</a>              <a href=\"" + (_this.model.get('imgPath')) + "\"                  target=\"blank\"                 id=\"commons-full-size-button\">full-size</a>              <a id=\"commons-delete-button\">delete</a>            </p>            ");
+          console.log(_this.model);
+          if (_this.model.get("isFile")) {
+            $("#commons-preview").append("            <p class=\"commons-buttons button-bar\">              <a href=\"" + (_this.model.get('imgPath')) + "\"                  target=\"blank\"                 id=\"commons-full-size-button\">download</a>              <a id=\"commons-delete-button\">delete</a>            </p>            ");
             $("#commons-note-button").click(_this.onPushNoteClicked);
           }
           $("#commons-delete-button").click(_this.onDeleteClicked);
@@ -716,42 +729,6 @@
     return CommonRow;
 
   })(Row);
-
-  CommonsRouter = (function(_super) {
-
-    __extends(CommonsRouter, _super);
-
-    CommonsRouter.prototype.routes = {
-      "": "all",
-      "commons": "all",
-      "commons/all/": "all",
-      "commons/all/until/:date/": "all",
-      "commons/mine/": "mine",
-      "commons/mine/until/:date/": "mine",
-      "commons/mine/:id/": "mineWithSelection"
-    };
-
-    function CommonsRouter(view) {
-      CommonsRouter.__super__.constructor.apply(this, arguments);
-      this.view = view;
-    }
-
-    CommonsRouter.prototype.all = function(date) {
-      return this.view.displayAllCommons(date);
-    };
-
-    CommonsRouter.prototype.mine = function(date) {
-      return this.view.displayMyCommons(date);
-    };
-
-    CommonsRouter.prototype.mineWithSelection = function(id) {
-      this.view.lastSelectedId = id;
-      return this.view.displayMyCommons(null);
-    };
-
-    return CommonsRouter;
-
-  })(Backbone.Router);
 
   Common = (function(_super) {
 

@@ -12,6 +12,7 @@ class PlatformView extends Backbone.View
     "click #activities-a": "onActivitiesClicked"
     "click #notes-a": "onNotesClicked"
     "click #pictures-a": "onPicturesClicked"
+    "click #commons-a": "onCommonsClicked"
 
 
   constructor: (controller) ->
@@ -37,6 +38,8 @@ class PlatformView extends Backbone.View
       @lastPage = "#notes"
     else if $("#pictures").length != 0
       @lastPage = "#pictures"
+    else if $("#common").length != 0
+      @lastPage = "#common"
     else
       @lastPage = "#profile"
 
@@ -94,6 +97,15 @@ class PlatformView extends Backbone.View
       ev.preventDefault()
 
     @switchTo("#pictures", '/pictures/content/', "Pictures")
+    false
+
+  # When pictures is clicked, current page is hidden and pictures
+  # page is displayed.
+  onCommonsClicked: (ev) ->
+    if ev
+      ev.preventDefault()
+
+    @switchTo("#commons", '/commons/content/', "Commons")
     false
 
   # Switch to *page*: hides current page and displays *page*. 
