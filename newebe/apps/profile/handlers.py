@@ -5,7 +5,7 @@ from threading import Timer
 from tornado.httpclient import HTTPClient, HTTPRequest
 
 
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 from newebe.apps.profile.models import UserManager
 from newebe.apps.contacts.models import ContactManager
 

@@ -4,7 +4,7 @@ from tornado.escape import json_decode
 
 from newebe.apps.profile.models import User, UserManager
 from newebe.apps.contacts.handlers import NewebeHandler
-from newebe.core.handlers import NewebeAuthHandler
+from newebe.apps.core.handlers import NewebeAuthHandler
 
 
 class LoginHandler(NewebeHandler):

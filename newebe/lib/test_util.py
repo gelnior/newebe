@@ -7,6 +7,7 @@ from tornado.escape import json_decode
 from tornado.httpclient import HTTPClient, HTTPRequest
 
 from newebe.config import CONFIG
+from newebe.settings import COUCHDB_DB_NAME
 from newebe.apps.profile.models import UserManager, User
 
 ROOT_URL = u"http://localhost:8888/"

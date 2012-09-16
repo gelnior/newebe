@@ -2,7 +2,7 @@ import logging
 
 from couchdbkit.schema import StringProperty, DateTimeProperty
 
-from newebe.core.models import NewebeDocument
+from newebe.apps.core.models import NewebeDocument
 from newebe.lib import date_util
 
 logger = logging.getLogger("newebe.contacts")
