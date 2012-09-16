@@ -5,9 +5,9 @@ from newebe.news import handlers as news
 from newebe.activities import handlers as activities
 from newebe.notes import handlers as notes
 from newebe.pictures import handlers as pictures
+from newebe.commons import handlers as commons
 from newebe.sync import handlers as sync
 
-from newebe.config import CONFIG
 
 routes = [
     ('/', news.NewsTHandler),
@@ -99,16 +99,30 @@ routes = [
     ('/pictures/contact/$', pictures.PictureContactHandler),
     ('/pictures/contact/download/$', pictures.PictureContactDownloadHandler),
     ('/pictures/content/$', pictures.PicturesContentTHandler),
-    ('/pictures/tests/$', pictures.PicturesTestsTHandler),
     ('/pictures/([0-9a-z]+)/$', pictures.PictureHandler),
     ('/pictures/([0-9a-z]+)/html/$', pictures.PictureTHandler),
     ('/pictures/([0-9a-z]+)/retry/$', pictures.PictureRetryHandler),
     ('/pictures/([0-9a-z]+)/download/$', pictures.PictureDownloadHandler),
     ('/pictures/([0-9a-z]+)/(.+)', pictures.PictureFileHandler),
     ('/pictures/$', pictures.PicturesTHandler),
-]
 
-if CONFIG.main.debug:
-    routes.extend([
-        ('/pictures/tests/', pictures.PicturesTestsTHandler)
-    ])
+    ('/commons/all/([0-9\-]+)/tags/([0-9a-z]+)/$', commons.CommonsHandler),
+    ('/commons/all/$', commons.CommonsHandler),
+    ('/commons/all/html/$', commons.CommonRowsTHandler),
+    ('/commons/all/([0-9\-]+)/$', commons.CommonsHandler),
+    ('/commons/all/([0-9\-]+)/html/$', commons.CommonRowsTHandler),
+    ('/commons/mine/$', commons.CommonsMyHandler),
+    ('/commons/mine/([0-9\-]+)/$', commons.CommonsMyHandler),
+    ('/commons/mine/([0-9\-]+)/tags/([0-9a-z]+)/$',
+        commons.CommonsMyHandler),
+    ('/commons/fileuploader/$', commons.CommonsQQHandler),
+    ('/commons/contact/$', commons.CommonContactHandler),
+    ('/commons/contact/download/$', commons.CommonContactDownloadHandler),
+    ('/commons/content/$', commons.CommonsContentTHandler),
+    ('/commons/([0-9a-z]+)/$', commons.CommonHandler),
+    ('/commons/([0-9a-z]+)/html/$', commons.CommonTHandler),
+    ('/commons/([0-9a-z]+)/retry/$', commons.CommonRetryHandler),
+    ('/commons/([0-9a-z]+)/download/$', commons.CommonDownloadHandler),
+    ('/commons/([0-9a-z]+)/(.+)', commons.CommonFileHandler),
+    ('/commons/$', commons.CommonsTHandler),
+]

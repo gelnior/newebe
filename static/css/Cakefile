@@ -7,6 +7,7 @@ files = [
   "../pictures/styles/pictures"
   "../profile/styles/profile"
   "../platform/styles/common"
+  "../commons/styles/commons"
   "./fileuploader"
   "./jquery-ui-black-tie"
 ]
