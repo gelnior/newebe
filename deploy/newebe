@@ -2,7 +2,7 @@
 #
 
 DAEMON_DIR="/home/newebe/newebe"
-DAEMON="$DAEMON_DIR/newebe_server.py"
+DAEMON="/usr/bin/python $DAEMON_DIR/newebe_server.py"
 
 DAEMON_OPT="" 
 DAEMON_USER="newebe" 
