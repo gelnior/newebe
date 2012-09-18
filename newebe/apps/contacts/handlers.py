@@ -1,6 +1,6 @@
 import datetime
 import logging
-import markdown
+##import markdown
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
@@ -407,8 +407,8 @@ class ContactRenderTHandler(NewebeAuthHandler):
             contact = ContactManager.getTrustedContact(key)
 
         if contact:
-            if contact.description:
-                contact.description = markdown.markdown(contact.description)
+            #if contact.description:
+            #    contact.description = markdown.markdown(contact.description)
 
             self.render("templates/contact_render.html",
                             contact=contact)

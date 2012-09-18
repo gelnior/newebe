@@ -9,7 +9,7 @@ sys.path.append("..")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'newebe.settings'
 
 from newebe.lib import date_util, json_util, slugify
-from newebe.news.models import MicroPost
+from newebe.apps.news.models import MicroPost
 
 
 @step(u'Assert that ([0-9-]+) is converted to ([0-9A-Z-:]+)')

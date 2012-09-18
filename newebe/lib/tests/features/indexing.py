@@ -7,8 +7,8 @@ from lettuce import step, before, world
 from nose.tools import assert_equals
 
 from newebe.lib.test_util import reset_documents
-from newebe.news.models import MicroPost, MicroPostManager
-from newebe.profile.models import UserManager
+from newebe.apps.news.models import MicroPost, MicroPostManager
+from newebe.apps.profile.models import UserManager
 
 from newebe.lib.indexer import Indexer
 from newebe.lib.test_util import NewebeClient
