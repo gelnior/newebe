@@ -4,7 +4,8 @@ from newebe.tools.dependencies import check_all_dependencies
 
 setup(
     setup_requires=['d2to1'],
-    d2to1=True
+    d2to1=True,
+    include_package_data=True
 )
 
 # Check for dependancies not installable through pip

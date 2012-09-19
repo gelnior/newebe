@@ -8,7 +8,7 @@ from tornado.escape import json_decode, json_encode
 from couchdbkit.exceptions import ResourceNotFound
 
 from newebe.apps.profile.models import UserManager
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.activities.models import ActivityManager
