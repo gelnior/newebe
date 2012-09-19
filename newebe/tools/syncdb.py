@@ -6,7 +6,7 @@ Code adapted from Django Coucdhbkit handler.
 """
 
 import sys
-import os
+from os.path import dirname, join, isdir
 sys.path.append("../")
 
 from couchdbkit import Server
@@ -43,33 +43,30 @@ class CouchdbkitHandler(object):
         for view in views:
             res = CouchdbResource(uri, timeout=COUCHDB_TIMEOUT)
             server = Server(uri, resource_instance=res)
-            self.sync(server, dbname, view)
+            self.sync(server, dbname, view, views[view])
 
-    def sync(self, server, dbname, view, verbosity=2):
+    def sync(self, server, dbname, view, module, verbosity=2):
         """
         Used to sync views of all applications and eventually create
         database.
         @param server: couchdb server object
         @param dbname: name of the database
         @param view: 'view' name
+        @param module: module, provided here to calculate each view's
+        _design/ path.
         """
         print "Sync `%s` in CouchDB server." % view
         db = server.get_or_create_db(dbname)
-        app_label = view.split('.')[-1]
 
-        if app_label != "core":
-            app_path = "apps/{}".format(app_label)
-        else:
-            app_path = app_label
-        app_path = os.path.abspath(os.path.join("./",
-                                                app_path.replace(".", "/")))
-        design_path = "%s/%s" % (app_path, "_design")
-        if not os.path.isdir(design_path):
+        app_name = module.__name__
+        app_dir = dirname(module.__file__)
+        design_path = join(app_dir, "_design")
+
+        if not isdir(design_path):
             print >> sys.stderr,  \
-                 "%s don't exists, no doc synchronized" % design_path
+                 "%s doesn't exists, doc wasn't synchronized" % design_path
         else:
-            push(os.path.join(app_path, "_design"), db, force=True,
-                 docid="_design/%s" % app_label)
+            push(design_path, db, force=True, docid="_design/%s" % app_name)
 
         print "Sync of `%s` done." % view
 

@@ -20,6 +20,8 @@ from tornado.options import define
 from tornado.options import options
 from tornado.options import parse_command_line
 
+from newebe.apps import news, core, activities, notes, commons, pictures
+
 
 class KeyDict(dict):
     """
@@ -140,12 +142,12 @@ CONFIG['security']['certificate'] = "./server.crt"
 CONFIG['security']['private_key'] = "./server.key"
 CONFIG['db']['name'] = "newebe"
 CONFIG['db']['uri'] = "http://127.0.0.1:5984"
-CONFIG['db']['views'] = ['newebe.apps.news',
-                         'newebe.apps.core',
-                         'newebe.apps.activities',
-                         'newebe.apps.notes',
-                         'newebe.apps.commons',
-                         'newebe.apps.pictures']
+CONFIG['db']['views'] = {'newebe.apps.news': news,
+                         'newebe.apps.core': core,
+                         'newebe.apps.activities': activities,
+                         'newebe.apps.notes': notes,
+                         'newebe.apps.commons': commons,
+                         'newebe.apps.pictures': pictures}
 
 CONFIG.load("newebe.settings")
 
