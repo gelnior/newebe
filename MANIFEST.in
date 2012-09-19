@@ -1,0 +1,13 @@
+recursive-include newebe/static *
+recursive-include newebe/apps/activities/templates *
+recursive-include newebe/apps/auth/templates *
+recursive-include newebe/apps/contacts/templates *
+recursive-include newebe/apps/core/_design *
+recursive-include newebe/apps/core/templates *
+recursive-include newebe/apps/news/_design *
+recursive-include newebe/apps/news/templates *
+recursive-include newebe/apps/notes/_design *
+recursive-include newebe/apps/notes/templates *
+recursive-include newebe/apps/pictures/_design *
+recursive-include newebe/apps/pictures/templates *
+recursive-include newebe/apps/profile/templates *
