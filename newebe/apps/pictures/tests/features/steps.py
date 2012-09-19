@@ -10,9 +10,9 @@ from tornado.escape import json_encode
 
 sys.path.append("../")
 
-from newebe.pictures.models import PictureManager, Picture
-from newebe.activities.models import ActivityManager, Activity
-from newebe.contacts.models import Contact, ContactManager
+from newebe.apps.pictures.models import PictureManager, Picture
+from newebe.apps.activities.models import ActivityManager, Activity
+from newebe.apps.contacts.models import Contact, ContactManager
 from newebe.lib.upload_util import encode_multipart_formdata
 from newebe.lib import date_util
 from newebe.lib.slugify import slugify
@@ -140,7 +140,7 @@ def from_seconde_newebe_clear_all_pictures(step):
 @step(u'Post a new picture via the dedicated resource')
 def post_a_new_picture_via_the_dedicated_resource(step):
     time.sleep(1)
-    file = open("pictures/tests/test.jpg", "r")
+    file = open("apps/pictures/tests/test.jpg", "r")
 
     (contentType, body) = encode_multipart_formdata([],
                             [("picture", "test.jpg", file.read())])
@@ -184,13 +184,13 @@ def download_thumbnail_of_first_returned_picture(step):
 @step(u'Check that thumbnail is the posted picture thumbnail')
 def check_that_thumbnail_is_the_posted_picture_thumbnail(step):
     size = 200, 200
-    image = Image.open("pictures/tests/test.jpg")
+    image = Image.open("apps/pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
 
-    file = open("pictures/tests/th_test.jpg", "w")
+    file = open("apps/pictures/tests/th_test.jpg", "w")
     file.write(world.response.body)
     file.close()
-    thumbnail = Image.open("pictures/tests/th_test.jpg")
+    thumbnail = Image.open("apps/pictures/tests/th_test.jpg")
 
     assert image.getbbox() == thumbnail.getbbox()
 
@@ -214,20 +214,20 @@ def from_second_newebe_download_the_preview_of_first_returned_picture(step):
 @step(u'Check that preview is the posted picture preview')
 def check_that_preview_is_the_posted_picture_preview(step):
     size = 1000, 1000
-    image = Image.open("pictures/tests/test.jpg")
+    image = Image.open("apps/pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
 
-    file = open("pictures/tests/prev_test.jpg", "w")
+    file = open("apps/pictures/tests/prev_test.jpg", "w")
     file.write(world.response.body)
     file.close()
-    preview = Image.open("pictures/tests/prev_test.jpg")
+    preview = Image.open("apps/pictures/tests/prev_test.jpg")
 
     assert image.getbbox() == preview.getbbox()
 
 
 @step(u'Ensure it is the same that posted picture')
 def ensure_it_is_the_same_that_posted_picture(step):
-    file = open("pictures/tests/test.jpg", "r")
+    file = open("apps/pictures/tests/test.jpg", "r")
     assert file.read() == world.response.body
 
 
@@ -298,10 +298,10 @@ def from_second_newebe_request_for_download(step):
 @step(u'Add three pictures to the database with different dates')
 def add_three_pictures_to_the_database_with_different_dates(step):
     size = 200, 200
-    image = Image.open("pictures/tests/test.jpg")
+    image = Image.open("apps/pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
-    image.save("pictures/tests/th_test.jpg")
-    file = open("pictures/tests/th_test.jpg")
+    image.save("apps/pictures/tests/th_test.jpg")
+    file = open("apps/pictures/tests/th_test.jpg")
 
     for i in range(1, 4):
         picture = Picture(

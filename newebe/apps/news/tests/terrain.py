@@ -12,7 +12,7 @@ from lettuce import before, after, world
 
 sys.path.append("../")
 
-from newebe.contacts.models import Contact, ContactManager
+from newebe.apps.contacts.models import Contact, ContactManager
 from tornado.httpclient import HTTPError
 
 from newebe.lib.slugify import slugify

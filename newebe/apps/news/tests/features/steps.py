@@ -8,10 +8,10 @@ from tornado.escape import json_decode, json_encode
 
 sys.path.append("../")
 
-from newebe.profile.models import UserManager
-from newebe.news.models import MicroPost, MicroPostManager
-from newebe.notes.models import Note
-from newebe.activities.models import Activity, ActivityManager
+from newebe.apps.profile.models import UserManager
+from newebe.apps.news.models import MicroPost, MicroPostManager
+from newebe.apps.notes.models import Note
+from newebe.apps.activities.models import Activity, ActivityManager
 
 from newebe.lib.test_util import db2, reset_documents
 from newebe.lib import date_util
