@@ -11,11 +11,11 @@ sys.path.append("../")
 
 from newebe.lib.slugify import slugify
 
-from newebe.contacts.models import Contact, ContactManager
-from newebe.activities.models import ActivityManager
+from newebe.apps.contacts.models import Contact, ContactManager
+from newebe.apps.activities.models import ActivityManager
 
-from newebe.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
-from newebe.contacts.models import STATE_PENDING, STATE_ERROR
+from newebe.apps.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
+from newebe.apps.contacts.models import STATE_PENDING, STATE_ERROR
 
 from newebe.lib.test_util import NewebeClient, db, db2, reset_documents
 from newebe.lib import date_util
@@ -23,6 +23,11 @@ from newebe.lib import date_util
 
 from newebe.lib.test_util import ROOT_URL, SECOND_NEWEBE_ROOT_URL
 
+
+@step(u'Clear contacts')
+def clear_contacts(step):
+    reset_documents(Contact, ContactManager.getContacts)
+    reset_documents(Contact, ContactManager.getContacts, db2)
 
 @before.all
 def set_browers():
@@ -43,11 +48,6 @@ def set_browers():
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
-
-@step(u'Clear contacts')
-def clear_contacts(step):
-    reset_documents(Contact, ContactManager.getContacts)
-    reset_documents(Contact, ContactManager.getContacts, db2)
 
 
 @step(u'Convert default user to contact')

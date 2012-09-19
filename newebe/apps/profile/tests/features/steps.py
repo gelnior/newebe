@@ -7,7 +7,7 @@ from tornado.escape import json_decode
 
 sys.path.append("../")
 
-from newebe.profile.models import User, UserManager
+from newebe.apps.profile.models import User, UserManager
 from newebe.lib.test_util import NewebeClient, ROOT_URL
 
 

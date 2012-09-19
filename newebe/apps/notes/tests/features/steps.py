@@ -8,8 +8,8 @@ from tornado.escape import json_decode
 
 sys.path.append("../")
 
-from newebe.notes.models import Note, NoteManager
-from newebe.activities.models import ActivityManager
+from newebe.apps.notes.models import Note, NoteManager
+from newebe.apps.activities.models import ActivityManager
 from newebe.lib import date_util
 from newebe.lib.test_util import NewebeClient
 

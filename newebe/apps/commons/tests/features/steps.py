@@ -9,15 +9,14 @@ from tornado.escape import json_encode
 
 sys.path.append("../")
 
-from newebe.commons.models import CommonManager, Common
-from newebe.activities.models import ActivityManager, Activity
-from newebe.contacts.models import Contact, ContactManager
+from newebe.apps.commons.models import CommonManager, Common
+from newebe.apps.activities.models import ActivityManager, Activity
+from newebe.apps.contacts.models import Contact, ContactManager
 from newebe.lib.upload_util import encode_multipart_formdata
 from newebe.lib import date_util
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import NewebeClient, reset_documents, \
                                  SECOND_NEWEBE_ROOT_URL, db2
-
 
 @before.all
 def set_browsers():
@@ -140,7 +139,7 @@ def from_seconde_newebe_clear_all_commons(step):
 @step(u'Post a new common via the dedicated resource')
 def post_a_new_common_via_the_dedicated_resource(step):
     time.sleep(1)
-    file = open("commons/tests/vimqrc.pdf", "r")
+    file = open("apps/commons/tests/vimqrc.pdf", "r")
 
     (contentType, body) = encode_multipart_formdata([],
                             [("common", "vimqrc.pdf", file.read())])
@@ -191,7 +190,7 @@ def from_second_newebe_download_the_preview_of_first_returned_common(step):
 
 @step(u'Ensure it is the same that posted common')
 def ensure_it_is_the_same_that_posted_common(step):
-    file = open("commons/tests/vimqrc.pdf", "r")
+    file = open("apps/commons/tests/vimqrc.pdf", "r")
     assert file.read() == world.response.body
 
 
@@ -261,7 +260,7 @@ def from_second_newebe_request_for_download(step):
 
 @step(u'Add three commons to the database with different dates')
 def add_three_commons_to_the_database_with_different_dates(step):
-    file = open("commons/tests/vimqrc.pdf")
+    file = open("apps/commons/tests/vimqrc.pdf")
 
     for i in range(1, 4):
         common = Common(

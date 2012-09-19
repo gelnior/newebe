@@ -57,12 +57,16 @@ class CouchdbkitHandler(object):
         db = server.get_or_create_db(dbname)
         app_label = view.split('.')[-1]
 
+        if app_label != "core":
+            app_path = "apps/{}".format(app_label)
+        else:
+            app_path = app_label
         app_path = os.path.abspath(os.path.join("./",
-                                                app_label.replace(".", "/")))
+                                                app_path.replace(".", "/")))
         design_path = "%s/%s" % (app_path, "_design")
         if not os.path.isdir(design_path):
             print >> sys.stderr,  \
-                 "%s don't exists, no ddoc synchronized" % design_path
+                 "%s don't exists, no doc synchronized" % design_path
         else:
             push(os.path.join(app_path, "_design"), db, force=True,
                  docid="_design/%s" % app_label)

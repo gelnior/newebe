@@ -16,6 +16,7 @@ server = Server()
 server2 = Server()
 db = server.get_or_create_db(CONFIG.db.name)
 db2 = server.get_or_create_db(CONFIG.db.name + "2")
+print db2
 
 
 def reset_documents(cls, get_func, database=db):
