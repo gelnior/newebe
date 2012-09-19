@@ -10,10 +10,12 @@ from newebe.apps.profile.models import UserManager
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.news.models import MicroPostManager
 from newebe.apps.pictures.models import PictureManager
+from newebe.apps.commons.models import CommonManager
 from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.apps.news.handlers import CONTACT_PATH as MICROPOST_PATH
 from newebe.apps.pictures.handlers import CONTACT_PATH as PICTURE_PATH
+from newebe.apps.commons.handlers import CONTACT_PATH as COMMON_PATH
 
 
 logger = logging.getLogger("newebe.sync")
@@ -58,9 +60,9 @@ class SynchronizeHandler(NewebeAuthHandler):
         url = "%ssynchronize/contact/" % contact.url
         self.contacts[url] = contact
         client.post(contact, "synchronize/contact/", body,
-                    callback=self.on_synchronize_posts)
+                    callback=self.on_synchronize)
 
-    def on_synchronize_posts(self, response, **kwargs):
+    def on_synchronize(self, response, **kwargs):
         '''
         When sync response is received, it extracts contact data from it
         then update local contact with it.
@@ -75,6 +77,17 @@ class SynchronizeHandler(NewebeAuthHandler):
                 contact.description = remoteContact.get("description", "")
                 contact.save()
 
+def tags_match(doc, contact):
+    '''
+    Returns true if doc has at least one tag in common with contact.
+    '''
+
+    is_tag = False
+    for tag in doc.tags:
+        if tag in contact.tags:
+            is_tag = True
+            break
+    return is_tag
 
 class SynchronizeContactHandler(NewebeHandler):
     '''
@@ -97,6 +110,7 @@ class SynchronizeContactHandler(NewebeHandler):
         if localContact:
             self.send_posts_to_contact(client, localContact, now, date)
             self.send_pictures_to_contact(client, localContact, now, date)
+            self.send_commons_to_contact(client, localContact, now, date)
 
             self.return_document(UserManager.getUser().asContact())
         else:
@@ -111,9 +125,11 @@ class SynchronizeContactHandler(NewebeHandler):
                 endKey=date_util.get_db_date_from_date(date))
 
         for micropost in microposts:
-            body = micropost.toJson(localized=False)
+            if tags_match(micropost, contact):
+                body = micropost.toJson(localized=False)
 
-            client.post(contact, MICROPOST_PATH, body, self.onContactResponse)
+                client.post(contact, MICROPOST_PATH, body,
+                            self.onContactResponse)
 
     def send_pictures_to_contact(self, client, contact, now, date):
         '''
@@ -124,15 +140,30 @@ class SynchronizeContactHandler(NewebeHandler):
                 endKey=date_util.get_db_date_from_date(date))
 
         for picture in pictures:
-            client.post_files(
-                contact,
-                PICTURE_PATH,
-                {"json": str(picture.toJson(localized=False))},
-                [("picture",
-                  str(picture.path),
-                  picture.fetch_attachment("th_" + picture.path))
-                ],
-                self.onContactResponse)
+            if tags_match(picture, contact):
+                client.post_files(
+                    contact,
+                    PICTURE_PATH,
+                    {"json": str(picture.toJson(localized=False))},
+                    [("picture",
+                      str(picture.path),
+                      picture.fetch_attachment("th_" + picture.path))
+                    ],
+                    self.onContactResponse)
+
+    def send_commons_to_contact(self, client, contact, now, date):
+        '''
+        Send pictures from last month to given contact.
+        '''
+        commons = CommonManager.get_owner_last_commons(
+                startKey=date_util.get_db_date_from_date(now),
+                endKey=date_util.get_db_date_from_date(date))
+
+        for common in commons:
+            if tags_match(common, contact):
+                body = common.toJson(localized=False)
+
+                client.post(contact, COMMON_PATH, body, self.onContactResponse)
 
     def onContactResponse(self, response, **kwargs):
         pass
