@@ -4,7 +4,7 @@ import tornado.web
 
 sys.path.append("../")
 
-from newebe.core.handlers import NewebeHandler
+from newebe.apps.core.handlers import NewebeHandler
 from newebe.apps.profile.models import UserManager
 
 class JSONHandler(NewebeHandler):

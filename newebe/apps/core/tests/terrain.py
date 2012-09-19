@@ -35,12 +35,12 @@ def run_server():
         if path.endswith('bin'):
             del sys.path[i]
 
-    from newebe.core.tests.fake_server import FakeServer
+    from newebe.apps.core.tests.fake_server import FakeServer
     app = FakeServer()
     world.server = Server(app)
     try:
         world.server.start()
-        
+
     except KeyboardInterrupt:
         world.server.http.stop()
         tornado.ioloop.IOLoop.instance().stop()
