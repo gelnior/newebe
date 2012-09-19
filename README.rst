@@ -22,7 +22,7 @@ Set up a development environment (Ubuntu and Debian)
 
 **Server**
 
-Install following packages:
+Install following packages::
 
     python python-setuptools python-pip python-pycurl python-imaging couchdb
     git libxml2-dev libxslt-dev
@@ -57,18 +57,20 @@ Then via easy_install::
 
 In Newebe settings file (*settings.py*), set *DEBUG* variable to *True*.
 
+Go inside newebe folder::
+
+   cd newebe
+
 Then, still in Newebe directory set DB by running::
 
-   python syncdb.py
+   python tools/syncdb.py
 
 Set DEBUG constant to True in *settings.py* or *local_settings.py*
 
 To change database name or port change, you must modify your *settings.py* file by settings the following constants : TORNADO_PORT and COUCHDB_DB_NAME. Default port is 8000 and default database name is newebe. 
 Time zone is set in the same way. So if you want to set your own time zone, you must change the TIMEZONE constant value by your timezone (cf. wiki). 
 
-NB: The best way to deal with specific configuration is to set this variable in a file called *local_settings.py* in the same directory as *settings.py*.
-
-*local_settings.py* exemple::
+*settings.py* exemple::
 
     TORNADO_PORT = 8000
     COUCHDB_DB_NAME = "newebe"
