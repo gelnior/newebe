@@ -97,16 +97,16 @@ To work on client you will need node.js. So first install it::
    make
    make install
 
-Now install tools we need, Coffeescript, Cake, Stylus and UglifyJS:
+Now install tools we need, Coffeescript, Cake, Stylus and UglifyJS::
 
      npm install coffe-script cake uglifyjs stylus
 
 Then when you finish to work on client code. At the root of the module you
-worked on, type:
+worked on, type::
 
     cake build 
 
-or for automatic build:
+or for automatic build::
 
     cake watch
 
