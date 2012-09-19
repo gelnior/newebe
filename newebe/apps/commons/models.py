@@ -1,6 +1,6 @@
 from couchdbkit.schema import StringProperty, BooleanProperty
 
-from newebe.core.models import NewebeDocument, DocumentManager
+from newebe.apps.core.models import NewebeDocument, DocumentManager
 
 COMMON_LIMIT = 10
 
