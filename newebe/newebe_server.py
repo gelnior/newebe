@@ -55,7 +55,6 @@ if __name__ == '__main__':
     logger.info("Sets up application server.")
     tornado_app = Newebe()
 
-    print str(CONFIG.main.debug) + "hhhhhhhhhhhhhaaaaaaaaaa"
     if not CONFIG.main.debug:
         # Send log ouptut to a file.
         log_file = 'newebe.%s.log' % CONFIG.main.port
