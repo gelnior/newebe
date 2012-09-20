@@ -2,7 +2,8 @@ class Row extends Backbone.View
 
   # Update preview position depending on the actual window scroll position.
   updatePreviewPosition: () ->
-    top = $("body").scrollTop()
+    top = $("html").scrollTop()
+    console.log top
 
     if top > 50
       top = top + 20
@@ -10,6 +11,9 @@ class Row extends Backbone.View
       top = top + 60
 
     left = @preview.offset().left
+    console.log left
+    console.log top
+    console.log @preview
     @preview.offset({left: left, top: top})
 
 

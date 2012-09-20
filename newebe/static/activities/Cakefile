@@ -84,10 +84,6 @@ srcFiles.push(appFile)
 appFiles = appFiles.concat(srcFiles)
 
 
-# Browse tests files
-walk("./tests/specs", testFiles)
-
-
 # Build task
 task 'build', 'Build single application file from source files', ->
   puts 'Start build'
