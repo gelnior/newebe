@@ -58,8 +58,8 @@ class CouchdbkitHandler(object):
         print "Sync `%s` in CouchDB server." % view
         db = server.get_or_create_db(dbname)
 
-        app_name = module.__name__
-        app_name = app_name.split(".")[-1]
+        app_module_path = module.__name__
+        app_name = app_module_path.split(".")[-1]
         app_dir = dirname(module.__file__)
         design_path = join(app_dir, "_design")
 
