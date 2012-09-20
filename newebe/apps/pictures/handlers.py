@@ -10,7 +10,7 @@ from couchdbkit.exceptions import ResourceNotFound
 from PIL import Image
 
 from newebe.apps.profile.models import UserManager
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.activities.models import ActivityManager

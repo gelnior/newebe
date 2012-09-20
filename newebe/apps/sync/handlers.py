@@ -11,7 +11,7 @@ from newebe.apps.contacts.models import ContactManager
 from newebe.apps.news.models import MicroPostManager
 from newebe.apps.pictures.models import PictureManager
 from newebe.apps.commons.models import CommonManager
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.apps.news.handlers import CONTACT_PATH as MICROPOST_PATH
 from newebe.apps.pictures.handlers import CONTACT_PATH as PICTURE_PATH

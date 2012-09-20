@@ -12,8 +12,8 @@ from newebe.apps.news.models import MicroPostManager, MicroPost
 from newebe.apps.activities.models import ActivityManager
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.profile.models import UserManager
-from newebe.core.handlers import NewebeHandler, NewebeAuthHandler
-from newebe.core.attach import Converter
+from newebe.apps.core.handlers import NewebeHandler, NewebeAuthHandler
+from newebe.apps.core.attach import Converter
 
 logger = logging.getLogger("newebe.news")
 

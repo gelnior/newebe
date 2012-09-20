@@ -40,13 +40,7 @@ def check_OpenSSL():
         print "Newebe needs openssl."
 
 
-def check_curl_config():
-    if not which("curl-config"):
-        print "Newebe needs curl-config."
-
-
 def check_all_dependencies():
-    check_curl_config()
     check_PIL()
     check_CouchDB()
     check_OpenSSL()

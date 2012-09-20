@@ -12,7 +12,7 @@ from newebe.apps.profile.models import UserManager
 from newebe.apps.contacts.models import Contact, ContactManager, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED, STATE_PENDING
-from newebe.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 
 # Template handlers for contact pages.

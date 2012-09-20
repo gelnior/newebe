@@ -1,7 +1,7 @@
 from couchdbkit.schema import StringProperty, BooleanProperty, \
                                          ListProperty
 
-from newebe.core.models import NewebeDocument, DocumentManager
+from newebe.apps.core.models import NewebeDocument, DocumentManager
 from newebe.apps.activities import activity_settings
 
 
