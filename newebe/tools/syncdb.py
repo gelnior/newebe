@@ -59,6 +59,7 @@ class CouchdbkitHandler(object):
         db = server.get_or_create_db(dbname)
 
         app_name = module.__name__
+        app_name = app_name.split(".")[-1]
         app_dir = dirname(module.__file__)
         design_path = join(app_dir, "_design")
 
