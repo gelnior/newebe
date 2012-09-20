@@ -171,7 +171,7 @@
         this.isPosting = true;
         url = "/register/";
         return $.post(url, dataPost, function(data) {
-          return $("#register").fadeOut(1600, function() {
+          return $("#register").fadeOut(800, function() {
             $("body").hide();
             return $.get("/register/password/content/", function(data) {
               var registerPasswordView;
@@ -220,7 +220,7 @@
           this.isPosting = true;
           url = "/register/password/";
           return $.post(url, dataPost, function(data) {
-            return $("#register").fadeOut(1600, function() {
+            return $("#register").fadeOut(800, function() {
               $("body").hide();
               return $.get("/profile/menu-content/", function(data) {
                 $("body").prepend(data);
@@ -271,7 +271,7 @@
           data: dataPost,
           datatype: "json",
           success: function(data) {
-            return $("#login-form").fadeOut(1600, function() {
+            return $("#login-form").fadeOut(800, function() {
               $("body").hide();
               return $.get("/profile/menu-content/", function(data) {
                 $("body").prepend(data);
