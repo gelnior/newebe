@@ -183,6 +183,11 @@ class ProfileView extends Backbone.View
         url : $("#platform-profile-url").val()
         description : desc
     ))
+    url = @urlField.val()
+    if not url
+        url = window.location
+        @urlField.val "#{url.protocol}//#{url.host}/"
+        @urlField.keyUp()
     @user
 
 
