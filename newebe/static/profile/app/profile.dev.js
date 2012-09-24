@@ -351,7 +351,7 @@
     };
 
     ProfileView.prototype.renderProfile = function() {
-      var converter, desc, renderer;
+      var converter, desc, renderer, url;
       renderer = _.template('<h1 class="profile-name"><%= name %></h1>\n<p class="profile-url"><%= url %></p>\n<p class="profile-description"><%= description %></p>');
       desc = $("#profile-description").val();
       converter = new Showdown.converter();
@@ -362,6 +362,12 @@
         url: $("#platform-profile-url").val(),
         description: desc
       }));
+      url = this.urlField.val();
+      if (!url) {
+        url = window.location;
+        this.urlField.val("" + url.protocol + "//" + url.host + "/");
+        this.urlField.keyUp();
+      }
       return this.user;
     };
 

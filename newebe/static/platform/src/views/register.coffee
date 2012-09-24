@@ -31,7 +31,7 @@ class RegisterView extends Backbone.View
       url = "/register/"
       $.post(url, dataPost,
         (data) ->
-          $("#register").fadeOut(1600,
+          $("#register").fadeOut(800,
             () ->
               $("body").hide()
               $.get("/register/password/content/",
@@ -83,7 +83,7 @@ class RegisterPasswordView extends Backbone.View
         url = "/register/password/"
         $.post(url, dataPost,
           (data) ->
-            $("#register").fadeOut(1600,
+            $("#register").fadeOut(800,
               () ->
                 $("body").hide()
                 $.get("/profile/menu-content/",
@@ -135,7 +135,7 @@ class LoginView extends Backbone.View
         data: dataPost
         datatype: "json"
         success: (data) =>
-          $("#login-form").fadeOut(1600,
+          $("#login-form").fadeOut(800,
             () =>
               $("body").hide()
               $.get("/profile/menu-content/",

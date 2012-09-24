@@ -248,13 +248,17 @@
 
     Row.prototype.updatePreviewPosition = function() {
       var left, top;
-      top = $("body").scrollTop();
+      top = $("html").scrollTop();
+      console.log(top);
       if (top > 50) {
         top = top + 20;
       } else {
         top = top + 60;
       }
       left = this.preview.offset().left;
+      console.log(left);
+      console.log(top);
+      console.log(this.preview);
       return this.preview.offset({
         left: left,
         top: top
