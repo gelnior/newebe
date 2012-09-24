@@ -120,6 +120,11 @@ class ProfileView extends Backbone.View
       @tutorialOn = true
       @displayTutorial(1)
 
+      url = "#{window.location.protocol}//#{window.location.host}/"
+      @urlField.val url
+      @user.set "url", url
+      @postUserInfo()
+
     @users
 
 
@@ -183,11 +188,6 @@ class ProfileView extends Backbone.View
         url : $("#platform-profile-url").val()
         description : desc
     ))
-    url = @urlField.val()
-    if not url
-        url = window.location
-        @urlField.val "#{url.protocol}//#{url.host}/"
-        @urlField.keyUp()
     @user
 
 

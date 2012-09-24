@@ -297,6 +297,7 @@
 
 
     ProfileView.prototype.addAll = function() {
+      var url;
       this.users;
       this.user = this.users.first();
       $("#platform-profile-name").val(this.user.getName());
@@ -306,6 +307,10 @@
       if (!this.user.get("url")) {
         this.tutorialOn = true;
         this.displayTutorial(1);
+        url = "" + window.location.protocol + "//" + window.location.host + "/";
+        this.urlField.val(url);
+        this.user.set("url", url);
+        this.postUserInfo();
       }
       return this.users;
     };
@@ -351,7 +356,7 @@
     };
 
     ProfileView.prototype.renderProfile = function() {
-      var converter, desc, renderer, url;
+      var converter, desc, renderer;
       renderer = _.template('<h1 class="profile-name"><%= name %></h1>\n<p class="profile-url"><%= url %></p>\n<p class="profile-description"><%= description %></p>');
       desc = $("#profile-description").val();
       converter = new Showdown.converter();
@@ -362,12 +367,6 @@
         url: $("#platform-profile-url").val(),
         description: desc
       }));
-      url = this.urlField.val();
-      if (!url) {
-        url = window.location;
-        this.urlField.val("" + url.protocol + "//" + url.host + "/");
-        this.urlField.keyUp();
-      }
       return this.user;
     };
 
