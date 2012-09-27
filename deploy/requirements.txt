@@ -5,3 +5,4 @@ pytz
 PIL
 whoosh
 lxml
+importlib
