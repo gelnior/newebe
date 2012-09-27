@@ -3,14 +3,16 @@ import time
 import datetime
 
 from lettuce import step, world, before
+from tornado.escape import json_encode
 
-sys.path.append("../../../")
+sys.path.append("../")
 
 from newebe.lib.test_util import NewebeClient, db2, SECOND_NEWEBE_ROOT_URL
 
-from newebe.news.models import MicroPost, MicroPostManager
-from newebe.pictures.models import Picture, PictureManager
-from newebe.contacts.models import Contact, ContactManager
+from newebe.apps.news.models import MicroPost, MicroPostManager
+from newebe.apps.pictures.models import Picture, PictureManager
+from newebe.apps.contacts.models import Contact, ContactManager
+from newebe.apps.commons.models import Common, CommonManager
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import reset_documents
 
@@ -32,7 +34,7 @@ def set_default_user():
     world.browser.login("password")
     world.browser2.login("password")
     
-    world.browser.post("contacts/",
+    world.browser.post("contacts/all/",
                        body='{"url":"%s"}' % world.browser2.root_url)
     time.sleep(0.3)
     world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
@@ -50,19 +52,25 @@ def delete_all_pictures(scenario):
     reset_documents(Picture, PictureManager.get_last_pictures)
     reset_documents(Picture, PictureManager.get_last_pictures, db2)
 
+@before.each_scenario
+def delete_all_commons(scenario):
+    reset_documents(Picture, CommonManager.get_last_commons)
+    reset_documents(Picture, CommonManager.get_last_commons, db2)
+
+
 # Microposts
 
-@step(u'5 posts are created on first newebe')
-def posts_on_first_newebe(step):
-    for i in range(5):
+@step(u'(\d) posts are created on first newebe with tag "([^"]*)"')
+def posts_are_created_on_first_newebe_with_tag_tag(step, nbposts, tag):
+    for i in range(int(nbposts)):
         micropost = MicroPost(
             author = world.user.name,
             authorKey = world.user.key,
             content = "content %s" % i,
+            tags = [tag]
         )
-        time.sleep(1)
         micropost.save()
-
+        time.sleep(1)
 
 @step(u'When I Ask for synchronization')
 def when_i_ask_for_synchronization(step):
@@ -76,10 +84,10 @@ def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
 
 # Pictures
 
-@step(u'5 pictures are created on first newebe')
-def and_5_pictures_are_created_on_first_newebe(step):
+@step(u'(\d) pictures are created on first newebe with tag "([^"]*)"')
+def and_5_pictures_are_created_on_first_newebe(step, nbpics, tag):
     file = open("../../pictures/tests/test.jpg")
-    for i in range(1, 6):
+    for i in range(1, int(nbpics) + 1):
         picture = Picture(
             title = "Pic 0%d" % i,
             author =  world.user.name,
@@ -87,7 +95,8 @@ def and_5_pictures_are_created_on_first_newebe(step):
             date = datetime.datetime(2011, 11, i),
             path = "test.jpg",
             contentType = "image/jpeg",
-            isMine = True
+            isMine = True,
+            tags = [tag]
         )
         picture.save()
         picture.put_attachment(file.read(), "th_test.jpg")
@@ -99,6 +108,52 @@ def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
     pictures = world.browser2.fetch_documents("pictures/all/")
     assert 5 == len(pictures)
 
+@step(u'My contact is tagged with "([^"]*)"')
+def given_my_contact_is_tagged_with_tag(step, tag):
+    data = {
+        'tags': [tag]
+    }
+    world.browser.put(
+        "contacts/%s/tags/" % slugify(world.browser2.root_url.decode("utf-8")), 
+        body=json_encode(data))
+
+# Commons
+
+@step(u'(\d) commons are created on first newebe with tag "([^"]*)"')
+def and_5_pictures_are_created_on_first_newebe(step, nbcommons, tag):
+    file = open("../../commons/tests/test.jpg")
+    for i in range(1, int(nbcommons) + 1):
+        common = Common(
+            title = "Common 0%d" % i,
+            author =  world.user.name,
+            authorKey = world.user.key,
+            date = datetime.datetime(2011, 11, i),
+            path = "test.jpg",
+            contentType = "image/jpeg",
+            isMine = True,
+            tags = [tag]
+        )
+        picture.save()
+        picture.put_attachment(file.read(), "th_test.jpg")
+        picture.save()
+
+@step(u'And 2 pictures are created on first newebe with tag "([^"]*)"')
+def and_2_pictures_are_created_on_first_newebe_with_tag_group1(step, group1):
+    assert False, 'This step must be implemented'
+@step(u'And 3 files are created on first newebe with tag "([^"]*)"')
+def and_3_files_are_created_on_first_newebe_with_tag_group1(step, group1):
+    assert False, 'This step must be implemented'
+@step(u'And 2 files are created on first newebe with tag "([^"]*)"')
+def and_2_files_are_created_on_first_newebe_with_tag_group1(step, group1):
+    assert False, 'This step must be implemented'
+@step(u'Then 3 posts from first newebe are stored in second newebe')
+def then_3_posts_from_first_newebe_are_stored_in_second_newebe(step):
+    assert False, 'This step must be implemented'
+@step(u'And 3 pictures from first newebe are stored in second newebe')
+def and_3_pictures_from_first_newebe_are_stored_in_second_newebe(step):
+    assert False, 'This step must be implemented'
+
+
 # Profile
 
 @step(u'Modify first newebe profile directly to DB')
@@ -108,7 +163,7 @@ def modify_first_newebe_profile_directly_to_db(step):
 
 @step(u'Check that profile saved on second newebe is the one set on first one')
 def check_that_profile_saved_on_second_newebe_is_the_one_set_on_first_one(step):
-    contacts = world.browser2.fetch_documents("contacts/")
+    contacts = world.browser2.fetch_documents("contacts/all/")
     assert 1 == len(contacts)
     contact = contacts[0]
     assert world.user.name == contact.get("name", "")
