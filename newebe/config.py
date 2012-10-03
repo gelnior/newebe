@@ -14,7 +14,9 @@
 """
     Provide a main config object to uniformize configuration access
 """
+import os
 import importlib
+import yaml
 
 from tornado.options import define
 from tornado.options import options
@@ -68,38 +70,6 @@ class Config(KeyDict):
                    .format(modulename))
         return settings
 
-    def _is_old_style_settings(self, settings):
-        """
-            Are the current settings old style ones ?
-        """
-        return "TORNADO_PORT" in settings.__dict__
-
-    def _load_old_style_settings(self, settings):
-        """
-            Load old style settings file
-        """
-
-        if hasattr(settings, "TORNADO_PORT"):
-            self['main']['port'] = settings.TORNADO_PORT
-        if hasattr(settings, "DEBUG"):
-            self['main']['debug'] = settings.DEBUG
-        if hasattr(settings, "TIMEZONE"):
-            self['main']['timezone'] = settings.TIMEZONE
-
-        if hasattr(settings, "COOKIE_KEY"):
-            self['security']['cookie_key'] = settings.COOKIE_KEY
-        if hasattr(settings, "CERTIFICATE"):
-            self['security']['certificate'] = settings.CERTIFICATE
-        if hasattr(settings, "PRIVATE_KEY"):
-            self['security']['private_key'] = settings.PRIVATE_KEY
-        if hasattr(settings, "COUCHDB_DB_NAME"):
-            self['db']['name'] = settings.COUCHDB_DB_NAME
-        if hasattr(settings, "COUCH_DB_URI"):
-            self['db']['uri'] = settings.COUCHDB_DB_URI.rsplit('/', 1)[0]
-        if hasattr(settings, "COUCHDB_DATABASES"):
-            self['db']['views'] = [view[0]
-                                for view in settings.COUCHDB_DATABASES]
-
     def _load_settings(self, settings):
         """
             Load new style settings file
@@ -113,28 +83,31 @@ class Config(KeyDict):
                         debug=DEBUG,
                         timezone=TIMEZONE)
         """
-        if hasattr(settings, "MAIN"):
-            self['main'].update(settings.MAIN)
-        if hasattr(settings, "SECURITY"):
-            self['security'].update(settings.SECURITY)
-        if hasattr(settings, "DB"):
-            self['db'].update(settings.DB)
+        if "main" in settings:
+            self['main'].update(settings["main"])
+        if "security" in settings:
+            self['security'].update(settings["security"])
+        if "db" in settings:
+            self['db'].update(settings["db"])
 
-    def load(self, modulename):
+    def load(self, configfile_name):
         """
             Load the modulename
         """
-        settings = self._get_settings_module(modulename)
-        if self._is_old_style_settings(settings):
-            self._load_old_style_settings(settings)
-        else:
-            self._load_settings(settings)
+
+        if os.path.exists(configfile_name):
+            configfile = open(configfile_name)
+            data = yaml.load(configfile)
+            self._load_settings(data)
+            configfile.close()
+
 
 # Set default values
 CONFIG = Config()
 CONFIG['main']['port'] = 8000
 CONFIG['main']['debug'] = False
 CONFIG['main']['timezone'] = "Europe/Paris"
+CONFIG['main']['configfile'] = "./config.yaml"
 
 CONFIG['security']['cookie_key'] = \
     "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
@@ -149,9 +122,10 @@ CONFIG['db']['views'] = {'newebe.apps.news': news,
                          'newebe.apps.commons': commons,
                          'newebe.apps.pictures': pictures}
 
-CONFIG.load("newebe.settings")
 
 # Define config from command line arguments
+define('configfile', default=CONFIG.main.configfile,
+               help="Couch DB Uri              : --configgile=./config.yaml")
 define('dburi', default=CONFIG.db.uri,
                help="Couch DB Uri              : --dburi=http://127.0.0.1:5984")
 define('dbname', default=CONFIG.db.name,
@@ -165,3 +139,4 @@ CONFIG.db.uri = options.dburi
 CONFIG.db.name = options.dbname
 CONFIG.main.port = options.port
 CONFIG.main.debug = options.debug
+CONFIG.load(options.configfile)

@@ -10,6 +10,7 @@ from tornado.web import Application
 sys.path.append("../")
 from newebe.config import CONFIG
 from newebe.routes import routes
+from newebe.tools.syncdb import CouchdbkitHandler
 
 
 # Set logging configuration
@@ -34,6 +35,11 @@ class Newebe(Application):
                              debug=CONFIG.main.debug,
                              **settings)
 
+def init_db():
+    couchdbkit_handler = CouchdbkitHandler()
+    couchdbkit_handler.sync_all_app(CONFIG.db.uri,
+                                    CONFIG.db.name,
+                                    CONFIG.db.views)
 
 class NewebeIOLoop(IOLoop):
     '''
@@ -63,6 +69,9 @@ if __name__ == '__main__':
         hdlr.setFormatter(formatter)
         logger.addHandler(hdlr)
         logger.setLevel(logging.INFO)
+
+        # Sync Couch DB views
+        init_db()
 
     try:
         # SSL mode only in production

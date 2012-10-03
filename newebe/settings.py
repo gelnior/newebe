@@ -1,4 +1,4 @@
 TORNADO_PORT = 8000
 COUCHDB_DB_NAME = "newebe"
-DEBUG = True
+DEBUG = False
 TIMEZONE = "GMT"
