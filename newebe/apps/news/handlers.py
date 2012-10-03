@@ -1,5 +1,5 @@
 import logging
-import markdown
+#import markdown
 
 from tornado import gen
 from tornado.web import asynchronous
@@ -389,8 +389,8 @@ class MicropostTHandler(NewebeAuthHandler):
 
         micropost = MicroPostManager.get_micropost(postId)
         if micropost:
-            if micropost.content:
-                micropost.content = markdown.markdown(micropost.content)
+            #if micropost.content:
+            #    micropost.content = markdown.markdown(micropost.content)
 
             self.render("templates/micropost.html", micropost=micropost)
         else:
