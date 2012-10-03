@@ -1,5 +1,6 @@
 recursive-include newebe/static *
 recursive-include newebe/apps/activities/templates *
+recursive-include newebe/apps/activities/_design *
 recursive-include newebe/apps/auth/templates *
 recursive-include newebe/apps/contacts/templates *
 recursive-include newebe/apps/core/_design *
