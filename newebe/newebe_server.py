@@ -25,8 +25,9 @@ class Newebe(Application):
     '''
 
     def __init__(self):
+        dirpath, filename = os.path.split(os.path.realpath(__file__))
         settings = {
-          "static_path": os.path.join(os.path.dirname(__file__), "static"),
+          "static_path": os.path.join(dirpath, "static"),
           "cookie_secret": CONFIG.security.cookie_key,
           "login_url": "/login",
         }
