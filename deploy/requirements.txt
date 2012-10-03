@@ -6,4 +6,4 @@ PIL
 whoosh
 lxml
 importlib
-yaml
+pyyaml
