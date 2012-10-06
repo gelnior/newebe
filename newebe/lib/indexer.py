@@ -38,7 +38,14 @@ class Indexer():
         Set index, create it if it does not exists.
         """
 
-        index_path = CONFIG.main.indexpath
+        if CONFIG.main.debug:
+            dirpath, filename = \
+                os.path.split(os.path.realpath(__file__))
+
+            index_path = os.path.join(dirpath, "..", "indexes")
+        else:
+            index_path = CONFIG.main.indexpath
+
         if not os.path.exists(index_path):
             os.mkdir(index_path)
             self.index = index.create_in(index_path, schema)
