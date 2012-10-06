@@ -25,8 +25,13 @@ class Newebe(Application):
     '''
 
     def __init__(self):
-        dirpath, filename = os.path.split(os.path.realpath(__file__))
-        path = os.path.join(dirpath, "..", "..", "newebe", "static")
+        dirpath, filename = \
+            os.path.split(os.path.realpath(__file__))
+        if CONFIG.main.debug:
+            path = os.path.join(dirpath, "static")
+        else:
+            path = os.path.join(
+                dirpath, "..", "..", "newebe", "static")
         settings = {
           "static_path": path,
           "cookie_secret": CONFIG.security.cookie_key,
