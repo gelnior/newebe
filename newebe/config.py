@@ -108,6 +108,7 @@ CONFIG['main']['port'] = 8000
 CONFIG['main']['debug'] = False
 CONFIG['main']['timezone'] = "Europe/Paris"
 CONFIG['main']['configfile'] = "./config.yaml"
+CONFIG['main']['indexpath'] = "/home/newebe/indexes"
 
 CONFIG['security']['cookie_key'] = \
     "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="

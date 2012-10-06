@@ -16,6 +16,8 @@ from whoosh.analysis import RegexTokenizer
 from whoosh.analysis import CharsetFilter, LowercaseFilter, StopFilter
 from newebe.lib.stopwords import stoplists
 
+from newebe.config import CONFIG
+
 chfilter = CharsetFilter(accent_map)
 stoplist = stoplists["en"].union(stoplists["fr"])
 analyzer = RegexTokenizer() | LowercaseFilter() | \
@@ -36,11 +38,12 @@ class Indexer():
         Set index, create it if it does not exists.
         """
 
-        if not os.path.exists("indexes"):
-            os.mkdir("indexes")
-            self.index = index.create_in("indexes", schema)
+        index_path = CONFIG.main.indexpath
+        if not os.path.exists(index_path):
+            os.mkdir(index_path)
+            self.index = index.create_in(index_path, schema)
         else:
-            self.index = index.open_dir("indexes")
+            self.index = index.open_dir(index_path)
 
     def index_microposts(self, microposts, checkUrl=True):
         """
@@ -92,7 +95,6 @@ class Indexer():
             results = searcher.search(query)
             return [result["docId"] for result in results]
 
-
     def remove_doc(self, doc):
         """
         Remove given doc from index (doc of which docId is equal to id).
@@ -102,7 +104,6 @@ class Indexer():
         self.writer.delete_by_term("docId", unicode(doc._id))
         self.writer.commit()
 
-
     def _extract_urls(self, text):
         """
         Extract Urls from given text.
@@ -110,7 +111,6 @@ class Indexer():
 
         return re.findall("https?://[\da-z\.-]+\.[a-z\.]{2,6}/[/\w\.-]*/?",
                           text)
-
 
     def _augment_micropost(self, post, urls, checkUrl=True):
         '''
