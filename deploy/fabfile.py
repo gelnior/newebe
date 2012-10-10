@@ -131,9 +131,8 @@ def set_supervisord_config():
     """Configure Newebe runner for supervisord"""
 
     require.supervisor.process(newebe_process,
-        command='%s --confifile=%s' % 
+        command='%s --configfile=%s' % 
             (newebe_exe, newebe_dir + "/config.yaml"),
-        directory=newebe_dir,
         user=newebe_user
     )
     supervisor.restart_process(newebe_process)
@@ -158,4 +157,3 @@ def restart_newebe():
     """Restart newebe surpervisord process"""
 
     supervisor.restart_process(newebe_process)
-    
