@@ -30,8 +30,8 @@ class Newebe(Application):
         if CONFIG.main.debug:
             path = os.path.join(dirpath, "static")
         else:
-            path = os.path.join(
-                dirpath, "..", "..", "newebe", "static")
+            path = os.path.join(CONFIG.main.path, "static")
+
         settings = {
           "static_path": path,
           "cookie_secret": CONFIG.security.cookie_key,
