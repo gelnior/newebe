@@ -67,7 +67,9 @@ Then, still in Newebe directory set DB by running::
 
 
 Change parameters such as port, debug mode and timezone inside a config file 
-called config.yaml. Here is an exemple of config file::
+called config.yaml. Here is an exemple of config file (see 
+[[wiki|https://github.com/gelnior/newebe/wiki/Config-file]] for a complete
+descritpion)::
 
     main:
         port: 8000
