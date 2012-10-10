@@ -65,22 +65,22 @@ Then, still in Newebe directory set DB by running::
 
    python tools/syncdb.py
 
-Set DEBUG constant to True in *settings.py* or *local_settings.py*
 
-To change database name or port change, you must modify your *settings.py* file by settings the following constants : TORNADO_PORT and COUCHDB_DB_NAME. Default port is 8000 and default database name is newebe. 
-Time zone is set in the same way. So if you want to set your own time zone, you must change the TIMEZONE constant value by your timezone (cf. wiki). 
+Change parameters such as port, debug mode and timezone inside a config file 
+called config.yaml. Here is an exemple of config file::
 
-*settings.py* exemple::
-
-    TORNADO_PORT = 8000
-    COUCHDB_DB_NAME = "newebe"
-    TIMEZONE = "Europe/Paris"
-    DEBUG = True
-    COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+    main:
+        port: 8000
+        timezone: "Europe/Paris"
+        debug: True
+    db:
+        name: "newebe"
+    security:
+        cookie_key: "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
 
 Run server::
 
-    python newebe_server.py
+    python newebe_server.py --debug=True
 
 In your browser, connect to http://localhost:8000/ and check that 
 everything is fine.
