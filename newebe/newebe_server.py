@@ -12,6 +12,8 @@ from newebe.config import CONFIG
 from newebe.routes import routes
 from newebe.tools.syncdb import CouchdbkitHandler
 
+import newebe
+
 
 # Set logging configuration
 FORMAT = '[%(levelname)s] %(asctime)s: %(message)s'
@@ -26,12 +28,8 @@ class Newebe(Application):
 
     def __init__(self):
         dirpath, filename = \
-            os.path.split(os.path.realpath(__file__))
-        if CONFIG.main.debug:
-            path = os.path.join(dirpath, "static")
-        else:
-            path = os.path.join(sys.prefix, "static")
-        print path
+            os.path.split(os.path.abspath(newebe.__file__))
+        path = os.path.join(dirpath, "static")
 
         settings = {
           "static_path": path,
