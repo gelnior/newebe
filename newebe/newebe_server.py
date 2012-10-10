@@ -71,6 +71,7 @@ if __name__ == '__main__':
     if not CONFIG.main.debug:
         # Send log ouptut to a file.
         log_file = 'newebe.%s.log' % CONFIG.main.port
+        log_file = os.path.join(CONFIG.main.path, log_file)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
         hdlr = logging.FileHandler(os.path.join("./", log_file))
         hdlr.setFormatter(formatter)
@@ -83,10 +84,18 @@ if __name__ == '__main__':
     try:
         # SSL mode only in production
         if not CONFIG.main.debug:
-            ssl_options = {
-                "certfile": CONFIG.security.certificate,
-                "keyfile": CONFIG.security.private_key,
-            }
+            ssl_options = {}
+            if CONFIG.security.certificate:
+                ssl_options["certfile"] = CONFIG.security.certificate
+            else:
+                ssl_options["certfile"] = \
+                    os.path.join(CONFIG.main.path, "certs", "server.crt")
+
+            if CONFIG.security.private_key:
+                ssl_options["keyfile"] = CONFIG.security.private_key
+            else:
+                ssl_options["keyfile"] = \
+                    os.path.join(CONFIG.main.path, "certs", "server.key")
         else:
             ssl_options = None
 

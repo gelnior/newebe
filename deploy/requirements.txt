@@ -5,5 +5,4 @@ pytz
 PIL
 whoosh
 lxml
-importlib
 pyyaml

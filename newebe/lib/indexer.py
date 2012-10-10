@@ -44,7 +44,7 @@ class Indexer():
 
             index_path = os.path.join(dirpath, "..", "indexes")
         else:
-            index_path = CONFIG.main.indexpath
+            index_path = os.path.join(CONFIG.main.path, "indexes")
 
         if not os.path.exists(index_path):
             os.mkdir(index_path)

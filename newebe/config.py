@@ -108,12 +108,12 @@ CONFIG['main']['port'] = 8000
 CONFIG['main']['debug'] = False
 CONFIG['main']['timezone'] = "Europe/Paris"
 CONFIG['main']['configfile'] = "./config.yaml"
-CONFIG['main']['indexpath'] = "/home/newebe/newebe/indexes"
+CONFIG['main']['path'] = "/home/newebe/newebe/"
 
 CONFIG['security']['cookie_key'] = \
     "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
-CONFIG['security']['certificate'] = "/home/newebe/newebe/certs/server.crt"
-CONFIG['security']['private_key'] = "/home/newebe/newebe/certs/server.key"
+CONFIG['security']['certificate'] = None
+CONFIG['security']['private_key'] = None
 CONFIG['db']['name'] = "newebe"
 CONFIG['db']['uri'] = "http://127.0.0.1:5984"
 CONFIG['db']['views'] = {'newebe.apps.news': news,

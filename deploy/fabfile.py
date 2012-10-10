@@ -62,7 +62,7 @@ def install_deb_packages():
         'libxslt-dev',
         'openssl'
     ])
-    sudo("apt-get install build-deps python-imaging")
+    #sudo("apt-get build-dep python-imaging")
 
 @task()
 def create_user():
@@ -124,7 +124,7 @@ def setup_supervisord():
     """Install python daemon manager, supervisord"""
 
     require.deb.package("python-meld3")
-    python.install("meld3==0.6.7", use_sudo=True)
+    #python.install("meld3==0.6.7", use_sudo=True)
 
 @task()
 def set_supervisord_config():
