@@ -49,8 +49,8 @@ echo "Selected timezone is $TIMEZONE"
 echo "\nStep 1: Install tools needed by Newebe : Python binary, Pyton utils,"
 echo "Couchdb, Git and Open SSL"
 echo "-----------------------------------------------------------------------\n"
-sudo apt-get install python python-setuptools python-pip python-pycurl python-daemon python-imaging couchdb git openssl
-
+sudo apt-get install python python-setuptools python-pip python-pycurl python-imaging couchdb git libxml2-dev libxslt-dev
+sudo apt-get build-dep python-imaging
 
 # Clone Newebe repository
 
@@ -67,13 +67,13 @@ cd newebe
 
 echo "\n\nStep 3: Install Newebe dependecies"
 echo "-----------------------------------------------------------------------\n"
-sudo pip install -r deploy/requirements.txt
+python setup.py install --user
 
 # Set up db
 
 echo "\n\nStep 4: Set up Newebe database"
 echo "-----------------------------------------------------------------------\n"
-python syncdb.py
+python /home/newebe/.local/lib/python2.7/site-packages/newebe-0.6.0-py2.7.egg/newebe/tools/syncdb.py
 
 
 # Set local configuration file
@@ -81,10 +81,10 @@ python syncdb.py
 echo "\n\nStep 5: Build configuration file"
 echo "-----------------------------------------------------------------------\n"
 
-echo "TORNADO_PORT = $PORT" > local_settings.py
-echo "COUCHDB_DB_NAME = \"$DBNAME\"" >> local_settings.py
-echo "TIMEZONE = \"$TIMEZONE\"" >> local_settings.py
-echo "DEBUG = $DEBUG" >> local_settings.py
+echo "TORNADO_PORT = $PORT" > settings.py
+echo "COUCHDB_DB_NAME = \"$DBNAME\"" >> settings.py
+echo "TIMEZONE = \"$TIMEZONE\"" >> settings.py
+echo "DEBUG = $DEBUG" >> settings.py
 echo "COOKIE_KEY = \"`< /dev/urandom tr -dc A-Za-z0-9_ | head -c50`\""  >> local_settings.py
 echo "newebe/local_settings.py created\n"
 
@@ -123,7 +123,6 @@ echo "-----------------------------------------------------------------------\n"
 
 echo "To start your newebe run :"
 echo "sudo /etc/init.d/newebe start"
-
 
 
 # leave newebe folder

@@ -1,0 +1,36 @@
+
+files = [
+  "../activities/styles/activities"
+  "../contacts/styles/contacts"
+  "../news/styles/news"
+  "../notes/styles/notes"
+  "../pictures/styles/pictures"
+  "../profile/styles/profile"
+  "../platform/styles/common"
+  "../commons/styles/commons"
+  "./fileuploader"
+  "./jquery-ui-black-tie"
+]
+{exec} = require 'child_process'
+
+# Make JS file lighter
+task 'css', 'Minify all css in one file', ->
+
+  console.log 'Start concat'
+
+  command = "cat " + files.join(".css ") + ".css > styles.css"
+
+  exec command, (err, stdout, stderr) ->
+    if err
+      console.log "Minify caught exception: \n" + err
+    else
+      console.log "start minify"
+      command = "uglifycss styles.css > style.css"
+      
+      exec command, (err, stdout, stderr) ->
+        if err
+          console.log "Minify caught exception: \n" + err
+        else
+          console.log 'Minify done.'
+
+

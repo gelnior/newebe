@@ -1,0 +1,13 @@
+{% autoescape None %} 
+
+<p class="commons-preview">
+  <p class="tags">
+  {% for tag in common.tags %}
+    {% block tag %}
+      {{ tag }}
+    {% end %}
+  {% end %}
+  </p>
+  <p>{{ common.path }}</p>
+</p>
+

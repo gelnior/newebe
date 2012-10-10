@@ -1,0 +1,52 @@
+
+         <div id="news">
+         <div class="app">   
+         <!-- Posting form -->
+         <form id="news-form" action="/news/wall/" method="post">
+             <textarea class="news-area" 
+                       name="content" id="id_content"></textarea>
+        </form>
+        <div id="news-post-form-toolbar">
+            <a id="news-post-button" class="button post-button">Post</a>
+            <a id="news-attach-button" class="button post-button">Attach</a>
+            <span id="news-attach-note-image" class="button post-button">
+                <img src="/static/images/note.png" alt="A note is attached" />
+            </span>
+            <span id="news-attach-picture-image" class="button post-button">
+                <img src="/static/images/picture.png" alt="An image is attached" />
+            </span>
+        </div>
+        <div class="spacer"></div>
+         <!-- End posting form -->
+
+         <!-- Tool bar -->
+         <div id="news-toolbar">
+           <select id="microposts-tag-combo"></select>
+           <a id="news-my-button" href="#">mine</a>
+           <a id="news-full-button" href="#">full</a>
+           <span>
+             until <input id="news-from-datepicker" type="text"></input> 
+           </span>
+         </div>
+        <div id="news-search-toolbar">
+            <span>Search</span>
+            <input id="news-search-field" type="text"></input> 
+         </div>
+         <div class="spacer"></div>
+         <!-- End tool bar -->
+
+         <!-- News Listing -->
+         <div id="micro-posts" class="news-newss">
+
+         </div>
+         <!-- End news Listing -->
+
+         <a id="news-more">more...</a>
+         <div id="tutorial-news"></div>
+      </div>
+      <div id="news-preview" class="preview"> </div>
+      </div>
+      <script type="text/javascript" 
+              src="/static/news/app/news.dev.js ">
+      </script>
+ 

@@ -39,9 +39,8 @@ def setup():
 
     install_deb_packages()
     create_user()
-    get_source()
-    install_python_dependencies()
-    sync_db()
+    install_newebe()
+    make_dirs()
     build_configuration_file()
     build_certificates()
     setup_supervisord()
@@ -59,8 +58,11 @@ def install_deb_packages():
         'python-imaging',
         'couchdb',
         'git',
+        'libxml2-dev',
+        'libxslt-dev',
         'openssl'
     ])
+    sudo("apt-get install build-deps python-imaging")
 
 @task()
 def create_user():
@@ -69,30 +71,19 @@ def create_user():
     require.user(newebe_user, newebe_user_dir)
 
 @task()
-def get_source():
-    """Get source from master branch of official git repo"""
+def install_newebe():
+    """Install Newebe as a main software"""
+
+    update_source()
+    
+@task()
+def make_dirs():
+    """Make dir required for a proper install"""
 
     with cd(newebe_user_dir):
-        delete_if_exists("newebe")
-        newebedo("git clone git://github.com/gelnior/newebe.git")
+        newebedo("mkdir newebe")
+        newebedo("mkdir newebe/certs")
 
-@task()
-def install_python_dependencies():
-    """Install Python dependencies."""
-
-    require.python.virtualenv(newebe_dir + "/virtualenv",
-                              use_sudo=True, user=newebe_user)
-    with python.virtualenv(newebe_dir + "/virtualenv"):
-        newebedo("pip install --use-mirrors -r %s/deploy/requirements.txt" % \
-                 newebe_dir)
-
-@task()
-def sync_db():
-    """Build required Couchdb views"""
-
-    with python.virtualenv(newebe_dir + "/virtualenv"), cd(newebe_dir):
-        newebedo("python syncdb.py")
-        
 @task()
 def build_configuration_file():
     """Build default configuration file """
@@ -107,18 +98,21 @@ Check Newebe wiki for timezone list) ?
 
     with cd(newebe_dir):
         delete_if_exists('local_settings.py')
-        newebedo('echo "TORNADO_PORT = 8000" >> local_settings.py')
-        newebedo('echo "DEBUG = False" >> local_settings.py')
-        newebedo("echo 'COUCHDB_DB_NAME = \"newebe\"' >> local_settings.py")
-        newebedo("echo 'TIMEZONE = \"%s\"' >> local_settings.py" % timezone)
-        newebedo("echo 'COOKIE_KEY = \"%s\"' >> local_settings.py" % \
+        newebedo('echo "main:" >> config.yaml')
+        newebedo('echo "    port: 8000" >> config.yaml')
+        newebedo('echo "    debug: False" >> config.yaml')
+        newebedo("echo '    timezone: \"%s\"' >> config.yaml" % timezone)
+        newebedo('echo "db:" >> config.yaml')
+        newebedo("echo '    name: \"newebe\"' >> config.yaml")
+        newebedo('echo "security:" >> config.yaml')
+        newebedo("echo '    cookie_key: \"%s\"' >> config.yaml" % \
                  random_string(42))
 
 @task()
 def build_certificates():
     """Build HTTPS certificates"""
 
-    with cd(newebe_dir):
+    with cd(newebe_dir + "/certs"):
         delete_if_exists('server.key')
         delete_if_exists('server.crt')
         newebedo("openssl genrsa -out ./server.key 1024")
@@ -137,7 +131,8 @@ def set_supervisord_config():
     """Configure Newebe runner for supervisord"""
 
     require.supervisor.process(newebe_process,
-        command='%s %s' % (python_exe, newebe_exe),
+        command='%s --confifile=%s' % 
+            (newebe_exe, newebe_dir + "/config.yaml"),
         directory=newebe_dir,
         user=newebe_user
     )
@@ -150,15 +145,13 @@ def update():
     """Update source code, build require couchdb views then restart newebe"""
 
     update_source()
-    sync_db()
     restart_newebe()
     
 @task()
 def update_source():
     """Simple git pull inside newebe directory"""
 
-    with cd(newebe_dir):
-        newebedo("git pull")
+    sudo("pip install git+git://github.com/gelnior/newebe.git")
 
 @task()
 def restart_newebe():

@@ -1,0 +1,4 @@
+TORNADO_PORT = 8000
+COUCHDB_DB_NAME = "newebe"
+DEBUG = False
+TIMEZONE = "GMT"
