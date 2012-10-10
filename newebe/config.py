@@ -112,8 +112,8 @@ CONFIG['main']['indexpath'] = "/home/newebe/indexes"
 
 CONFIG['security']['cookie_key'] = \
     "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
-CONFIG['security']['certificate'] = "./server.crt"
-CONFIG['security']['private_key'] = "./server.key"
+CONFIG['security']['certificate'] = "/home/newebe/certs/server.crt"
+CONFIG['security']['private_key'] = "/home/newebe/certs/server.key"
 CONFIG['db']['name'] = "newebe"
 CONFIG['db']['uri'] = "http://127.0.0.1:5984"
 CONFIG['db']['views'] = {'newebe.apps.news': news,
@@ -126,7 +126,7 @@ CONFIG['db']['views'] = {'newebe.apps.news': news,
 
 # Define config from command line arguments
 define('configfile', default=CONFIG.main.configfile,
-               help="Couch DB Uri              : --configgile=./config.yaml")
+               help="Config file path          : --configfile=./config.yaml")
 define('dburi', default=CONFIG.db.uri,
                help="Couch DB Uri              : --dburi=http://127.0.0.1:5984")
 define('dbname', default=CONFIG.db.name,
@@ -135,6 +135,7 @@ define('port', default=CONFIG.main.port,
                help="Port newebe may be run on : --port=8000 (default)")
 define('debug', default=CONFIG.main.debug,
                help="Debug mode                : --debug=True")
+
 parse_command_line()
 CONFIG.db.uri = options.dburi
 CONFIG.db.name = options.dbname
