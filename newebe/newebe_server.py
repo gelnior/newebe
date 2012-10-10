@@ -30,7 +30,8 @@ class Newebe(Application):
         if CONFIG.main.debug:
             path = os.path.join(dirpath, "static")
         else:
-            path = os.path.join(CONFIG.main.path, "static")
+            path = os.path.join(sys.prefix, "static")
+        print path
 
         settings = {
           "static_path": path,
