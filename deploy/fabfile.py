@@ -52,6 +52,8 @@ def install_deb_packages():
 
     require.deb.packages([
         'python',
+        'python-dev',
+        'build-essential',
         'python-setuptools',
         'python-pip',
         'python-pycurl',
