@@ -7,7 +7,7 @@ newebe_dir = "/home/newebe/newebe"
 newebe_process = newebe_user = "newebe"
 newebe_user_dir = "/home/newebe/"
 python_exe = newebe_dir + "/virtualenv/bin/python"
-newebe_exe = newebe_dir + "/newebe_server.py"
+newebe_exe = "newebe_server.py"
 
 # Helpers
 import random
@@ -83,6 +83,7 @@ def make_dirs():
     """Make dir required for a proper install"""
 
     with cd(newebe_user_dir):
+        delete_if_exists('newebe')
         newebedo("mkdir newebe")
         newebedo("mkdir newebe/certs")
 
@@ -125,8 +126,8 @@ def build_certificates():
 def setup_supervisord():
     """Install python daemon manager, supervisord"""
 
-    require.deb.package("python-meld3")
-    #python.install("meld3==0.6.7", use_sudo=True)
+    python.install("meld3==0.6.9", use_sudo=True)
+    require.deb.package("supervisor")
 
 @task()
 def set_supervisord_config():
@@ -137,7 +138,7 @@ def set_supervisord_config():
             (newebe_exe, newebe_dir + "/config.yaml"),
         user=newebe_user
     )
-    supervisor.restart_process(newebe_process)
+    supervisor.start_process(newebe_process)
 
 # Update tasks
 
