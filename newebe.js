@@ -2,74 +2,40 @@
 (function() {
 
   $(function() {
-    var displayInstall, displayPage, element, lastSelected, lastSelectedMenu, path, url;
-    $('#installation').hide();
+    var displayInstall, displayPage, element, lastSelected, lastSelectedMenu, onMenuElementClicked, path, url,
+      _this = this;
+    $('#install').hide();
     $('#documentation').hide();
     $('#contact').hide();
     $('#developers').hide();
+    $('#faq').hide();
     lastSelected = $('#home');
     lastSelectedMenu = $('#menu-home');
     lastSelectedMenu.addClass('selected');
-    $('#menu-home').click(function(event) {
-      lastSelected.fadeOut(300, function() {
-        return $('#home').fadeIn(500);
-      });
-      lastSelected = $('#home');
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-home');
-      return lastSelectedMenu.addClass('selected');
-    });
     displayInstall = function(event) {
-      lastSelected.fadeOut(300, function() {
-        return $('#installation').fadeIn(500);
-      });
-      lastSelected = $('#installation');
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-installation');
-      return lastSelectedMenu.addClass('selected');
+      return displayPage('install');
     };
-    $('#menu-installation').click(displayInstall);
+    $('#menu-install').click(displayInstall);
     $('#download-text').click(displayInstall);
-    displayPage = function(event) {
+    onMenuElementClicked = function(event) {
       var page;
       page = event.target.id.substring(5);
-      console.log(page);
+      return displayPage(page);
+    };
+    displayPage = function(page) {
+      lastSelectedMenu.removeClass('selected');
+      lastSelectedMenu = $("#menu-" + page);
+      lastSelectedMenu.addClass('selected');
       lastSelected.fadeOut(300, function() {
         return $("#" + page).fadeIn(300);
       });
-      lastSelected = $("" + page);
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $("#menu-" + page);
-      return lastSelectedMenu.addClass('selected');
+      return lastSelected = $("#" + page);
     };
-    $('#menu-faq').click(displayPage);
-    $('#menu-documentation').click(function(event) {
-      lastSelected.fadeOut(300, function() {
-        return $('#documentation').fadeIn(300);
-      });
-      lastSelected = $('#documentation');
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-documentation');
-      return lastSelectedMenu.addClass('selected');
-    });
-    $('#menu-contact').click(function(event) {
-      lastSelected.fadeOut(300, function() {
-        return $('#contact').fadeIn(300);
-      });
-      lastSelected = $('#contact');
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-contact');
-      return lastSelectedMenu.addClass('selected');
-    });
-    $('#menu-developers').click(function(event) {
-      lastSelected.fadeOut(300, function() {
-        return $('#developers').fadeIn(300);
-      });
-      lastSelected = $('#developers');
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-developers');
-      return lastSelectedMenu.addClass('selected');
-    });
+    $('#menu-home').click(onMenuElementClicked);
+    $('#menu-faq').click(onMenuElementClicked);
+    $('#menu-documentation').click(onMenuElementClicked);
+    $('#menu-contact').click(onMenuElementClicked);
+    $('#menu-developers').click(onMenuElementClicked);
     url = document.location.href;
     if (url && url.indexOf("#") > 0) {
       path = url.split("#")[1];

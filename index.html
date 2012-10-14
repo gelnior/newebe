@@ -15,7 +15,7 @@
         by providing web applications you host at your home and that connect
         to your contacts.
 " />
-<link REL="shortcut icon" HREF="images/favicon.ico">
+<link rel="shortcut icon" href="images/favicon.ico">
 <link href="newebe.css" rel="stylesheet"
       type="text/css" media="screen" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js">
@@ -24,7 +24,11 @@
 </head>
 
 <body>
-  <a href="http://github.com/gelnior/newebe"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  <a href="http://github.com/gelnior/newebe">
+   <img style="position: absolute; top: 0; right: 0; border: 0;" 
+        src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" 
+        alt="Fork me on GitHub" />
+  </a>
 
   <div id="container">
       
@@ -46,7 +50,7 @@
       <div id="download-text">
         install
         <a href="#install">
-            newebe 0.6.0
+            newebe 0.6.0rc1
         </a>
         <span>beta</span>
       </div>
@@ -57,7 +61,7 @@
 
     <ul id="menu">
         <li><a id="menu-home" href="#home">home</></li>
-        <li><a id="menu-installation" href="#install">install</a></li>
+        <li><a id="menu-install" href="#install">install</a></li>
         <li><a id="menu-faq" href="#faq">faq</a></li>
         <li><a id="menu-documentation" href="#documentation">
             doc</a></li>
@@ -163,10 +167,10 @@
     </div>
 
 
-    <div id="installation">
-    <h2>Installation</h2>
+    <div id="install">
+    <h2>Install</h2>
 
-    <h3>Easy way for Debian or Ubuntu users</h3>
+    <!-- h3>Easy way for Debian or Ubuntu users</h3>
     <p> 
       To install Newebe just run the following commands in the folder where
       you want to install Newebe. Answer questions and everything will be 
@@ -175,9 +179,9 @@
     </p>
     <pre>
  wget https://raw.github.com/gelnior/newebe/master/deploy/install_deb.sh --no-check-certificate
- sh install_deb.sh</pre>
+ sh install_deb.sh</pre-->
 
-    <h3>Installation on a remote server for  Debian or Ubuntu users</h3>
+    <h3>Installation on a remote server for Debian or Ubuntu users</h3>
     <p>
       This one will setup newebe on your remote server directly from your
       desktop computer. It requires root ssh access to your server.
@@ -189,7 +193,7 @@
     fab setup -H myrootuser@myhosturlorip
     </pre>
 
-    <h3>Manual way for Debian or Ubuntu user</h3>
+    <!--h3>Manual way for Debian or Ubuntu user</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
     (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>), prefixed it with <em>sudo</em> if needed :
@@ -311,7 +315,7 @@
         <em>https://localhost:port/</em> (remplace port by 
         <em>TORNADO_PORT</em> 
         value, default is 8000). 
-    </p>
+    </p!-->
     </div>
 
     <div id="faq">
@@ -329,7 +333,16 @@
           during communications
             </li>
             <li>
-         you can take advantage of your data by
+            hackable: it's your newebe, you can change what you want, 
+            make it looks another way, build a command line client, 
+            create another module...
+            </li>
+            <li>
+            It's fast, newebe does not need to serve millions of connections
+            each day, only yours and your contact ones.
+            </li>
+            <li>
+         personal data store: you can take advantage of your data by
           reusing them, making search
           on them or mix them.
             </li>
@@ -338,7 +351,7 @@
           complete REST API.
             </li>
             <li>
-            It's fast, newebe does not need to serve millions of connections
+            It's fast: Newebe does not need to serve millions of connections
             each day, only yours and your contact ones.
             </li>
         </ul>

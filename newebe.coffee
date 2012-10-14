@@ -1,74 +1,37 @@
 $(() ->
-    $('#installation').hide()
+    $('#install').hide()
     $('#documentation').hide()
     $('#contact').hide()
     $('#developers').hide()
+    $('#faq').hide()
     lastSelected = $('#home')
     lastSelectedMenu = $('#menu-home')
     lastSelectedMenu.addClass('selected')
 
-    $('#menu-home').click((event) ->
-        lastSelected.fadeOut(300, () ->
-            $('#home').fadeIn(500)
-        )
-        lastSelected = $('#home')
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-home')
-        lastSelectedMenu.addClass('selected')
-    )
     displayInstall = (event) ->
-        lastSelected.fadeOut(300, () ->
-            $('#installation').fadeIn(500)
-        )
-        lastSelected = $('#installation')
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-installation')
-        lastSelectedMenu.addClass('selected')
+        displayPage 'install'
     
-    $('#menu-installation').click displayInstall
+    $('#menu-install').click displayInstall
     $('#download-text').click displayInstall
 
-    displayPage = (event) ->
+    onMenuElementClicked = (event) =>
         page = event.target.id.substring(5)
-        console.log page
-        lastSelected.fadeOut 300, () ->
-            $("##{page}").fadeIn(300)
-        
-        lastSelected = $("#{page}")
+        displayPage(page)
+
+    displayPage = (page) =>
         lastSelectedMenu.removeClass('selected')
         lastSelectedMenu = $("#menu-#{page}")
         lastSelectedMenu.addClass('selected')
-    $('#menu-faq').click displayPage
+        lastSelected.fadeOut 300, () ->
+            $("##{page}").fadeIn(300)
+        lastSelected = $("##{page}")
+
+    $('#menu-home').click onMenuElementClicked
+    $('#menu-faq').click onMenuElementClicked
+    $('#menu-documentation').click onMenuElementClicked
+    $('#menu-contact').click onMenuElementClicked
+    $('#menu-developers').click onMenuElementClicked
     
-
-    $('#menu-documentation').click((event) ->
-        lastSelected.fadeOut(300, () ->
-            $('#documentation').fadeIn(300)
-        )
-        lastSelected = $('#documentation')
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-documentation')
-        lastSelectedMenu.addClass('selected')
-    )
-    $('#menu-contact').click((event) ->
-        lastSelected.fadeOut(300, () ->
-            $('#contact').fadeIn(300)
-        )
-        lastSelected = $('#contact')
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-contact')
-        lastSelectedMenu.addClass('selected')
-    )
-    $('#menu-developers').click((event) ->
-        lastSelected.fadeOut(300, () ->
-            $('#developers').fadeIn(300)
-        )
-        lastSelected = $('#developers')
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-developers')
-        lastSelectedMenu.addClass('selected')
-    )
-
     url = document.location.href
     if url and url.indexOf("#") > 0
         path = url.split("#")[1]
@@ -82,5 +45,3 @@ $(() ->
         lastSelectedMenu = $('#menu-' + path)
         lastSelectedMenu.addClass('selected')
 )
-
-
