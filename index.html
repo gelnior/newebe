@@ -187,135 +187,87 @@
       desktop computer. It requires root ssh access to your server.
     </p>
     <pre> 
-    apt-get install python python-setuptools python-pip
-    pip install fabric fabtools
-    wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py --no-check-certificate
-    fab setup -H myrootuser@myhosturlorip
+apt-get install python python-setuptools python-pip
+pip install fabric fabtools
+wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py --no-check-certificate
+fab setup -H myrootuser@myhosturlorip
     </pre>
 
-    <!--h3>Manual way for Debian or Ubuntu user</h3>
+    <h3>Manual way for Debian or Ubuntu user</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
-    (<em>Git</em>, <em>Python & tools</em> and <em>CouchDB</em>), prefixed it with <em>sudo</em> if needed :
     </p>
     <pre>
-  apt-get install python python-setuptools python-pip python-pycurl 
-  apt-get install python-imaging couchdb git openssl </pre>
+sudo apt-get install python python-setuptools python-pip python-pycurl 
+                     python-dev python-imaging build-essential couchdb git
+                     libxml2-dev libxslt-dev openssl supervisor</pre>
     <p>
-        Via easy_install install other dependencies:
+    <span class="step"> step 2 </span> Get and install <em>Newebe</em> 
     </p>
     <pre>
-        pip install -r deploy/requirements.txt</pre>
-    <p>
-        <span class="step"> step 2 </span> Get <em>Newebe</em> from 
-        <em>Github</em>. It 
-        it will create a new sub-directory called <em>newebe</em> (NB: It's 
-        important that you don't change the name of this folder) :
+sudo pip install git+git://github.com/gelnior/newebe.git</pre>
     </p>
-    <pre>
-  git clone git://github.com/gelnior/newebe.git </pre>
-    <p>
-    <p>
-        Then go inside newebe directory:
-    </p>
-    <pre>
-  cd newebe </pre>
     <p>
       <span class="step"> step 3 </span> Ensure database is started by running
       this command, if there is more than one line, it's ok :
     </p>
     <pre>
-  ps -ef | grep couchdb</pre>
+ps -ef | grep couchdb</pre>
     <p>
       If it's not ok, start the database manually :
     </p>
     <pre>
- /etc/init.d/couchdb start</pre>
+/etc/init.d/couchdb start</pre>
     <p>
-        Then in
-        <em>Newebe</em> directory execute following command to configure 
-        database :
+        <span class="step"> step 4 </span> Create a newebe user and prepare
+        newebe folders. 
     </p>
     <pre>
-  python syncdb.py</pre>
+sudo useradd --password-disabled --shell=/bin/bash newebe
+su newebe
+cd
+mkdir newebe
+mkdir newebe/certs</pre>
     <p>
-        <span class="step"> step 4 </span>  Edit deployment file 
-        (<em>YOUR_NEWEBE_FOLDER/deploy/newebe</em>) by changing 
-        <em>NEWEBE_PATH</em> and <em>PIDFILE</em> constants to make it point 
-        to your 
-        <em>Newebe</em> directory (pid file will be created at first startup).
-        </p>
-
-        <p>
-        <span class="step">step 4 bis</span>  To change database name or port, 
-        you must modify your <em>settings.py</em> file by settings the 
-        following constants : <em>TORNADO_PORT</em> and 
-        <em>COUCHDB_DB_NAME</em>. Default port is <em>8000</em> and default 
-        database name is <em>newebe</em>. <br />
-        Time zone is set in the same manner. So if you want to set it, 
-        you must change the TIMEZONE constant value by your timezone. Here is 
-        the 
-          <a href="https://github.com/gelnior/newebe/wiki/Available-timezones">
-        list of available timezones</a>.
+    <span class="step"> step 5 </span> Write configuration file named
+    <em>config.yaml</em> in <em>/home/newebe/newebe</em>.
+    Read the <a href="https://github.com/gelnior/newebe/wiki/Config-file">
+        wiki page</a> for informations about it.
     </p>
     <p>
-    NB: The best way to deal with specific configuration is to set this
-    variable in a file called <em>local_settings.py</em> in the same directory
-    as <em>settings.py</em>.
-    </p>
-    <p>
-    <em>local_settings.py</em> exemple:
-
-<pre>
-  TORNADO_PORT = 8000
-  COUCHDB_DB_NAME = "newebe"
-  TIMEZONE = "Europe/Paris"
-  DEBUG = False
-  COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
-</pre>
-    </p>
-    <p>
-        <span class="step"> step 5 </span> Copy file <em>deploy/newebe</em> in 
-        the folder <em>/etc/init.d/</em> then give it execution rights.
+    The only important value to set is the cookie key wich is a random
+    string. To generate one simply use this command
     </p>
     <pre>
-  cp deploy/newebe /etc/init.d
-  chmod +x /etc/init.d/newebe</pre>
+< /dev/urandom tr -dc A-Za-z0-9_ | head -c50</pre>
 
 
-    <p>
-    <span class="step">step 6</span> Create certificate for HTTPS and protect it. This will ask some questions, answer as you like:
+    <span class="step">step 6</span> Create certificate for HTTPS. This will ask some questions, answer as you like:
     </p>
 <pre>
-    sudo openssl genrsa -out ./server.key 1024
-    sudo openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
-    sudo chmod 640 server.key
-    sudo chown newebe:newebe server.key
+su newebe
+cd ~/newebe/certs
+openssl genrsa -out ./server.key 1024
+openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
 </pre>
     <p>
-    <span class="step"> tep 6 bis</span>
-    <p>Create your own secret cookie key with following command:</p>
-<pre>
-  < /dev/urandom tr -dc A-Za-z0-9_ | head -c50
-</pre>
-    <p>
-    and in <em>local_settings.py</em> put the result as string value of constant COOKIE_KEY
+        <span class="step"> step 7 </span> Set supervisor configuration for <em>Newebe</em> server. Create a file <em>/etc/supervisor/conf.d/newebe.conf</em>.
+        Fill it with following content :
     </p>
     <pre>
-  COOKIE_KEY = "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
-</pre>
-    <p>
-        <span class="step"> step 7 </span> Start <em>Newebe</em> server.
-    </p>
+[program:newebe]
+autorestart=false
+command=newebe_server.py --configfile=/home/newebe/newebe/config.yaml
+redirect_stderr=true
+user=newebe</pre>
+    <span class="step"> step 8 </span> Start newebe
     <pre>
-  /etc/init.d/newebe start</pre>
+sudo supervisorctl start newebe</pre>
     <p>
-        <span class="step"> step 7</span> Check that everything is fine via 
+        <span class="step"> step 8</span> Check that everything is fine via 
         your web browser : go to the URL
-        <em>https://localhost:port/</em> (remplace port by 
-        <em>TORNADO_PORT</em> 
-        value, default is 8000). 
-    </p!-->
+        <em>https://ip:port/</em> 
+    </p>
     </div>
 
     <div id="faq">
