@@ -1,4 +1,4 @@
-from fabric.api import sudo, cd, task, prompt, run
+from fabric.api import sudo, cd, task, prompt
 from fabric.contrib import files
 from fabtools import require, python, supervisor
 
@@ -153,7 +153,7 @@ def update():
 def update_source():
     """Simple git pull inside newebe directory"""
 
-    sudo("pip install git+git://github.com/gelnior/newebe.git")
+    python.install("git+git://github.com/gelnior/newebe.git")
 
 @task()
 def restart_newebe():
