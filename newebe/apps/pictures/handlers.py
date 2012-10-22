@@ -412,8 +412,8 @@ class PictureDownloadHandler(PictureObjectHandler):
         image = Image.open(path)
         image.thumbnail(size, Image.ANTIALIAS)
         image.save(thpath)
-        os.remove(thpath)
-        return open("th_" + filename)
+        os.remove(path)
+        return open(thpath)
 
 
 class PictureContactDownloadHandler(NewebeHandler):
