@@ -18,6 +18,8 @@ from newebe.apps.pictures.models import PictureManager, Picture
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 
+from newebe.config import CONFIG
+
 logger = logging.getLogger("newebe.pictures")
 
 CONTACT_PATH = 'pictures/contact/'
@@ -68,10 +70,11 @@ class PicturesHandler(NewebeAuthHandler):
             thumbnail = self.get_thumbnail(filebody, filename, (200, 200))
             thbuffer = thumbnail.read()
             picture.put_attachment(thbuffer, "th_" + filename)
-            os.remove("th_" + filename)
+            thpath = os.path.join(CONFIG.main.path, "th_" + filename)
+            os.remove(thpath)
             preview = self.get_thumbnail(filebody, filename, (1000, 1000))
             picture.put_attachment(preview.read(), "prev_" + filename)
-            os.remove("th_" + filename)
+            os.remove(thpath)
             picture.save()
 
             self.create_owner_creation_activity(
@@ -88,15 +91,17 @@ class PicturesHandler(NewebeAuthHandler):
             self.return_failure("No picture posted.", 400)
 
     def get_thumbnail(self, filebody, filename, size):
-        file = open(filename, "w")
+        path = os.path.join(CONFIG.main.path, filename)
+        thpath = os.path.join(CONFIG.main.path, "th_" + filename)
+
+        file = open(path, "w")
         file.write(filebody)
         file.close()
-        image = Image.open(filename)
+        image = Image.open(path)
         image.thumbnail(size, Image.ANTIALIAS)
-        image.save("th_" + filename)
-        file = open(filename)
-        os.remove(filename)
-        return open("th_" + filename)
+        image.save(thpath)
+        os.remove(path)
+        return open(thpath)
 
 
 class PicturesMyHandler(NewebeAuthHandler):
@@ -157,10 +162,12 @@ class PicturesQQHandler(PicturesHandler):
             thumbnail = self.get_thumbnail(filebody, filename, (200, 200))
             thbuffer = thumbnail.read()
             picture.put_attachment(thbuffer, "th_" + filename)
-            os.remove("th_" + filename)
+            thpath = os.path.join(CONFIG.main.path, "th_" + filename)
+
+            os.remove(thpath)
             preview = self.get_thumbnail(filebody, filename, (1000, 1000))
             picture.put_attachment(preview.read(), "prev_" + filename)
-            os.remove("th_" + filename)
+            os.remove(thpath)
             picture.save()
 
             self.create_owner_creation_activity(
@@ -381,12 +388,14 @@ class PictureDownloadHandler(PictureObjectHandler):
         logger.info(self.picture)
 
         if response.code == 200:
-            self.picture.put_attachment(response.body, self.picture.path)
+            filename = self.picture.path
+            self.picture.put_attachment(response.body, filename)
             thumbnail = self.get_thumbnail(
-                response.body, self.picture.path, (1000, 1000))
+                response.body, filename, (1000, 1000))
             thbuffer = thumbnail.read()
-            self.picture.put_attachment(thbuffer, "prev_" + self.picture.path)
-            os.remove("th_" + self.picture.path)
+            self.picture.put_attachment(thbuffer, "prev_" + filename)
+            thpath = os.path.join(CONFIG.main.path, "th_" + filename)
+            os.remove(thpath)
             self.picture.isFile = True
             self.picture.save()
             self.return_success("Picture successfuly downloaded.")
@@ -394,14 +403,16 @@ class PictureDownloadHandler(PictureObjectHandler):
             self.return_failure("Picture cannot be retrieved.")
 
     def get_thumbnail(self, filebody, filename, size):
-        file = open(filename, "w")
+        path = os.path.join(CONFIG.main.path, filename)
+        thpath = os.path.join(CONFIG.main.path, "th_" + filename)
+
+        file = open(path, "w")
         file.write(filebody)
         file.close()
-        image = Image.open(filename)
+        image = Image.open(path)
         image.thumbnail(size, Image.ANTIALIAS)
-        image.save("th_" + filename)
-        file = open(filename)
-        os.remove(filename)
+        image.save(thpath)
+        os.remove(thpath)
         return open("th_" + filename)
 
 
