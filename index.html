@@ -217,7 +217,7 @@ ps -ef | grep couchdb</pre>
       If it's not ok, start the database manually :
     </p>
     <pre>
-/etc/init.d/couchdb start</pre>
+sudo /etc/init.d/couchdb start</pre>
     <p>
         <span class="step"> step 4 </span> Create a newebe user and prepare
         newebe folders. 
@@ -245,13 +245,15 @@ mkdir newebe/certs</pre>
     <span class="step">step 6</span> Create certificate for HTTPS. This will ask some questions, answer as you like:
     </p>
 <pre>
-su newebe
+sudo su newebe
 cd ~/newebe/certs
 openssl genrsa -out ./server.key 1024
 openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
 </pre>
     <p>
-        <span class="step"> step 7 </span> Set supervisor configuration for <em>Newebe</em> server. Create a file <em>/etc/supervisor/conf.d/newebe.conf</em>.
+        <span class="step"> step 7 </span> As root user,
+        set supervisor configuration for <em>Newebe</em> server. 
+        Create a file <em>/etc/supervisor/conf.d/newebe.conf</em>.
         Fill it with following content :
     </p>
     <pre>
