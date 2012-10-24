@@ -224,7 +224,7 @@ ps -ef | grep couchdb</pre>
     </p>
     <pre>
 sudo useradd --password-disabled --shell=/bin/bash newebe
-su newebe
+sudo su newebe
 cd
 mkdir newebe
 mkdir newebe/certs</pre>
@@ -262,6 +262,7 @@ redirect_stderr=true
 user=newebe</pre>
     <span class="step"> step 8 </span> Start newebe
     <pre>
+sudo supervisorctl update
 sudo supervisorctl start newebe</pre>
     <p>
         <span class="step"> step 8</span> Check that everything is fine via 
