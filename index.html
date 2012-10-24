@@ -223,7 +223,7 @@ ps -ef | grep couchdb</pre>
         newebe folders. 
     </p>
     <pre>
-sudo useradd --password-disabled --shell=/bin/bash newebe
+sudo adduser --disabled-password --shell=/bin/bash newebe
 sudo su newebe
 cd
 mkdir newebe
@@ -263,7 +263,6 @@ user=newebe</pre>
     <span class="step"> step 8 </span> Start newebe
     <pre>
 sudo supervisorctl update
-sudo supervisorctl start newebe</pre>
     <p>
         <span class="step"> step 8</span> Check that everything is fine via 
         your web browser : go to the URL
