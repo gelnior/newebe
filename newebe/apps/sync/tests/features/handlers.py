@@ -16,6 +16,8 @@ from newebe.apps.commons.models import Common, CommonManager
 from newebe.lib.slugify import slugify
 from newebe.lib.test_util import reset_documents
 
+from nose.tools import assert_equals
+
 
 @before.all
 def set_browser():
@@ -77,16 +79,17 @@ def when_i_ask_for_synchronization(step):
     response = world.browser2.get("synchronize/")
     assert response.code == 200
 
-@step(u'5 posts from first newebe are stored in second newebe')
-def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step):
+@step(u'(\d) posts from first newebe are stored in second newebe')
+def check_that_5_posts_from_first_newebe_are_stored_in_second_newebe(step,
+        nbposts):
     posts = world.browser2.fetch_documents("microposts/all/")
-    assert 5 == len(posts), posts
+    assert_equals(len(posts), int(nbposts))
 
 # Pictures
 
 @step(u'(\d) pictures are created on first newebe with tag "([^"]*)"')
 def and_5_pictures_are_created_on_first_newebe(step, nbpics, tag):
-    file = open("../../pictures/tests/test.jpg")
+    file = open("./apps/pictures/tests/test.jpg")
     for i in range(1, int(nbpics) + 1):
         picture = Picture(
             title = "Pic 0%d" % i,
@@ -103,10 +106,11 @@ def and_5_pictures_are_created_on_first_newebe(step, nbpics, tag):
         picture.save()
 
 
-@step(u'5 pictures from first newebe are stored in second newebe')
-def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step):
+@step(u'(\d) pictures from first newebe are stored in second newebe')
+def and_5_pictures_from_first_newebe_are_stored_in_second_newebe(step,
+        nbpictures):
     pictures = world.browser2.fetch_documents("pictures/all/")
-    assert 5 == len(pictures)
+    assert_equals(len(pictures), int(nbpictures))
 
 @step(u'My contact is tagged with "([^"]*)"')
 def given_my_contact_is_tagged_with_tag(step, tag):
@@ -120,8 +124,8 @@ def given_my_contact_is_tagged_with_tag(step, tag):
 # Commons
 
 @step(u'(\d) commons are created on first newebe with tag "([^"]*)"')
-def and_5_pictures_are_created_on_first_newebe(step, nbcommons, tag):
-    file = open("../../commons/tests/test.jpg")
+def and_5_commons(step, nbcommons, tag):
+    file = open("./apps/commons/tests/vimqrc.pdf")
     for i in range(1, int(nbcommons) + 1):
         common = Common(
             title = "Common 0%d" % i,
@@ -133,25 +137,15 @@ def and_5_pictures_are_created_on_first_newebe(step, nbcommons, tag):
             isMine = True,
             tags = [tag]
         )
-        picture.save()
-        picture.put_attachment(file.read(), "th_test.jpg")
-        picture.save()
+        common.save()
+        common.put_attachment(file.read(), "vimqrc.pdf")
+        common.save()
 
-@step(u'And 2 pictures are created on first newebe with tag "([^"]*)"')
-def and_2_pictures_are_created_on_first_newebe_with_tag_group1(step, group1):
-    assert False, 'This step must be implemented'
-@step(u'And 3 files are created on first newebe with tag "([^"]*)"')
-def and_3_files_are_created_on_first_newebe_with_tag_group1(step, group1):
-    assert False, 'This step must be implemented'
-@step(u'And 2 files are created on first newebe with tag "([^"]*)"')
-def and_2_files_are_created_on_first_newebe_with_tag_group1(step, group1):
-    assert False, 'This step must be implemented'
-@step(u'Then 3 posts from first newebe are stored in second newebe')
-def then_3_posts_from_first_newebe_are_stored_in_second_newebe(step):
-    assert False, 'This step must be implemented'
-@step(u'And 3 pictures from first newebe are stored in second newebe')
-def and_3_pictures_from_first_newebe_are_stored_in_second_newebe(step):
-    assert False, 'This step must be implemented'
+@step(u'(\d) commons from first newebe are stored in second newebe')
+def and_5_commons_from_first_newebe_are_stored_in_second_newebe(step,
+        nbcommons):
+    commons = world.browser2.fetch_documents("commons/all/")
+    assert_equals(len(commons), int(nbcommons))
 
 
 # Profile

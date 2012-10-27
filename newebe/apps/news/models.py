@@ -10,8 +10,8 @@ class MicroPostManager():
     '''
 
     @staticmethod
-    def get_mine(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
-                 tag=None):
+    def get_mine(startKey=None, endKey=None, skip=0, 
+                 limit=news_settings.NEWS_LIMIT, tag=None):
 
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts descending
@@ -24,11 +24,11 @@ class MicroPostManager():
         '''
 
         return DocumentManager.get_tagged_documents(MicroPost,
-                "news/mine", "news/mine-tags", startKey, tag, limit, skip)
+                "news/mine", "news/mine-tags", startKey, endKey, tag, limit, skip)
 
     @staticmethod
-    def get_list(startKey=None, skip=0, limit=news_settings.NEWS_LIMIT,
-                 tag=None):
+    def get_list(startKey=None, endKey=None, skip=0, 
+                limit=news_settings.NEWS_LIMIT, tag=None):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts
         descending.
@@ -43,7 +43,7 @@ class MicroPostManager():
         '''
 
         return DocumentManager.get_tagged_documents(MicroPost,
-                "news/all", "news/tags", startKey, tag, limit, skip)
+                "news/all", "news/tags", startKey, endKey, tag, limit, skip)
 
     @staticmethod
     def get_first(dateKey):
