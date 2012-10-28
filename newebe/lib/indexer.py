@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import logging
 
 
 from tornado.httpclient import HTTPClient
@@ -17,6 +18,8 @@ from whoosh.analysis import CharsetFilter, LowercaseFilter, StopFilter
 from newebe.lib.stopwords import stoplists
 
 from newebe.config import CONFIG
+
+logger = logging.getLogger("newebe.lib")
 
 chfilter = CharsetFilter(accent_map)
 stoplist = stoplists["en"].union(stoplists["fr"])
@@ -128,17 +131,20 @@ class Indexer():
         text = unicode(post.content)
         for url in urls:
             client = HTTPClient()
-            response = client.fetch(url)
-            doc = html.fromstring(response.body)
+            try:
+                response = client.fetch(url)
+                doc = html.fromstring(response.body)
 
-            title = doc.xpath('//head/title')
-            doc.xpath('/html/head/meta[@name="description"]/@content')
-            description = doc.xpath(
+                title = doc.xpath('//head/title')
+                doc.xpath('/html/head/meta[@name="description"]/@content')
+                description = doc.xpath(
                     '/html/head/meta[@name="description"]/@content')
 
-            if title:
-                text += " " + title[0].text_content()
-            if description:
-                text += " " + description[0]
+                if title:
+                    text += " " + title[0].text_content()
+                if description:
+                    text += " " + description[0]
+            except:
+                logger.error("A problem occured while indexing micropost")
 
         return text
