@@ -1,6 +1,12 @@
 {% autoescape None %} 
 
-<p>At {{ picture.date }}, {{ picture.author }} published : </p>
+<p class="tags">
+{% for tag in picture.tags %}
+{% block tag %}
+  {{ tag }}
+{% end %}
+{% end %}
+</p>
 <p>
 To see the original image you need to download it first.
 </p>

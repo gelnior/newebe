@@ -1,8 +1,14 @@
 {% autoescape None %} 
 
-<p>At {{ common.date }}, {{ common.author }} published : </p>
+<p class="tags">
+  {% for tag in common.tags %}
+    {% block tag %}
+      {{ tag }}
+    {% end %}
+  {% end %}
+</p>
 <p>
-To see the original image you need to download it first.
+To download the original file you need to download it from your contact first.
 </p>
 <p id="commons-preview-toolbar" class="commons-button">
     <a id="commons-download-button" href="">download common</a>

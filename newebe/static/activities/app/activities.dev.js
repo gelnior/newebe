@@ -419,22 +419,18 @@
     };
 
     ActivityRow.prototype.onDocRefClicked = function(event) {
-      if (this.model.getDocType() === "micropost" && this.model.getMethod() === "POST") {
-        $.get("/microposts/" + this.model.getDocId() + "/html/", this.onPreviewLoaded);
-      } else if (this.model.getDocType() === "note") {
-        $.get("/notes/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
-      } else if (this.model.getDocType() === "picture" && this.model.getMethod() === "POST") {
-        $.get("/pictures/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
-        if (event) {
-          event.preventDefault();
-        }
+      $.get("/" + (this.model.getDocType()) + "s/" + (this.model.getDocId()) + "/html/", this.onPreviewLoaded);
+      if (event != null) {
+        event.preventDefault();
       }
       return false;
     };
 
     ActivityRow.prototype.onPreviewLoaded = function(data) {
       this.preview.html(data);
-      return this.updatePreviewPosition();
+      this.updatePreviewPosition();
+      $('#commons-preview-toolbar').hide();
+      return $('#pictures-preview-toolbar').hide();
     };
 
     ActivityRow.prototype.onActivityAuthorClicked = function(event) {
@@ -478,6 +474,13 @@
             return this.sendRetryRequest("POST", "/pictures/" + this.model.getDocId() + "/retry/", event);
           case "DELETE":
             return this.sendRetryRequest("PUT", "/pictures/" + this.model.getDocId() + "/retry/", event, extra);
+        }
+      } else if (this.model.getDocType() === "common") {
+        switch (this.model.getMethod()) {
+          case "POST":
+            return this.sendRetryRequest("POST", "/commons/" + this.model.getDocId() + "/retry/", event);
+          case "DELETE":
+            return this.sendRetryRequest("PUT", "/commons/" + this.model.getDocId() + "/retry/", event, extra);
         }
       }
     };

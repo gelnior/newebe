@@ -83,22 +83,16 @@ class ActivityRow extends Row
   # When doc ref is clicked, if it is a micropost, micropost is displayed 
   # in the preview section, same for notes.
   onDocRefClicked: (event) ->
-    if @model.getDocType() == "micropost" and @model.getMethod() == "POST"
-        $.get "/microposts/" + @model.getDocId() + "/html/",  @onPreviewLoaded
-    else if @model.getDocType() == "note"
-        $.get "/notes/#{@model.getDocId()}/html/", @onPreviewLoaded
-    
-    else if @model.getDocType() == "picture" and @model.getMethod() == "POST"
-        $.get "/pictures/#{@model.getDocId()}/html/", @onPreviewLoaded
-            
-        if event
-          event.preventDefault()
+    $.get "/#{@model.getDocType()}s/#{@model.getDocId()}/html/", @onPreviewLoaded
+    event.preventDefault() if event?
     false
 
 
   onPreviewLoaded: (data) =>
     @preview.html(data)
     @updatePreviewPosition()
+    $('#commons-preview-toolbar').hide()
+    $('#pictures-preview-toolbar').hide()
 
 
   # When activity author is clicked, the author profile is displayed.
@@ -159,6 +153,22 @@ class ActivityRow extends Row
                             "/pictures/" + @model.getDocId()  + "/retry/",
                             event,
                             extra)
+
+    else if @model.getDocType() is "common"
+      switch @model.getMethod()
+
+        when "POST"
+          @sendRetryRequest("POST",
+                            "/commons/" + @model.getDocId()  + "/retry/",
+                            event)
+
+
+        when "DELETE"
+          @sendRetryRequest("PUT",
+                            "/commons/" + @model.getDocId()  + "/retry/",
+                            event,
+                            extra)
+
 
   # Requests server to resend data to the contact. 
   # If it it succeeds it marks the error as solved else it displays an error 
