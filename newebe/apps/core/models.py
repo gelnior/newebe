@@ -159,10 +159,13 @@ class DocumentManager():
 
     @staticmethod
     def get_tagged_documents(docType, view, tagView,
-                             startKey, tag, limit, skip=0):
+                             startKey, endKey, tag, limit, skip=0):
         if tag:
             key = [tag, startKey]
-            endKey = [tag + "0"]
+            if endKey:
+                endKey = [tag + "0", endKey]
+            else:
+                endKey = [tag + "0"]
             docs = DocumentManager.get_documents(
                 docType,
                 tagView,
@@ -174,7 +177,7 @@ class DocumentManager():
         else:
             key = startKey
             return DocumentManager.get_documents(
-                    docType, view, key, skip, limit, group=False)
+                    docType, view, key, endKey, skip, limit, group=False)
 
     @staticmethod
     def remove_wrongly_tagged_docs(docs, tag):

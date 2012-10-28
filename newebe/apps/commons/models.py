@@ -11,24 +11,24 @@ class CommonManager():
     '''
 
     @staticmethod
-    def get_last_commons(startKey=None, skip=0,
+    def get_last_commons(startKey=None, endKey=None, skip=0,
             limit=COMMON_LIMIT, tag=None):
         '''
         Returns all commons. If *startKey* is provided, it returns last
         common posted until *startKey*.
         '''
         return DocumentManager.get_tagged_documents(Common, "commons/last",
-            "commons/tags", startKey, tag, limit, skip)
+            "commons/tags", startKey, endKey, tag, limit, skip)
 
     @staticmethod
-    def get_owner_last_commons(startKey=None,
+    def get_owner_last_commons(startKey=None, endKey=None,
                  skip=0, limit=COMMON_LIMIT, tag=None):
         '''
         Returns owner commons. If *startKey* is provided, it returns last
         common posted by owner until *startKey*.
         '''
         return DocumentManager.get_tagged_documents(Common, "commons/owner",
-            "commons/mine-tags", startKey, tag, limit, skip)
+            "commons/mine-tags", startKey, endKey, tag, limit, skip)
 
     @staticmethod
     def get_common(id):
