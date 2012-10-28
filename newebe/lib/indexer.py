@@ -145,6 +145,6 @@ class Indexer():
                 if description:
                     text += " " + description[0]
             except:
-                logger.error("A problem occured while indexing micropost")
+                logger.error("A problem occured while indexing micropost links")
 
         return text
