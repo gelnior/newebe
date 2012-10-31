@@ -1,0 +1,1937 @@
+Description: Upstream changes introduced in version 0.6.0
+ This patch has been created by dpkg-source during the package build.
+ Here's the last changelog entry, hopefully it gives details on why
+ those changes were made:
+ .
+ newebe (0.6.0) UNRELEASED; urgency=low
+ .
+   * Initial release. (Closes: #XXXXXX)
+ .
+ The person named in the Author field signed this changelog entry.
+Author: gelnior <gelnior@sommerless>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/d2to1/core.py
+@@ -0,0 +1,80 @@
++import os
++import warnings
++
++from distutils.core import Distribution as _Distribution
++from distutils.errors import DistutilsFileError, DistutilsSetupError
++from setuptools.dist import _get_unpatched
++
++from d2to1.util import DefaultGetDict, IgnoreDict, cfg_to_args, resolve_name
++
++
++_Distribution = _get_unpatched(_Distribution)
++
++
++def d2to1(dist, attr, value):
++    """Implements the actual d2to1 setup() keyword.  When used, this should be
++    the only keyword in your setup() aside from `setup_requires`.
++
++    If given as a string, the value of d2to1 is assumed to be the relative path
++    to the setup.cfg file to use.  Otherwise, if it evaluates to true, it
++    simply assumes that d2to1 should be used, and the default 'setup.cfg' is
++    used.
++
++    This works by reading the setup.cfg file, parsing out the supported
++    metadata and command options, and using them to rebuild the
++    `DistributionMetadata` object and set the newly added command options.
++
++    The reason for doing things this way is that a custom `Distribution` class
++    will not play nicely with setup_requires; however, this implementation may
++    not work well with distributions that do use a `Distribution` subclass.
++    """
++
++    if not value:
++        return
++    if isinstance(value, basestring):
++        path = os.path.abspath(value)
++    else:
++        path = os.path.abspath('setup.cfg')
++    if not os.path.exists(path):
++        raise DistutilsFileError(
++            'The setup.cfg file %s does not exist.' % path)
++
++    # Converts the setup.cfg file to setup() arguments
++    try:
++        attrs = cfg_to_args(path)
++    except Exception, e:
++        raise DistutilsSetupError(
++                'Error parsing %s: %s: %s' % (path, e.__class__.__name__,
++                                              unicode(e)))
++
++    # Repeat some of the Distribution initialization code with the newly
++    # provided attrs
++    if attrs:
++        # Skips 'options' and 'licence' support which are rarely used; may add
++        # back in later if demanded
++        for key, val in attrs.iteritems():
++            if hasattr(dist.metadata, 'set_' + key):
++                getattr(dist.metadata, 'set_' + key)(val)
++            elif hasattr(dist.metadata, key):
++                setattr(dist.metadata, key, val)
++            elif hasattr(dist, key):
++                setattr(dist, key, val)
++            else:
++                msg = 'Unknown distribution option: %s' % repr(key)
++                warnings.warn(msg)
++
++    # Re-finalize the underlying Distribution
++    _Distribution.finalize_options(dist)
++
++    # This bit comes out of distribute/setuptools
++    if isinstance(dist.metadata.version, (int, long, float)):
++        # Some people apparently take "version number" too literally :)
++        dist.metadata.version = str(dist.metadata.version)
++
++    # This bit of hackery is necessary so that the Distribution will ignore
++    # normally unsupport command options (namely pre-hooks and post-hooks).
++    # dist.command_options is normally a dict mapping command names to dicts of
++    # their options.  Now it will be a defaultdict that returns IgnoreDicts for
++    # the each command's options so we can pass through the unsupported options
++    ignore = ['pre_hook.*', 'post_hook.*']
++    dist.command_options = DefaultGetDict(lambda: IgnoreDict(ignore))
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/d2to1/util.py
+@@ -0,0 +1,469 @@
++"""The code in this module is mostly copy/pasted out of the distutils2 source
++code, as recommended by Tarek Ziade.  As such, it may be subject to some change
++as distutils2 development continues, and will have to be kept up to date.
++
++I didn't want to use it directly from distutils2 itself, since I do not want it
++to be an installation dependency for our packages yet--it is still too unstable
++(the latest version on PyPI doesn't even install).
++"""
++
++import os
++import re
++import sys
++
++from collections import defaultdict
++
++import distutils.ccompiler
++
++from distutils import log
++from distutils.errors import DistutilsOptionError, DistutilsModuleError
++from setuptools.dist import Distribution
++from setuptools.extension import Extension
++try:
++    from ConfigParser import RawConfigParser
++except ImportError:
++    from configparser import RawConfigParser
++
++
++# A simplified RE for this; just checks that the line ends with version
++# predicates in ()
++_VERSION_SPEC_RE = re.compile(r'\s*(.*?)\s*\((.*)\)\s*$')
++
++
++def resolve_name(name):
++    """Resolve a name like ``module.object`` to an object and return it.
++
++    Raise ImportError if the module or name is not found.
++    """
++
++    parts = name.split('.')
++    cursor = len(parts)
++    module_name = parts[:cursor]
++
++    while cursor > 0:
++        try:
++            ret = __import__('.'.join(module_name))
++            break
++        except ImportError:
++            if cursor == 0:
++                raise
++            cursor -= 1
++            module_name = parts[:cursor]
++            ret = ''
++
++    for part in parts[1:]:
++        try:
++            ret = getattr(ret, part)
++        except AttributeError:
++            raise ImportError(name)
++
++    return ret
++
++
++
++# TODO: This is getting pretty hefty; might want to break it up a bit
++def cfg_to_args(path='setup.cfg'):
++    """ Distutils2 to distutils1 compatibility util.
++
++        This method uses an existing setup.cfg to generate a dictionary of
++        keywords that can be used by distutils.core.setup(kwargs**).
++
++        :param file:
++            The setup.cfg path.
++        :raises DistutilsFileError:
++            When the setup.cfg file is not found.
++
++    """
++    # We need to declare the following constants here so that it's easier to
++    # generate the setup.py afterwards, using inspect.getsource.
++
++    # XXX ** == needs testing
++    D1_D2_SETUP_ARGS = {"name": ("metadata",),
++                        "version": ("metadata",),
++                        "author": ("metadata",),
++                        "author_email": ("metadata",),
++                        "maintainer": ("metadata",),
++                        "maintainer_email": ("metadata",),
++                        "url": ("metadata", "home_page"),
++                        "description": ("metadata", "summary"),
++                        "long_description": ("metadata", "description"),
++                        "download-url": ("metadata",),
++                        "classifiers": ("metadata", "classifier"),
++                        "platforms": ("metadata", "platform"),  # **
++                        "license": ("metadata",),
++                        # Use setuptools install_requires, not
++                        # broken distutils requires
++                        "install_requires": ("metadata", "requires_dist"),
++                        "provides": ("metadata", "provides_dist"),  # **
++                        "obsoletes": ("metadata", "obsoletes_dist"),  # **
++                        "package_dir": ("files", 'packages_root'),
++                        "packages": ("files",),
++                        "package_data": ("files",),
++                        "data_files": ("files",),
++                        "scripts": ("files",),
++                        "py_modules": ("files", "modules"),   # **
++                        "cmdclass": ("global", "commands"),
++                        # Not supported in distutils2, but provided for
++                        # backwards compatibility with setuptools
++                        "use_2to3": ("backwards_compat", "use_2to3"),
++                        "zip_safe": ("backwards_compat", "zip_safe")
++                        }
++
++    MULTI_FIELDS = ("classifiers",
++                    "platforms",
++                    "install_requires",
++                    "provides",
++                    "obsoletes",
++                    "packages",
++                    "package_data",
++                    "data_files",
++                    "scripts",
++                    "py_modules",
++                    "cmdclass")
++
++    BOOL_FIELDS = ("use_2to3", "zip_safe")
++
++    # The method source code really starts here.
++    parser = RawConfigParser()
++    if not os.path.exists(path):
++        raise DistutilsFileError("file '%s' does not exist" %
++                                 os.path.abspath(path))
++    parser.read(path)
++    config = {}
++    for section in parser.sections():
++        config[section] = dict(parser.items(section))
++
++    # Run setup_hooks, if configured
++    # TODO: We need a better way of displaying errors that occur in setup_hook;
++    # right now they only show up as errors 'parsing' the cfg file.  A
++    # traceback and other info would be nice...
++    setup_hooks = has_get_option(config, 'global', 'setup_hooks')
++    if setup_hooks:
++        setup_hooks = split_multiline(setup_hooks)
++        for hook in setup_hooks:
++            hook = resolve_name(hook)
++            hook(config)
++
++    register_custom_compilers(config)
++
++    kwargs = {}
++
++    for arg in D1_D2_SETUP_ARGS:
++        if len(D1_D2_SETUP_ARGS[arg]) == 2:
++            # The distutils field name is different than distutils2's.
++            section, option = D1_D2_SETUP_ARGS[arg]
++
++        elif len(D1_D2_SETUP_ARGS[arg]) == 1:
++            # The distutils field name is the same thant distutils2's.
++            section = D1_D2_SETUP_ARGS[arg][0]
++            option = arg
++
++        in_cfg_value = has_get_option(config, section, option)
++        if not in_cfg_value:
++            # There is no such option in the setup.cfg
++            if arg == "long_description":
++                in_cfg_value = has_get_option(config, section,
++                                              "description-file")
++                if in_cfg_value:
++                    in_cfg_value = split_multiline(in_cfg_value)
++                    value = ''
++                    for filename in in_cfg_value:
++                        description_file = open(filename)
++                        try:
++                            value += description_file.read().strip() + '\n\n'
++                        finally:
++                            description_file.close()
++                    in_cfg_value = value
++            else:
++                continue
++
++        if arg in MULTI_FIELDS:
++            in_cfg_value = split_multiline(in_cfg_value)
++        elif arg in BOOL_FIELDS:
++            # Provide some flexibility here...
++            if in_cfg_value.lower() in ('true', 't', '1', 'yes', 'y'):
++                in_cfg_value = True
++            else:
++                in_cfg_value = False
++
++        if in_cfg_value:
++            if arg == 'install_requires':
++                # Replaces PEP345-style version specs with the sort expected by
++                # setuptools
++                in_cfg_value = [_VERSION_SPEC_RE.sub(r'\1\2', pred)
++                                for pred in in_cfg_value]
++            elif arg == 'package_dir':
++                in_cfg_value = {'': in_cfg_value}
++            elif arg in ('package_data', 'data_files'):
++                data_files = {}
++                firstline = True
++                prev = None
++                for line in in_cfg_value:
++                    if '=' in line:
++                        key, value = line.split('=', 1)
++                        key, value = (key.strip(), value.strip())
++                        if key in data_files:
++                            # Multiple duplicates of the same package name;
++                            # this is for backwards compatibility of the old
++                            # format prior to d2to1 0.2.6.
++                            prev = data_files[key]
++                            prev.extend(value.split())
++                        else:
++                            prev = data_files[key.strip()] = value.split()
++                    elif firstline:
++                        raise DistutilsOptionError(
++                            'malformed package_data first line %r (misses '
++                            '"=")' % line)
++                    else:
++                        prev.extend(line.strip().split())
++                    firstline = False
++                if arg == 'data_files':
++                    # the data_files value is a pointlessly different structure
++                    # from the package_data value
++                    data_files = data_files.items()
++                in_cfg_value = data_files
++            elif arg == 'cmdclass':
++                cmdclass = {}
++                dist = Distribution()
++                for cls in in_cfg_value:
++                    cls = resolve_name(cls)
++                    cmd = cls(dist)
++                    cmdclass[cmd.get_command_name()] = cls
++                in_cfg_value = cmdclass
++
++        kwargs[arg] = in_cfg_value
++
++    ext_modules = get_extension_modules(config)
++    if ext_modules:
++        kwargs['ext_modules'] = ext_modules
++
++    entry_points = get_entry_points(config)
++    if entry_points:
++        kwargs['entry_points'] = entry_points
++
++    wrap_commands(kwargs)
++    return kwargs
++
++
++def register_custom_compilers(config):
++    """Handle custom compilers; this has no real equivalent in distutils, where
++    additional compilers could only be added programmatically, so we have to
++    hack it in somehow.
++    """
++
++    compilers = has_get_option(config, 'global', 'compilers')
++    if compilers:
++        compilers = split_multiline(compilers)
++        for compiler in compilers:
++            compiler = resolve_name(compiler)
++
++            # In distutils2 compilers these class attributes exist; for
++            # distutils1 we just have to make something up
++            if hasattr(compiler, 'name'):
++                name = compiler.name
++            else:
++                name = compiler.__name__
++            if hasattr(compiler, 'description'):
++                desc = compiler.description
++            else:
++                desc = 'custom compiler %s' % name
++
++            module_name = compiler.__module__
++            # Note; this *will* override built in compilers with the same name
++            # TODO: Maybe display a warning about this?
++            cc = distutils.ccompiler.compiler_class
++            cc[name] = (module_name, compiler.__name__, desc)
++
++            # HACK!!!!  Distutils assumes all compiler modules are in the
++            # distutils package
++            sys.modules['distutils.' + module_name] = sys.modules[module_name]
++
++
++def get_extension_modules(config):
++    """Handle extension modules"""
++
++    EXTENSION_FIELDS = ("sources",
++                        "include_dirs",
++                        "define_macros",
++                        "undef_macros",
++                        "library_dirs",
++                        "libraries",
++                        "runtime_library_dirs",
++                        "extra_objects",
++                        "extra_compile_args",
++                        "extra_link_args",
++                        "export_symbols",
++                        "swig_opts",
++                        "depends")
++
++    ext_modules = []
++    for section in config:
++        if ':' in section:
++            labels = section.split(':', 1)
++        else:
++            # Backwards compatibility for old syntax; don't use this though
++            labels = section.split('=', 1)
++        labels = [l.strip() for l in labels]
++        if (len(labels) == 2) and (labels[0] == 'extension'):
++            ext_args = {}
++            for field in EXTENSION_FIELDS:
++                value = has_get_option(config, section, field)
++                # All extension module options besides name can have multiple
++                # values
++                if not value:
++                    continue
++                value = split_multiline(value)
++                if field == 'define_macros':
++                    macros = []
++                    for macro in value:
++                        macro = macro.split('=', 1)
++                        if len(macro) == 1:
++                            macro = (macro[0].strip(), None)
++                        else:
++                            macro = (macro[0].strip(), macro[1].strip())
++                        macros.append(macro)
++                    value = macros
++                ext_args[field] = value
++            if ext_args:
++                if 'name' not in ext_args:
++                    ext_args['name'] = labels[1]
++                ext_modules.append(Extension(ext_args.pop('name'),
++                                             **ext_args))
++    return ext_modules
++
++
++def get_entry_points(config):
++    """Process the [entry_points] section of setup.cfg to handle setuptools
++    entry points.  This is, of course, not a standard feature of
++    distutils2/packaging, but as there is not currently a standard alternative
++    in packaging, we provide support for them.
++    """
++
++    if not 'entry_points' in config:
++        return {}
++
++    return dict((option, split_multiline(value))
++                for option, value in config['entry_points'].items())
++
++
++def wrap_commands(kwargs):
++    dist = Distribution()
++
++    # This should suffice to get the same config values and command classes
++    # that the actual Distribution will see (not counting cmdclass, which is
++    # handled below)
++    dist.parse_config_files()
++
++    for cmd, _ in dist.get_command_list():
++        hooks = {}
++        for opt, val in dist.get_option_dict(cmd).items():
++            val = val[1]
++            if opt.startswith('pre_hook.') or opt.startswith('post_hook.'):
++                hook_type, alias = opt.split('.', 1)
++                hook_dict = hooks.setdefault(hook_type, {})
++                hook_dict[alias] = val
++        if not hooks:
++            continue
++
++        if 'cmdclass' in kwargs and cmd in kwargs['cmdclass']:
++            cmdclass = kwargs['cmdclass'][cmd]
++        else:
++            cmdclass = dist.get_command_class(cmd)
++
++        new_cmdclass = wrap_command(cmd, cmdclass, hooks)
++        kwargs.setdefault('cmdclass', {})[cmd] = new_cmdclass
++
++
++def wrap_command(cmd, cmdclass, hooks):
++    def run(self, cmdclass=cmdclass):
++        self.run_command_hooks('pre_hook')
++        cmdclass.run(self)
++        self.run_command_hooks('post_hook')
++
++    return type(cmd, (cmdclass, object),
++                {'run': run, 'run_command_hooks': run_command_hooks,
++                 'pre_hook': hooks.get('pre_hook'),
++                 'post_hook': hooks.get('post_hook')})
++
++
++def run_command_hooks(cmd_obj, hook_kind):
++    """Run hooks registered for that command and phase.
++
++    *cmd_obj* is a finalized command object; *hook_kind* is either
++    'pre_hook' or 'post_hook'.
++    """
++
++    if hook_kind not in ('pre_hook', 'post_hook'):
++        raise ValueError('invalid hook kind: %r' % hook_kind)
++
++    hooks = getattr(cmd_obj, hook_kind, None)
++
++    if hooks is None:
++        return
++
++    for hook in hooks.values():
++        if isinstance(hook, str):
++            try:
++                hook_obj = resolve_name(hook)
++            except ImportError:
++                err = sys.exc_info()[1] # For py3k
++                raise DistutilsModuleError(err)
++        else:
++            hook_obj = hook
++
++        if not hasattr(hook_obj, '__call__'):
++            raise DistutilsOptionError('hook %r is not callable' % hook)
++
++        log.info('running %s %s for command %s',
++                 hook_kind, hook, cmd_obj.get_command_name())
++        hook_obj(cmd_obj)
++
++
++def has_get_option(config, section, option):
++    if section in config and option in config[section]:
++        return config[section][option]
++    elif section in config and option.replace('_', '-') in config[section]:
++        return config[section][option.replace('_', '-')]
++    else:
++        return False
++
++
++def split_multiline(value):
++    """Special behaviour when we have a multi line options"""
++
++    value = [element for element in
++             (line.strip() for line in value.split('\n'))
++             if element]
++    return value
++
++
++# The following classes are used to hack Distribution.command_options a bit
++class DefaultGetDict(defaultdict):
++    """Like defaultdict, but the get() method also sets and returns the default
++    value.
++    """
++
++    def get(self, key, default=None):
++        if default is None:
++            default = self.default_factory()
++        return super(DefaultGetDict, self).setdefault(key, default)
++
++
++class IgnoreDict(dict):
++    """A dictionary that ignores any insertions in which the key is a string
++    matching any string in `ignore`.  The ignore list can also contain wildcard
++    patterns using '*'.
++    """
++
++    def __init__(self, ignore):
++        self.__ignore = re.compile(r'(%s)' % ('|'.join(
++                                   [pat.replace('*', '.*')
++                                    for pat in ignore])))
++
++    def __setitem__(self, key, val):
++        if self.__ignore.match(key):
++            return
++        super(IgnoreDict, self).__setitem__(key, val)
++
++
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/d2to1/__init__.py
+@@ -0,0 +1,4 @@
++try:
++    __version__ = __import__('pkg_resources').get_distribution('d2to1').version
++except:
++    __version__ = ''
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/d2to1/zestreleaser.py
+@@ -0,0 +1,67 @@
++"""zest.releaser entry points to support projects using distutils2-like
++setup.cfg files.  The only actual functionality this adds is to update the
++version option in a setup.cfg file, if it exists.  If setup.cfg does not exist,
++or does not contain a version option, then this does nothing.
++
++TODO: d2to1 theoretically supports using a different filename for setup.cfg;
++this does not support that.  We could hack in support, though I'm not sure how
++useful the original functionality is to begin with (and it might be removed) so
++we ignore that for now.
++
++TODO: There exists a proposal
++(http://mail.python.org/pipermail/distutils-sig/2011-March/017628.html) to add
++a 'version-from-file' option (or something of the like) to distutils2; if this
++is added then support for it should be included here as well.
++"""
++
++
++import logging
++import os
++
++from ConfigParser import ConfigParser
++
++
++logger = logging.getLogger(__name__)
++
++
++def update_setupcfg_version(filename, version):
++    """Opens the given setup.cfg file, locates the version option in the
++    [metadata] section, updates it to the new version.
++    """
++
++    setup_cfg = open(filename).readlines()
++    current_section = None
++    updated = False
++
++    for idx, line in enumerate(setup_cfg):
++        m = ConfigParser.SECTCRE.match(line)
++        if m:
++            if current_section == 'metadata':
++                # We already parsed the entire metadata section without finding
++                # a version line, and are now moving into a new section
++                break
++            current_section = m.group('header')
++            continue
++        opt, val = line.split('=', 1)
++        opt, val = opt.strip(), val.strip()
++        if current_section == 'metadata' and opt == 'version':
++            setup_cfg[idx] = 'version = %s\n' % version
++            updated = True
++            break
++
++    if updated:
++        open(filename, 'w').writelines(setup_cfg)
++        logger.info("Set %s's version to %r" % (os.path.basename(filename),
++                                                version))
++
++
++def prereleaser_middle(data):
++    filename = os.path.join(data['workingdir'], 'setup.cfg')
++    if os.path.exists(filename):
++        update_setupcfg_version(filename, data['new_version'])
++
++
++def postreleaser_middle(data):
++    filename = os.path.join(data['workingdir'], 'setup.cfg')
++    if os.path.exists(filename):
++        update_setupcfg_version(filename, data['dev_version'])
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/dependency_links.txt
+@@ -0,0 +1 @@
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/requires.txt
+@@ -0,0 +1 @@
++setuptools
+\ No newline at end of file
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/top_level.txt
+@@ -0,0 +1 @@
++d2to1
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/entry_points.txt
+@@ -0,0 +1,9 @@
++[distutils.setup_keywords]
++d2to1 = d2to1.core:d2to1
++
++[zest.releaser.prereleaser.middle]
++d2_version = d2to1.zestreleaser:prereleaser_middle
++
++[zest.releaser.postreleaser.middle]
++d2_version = d2to1.zestreleaser:postreleaser_middle
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/PKG-INFO
+@@ -0,0 +1,271 @@
++Metadata-Version: 1.0
++Name: d2to1
++Version: 0.2.7
++Summary: Allows using distutils2-like setup.cfg files for a package's metadata
++with a distribute/setuptools setup.py
++Home-page: http://pypi.python.org/pypi/d2to1
++Author: Erik M. Bray
++Author-email: embray@stsci.edu
++License: UNKNOWN
++Description: Introduction
++        ==============
++        d2to1 (the 'd' is for 'distutils') allows using distutils2-like setup.cfg files 
++        for a package's metadata with a distribute/setuptools setup.py script.  It
++        works by providing a distutils2-formatted setup.cfg file containing all of a
++        package's metadata, and a very minimal setup.py which will slurp its arguments
++        from the setup.cfg.
++        
++        Note: distutils2 has been merged into the CPython standard library, where it is
++        now known as 'packaging'.  This project was started before that change was
++        finalized.  So all references to distutils2 should also be assumed to refer to
++        packaging.
++        
++        Rationale
++        ===========
++        I'm currently in the progress of redoing the packaging of a sizeable number of
++        projects.  I wanted to use distutils2-like setup.cfg files for all these
++        projects, as they will hopefully be the future, and I much prefer them overall
++        to using an executable setup.py.  So forward-support for distutils2 is
++        appealing both as future-proofing, and simply the aesthetics of using a flat text file to describe a project's metadata.
++        
++        However, I did not want any of these projects to require distutils2 for
++        installation yet--it is too unstable, and not widely installed.  So projects
++        should still be installable using the familiar `./setup.py install`, for
++        example.  Furthermore, not all use cases required by some of the packages I
++        support are fully supported by distutils2 yet.  Hopefully they will be
++        eventually, either through the distutils2 core or through extensions.  But in
++        the meantime d2to1 will try to keep up with the state of the art and "best
++        practices" for distutils2 distributions, while adding support in areas that
++        it's lacking.
++        
++        Usage
++        =======
++        d2to1 requires a distribution to use distribute or setuptools.  Your
++        distribution must include a distutils2-like setup.cfg file, and a minimal
++        setup.py script.  For details on writing the setup.cfg, see the `distutils2
++        documentation`_.  A simple sample can be found in d2to1's own setup.cfg (it
++        uses its own machinery to install itself)::
++        
++         [metadata]
++         name = d2to1
++         version = 0.1.1
++         author = Erik M. Bray
++         author-email = embray at stsci.edu
++         summary = Allows using distutils2-like setup.cfg files for a package's metadata
++          with a distribute/setuptools setup.py
++         description-file = README
++         license = BSD
++         requires-dist = setuptools
++         classifier =
++             Development Status :: 4 - Beta
++             Environment :: Plugins
++             Framework :: Setuptools Plugin
++             Intended Audience :: Developers
++             License :: OSI Approved :: BSD License
++             Operating System :: OS Independent
++             Programming Language :: Python
++             Topic :: Software Development :: Build Tools
++             Topic :: Software Development :: Libraries :: Python Modules
++             Topic :: System :: Archiving :: Packaging
++         
++         [files]
++         packages = d2to1
++        
++        The minimal setup.py should look something like this::
++        
++         #!/usr/bin/env python
++        
++         try:
++             from setuptools import setup
++         except ImportError:
++             from distribute_setup import use_setuptools
++             use_setuptools()
++             from setuptools import setup
++        
++         setup(
++             setup_requires=['d2to1'],
++             d2to1=True
++         )
++        
++        Note that it's important to specify d2to1=True or else the d2to1 functionality
++        will not be enabled.  It is also possible to set d2to1='some_file.cfg' to
++        specify the (relative) path of the setup.cfg file to use.  But in general this
++        functionality should not be necessary.
++        
++        It should also work fine if additional arguments are passed to `setup()`,
++        but it should be noted that they will be clobbered by any options in the
++        setup.cfg file.
++        
++        Caveats
++        =========
++        - The requires-dist option in setup.cfg is implemented through the
++          distribute/setuptools install_requires option, rather than the broken
++          "requires" keyword in normal distutils.
++        - Not all features of distutils2 are supported yet.  If something doesn't seem
++          to be working, it's probably not implemented yet.
++        - Does not support distutils2 resources, and probably won't since it relies
++          heavily on the sysconfig module only available in Python 3.2 and up.  This is
++          one area in which d2to1 should really be seen as a transitional tool.  I
++          don't really want to include a backport like distutils2 does.  In the
++          meantime, package_data and data_files may still be used under the [files]
++          section of setup.cfg.
++        
++        .. _distutils2 documentation: http://distutils2.notmyidea.org/setupcfg.html
++        
++        Changes
++        =========
++        
++        
++        0.2.7 (2012-02-20)
++        ------------------
++        
++        - If no extension modules or entry points are defined in the setup.cfg, don't
++          clobber any extension modules/entry points that may be defined in setup.py.
++        
++        
++        0.2.6 (2012-02-17)
++        ------------------
++        
++        - Added support for setuptools entry points in an ``[entry_points]`` section of
++          setup.cfg--this is just for backwards-compatibility purposes, as
++          packaging/distutils2 does not yet have a standard replacement for the entry
++          points system.
++        
++        - Added a [backwards_compat] section for setup.cfg for other options that are
++          supported by setuptools/distribute, but that aren't part of the distutils2
++          standard.  So far the only options supported here are zip_safe and use_2to3.
++          (Note: packaging does support a use-2to3 option to the build command, but if
++          we tried to use that, distutils would not recognize it as a valid build
++          option.)
++        
++        - Added support for the new (and presumably final) extension section format
++          used by packaging.  In this format, extensions should be specified in config
++          sections of the format ``[extension: ext_mod_name]``, where any whitespace is
++          optional.  The old format used an ``=`` instead of ``:`` and is still
++          supported, but should be considered deprecated.
++        
++        - Added support for the new syntax used by packaging for the package_data
++          option (which is deprecated in packaging in favor of the resources system,
++          but still supported).  The new syntax is like::
++        
++              package_data =
++                  packagename = pattern1 pattern2 pattern3
++                  packagename.subpack = 
++                      pattern1
++                      pattern2
++                      pattern3
++        
++          That is, after ``package_data =``, give the name of a package, followed by
++          an ``=``, followed by any number of whitespace separated wildcard patterns (or
++          actual filenames relative to the package).  Under this scheme, whitespace is
++          not allowed in the patterns themselves.
++        
++        
++        0.2.5 (2011-07-21)
++        ------------------
++        
++        - Made the call to pkg_resources.get_distribution() to set __version__ more
++          robust, so that it doesn't fail on, for example, VersionConflict errors
++        
++        
++        0.2.4 (2011-07-05)
++        ------------------
++        
++        - Fixed some bugs with installation on Python 3
++        
++        
++        0.2.3 (2011-06-23)
++        ------------------
++        
++        - Renamed 'setup_hook' to 'setup_hooks' as is now the case in the packaging
++          module.  Added support for multiple setup_hooks
++        
++        
++        0.2.2 (2011-06-15)
++        ------------------
++        
++        - Fixed a bug in DefaultGetDict where it didn't actually save the returned
++          default in the dictionary--so any command options would get lost
++        - Fixed a KeyError when the distribution does not have any custom commands
++          specified
++        
++        
++        0.2.1 (2011-06-15)
++        ------------------
++        
++        - Reimplemented command hooks without monkey-patching and more reliably in
++          general (though it's still a flaming hack).  The previous monkey patch-based
++          solution would break if d2to1 were entered multiple times, which could happen
++          in some scenarios
++        
++        
++        0.2.0 (2011-06-14)
++        ------------------
++        
++        - Version bump to start using micro-version numbers for bug fixes only, now
++          that the my primary feature goals are complete
++        
++        
++        0.1.5 (2011-06-02)
++        ------------------
++        
++        - Adds support for the data_files option under [files].  Though this is
++          considered deprecated and may go away at some point, it can be useful in the
++          absence of resources support
++        - Adds support for command pre/post-hooks.  Warning: this monkey-patches
++          distutils.dist.Distribution a little bit... :(
++        - Adds (slightly naive) support for PEP 345-style version specifiers in
++          requires-dist (environment markers not supported yet)
++        - Fixed a bug where not enough newlines were inserted between description files
++        
++        
++        0.1.4 (2011-05-24)
++        ------------------
++        
++        - Adds support for custom command classes specified in the 'commands' option
++          under the [global] section in setup.cfg
++        - Adds preliminary support for custom compilers specified in the 'compilers'
++          option under the [global] section in setup.cfg.  This functionality doesn't
++          exist in distutils/setuptools/distribute, so adding support for it is a
++          flaming hack.  It hasn't really been tested beyond seeing that the custom
++          compilers come up in `setup.py build_ext --help-compiler`, so any real-world
++          testing of this feature would be appreciated
++        
++        
++        0.1.3 (2011-04-20)
++        ------------------
++        
++        - Adds zest.releaser entry points for updating the version number in a
++          setup.cfg file; only useful if you use zest.releaser--otherwise harmless
++          (might eventually move this functionality out into a separate product)
++        - Though version 0.1.2 worked in Python3, use_2to3 wasn't added to the setup.py
++          so 2to3 had to be run manually
++        - Fixed a crash on projects that don't have a description-file option
++        
++        0.1.2 (2011-04-13)
++        ------------------
++        
++        - Fixed the self-installation--it did not work if a d2to1 version was not
++          already installed, due to the use of `pkg_resources.require()`
++        - Adds nominal Python3 support
++        - Fixes the 'classifier' option in setup.cfg
++        
++        0.1.1 (2011-04-12)
++        ------------------
++        
++        - Fixed an unhelpful error message when a setup_hook fails to import
++        - Made d2to1 able to use its own machinery to install itself
++        
++        
++Platform: UNKNOWN
++Classifier: Development Status :: 4 - Beta
++Classifier: Environment :: Plugins
++Classifier: Framework :: Setuptools Plugin
++Classifier: Intended Audience :: Developers
++Classifier: License :: OSI Approved :: BSD License
++Classifier: Operating System :: OS Independent
++Classifier: Programming Language :: Python
++Classifier: Programming Language :: Python :: 3
++Classifier: Topic :: Software Development :: Build Tools
++Classifier: Topic :: Software Development :: Libraries :: Python Modules
++Classifier: Topic :: System :: Archiving :: Packaging
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/SOURCES.txt
+@@ -0,0 +1,17 @@
++CHANGES
++LICENSE
++README
++distribute_setup.py
++setup.cfg
++setup.py
++d2to1/__init__.py
++d2to1/core.py
++d2to1/util.py
++d2to1/zestreleaser.py
++d2to1.egg-info/PKG-INFO
++d2to1.egg-info/SOURCES.txt
++d2to1.egg-info/dependency_links.txt
++d2to1.egg-info/entry_points.txt
++d2to1.egg-info/not-zip-safe
++d2to1.egg-info/requires.txt
++d2to1.egg-info/top_level.txt
+\ No newline at end of file
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.6.egg/EGG-INFO/not-zip-safe
+@@ -0,0 +1 @@
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/d2to1/core.py
+@@ -0,0 +1,80 @@
++import os
++import warnings
++
++from distutils.core import Distribution as _Distribution
++from distutils.errors import DistutilsFileError, DistutilsSetupError
++from setuptools.dist import _get_unpatched
++
++from d2to1.util import DefaultGetDict, IgnoreDict, cfg_to_args, resolve_name
++
++
++_Distribution = _get_unpatched(_Distribution)
++
++
++def d2to1(dist, attr, value):
++    """Implements the actual d2to1 setup() keyword.  When used, this should be
++    the only keyword in your setup() aside from `setup_requires`.
++
++    If given as a string, the value of d2to1 is assumed to be the relative path
++    to the setup.cfg file to use.  Otherwise, if it evaluates to true, it
++    simply assumes that d2to1 should be used, and the default 'setup.cfg' is
++    used.
++
++    This works by reading the setup.cfg file, parsing out the supported
++    metadata and command options, and using them to rebuild the
++    `DistributionMetadata` object and set the newly added command options.
++
++    The reason for doing things this way is that a custom `Distribution` class
++    will not play nicely with setup_requires; however, this implementation may
++    not work well with distributions that do use a `Distribution` subclass.
++    """
++
++    if not value:
++        return
++    if isinstance(value, basestring):
++        path = os.path.abspath(value)
++    else:
++        path = os.path.abspath('setup.cfg')
++    if not os.path.exists(path):
++        raise DistutilsFileError(
++            'The setup.cfg file %s does not exist.' % path)
++
++    # Converts the setup.cfg file to setup() arguments
++    try:
++        attrs = cfg_to_args(path)
++    except Exception, e:
++        raise DistutilsSetupError(
++                'Error parsing %s: %s: %s' % (path, e.__class__.__name__,
++                                              unicode(e)))
++
++    # Repeat some of the Distribution initialization code with the newly
++    # provided attrs
++    if attrs:
++        # Skips 'options' and 'licence' support which are rarely used; may add
++        # back in later if demanded
++        for key, val in attrs.iteritems():
++            if hasattr(dist.metadata, 'set_' + key):
++                getattr(dist.metadata, 'set_' + key)(val)
++            elif hasattr(dist.metadata, key):
++                setattr(dist.metadata, key, val)
++            elif hasattr(dist, key):
++                setattr(dist, key, val)
++            else:
++                msg = 'Unknown distribution option: %s' % repr(key)
++                warnings.warn(msg)
++
++    # Re-finalize the underlying Distribution
++    _Distribution.finalize_options(dist)
++
++    # This bit comes out of distribute/setuptools
++    if isinstance(dist.metadata.version, (int, long, float)):
++        # Some people apparently take "version number" too literally :)
++        dist.metadata.version = str(dist.metadata.version)
++
++    # This bit of hackery is necessary so that the Distribution will ignore
++    # normally unsupport command options (namely pre-hooks and post-hooks).
++    # dist.command_options is normally a dict mapping command names to dicts of
++    # their options.  Now it will be a defaultdict that returns IgnoreDicts for
++    # the each command's options so we can pass through the unsupported options
++    ignore = ['pre_hook.*', 'post_hook.*']
++    dist.command_options = DefaultGetDict(lambda: IgnoreDict(ignore))
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/d2to1/util.py
+@@ -0,0 +1,469 @@
++"""The code in this module is mostly copy/pasted out of the distutils2 source
++code, as recommended by Tarek Ziade.  As such, it may be subject to some change
++as distutils2 development continues, and will have to be kept up to date.
++
++I didn't want to use it directly from distutils2 itself, since I do not want it
++to be an installation dependency for our packages yet--it is still too unstable
++(the latest version on PyPI doesn't even install).
++"""
++
++import os
++import re
++import sys
++
++from collections import defaultdict
++
++import distutils.ccompiler
++
++from distutils import log
++from distutils.errors import DistutilsOptionError, DistutilsModuleError
++from setuptools.dist import Distribution
++from setuptools.extension import Extension
++try:
++    from ConfigParser import RawConfigParser
++except ImportError:
++    from configparser import RawConfigParser
++
++
++# A simplified RE for this; just checks that the line ends with version
++# predicates in ()
++_VERSION_SPEC_RE = re.compile(r'\s*(.*?)\s*\((.*)\)\s*$')
++
++
++def resolve_name(name):
++    """Resolve a name like ``module.object`` to an object and return it.
++
++    Raise ImportError if the module or name is not found.
++    """
++
++    parts = name.split('.')
++    cursor = len(parts)
++    module_name = parts[:cursor]
++
++    while cursor > 0:
++        try:
++            ret = __import__('.'.join(module_name))
++            break
++        except ImportError:
++            if cursor == 0:
++                raise
++            cursor -= 1
++            module_name = parts[:cursor]
++            ret = ''
++
++    for part in parts[1:]:
++        try:
++            ret = getattr(ret, part)
++        except AttributeError:
++            raise ImportError(name)
++
++    return ret
++
++
++
++# TODO: This is getting pretty hefty; might want to break it up a bit
++def cfg_to_args(path='setup.cfg'):
++    """ Distutils2 to distutils1 compatibility util.
++
++        This method uses an existing setup.cfg to generate a dictionary of
++        keywords that can be used by distutils.core.setup(kwargs**).
++
++        :param file:
++            The setup.cfg path.
++        :raises DistutilsFileError:
++            When the setup.cfg file is not found.
++
++    """
++    # We need to declare the following constants here so that it's easier to
++    # generate the setup.py afterwards, using inspect.getsource.
++
++    # XXX ** == needs testing
++    D1_D2_SETUP_ARGS = {"name": ("metadata",),
++                        "version": ("metadata",),
++                        "author": ("metadata",),
++                        "author_email": ("metadata",),
++                        "maintainer": ("metadata",),
++                        "maintainer_email": ("metadata",),
++                        "url": ("metadata", "home_page"),
++                        "description": ("metadata", "summary"),
++                        "long_description": ("metadata", "description"),
++                        "download-url": ("metadata",),
++                        "classifiers": ("metadata", "classifier"),
++                        "platforms": ("metadata", "platform"),  # **
++                        "license": ("metadata",),
++                        # Use setuptools install_requires, not
++                        # broken distutils requires
++                        "install_requires": ("metadata", "requires_dist"),
++                        "provides": ("metadata", "provides_dist"),  # **
++                        "obsoletes": ("metadata", "obsoletes_dist"),  # **
++                        "package_dir": ("files", 'packages_root'),
++                        "packages": ("files",),
++                        "package_data": ("files",),
++                        "data_files": ("files",),
++                        "scripts": ("files",),
++                        "py_modules": ("files", "modules"),   # **
++                        "cmdclass": ("global", "commands"),
++                        # Not supported in distutils2, but provided for
++                        # backwards compatibility with setuptools
++                        "use_2to3": ("backwards_compat", "use_2to3"),
++                        "zip_safe": ("backwards_compat", "zip_safe")
++                        }
++
++    MULTI_FIELDS = ("classifiers",
++                    "platforms",
++                    "install_requires",
++                    "provides",
++                    "obsoletes",
++                    "packages",
++                    "package_data",
++                    "data_files",
++                    "scripts",
++                    "py_modules",
++                    "cmdclass")
++
++    BOOL_FIELDS = ("use_2to3", "zip_safe")
++
++    # The method source code really starts here.
++    parser = RawConfigParser()
++    if not os.path.exists(path):
++        raise DistutilsFileError("file '%s' does not exist" %
++                                 os.path.abspath(path))
++    parser.read(path)
++    config = {}
++    for section in parser.sections():
++        config[section] = dict(parser.items(section))
++
++    # Run setup_hooks, if configured
++    # TODO: We need a better way of displaying errors that occur in setup_hook;
++    # right now they only show up as errors 'parsing' the cfg file.  A
++    # traceback and other info would be nice...
++    setup_hooks = has_get_option(config, 'global', 'setup_hooks')
++    if setup_hooks:
++        setup_hooks = split_multiline(setup_hooks)
++        for hook in setup_hooks:
++            hook = resolve_name(hook)
++            hook(config)
++
++    register_custom_compilers(config)
++
++    kwargs = {}
++
++    for arg in D1_D2_SETUP_ARGS:
++        if len(D1_D2_SETUP_ARGS[arg]) == 2:
++            # The distutils field name is different than distutils2's.
++            section, option = D1_D2_SETUP_ARGS[arg]
++
++        elif len(D1_D2_SETUP_ARGS[arg]) == 1:
++            # The distutils field name is the same thant distutils2's.
++            section = D1_D2_SETUP_ARGS[arg][0]
++            option = arg
++
++        in_cfg_value = has_get_option(config, section, option)
++        if not in_cfg_value:
++            # There is no such option in the setup.cfg
++            if arg == "long_description":
++                in_cfg_value = has_get_option(config, section,
++                                              "description-file")
++                if in_cfg_value:
++                    in_cfg_value = split_multiline(in_cfg_value)
++                    value = ''
++                    for filename in in_cfg_value:
++                        description_file = open(filename)
++                        try:
++                            value += description_file.read().strip() + '\n\n'
++                        finally:
++                            description_file.close()
++                    in_cfg_value = value
++            else:
++                continue
++
++        if arg in MULTI_FIELDS:
++            in_cfg_value = split_multiline(in_cfg_value)
++        elif arg in BOOL_FIELDS:
++            # Provide some flexibility here...
++            if in_cfg_value.lower() in ('true', 't', '1', 'yes', 'y'):
++                in_cfg_value = True
++            else:
++                in_cfg_value = False
++
++        if in_cfg_value:
++            if arg == 'install_requires':
++                # Replaces PEP345-style version specs with the sort expected by
++                # setuptools
++                in_cfg_value = [_VERSION_SPEC_RE.sub(r'\1\2', pred)
++                                for pred in in_cfg_value]
++            elif arg == 'package_dir':
++                in_cfg_value = {'': in_cfg_value}
++            elif arg in ('package_data', 'data_files'):
++                data_files = {}
++                firstline = True
++                prev = None
++                for line in in_cfg_value:
++                    if '=' in line:
++                        key, value = line.split('=', 1)
++                        key, value = (key.strip(), value.strip())
++                        if key in data_files:
++                            # Multiple duplicates of the same package name;
++                            # this is for backwards compatibility of the old
++                            # format prior to d2to1 0.2.6.
++                            prev = data_files[key]
++                            prev.extend(value.split())
++                        else:
++                            prev = data_files[key.strip()] = value.split()
++                    elif firstline:
++                        raise DistutilsOptionError(
++                            'malformed package_data first line %r (misses '
++                            '"=")' % line)
++                    else:
++                        prev.extend(line.strip().split())
++                    firstline = False
++                if arg == 'data_files':
++                    # the data_files value is a pointlessly different structure
++                    # from the package_data value
++                    data_files = data_files.items()
++                in_cfg_value = data_files
++            elif arg == 'cmdclass':
++                cmdclass = {}
++                dist = Distribution()
++                for cls in in_cfg_value:
++                    cls = resolve_name(cls)
++                    cmd = cls(dist)
++                    cmdclass[cmd.get_command_name()] = cls
++                in_cfg_value = cmdclass
++
++        kwargs[arg] = in_cfg_value
++
++    ext_modules = get_extension_modules(config)
++    if ext_modules:
++        kwargs['ext_modules'] = ext_modules
++
++    entry_points = get_entry_points(config)
++    if entry_points:
++        kwargs['entry_points'] = entry_points
++
++    wrap_commands(kwargs)
++    return kwargs
++
++
++def register_custom_compilers(config):
++    """Handle custom compilers; this has no real equivalent in distutils, where
++    additional compilers could only be added programmatically, so we have to
++    hack it in somehow.
++    """
++
++    compilers = has_get_option(config, 'global', 'compilers')
++    if compilers:
++        compilers = split_multiline(compilers)
++        for compiler in compilers:
++            compiler = resolve_name(compiler)
++
++            # In distutils2 compilers these class attributes exist; for
++            # distutils1 we just have to make something up
++            if hasattr(compiler, 'name'):
++                name = compiler.name
++            else:
++                name = compiler.__name__
++            if hasattr(compiler, 'description'):
++                desc = compiler.description
++            else:
++                desc = 'custom compiler %s' % name
++
++            module_name = compiler.__module__
++            # Note; this *will* override built in compilers with the same name
++            # TODO: Maybe display a warning about this?
++            cc = distutils.ccompiler.compiler_class
++            cc[name] = (module_name, compiler.__name__, desc)
++
++            # HACK!!!!  Distutils assumes all compiler modules are in the
++            # distutils package
++            sys.modules['distutils.' + module_name] = sys.modules[module_name]
++
++
++def get_extension_modules(config):
++    """Handle extension modules"""
++
++    EXTENSION_FIELDS = ("sources",
++                        "include_dirs",
++                        "define_macros",
++                        "undef_macros",
++                        "library_dirs",
++                        "libraries",
++                        "runtime_library_dirs",
++                        "extra_objects",
++                        "extra_compile_args",
++                        "extra_link_args",
++                        "export_symbols",
++                        "swig_opts",
++                        "depends")
++
++    ext_modules = []
++    for section in config:
++        if ':' in section:
++            labels = section.split(':', 1)
++        else:
++            # Backwards compatibility for old syntax; don't use this though
++            labels = section.split('=', 1)
++        labels = [l.strip() for l in labels]
++        if (len(labels) == 2) and (labels[0] == 'extension'):
++            ext_args = {}
++            for field in EXTENSION_FIELDS:
++                value = has_get_option(config, section, field)
++                # All extension module options besides name can have multiple
++                # values
++                if not value:
++                    continue
++                value = split_multiline(value)
++                if field == 'define_macros':
++                    macros = []
++                    for macro in value:
++                        macro = macro.split('=', 1)
++                        if len(macro) == 1:
++                            macro = (macro[0].strip(), None)
++                        else:
++                            macro = (macro[0].strip(), macro[1].strip())
++                        macros.append(macro)
++                    value = macros
++                ext_args[field] = value
++            if ext_args:
++                if 'name' not in ext_args:
++                    ext_args['name'] = labels[1]
++                ext_modules.append(Extension(ext_args.pop('name'),
++                                             **ext_args))
++    return ext_modules
++
++
++def get_entry_points(config):
++    """Process the [entry_points] section of setup.cfg to handle setuptools
++    entry points.  This is, of course, not a standard feature of
++    distutils2/packaging, but as there is not currently a standard alternative
++    in packaging, we provide support for them.
++    """
++
++    if not 'entry_points' in config:
++        return {}
++
++    return dict((option, split_multiline(value))
++                for option, value in config['entry_points'].items())
++
++
++def wrap_commands(kwargs):
++    dist = Distribution()
++
++    # This should suffice to get the same config values and command classes
++    # that the actual Distribution will see (not counting cmdclass, which is
++    # handled below)
++    dist.parse_config_files()
++
++    for cmd, _ in dist.get_command_list():
++        hooks = {}
++        for opt, val in dist.get_option_dict(cmd).items():
++            val = val[1]
++            if opt.startswith('pre_hook.') or opt.startswith('post_hook.'):
++                hook_type, alias = opt.split('.', 1)
++                hook_dict = hooks.setdefault(hook_type, {})
++                hook_dict[alias] = val
++        if not hooks:
++            continue
++
++        if 'cmdclass' in kwargs and cmd in kwargs['cmdclass']:
++            cmdclass = kwargs['cmdclass'][cmd]
++        else:
++            cmdclass = dist.get_command_class(cmd)
++
++        new_cmdclass = wrap_command(cmd, cmdclass, hooks)
++        kwargs.setdefault('cmdclass', {})[cmd] = new_cmdclass
++
++
++def wrap_command(cmd, cmdclass, hooks):
++    def run(self, cmdclass=cmdclass):
++        self.run_command_hooks('pre_hook')
++        cmdclass.run(self)
++        self.run_command_hooks('post_hook')
++
++    return type(cmd, (cmdclass, object),
++                {'run': run, 'run_command_hooks': run_command_hooks,
++                 'pre_hook': hooks.get('pre_hook'),
++                 'post_hook': hooks.get('post_hook')})
++
++
++def run_command_hooks(cmd_obj, hook_kind):
++    """Run hooks registered for that command and phase.
++
++    *cmd_obj* is a finalized command object; *hook_kind* is either
++    'pre_hook' or 'post_hook'.
++    """
++
++    if hook_kind not in ('pre_hook', 'post_hook'):
++        raise ValueError('invalid hook kind: %r' % hook_kind)
++
++    hooks = getattr(cmd_obj, hook_kind, None)
++
++    if hooks is None:
++        return
++
++    for hook in hooks.values():
++        if isinstance(hook, str):
++            try:
++                hook_obj = resolve_name(hook)
++            except ImportError:
++                err = sys.exc_info()[1] # For py3k
++                raise DistutilsModuleError(err)
++        else:
++            hook_obj = hook
++
++        if not hasattr(hook_obj, '__call__'):
++            raise DistutilsOptionError('hook %r is not callable' % hook)
++
++        log.info('running %s %s for command %s',
++                 hook_kind, hook, cmd_obj.get_command_name())
++        hook_obj(cmd_obj)
++
++
++def has_get_option(config, section, option):
++    if section in config and option in config[section]:
++        return config[section][option]
++    elif section in config and option.replace('_', '-') in config[section]:
++        return config[section][option.replace('_', '-')]
++    else:
++        return False
++
++
++def split_multiline(value):
++    """Special behaviour when we have a multi line options"""
++
++    value = [element for element in
++             (line.strip() for line in value.split('\n'))
++             if element]
++    return value
++
++
++# The following classes are used to hack Distribution.command_options a bit
++class DefaultGetDict(defaultdict):
++    """Like defaultdict, but the get() method also sets and returns the default
++    value.
++    """
++
++    def get(self, key, default=None):
++        if default is None:
++            default = self.default_factory()
++        return super(DefaultGetDict, self).setdefault(key, default)
++
++
++class IgnoreDict(dict):
++    """A dictionary that ignores any insertions in which the key is a string
++    matching any string in `ignore`.  The ignore list can also contain wildcard
++    patterns using '*'.
++    """
++
++    def __init__(self, ignore):
++        self.__ignore = re.compile(r'(%s)' % ('|'.join(
++                                   [pat.replace('*', '.*')
++                                    for pat in ignore])))
++
++    def __setitem__(self, key, val):
++        if self.__ignore.match(key):
++            return
++        super(IgnoreDict, self).__setitem__(key, val)
++
++
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/d2to1/__init__.py
+@@ -0,0 +1,4 @@
++try:
++    __version__ = __import__('pkg_resources').get_distribution('d2to1').version
++except:
++    __version__ = ''
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/d2to1/zestreleaser.py
+@@ -0,0 +1,67 @@
++"""zest.releaser entry points to support projects using distutils2-like
++setup.cfg files.  The only actual functionality this adds is to update the
++version option in a setup.cfg file, if it exists.  If setup.cfg does not exist,
++or does not contain a version option, then this does nothing.
++
++TODO: d2to1 theoretically supports using a different filename for setup.cfg;
++this does not support that.  We could hack in support, though I'm not sure how
++useful the original functionality is to begin with (and it might be removed) so
++we ignore that for now.
++
++TODO: There exists a proposal
++(http://mail.python.org/pipermail/distutils-sig/2011-March/017628.html) to add
++a 'version-from-file' option (or something of the like) to distutils2; if this
++is added then support for it should be included here as well.
++"""
++
++
++import logging
++import os
++
++from ConfigParser import ConfigParser
++
++
++logger = logging.getLogger(__name__)
++
++
++def update_setupcfg_version(filename, version):
++    """Opens the given setup.cfg file, locates the version option in the
++    [metadata] section, updates it to the new version.
++    """
++
++    setup_cfg = open(filename).readlines()
++    current_section = None
++    updated = False
++
++    for idx, line in enumerate(setup_cfg):
++        m = ConfigParser.SECTCRE.match(line)
++        if m:
++            if current_section == 'metadata':
++                # We already parsed the entire metadata section without finding
++                # a version line, and are now moving into a new section
++                break
++            current_section = m.group('header')
++            continue
++        opt, val = line.split('=', 1)
++        opt, val = opt.strip(), val.strip()
++        if current_section == 'metadata' and opt == 'version':
++            setup_cfg[idx] = 'version = %s\n' % version
++            updated = True
++            break
++
++    if updated:
++        open(filename, 'w').writelines(setup_cfg)
++        logger.info("Set %s's version to %r" % (os.path.basename(filename),
++                                                version))
++
++
++def prereleaser_middle(data):
++    filename = os.path.join(data['workingdir'], 'setup.cfg')
++    if os.path.exists(filename):
++        update_setupcfg_version(filename, data['new_version'])
++
++
++def postreleaser_middle(data):
++    filename = os.path.join(data['workingdir'], 'setup.cfg')
++    if os.path.exists(filename):
++        update_setupcfg_version(filename, data['dev_version'])
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/dependency_links.txt
+@@ -0,0 +1 @@
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/requires.txt
+@@ -0,0 +1 @@
++setuptools
+\ No newline at end of file
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/top_level.txt
+@@ -0,0 +1 @@
++d2to1
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/entry_points.txt
+@@ -0,0 +1,9 @@
++[distutils.setup_keywords]
++d2to1 = d2to1.core:d2to1
++
++[zest.releaser.prereleaser.middle]
++d2_version = d2to1.zestreleaser:prereleaser_middle
++
++[zest.releaser.postreleaser.middle]
++d2_version = d2to1.zestreleaser:postreleaser_middle
++
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/PKG-INFO
+@@ -0,0 +1,271 @@
++Metadata-Version: 1.0
++Name: d2to1
++Version: 0.2.7
++Summary: Allows using distutils2-like setup.cfg files for a package's metadata
++with a distribute/setuptools setup.py
++Home-page: http://pypi.python.org/pypi/d2to1
++Author: Erik M. Bray
++Author-email: embray@stsci.edu
++License: UNKNOWN
++Description: Introduction
++        ==============
++        d2to1 (the 'd' is for 'distutils') allows using distutils2-like setup.cfg files 
++        for a package's metadata with a distribute/setuptools setup.py script.  It
++        works by providing a distutils2-formatted setup.cfg file containing all of a
++        package's metadata, and a very minimal setup.py which will slurp its arguments
++        from the setup.cfg.
++        
++        Note: distutils2 has been merged into the CPython standard library, where it is
++        now known as 'packaging'.  This project was started before that change was
++        finalized.  So all references to distutils2 should also be assumed to refer to
++        packaging.
++        
++        Rationale
++        ===========
++        I'm currently in the progress of redoing the packaging of a sizeable number of
++        projects.  I wanted to use distutils2-like setup.cfg files for all these
++        projects, as they will hopefully be the future, and I much prefer them overall
++        to using an executable setup.py.  So forward-support for distutils2 is
++        appealing both as future-proofing, and simply the aesthetics of using a flat text file to describe a project's metadata.
++        
++        However, I did not want any of these projects to require distutils2 for
++        installation yet--it is too unstable, and not widely installed.  So projects
++        should still be installable using the familiar `./setup.py install`, for
++        example.  Furthermore, not all use cases required by some of the packages I
++        support are fully supported by distutils2 yet.  Hopefully they will be
++        eventually, either through the distutils2 core or through extensions.  But in
++        the meantime d2to1 will try to keep up with the state of the art and "best
++        practices" for distutils2 distributions, while adding support in areas that
++        it's lacking.
++        
++        Usage
++        =======
++        d2to1 requires a distribution to use distribute or setuptools.  Your
++        distribution must include a distutils2-like setup.cfg file, and a minimal
++        setup.py script.  For details on writing the setup.cfg, see the `distutils2
++        documentation`_.  A simple sample can be found in d2to1's own setup.cfg (it
++        uses its own machinery to install itself)::
++        
++         [metadata]
++         name = d2to1
++         version = 0.1.1
++         author = Erik M. Bray
++         author-email = embray at stsci.edu
++         summary = Allows using distutils2-like setup.cfg files for a package's metadata
++          with a distribute/setuptools setup.py
++         description-file = README
++         license = BSD
++         requires-dist = setuptools
++         classifier =
++             Development Status :: 4 - Beta
++             Environment :: Plugins
++             Framework :: Setuptools Plugin
++             Intended Audience :: Developers
++             License :: OSI Approved :: BSD License
++             Operating System :: OS Independent
++             Programming Language :: Python
++             Topic :: Software Development :: Build Tools
++             Topic :: Software Development :: Libraries :: Python Modules
++             Topic :: System :: Archiving :: Packaging
++         
++         [files]
++         packages = d2to1
++        
++        The minimal setup.py should look something like this::
++        
++         #!/usr/bin/env python
++        
++         try:
++             from setuptools import setup
++         except ImportError:
++             from distribute_setup import use_setuptools
++             use_setuptools()
++             from setuptools import setup
++        
++         setup(
++             setup_requires=['d2to1'],
++             d2to1=True
++         )
++        
++        Note that it's important to specify d2to1=True or else the d2to1 functionality
++        will not be enabled.  It is also possible to set d2to1='some_file.cfg' to
++        specify the (relative) path of the setup.cfg file to use.  But in general this
++        functionality should not be necessary.
++        
++        It should also work fine if additional arguments are passed to `setup()`,
++        but it should be noted that they will be clobbered by any options in the
++        setup.cfg file.
++        
++        Caveats
++        =========
++        - The requires-dist option in setup.cfg is implemented through the
++          distribute/setuptools install_requires option, rather than the broken
++          "requires" keyword in normal distutils.
++        - Not all features of distutils2 are supported yet.  If something doesn't seem
++          to be working, it's probably not implemented yet.
++        - Does not support distutils2 resources, and probably won't since it relies
++          heavily on the sysconfig module only available in Python 3.2 and up.  This is
++          one area in which d2to1 should really be seen as a transitional tool.  I
++          don't really want to include a backport like distutils2 does.  In the
++          meantime, package_data and data_files may still be used under the [files]
++          section of setup.cfg.
++        
++        .. _distutils2 documentation: http://distutils2.notmyidea.org/setupcfg.html
++        
++        Changes
++        =========
++        
++        
++        0.2.7 (2012-02-20)
++        ------------------
++        
++        - If no extension modules or entry points are defined in the setup.cfg, don't
++          clobber any extension modules/entry points that may be defined in setup.py.
++        
++        
++        0.2.6 (2012-02-17)
++        ------------------
++        
++        - Added support for setuptools entry points in an ``[entry_points]`` section of
++          setup.cfg--this is just for backwards-compatibility purposes, as
++          packaging/distutils2 does not yet have a standard replacement for the entry
++          points system.
++        
++        - Added a [backwards_compat] section for setup.cfg for other options that are
++          supported by setuptools/distribute, but that aren't part of the distutils2
++          standard.  So far the only options supported here are zip_safe and use_2to3.
++          (Note: packaging does support a use-2to3 option to the build command, but if
++          we tried to use that, distutils would not recognize it as a valid build
++          option.)
++        
++        - Added support for the new (and presumably final) extension section format
++          used by packaging.  In this format, extensions should be specified in config
++          sections of the format ``[extension: ext_mod_name]``, where any whitespace is
++          optional.  The old format used an ``=`` instead of ``:`` and is still
++          supported, but should be considered deprecated.
++        
++        - Added support for the new syntax used by packaging for the package_data
++          option (which is deprecated in packaging in favor of the resources system,
++          but still supported).  The new syntax is like::
++        
++              package_data =
++                  packagename = pattern1 pattern2 pattern3
++                  packagename.subpack = 
++                      pattern1
++                      pattern2
++                      pattern3
++        
++          That is, after ``package_data =``, give the name of a package, followed by
++          an ``=``, followed by any number of whitespace separated wildcard patterns (or
++          actual filenames relative to the package).  Under this scheme, whitespace is
++          not allowed in the patterns themselves.
++        
++        
++        0.2.5 (2011-07-21)
++        ------------------
++        
++        - Made the call to pkg_resources.get_distribution() to set __version__ more
++          robust, so that it doesn't fail on, for example, VersionConflict errors
++        
++        
++        0.2.4 (2011-07-05)
++        ------------------
++        
++        - Fixed some bugs with installation on Python 3
++        
++        
++        0.2.3 (2011-06-23)
++        ------------------
++        
++        - Renamed 'setup_hook' to 'setup_hooks' as is now the case in the packaging
++          module.  Added support for multiple setup_hooks
++        
++        
++        0.2.2 (2011-06-15)
++        ------------------
++        
++        - Fixed a bug in DefaultGetDict where it didn't actually save the returned
++          default in the dictionary--so any command options would get lost
++        - Fixed a KeyError when the distribution does not have any custom commands
++          specified
++        
++        
++        0.2.1 (2011-06-15)
++        ------------------
++        
++        - Reimplemented command hooks without monkey-patching and more reliably in
++          general (though it's still a flaming hack).  The previous monkey patch-based
++          solution would break if d2to1 were entered multiple times, which could happen
++          in some scenarios
++        
++        
++        0.2.0 (2011-06-14)
++        ------------------
++        
++        - Version bump to start using micro-version numbers for bug fixes only, now
++          that the my primary feature goals are complete
++        
++        
++        0.1.5 (2011-06-02)
++        ------------------
++        
++        - Adds support for the data_files option under [files].  Though this is
++          considered deprecated and may go away at some point, it can be useful in the
++          absence of resources support
++        - Adds support for command pre/post-hooks.  Warning: this monkey-patches
++          distutils.dist.Distribution a little bit... :(
++        - Adds (slightly naive) support for PEP 345-style version specifiers in
++          requires-dist (environment markers not supported yet)
++        - Fixed a bug where not enough newlines were inserted between description files
++        
++        
++        0.1.4 (2011-05-24)
++        ------------------
++        
++        - Adds support for custom command classes specified in the 'commands' option
++          under the [global] section in setup.cfg
++        - Adds preliminary support for custom compilers specified in the 'compilers'
++          option under the [global] section in setup.cfg.  This functionality doesn't
++          exist in distutils/setuptools/distribute, so adding support for it is a
++          flaming hack.  It hasn't really been tested beyond seeing that the custom
++          compilers come up in `setup.py build_ext --help-compiler`, so any real-world
++          testing of this feature would be appreciated
++        
++        
++        0.1.3 (2011-04-20)
++        ------------------
++        
++        - Adds zest.releaser entry points for updating the version number in a
++          setup.cfg file; only useful if you use zest.releaser--otherwise harmless
++          (might eventually move this functionality out into a separate product)
++        - Though version 0.1.2 worked in Python3, use_2to3 wasn't added to the setup.py
++          so 2to3 had to be run manually
++        - Fixed a crash on projects that don't have a description-file option
++        
++        0.1.2 (2011-04-13)
++        ------------------
++        
++        - Fixed the self-installation--it did not work if a d2to1 version was not
++          already installed, due to the use of `pkg_resources.require()`
++        - Adds nominal Python3 support
++        - Fixes the 'classifier' option in setup.cfg
++        
++        0.1.1 (2011-04-12)
++        ------------------
++        
++        - Fixed an unhelpful error message when a setup_hook fails to import
++        - Made d2to1 able to use its own machinery to install itself
++        
++        
++Platform: UNKNOWN
++Classifier: Development Status :: 4 - Beta
++Classifier: Environment :: Plugins
++Classifier: Framework :: Setuptools Plugin
++Classifier: Intended Audience :: Developers
++Classifier: License :: OSI Approved :: BSD License
++Classifier: Operating System :: OS Independent
++Classifier: Programming Language :: Python
++Classifier: Programming Language :: Python :: 3
++Classifier: Topic :: Software Development :: Build Tools
++Classifier: Topic :: Software Development :: Libraries :: Python Modules
++Classifier: Topic :: System :: Archiving :: Packaging
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/SOURCES.txt
+@@ -0,0 +1,17 @@
++CHANGES
++LICENSE
++README
++distribute_setup.py
++setup.cfg
++setup.py
++d2to1/__init__.py
++d2to1/core.py
++d2to1/util.py
++d2to1/zestreleaser.py
++d2to1.egg-info/PKG-INFO
++d2to1.egg-info/SOURCES.txt
++d2to1.egg-info/dependency_links.txt
++d2to1.egg-info/entry_points.txt
++d2to1.egg-info/not-zip-safe
++d2to1.egg-info/requires.txt
++d2to1.egg-info/top_level.txt
+\ No newline at end of file
+--- /dev/null
++++ newebe-0.6.0/d2to1-0.2.7-py2.7.egg/EGG-INFO/not-zip-safe
+@@ -0,0 +1 @@
++
