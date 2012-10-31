@@ -29,26 +29,23 @@ case "$1" in
 	# add hplip system user (requires adduser >= 3.34)
 	# don't muck around with this unless you KNOW what you're doing
 	echo "Creating/updating newebe user account..."
-	adduser --system --ingroup lp --home /home/newebe \
-		--gecos "Neweb user" --shell /bin/bash \
-		--quiet --disabled-password hplip || {
-
+	adduser --system --ingroup lp --home /var/run/newebe \
+		--gecos "HPLIP system user" --shell /bin/false \
+		--quiet --disabled-password newebe || {
 	  # adduser failed. Why?
-	  if getent passwd hplip >/dev/null ; then
+	  if getent passwd newebe >/dev/null ; then
 	     echo "Non-system user newebe found. I will not overwrite a non-system" >&2
-	     echo "user.  Remove the user and newebe hplip." >&2
+	     echo "user.  Remove the user and reinstall newebe." >&2
 	     exit 1
 	  fi
 	  # unknown adduser error, simply exit
 	  exit 1
 	}
-
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 1
     ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
 esac
-
-
 
 exit 0
