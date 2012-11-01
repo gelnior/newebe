@@ -3,12 +3,9 @@ Maintainer: Gelnior <gelnior@free.fr>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.2
-Build-Depends: debhelper (>= 8), python (>= 2.6), python-setuptools, python-pip,
-         python-pycurl, python-dev, python-imaging, 
-         build-essential, couchdb, git, libxml2-dev, libxslt-dev, openssl, 
-         supervisor
+Build-Depends: debhelper (>= 8)
 
-Package: newebe
+Package: hithere
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Distributed Social Netwok
+Description: distributed social netwok
