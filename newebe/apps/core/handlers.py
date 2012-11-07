@@ -325,8 +325,7 @@ class NewebeHandler(RequestHandler):
         '''
 
         import newebe
-        dirpath, filename = \
-                            os.path.split(os.path.abspath(newebe.__file__))
+        dirpath, filename = os.path.split(os.path.abspath(newebe.__file__))
         return os.path.isfile(os.path.join(
             dirpath, "static", "css", "theme.css"))
 
