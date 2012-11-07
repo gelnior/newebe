@@ -324,7 +324,11 @@ class NewebeHandler(RequestHandler):
         optional. So, for templates, it is useful to know if it exists.
         '''
 
-        return os.path.isfile(os.path.join("static", "css", "theme.css"))
+        import newebe
+        dirpath, filename = \
+                            os.path.split(os.path.abspath(newebe.__file__))
+        return os.path.isfile(os.path.join(
+            dirpath, "static", "css", "theme.css"))
 
 
 class NewebeAuthHandler(NewebeHandler):
