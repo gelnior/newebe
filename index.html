@@ -170,17 +170,6 @@
     <div id="install">
     <h2>Install</h2>
 
-    <!-- h3>Easy way for Debian or Ubuntu users</h3>
-    <p> 
-      To install Newebe just run the following commands in the folder where
-      you want to install Newebe. Answer questions and everything will be 
-      cleanly setup. If you want to do a specific setup, refer
-      to the procedure described below.
-    </p>
-    <pre>
- wget https://raw.github.com/gelnior/newebe/master/deploy/install_deb.sh --no-check-certificate
- sh install_deb.sh</pre-->
-
     <h3>Installation on a remote server for Debian or Ubuntu users</h3>
     <p>
       This one will setup newebe on your remote server directly from your
@@ -193,6 +182,11 @@ wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py --no-check-c
 fab setup -H myrootuser@myhosturlorip
     </pre>
 
+    <h3>Update</h3>
+    <p>
+sudo pip install git+git://github.com/gelnior/newebe.git
+sudo supervisorctl restart newebe
+    </p>
     <h3>Manual way for Debian or Ubuntu user</h3>
     <p>
     <span class="step"> step 1 </span> Install following packages 
