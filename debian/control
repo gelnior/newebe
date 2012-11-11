@@ -10,7 +10,7 @@ Standards-Version: 3.9.1
 Package: newebe
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, couchdb, supervisor, 
-         python-whoosh, python-cssselect, python-yaml, python-couchdbkit, 
+         python-whoosh, python-yaml, python-couchdbkit, 
          python-tornado, python-tz, python-pycurl, python-lxml 
 Description: Distributed social network.
  .
