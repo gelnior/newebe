@@ -2,27 +2,10 @@
 (function() {
 
   $(function() {
-    var displayInstall, displayPage, element, lastSelected, lastSelectedMenu, onMenuElementClicked, path, url,
+    var displayPage, element, lastSelected, lastSelectedMenu, onMenuElementClicked, path, url,
       _this = this;
-    $('#install').hide();
-    $('#documentation').hide();
-    $('#contact').hide();
-    $('#developers').hide();
-    $('#faq').hide();
-    lastSelected = $('#home');
-    lastSelectedMenu = $('#menu-home');
-    lastSelectedMenu.addClass('selected');
-    displayInstall = function(event) {
-      return displayPage('install');
-    };
-    $('#menu-install').click(displayInstall);
-    $('#download-text').click(displayInstall);
-    onMenuElementClicked = function(event) {
-      var page;
-      page = event.target.id.substring(5);
-      return displayPage(page);
-    };
     displayPage = function(page) {
+      var lastSelected, lastSelectedMenu;
       lastSelectedMenu.removeClass('selected');
       lastSelectedMenu = $("#menu-" + page);
       lastSelectedMenu.addClass('selected');
@@ -31,11 +14,27 @@
       });
       return lastSelected = $("#" + page);
     };
+    onMenuElementClicked = function(event) {
+      var page;
+      page = event.target.id.substring(5);
+      return displayPage(page);
+    };
+    $('#install').hide();
+    $('#documentation').hide();
+    $('#contact').hide();
+    $('#developers').hide();
+    $('#demo').hide();
+    $('#faq').hide();
+    $('#download-text').click(function(event) {
+      return displayPage('install');
+    });
     $('#menu-home').click(onMenuElementClicked);
+    $('#menu-install').click(onMenuElementClicked);
     $('#menu-faq').click(onMenuElementClicked);
     $('#menu-documentation').click(onMenuElementClicked);
     $('#menu-contact').click(onMenuElementClicked);
     $('#menu-developers').click(onMenuElementClicked);
+    $('#menu-demo').click(onMenuElementClicked);
     url = document.location.href;
     if (url && url.indexOf("#") > 0) {
       path = url.split("#")[1];
