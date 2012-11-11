@@ -1,17 +1,15 @@
-$(() ->
-            
-    displayPage = (page) =>
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $("#menu-#{page}")
-        lastSelectedMenu.addClass('selected')
-        lastSelected.fadeOut 300, () ->
-            $("##{page}").fadeIn(300)
-        lastSelected = $("##{page}")
-
+$ ->
     onMenuElementClicked = (event) =>
         page = event.target.id.substring(5)
         displayPage(page)
-
+ 
+    displayPage = (page) =>
+        @lastSelectedMenu.removeClass('selected')
+        @lastSelectedMenu = $("#menu-#{page}")
+        @lastSelectedMenu.addClass('selected')
+        @lastSelected.fadeOut 300, () ->
+            $("##{page}").fadeIn(300)
+        @lastSelected = $("##{page}")
 
     $('#install').hide()
     $('#documentation').hide()
@@ -29,7 +27,7 @@ $(() ->
     $('#menu-contact').click onMenuElementClicked
     $('#menu-developers').click onMenuElementClicked
     $('#menu-demo').click onMenuElementClicked
-    
+
     url = document.location.href
     if url and url.indexOf("#") > 0
         path = url.split("#")[1]
@@ -38,8 +36,9 @@ $(() ->
         $('#home').hide()
         $(element).show()
         
-        lastSelected = $(element)
-        lastSelectedMenu.removeClass('selected')
-        lastSelectedMenu = $('#menu-' + path)
-        lastSelectedMenu.addClass('selected')
-)
+        @lastSelected = $(element)
+        @lastSelectedMenu = $('#menu-' + path)
+    else
+        @lastSelected = $('#home')
+        @lastSelectedMenu = $('#menu-home')
+    @lastSelectedMenu.addClass('selected')

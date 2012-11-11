@@ -2,22 +2,21 @@
 (function() {
 
   $(function() {
-    var displayPage, element, lastSelected, lastSelectedMenu, onMenuElementClicked, path, url,
+    var displayPage, element, onMenuElementClicked, path, url,
       _this = this;
-    displayPage = function(page) {
-      var lastSelected, lastSelectedMenu;
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $("#menu-" + page);
-      lastSelectedMenu.addClass('selected');
-      lastSelected.fadeOut(300, function() {
-        return $("#" + page).fadeIn(300);
-      });
-      return lastSelected = $("#" + page);
-    };
     onMenuElementClicked = function(event) {
       var page;
       page = event.target.id.substring(5);
       return displayPage(page);
+    };
+    displayPage = function(page) {
+      _this.lastSelectedMenu.removeClass('selected');
+      _this.lastSelectedMenu = $("#menu-" + page);
+      _this.lastSelectedMenu.addClass('selected');
+      _this.lastSelected.fadeOut(300, function() {
+        return $("#" + page).fadeIn(300);
+      });
+      return _this.lastSelected = $("#" + page);
     };
     $('#install').hide();
     $('#documentation').hide();
@@ -41,11 +40,13 @@
       element = "#" + path;
       $('#home').hide();
       $(element).show();
-      lastSelected = $(element);
-      lastSelectedMenu.removeClass('selected');
-      lastSelectedMenu = $('#menu-' + path);
-      return lastSelectedMenu.addClass('selected');
+      this.lastSelected = $(element);
+      this.lastSelectedMenu = $('#menu-' + path);
+    } else {
+      this.lastSelected = $('#home');
+      this.lastSelectedMenu = $('#menu-home');
     }
+    return this.lastSelectedMenu.addClass('selected');
   });
 
 }).call(this);
