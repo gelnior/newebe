@@ -54,7 +54,6 @@ class MicroPostRow extends Row
   onClick: ->
     @mainView.onRowClicked(@)
 
-
   # When delete button is clicked, it displays a confirmation dialog box.
   # When deletion is confirmed, delete request is sent to server and micropost
   # is remove from current page.
@@ -167,8 +166,8 @@ class MicroPostRow extends Row
     converter = new Showdown.converter()
     @preview.append(
         "<p class=\"note-title\"><strong>note: #{doc.title}</strong></p>")
-    @preview.append(converter.makeHtml(doc.content))
-    @preview.append("<hr />")
+    @preview.append converter.makeHtml(doc.content)
+    @preview.append "<hr />"
 
   # Append a picture document representation to micropost rendering.
   # It is done in two steps, if no file exists on server for given picture

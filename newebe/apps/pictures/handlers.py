@@ -476,6 +476,30 @@ class PictureTHandler(PictureObjectHandler):
             self.render("templates/picture_empty.html", picture=picture)
 
 
+class PictureRotateHandler(PictureObjectHandler):
+    '''
+    Rotate picture 90 degrees on the right. Update thumbnail and preview too.
+    '''
+
+    def on_picture_found(self, picture, id):
+        for path in ["th_%s" % picture.path, "prev_%s" % picture.path, picture.path]:
+
+            file_path = os.path.join(CONFIG.main.path, path)
+            pic_file = picture.fetch_attachment(path)
+
+            import StringIO
+            image = Image.open(StringIO.StringIO(pic_file))
+            image = image.rotate(-90)
+            image.save(file_path)
+
+            file_buffer = open(file_path)
+            picture.put_attachment(file_buffer.read(), path)
+            picture.save()
+            os.remove(file_path)
+
+        self.return_success('Image rotated')
+            
+
 class PictureRetryHandler(NewebeAuthHandler):
 
     @asynchronous

@@ -106,6 +106,7 @@ routes = [
     ('/pictures/([0-9a-z]+)/html/$', pictures.PictureTHandler),
     ('/pictures/([0-9a-z]+)/retry/$', pictures.PictureRetryHandler),
     ('/pictures/([0-9a-z]+)/download/$', pictures.PictureDownloadHandler),
+    ('/pictures/([0-9a-z]+)/rotate/$', pictures.PictureRotateHandler),
     ('/pictures/([0-9a-z]+)/(.+)', pictures.PictureFileHandler),
     ('/pictures/$', pictures.PicturesTHandler),
 
