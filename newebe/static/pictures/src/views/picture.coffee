@@ -65,6 +65,15 @@ class PictureRow extends Row
           @preview.fadeOut =>
             @preview.html(null)
     )
+ 
+  # Send a rotation request to the backend then reload preview.
+  onRotateClicked: =>
+    @model.rotatePicture (err) =>
+      if err
+        infoDialog.display "Server error ocurred."
+      else
+        infoDialog.display "Rotate succeeded. Reload page to see the result."
+
 
   # When download is clicked, full image is downloaded. Once download is 
   # finished the preview is reloaded.
@@ -137,6 +146,7 @@ class PictureRow extends Row
         if $("#pictures-preview img").length > 0
             $("#pictures-preview").append("
             <p class=\"pictures-buttons button-bar\">
+              <a id=\"pictures-rotate-button\">rotate</a>
               <a id=\"pictures-note-button\">push to note</a>
               <a href=\"#{@model.get('imgPath')}\" 
                  target=\"blank\"
@@ -146,11 +156,10 @@ class PictureRow extends Row
             ")
 
             
-            $("#pictures-note-button").click @onPushNoteClicked
+        $("#pictures-note-button").click @onPushNoteClicked
         $("#pictures-delete-button").click @onDeleteClicked
+        $("#pictures-rotate-button").click @onRotateClicked
         $("#pictures-download-button").click @onDownloadClicked
         $("#pictures-preview a").button()
         @preview.fadeIn()
         @updatePreviewPosition()
-    
-

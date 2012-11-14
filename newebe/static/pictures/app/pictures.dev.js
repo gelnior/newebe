@@ -631,6 +631,8 @@
 
       this.onDownloadClicked = __bind(this.onDownloadClicked, this);
 
+      this.onRotateClicked = __bind(this.onRotateClicked, this);
+
       this.onDeleteClicked = __bind(this.onDeleteClicked, this);
 
       PictureRow.__super__.constructor.call(this);
@@ -670,6 +672,17 @@
         return _this.preview.fadeOut(function() {
           return _this.preview.html(null);
         });
+      });
+    };
+
+    PictureRow.prototype.onRotateClicked = function() {
+      var _this = this;
+      return this.model.rotatePicture(function(err) {
+        if (err) {
+          return infoDialog.display("Server error ocurred.");
+        } else {
+          return infoDialog.display("Rotate succeeded. Reload page to see the result.");
+        }
       });
     };
 
@@ -742,10 +755,11 @@
           loadingIndicator.hide();
           _this.preview.append(data);
           if ($("#pictures-preview img").length > 0) {
-            $("#pictures-preview").append("            <p class=\"pictures-buttons button-bar\">              <a id=\"pictures-note-button\">push to note</a>              <a href=\"" + (_this.model.get('imgPath')) + "\"                  target=\"blank\"                 id=\"pictures-full-size-button\">full-size</a>              <a id=\"pictures-delete-button\">delete</a>            </p>            ");
-            $("#pictures-note-button").click(_this.onPushNoteClicked);
+            $("#pictures-preview").append("            <p class=\"pictures-buttons button-bar\">              <a id=\"pictures-rotate-button\">rotate</a>              <a id=\"pictures-note-button\">push to note</a>              <a href=\"" + (_this.model.get('imgPath')) + "\"                  target=\"blank\"                 id=\"pictures-full-size-button\">full-size</a>              <a id=\"pictures-delete-button\">delete</a>            </p>            ");
           }
+          $("#pictures-note-button").click(_this.onPushNoteClicked);
           $("#pictures-delete-button").click(_this.onDeleteClicked);
+          $("#pictures-rotate-button").click(_this.onRotateClicked);
           $("#pictures-download-button").click(_this.onDownloadClicked);
           $("#pictures-preview a").button();
           _this.preview.fadeIn();
@@ -819,6 +833,20 @@
       this.url = "/pictures/" + this.id + "/";
       this.destroy();
       return this.view.remove();
+    };
+
+    Picture.prototype.rotatePicture = function(callback) {
+      return $.ajax({
+        type: "GET",
+        url: "/pictures/" + this.id + "/rotate/",
+        contentType: "application/json",
+        success: function() {
+          return callback();
+        },
+        error: function() {
+          return callback("Rotate failed");
+        }
+      });
     };
 
     Picture.prototype.isNew = function() {

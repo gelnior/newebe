@@ -64,6 +64,17 @@ class Picture extends Backbone.Model
     @destroy()
     @view.remove()
 
+
+  rotatePicture: (callback) ->
+    $.ajax
+      type: "GET"
+      url: "/pictures/#{@id}/rotate/"
+      contentType: "application/json"
+      success: ->
+          callback()
+      error: ->
+          callback "Rotate failed"
+
   # Picture is considered as new if no author is set.
   isNew: ->
     !@id
