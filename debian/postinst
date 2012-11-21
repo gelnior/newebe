@@ -34,9 +34,9 @@ case "$1" in
 		--quiet --disabled-password newebe || {
 
 	  # adduser failed. Why?
-	  if getent passwd hplip >/dev/null ; then
+	  if getent passwd newebe >/dev/null ; then
 	     echo "Non-system user newebe found. I will not overwrite a non-system" >&2
-	     echo "user.  Remove the user and newebe hplip." >&2
+	     echo "user.  Remove the user and newebe newebe." >&2
 	     exit 1
 	  fi
 	  # unknown adduser error, simply exit

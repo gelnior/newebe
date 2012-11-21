@@ -1,0 +1,4 @@
+main:
+    debug: True
+    path: "/home/gelnior/projets/newebe/newebe/"
+    port: 8888
