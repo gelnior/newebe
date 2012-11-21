@@ -7,7 +7,7 @@ Build-Depends: python-setuptools (>= 0.6b3), python (>= 2.6.6-3),
                openssl
 Standards-Version: 3.9.1
 
-Package: newebe
+Package: newebe-server
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, couchdb, supervisor, 
          python-whoosh, python-cssselect, python-yaml, python-couchdbkit, 
