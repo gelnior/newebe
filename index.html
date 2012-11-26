@@ -221,20 +221,7 @@ cd
 mkdir newebe
 mkdir newebe/certs</pre>
     <p>
-    <span class="step"> step 5 </span> Write configuration file named
-    <em>config.yaml</em> in <em>/home/newebe/newebe</em>.
-    Read the <a href="https://github.com/gelnior/newebe/wiki/Config-file">
-        wiki page</a> for informations about it.
-    </p>
-    <p>
-    The only important value to set is the cookie key wich is a random
-    string. To generate one simply use this command
-    </p>
-    <pre>
-< /dev/urandom tr -dc A-Za-z0-9_ | head -c50</pre>
-
-
-    <span class="step">step 6</span> Create certificate for HTTPS. This will ask some questions, answer as you like:
+    <span class="step">step 5</span> Create certificate for HTTPS. This will ask some questions, answer as you like:
     </p>
 <pre>
 sudo su newebe
@@ -243,7 +230,7 @@ openssl genrsa -out ./server.key 1024
 openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
 </pre>
     <p>
-        <span class="step"> step 7 </span> As root user,
+        <span class="step"> step 6 </span> As root user,
         set supervisor configuration for <em>Newebe</em> server. 
         Create a file <em>/etc/supervisor/conf.d/newebe.conf</em>.
         Fill it with following content :
@@ -259,7 +246,7 @@ user=newebe</pre>
 sudo supervisorctl update
     </pre>
     <p>
-        <span class="step"> step 9</span> Check that everything is fine via 
+        <span class="step"> step 8</span> Check that everything is fine via 
         your web browser : go to the URL
         <em>https://ip:port/</em> 
     </p>
