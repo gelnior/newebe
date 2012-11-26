@@ -1,47 +1,44 @@
 #! /bin/sh
-# postinst script for hplip
-# $Id: hplip.postinst,v 1.1 2005/10/15 21:39:04 hmh Exp $
-#
-# see: dh_installdeb(1)
+# postinst script for newebe
+# $Id: newebe.postinst,v 1.0 2012/11/26 21:39:04 hmh Exp $
 
 set -e
 
-# summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
-#
-# quoting from the policy:
-#     Any necessary prompting should almost always be confined to the
-#     post-installation script, and should be protected with a conditional
-#     so that unnecessary prompting doesn't happen if a package's
-#     installation fails and the `postinst' is called with `abort-upgrade',
-#     `abort-remove' or `abort-deconfigure'.
-
 case "$1" in
     configure)
-	# add hplip system user (requires adduser >= 3.34)
-	# don't muck around with this unless you KNOW what you're doing
+	# add newebe system user (requires adduser >= 3.34)
 	echo "Creating/updating newebe user account..."
-	adduser --system --ingroup lp --home /var/run/newebe \
-		--gecos "HPLIP system user" --shell /bin/false \
-		--quiet --disabled-password newebe || {
-	  # adduser failed. Why?
-	  if getent passwd newebe >/dev/null ; then
-	     echo "Non-system user newebe found. I will not overwrite a non-system" >&2
-	     echo "user.  Remove the user and reinstall newebe." >&2
-	     exit 1
-	  fi
-	  # unknown adduser error, simply exit
-	  exit 1
-	}
+	adduser --system --ingroup newebe --home /var/run/newebe \
+		--gecos "Newebe system user" --shell /bin/false \
+		--quiet --disabled-password newebe
 
+        echo "
+main:
+    path: "/var/run/newebe/"
+security:
+    certificate: "/var/run/newebe/certs/server.crt"
+    private_key: "/var/run/newebe/certs/server.key"
+        " > /etc/newebe/config.yaml
+
+        mkdir /etc/newebe
+        cd /var/run/newebe
+        mkdir certs
+        cd certs
+        openssl genrsa -out ./server.key 1024
+        openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
+        cd ..
+        chown -R newebe:newbe certs
+
+        echo "
+[program:newebe]
+autorestart=false
+command=newebe_server.py --configfile=/etc/newebe/config.yaml
+redirect_stderr=true
+user=newebe
+" > /etc/supervisor/conf.d/newebe.config
+        sudo supervisorctl update
+        
+        
         ;;
     *)
         echo "postinst called with unknown argument \`$1'" >&2
