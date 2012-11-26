@@ -4,14 +4,14 @@ Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), python (>= 2.6.6-3), 
                debhelper (>= 7.4.3), python-dev, openssl
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 
 Package: newebe-server
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, couchdb, supervisor, 
-         python-whoosh, python-yaml, python-couchdbkit, 
-         python-tornado, python-tz, python-pycurl, python-lxml,
-         python-imaging
+         python-whoosh, python-yaml, python-couchdbkit, python-markdown,
+         python-imaging, python-tornado, python-tz, python-pycurl, python-lxml,
+         python-importlib
 Description: Distributed social network.
  .
  Growth of web applications has been a huge improvement for social sharing and
