@@ -17,6 +17,8 @@
 import os
 import importlib
 import yaml
+import string
+import random
 
 from tornado.options import define
 from tornado.options import options
@@ -110,8 +112,9 @@ CONFIG['main']['timezone'] = "Europe/Paris"
 CONFIG['main']['configfile'] = "./config.yaml"
 CONFIG['main']['path'] = "/home/newebe/newebe/"
 
+chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
 CONFIG['security']['cookie_key'] = \
-    "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo="
+    ''.join(random.choice(chars) for x in range(42))
 CONFIG['security']['certificate'] = None
 CONFIG['security']['private_key'] = None
 CONFIG['db']['name'] = "newebe"
