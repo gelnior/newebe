@@ -238,7 +238,7 @@ openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
     <pre>
 [program:newebe]
 autorestart=false
-command=newebe_server.py --configfile=/home/newebe/newebe/config.yaml
+command=newebe_server.py
 redirect_stderr=true
 user=newebe</pre>
     <span class="step"> step 7 </span> Start newebe
