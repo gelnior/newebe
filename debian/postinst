@@ -12,6 +12,9 @@ case "$1" in
 		--gecos "Newebe system user" --shell /bin/false \
 		--quiet --disabled-password newebe
 
+        if [ ! -d "/etc/newebe" ]; then
+            mkdir /etc/newebe
+        fi
         echo "
 main:
     path: "/var/run/newebe/"
@@ -20,14 +23,20 @@ security:
     private_key: "/var/run/newebe/certs/server.key"
         " > /etc/newebe/config.yaml
 
-        mkdir /etc/newebe
+        if [ ! -d "/var/run/newebe" ]; then
+            mkdir /var/run/newebe
+        fi
         cd /var/run/newebe
-        mkdir certs
+
+        if [ ! -d "certs" ]; then
+            mkdir certs 
+        fi
         cd certs
         openssl genrsa -out ./server.key 1024
         openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
         cd ..
-        chown -R newebe:newbe certs
+        chown -R newebe:newebe certs
+        chown -R newebe:newebe /var/run/newebe
 
         echo "
 [program:newebe]
@@ -35,7 +44,7 @@ autorestart=false
 command=newebe_server.py --configfile=/etc/newebe/config.yaml
 redirect_stderr=true
 user=newebe
-" > /etc/supervisor/conf.d/newebe.config
+" > /etc/supervisor/conf.d/newebe.conf
         sudo supervisorctl update
         
         
