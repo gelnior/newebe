@@ -11,7 +11,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, couchdb, supervisor, 
          python-whoosh, python-yaml, python-couchdbkit, python-markdown,
          python-imaging, python-tornado, python-tz, python-pycurl, python-lxml,
-         python-importlib
+         python-importlib, python-cssselect
 Description: Distributed social network.
  .
  Growth of web applications has been a huge improvement for social sharing and

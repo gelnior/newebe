@@ -8,25 +8,28 @@ case "$1" in
     configure)
 	# add newebe system user (requires adduser >= 3.34)
 	echo "Creating/updating newebe user account..."
-	adduser --system --ingroup newebe --home /var/run/newebe \
-		--gecos "Newebe system user" --shell /bin/false \
-		--quiet --disabled-password newebe
+        if [ ! grep -q $group /etc/group ]; then
+            groupadd newebe
+        fi
+
+        if [ ! id USERID > /dev/null 2>&1 ]; then
+            adduser --system --ingroup newebe --home /var/lib/newebe \
+                    --gecos "Newebe system user" --shell /bin/false \
+                    --quiet --disabled-password newebe
+        fi
 
         if [ ! -d "/etc/newebe" ]; then
             mkdir /etc/newebe
         fi
         echo "
 main:
-    path: "/var/run/newebe/"
+    path: "/var/lib/newebe/"
 security:
-    certificate: "/var/run/newebe/certs/server.crt"
-    private_key: "/var/run/newebe/certs/server.key"
+    certificate: "/etc/newebe/certs/server.crt"
+    private_key: "/etc/newebe/certs/server.key"
         " > /etc/newebe/config.yaml
 
-        if [ ! -d "/var/run/newebe" ]; then
-            mkdir /var/run/newebe
-        fi
-        cd /var/run/newebe
+        cd /etc/newebe
 
         if [ ! -d "certs" ]; then
             mkdir certs 
@@ -36,7 +39,7 @@ security:
         openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
         cd ..
         chown -R newebe:newebe certs
-        chown -R newebe:newebe /var/run/newebe
+        chown -R newebe:newebe /etc/newebe/certs
 
         echo "
 [program:newebe]
