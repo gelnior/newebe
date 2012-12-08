@@ -8,6 +8,8 @@ from tornado.httpserver import HTTPServer
 from tornado.web import Application
 
 sys.path.append("../")
+sys.path.append("/usr/share/pyshared/")
+
 from newebe.config import CONFIG
 from newebe.routes import routes
 from newebe.tools.syncdb import CouchdbkitHandler

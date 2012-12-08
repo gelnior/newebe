@@ -8,16 +8,22 @@ case "$1" in
     configure)
 	# add newebe system user (requires adduser >= 3.34)
 	echo "Creating/updating newebe user account..."
-        if [ ! grep -q $group /etc/group ]; then
+        if ! grep -i "^newebe" /etc/group
+        then
             groupadd newebe
         fi
 
-        if [ ! id USERID > /dev/null 2>&1 ]; then
+        if ! id newebe > /dev/null 2>&1
+        then
             adduser --system --ingroup newebe --home /var/lib/newebe \
                     --gecos "Newebe system user" --shell /bin/false \
                     --quiet --disabled-password newebe
         fi
 
+        if [ ! -d "/var/lib/newebe" ]; then
+            mkdir /var/lib/newebe
+        fi
+        chown -R newebe:newebe /var/lib/newebe
         if [ ! -d "/etc/newebe" ]; then
             mkdir /etc/newebe
         fi
@@ -38,7 +44,6 @@ security:
         openssl genrsa -out ./server.key 1024
         openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
         cd ..
-        chown -R newebe:newebe certs
         chown -R newebe:newebe /etc/newebe/certs
 
         echo "
@@ -48,9 +53,7 @@ command=newebe_server.py --configfile=/etc/newebe/config.yaml
 redirect_stderr=true
 user=newebe
 " > /etc/supervisor/conf.d/newebe.conf
-        sudo supervisorctl update
-        
-        
+        supervisorctl update
         ;;
     *)
         echo "postinst called with unknown argument \`$1'" >&2
