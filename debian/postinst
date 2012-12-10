@@ -46,6 +46,10 @@ security:
         cd ..
         chown -R newebe:newebe /etc/newebe/certs
 
+        sudo touch /usr/share/pyshared/newebe/apps/__init__.py
+        sudo touch /usr/share/pyshared/newebe/tools/__init__.py
+        sudo touch /usr/share/pyshared/newebe/lib/__init__.py
+
         echo "
 [program:newebe]
 autorestart=false
