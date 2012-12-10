@@ -1,4 +1,5 @@
 import logging
+import markdown
 
 from threading import Timer
 
@@ -137,8 +138,10 @@ class ProfileContentTHandler(NewebeAuthHandler):
 
 class ProfilePublicTHandler(NewebeHandler):
     def get(self):
+        user = UserManager.getUser()
+        user.description = markdown.markdown(user.description)
         self.render("templates/profile_public.html",
-                    profile=UserManager.getUser(),
+                    profile=user,
                     isTheme=self.is_file_theme_exists())
 
 
