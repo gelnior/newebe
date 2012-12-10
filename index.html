@@ -50,7 +50,7 @@
       <div id="download-text">
         install
         <a href="#install">
-            newebe 0.6.0rc2
+            newebe 0.6.0
         </a>
         <span>beta</span>
       </div>
@@ -166,7 +166,8 @@
     <div id="install">
     <h2>Install</h2>
 
-    <h3>Installation on a remote server for Debian or Ubuntu users</h3>
+    <h3>Installation on a remote server for Debian or Ubuntu users from your 
+    local computer:</h3>
     <p>
       This one will setup newebe on your remote server directly from your
       desktop computer. It requires root ssh access to your server.
@@ -174,10 +175,21 @@
     <pre> 
 apt-get install python python-setuptools python-pip
 pip install fabric fabtools
-wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py --no-check-certificate
+wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py
 fab setup -H myrootuser@myhosturlorip
     </pre>
-
+    <p>
+      Then your newebe will run on port 8000.
+    </p>
+    <h3>Installation on a debian (testing) server:</h3>
+    <pre> 
+wget https://github.com/downloads/gelnior/newebe/newebe-server_0.6.0-1_all.deb -
+sudo dpkg -i newebe-server_0.6.0-1_all.deb
+sudo apt-get install -f
+    </pre>
+    <p>
+      Then your newebe will run on port 8000.
+    </p>
     <h3>Update</h3>
     <p>
     On your remote server, simply type this lines:
