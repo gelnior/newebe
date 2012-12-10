@@ -144,4 +144,9 @@ CONFIG.db.uri = options.dburi
 CONFIG.db.name = options.dbname
 CONFIG.main.port = options.port
 CONFIG.main.debug = options.debug
-CONFIG.load(options.configfile)
+
+config_file = "./config.yaml"
+if options.configfile is not None:
+    config_file = options.configfile
+if os.path.exists(config_file):
+    CONFIG.load(config_file)
