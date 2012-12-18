@@ -29,12 +29,12 @@ class Newebe(Application):
     def __init__(self):
         dirpath, filename = \
             os.path.split(os.path.abspath(newebe.__file__))
-        path = os.path.join(dirpath, "static")
+        path = os.path.join(dirpath, "client", "public")
 
         settings = {
           "static_path": path,
           "cookie_secret": CONFIG.security.cookie_key,
-          "login_url": "/login",
+          "login_url": "/#login",
         }
         Application.__init__(self,
                              routes,
