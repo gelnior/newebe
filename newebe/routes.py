@@ -21,6 +21,7 @@ routes = [
     ('/register/password/', auth.RegisterPasswordTHandler),
     ('/register/password/content/', auth.RegisterPasswordContentTHandler),
     ('/user/password/', auth.UserPasswordHandler),
+    ('/user/state/', auth.UserStateHandler),
 
     ('/user/$', profile.UserHandler),
     ('/profile/$', profile.ProfileTHandler),

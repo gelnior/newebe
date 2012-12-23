@@ -239,6 +239,23 @@ class UserPasswordHandler(NewebeAuthHandler):
                         "Password must be at least 3 characters long.", 400)
 
 
+class UserStateHandler(NewebeAuthHandler):
+    '''
+    Give current user state : registered, authenticated...
+    '''
+
+    def get(self):
+        user = UserManager.getUser()
+
+        userState = {
+            'registered': user is not None,
+            'password': user is not None and user.password is not None,
+            'authenticated': self.get_current_user() is not None
+        }
+
+        self.return_json(userState)
+
+
 # Template handlers
 
 class RegisterPasswordContentTHandler(NewebeHandler):
