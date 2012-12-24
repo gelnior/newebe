@@ -704,6 +704,18 @@ a:hover,
 a:visited:hover {
   text-decoration: underline;
 }
+.middle {
+  margin-top: 20%;
+}
+.question {
+  font-family: robotic;
+}
+@font-facefont-family: main {
+  src: url("../static/fonts/open-sans-regular.ttf");
+}
+@font-facefont-family: robotic {
+  src: url("../fonts/andale-mono.ttf");
+}
 .ui-button,
 a.ui-button,
 button.ui-button {
@@ -867,6 +879,103 @@ cursor not-allowed {
 @media (min-width: 1200px) {
   .layout-container {
     width: 1170px;
+  }
+}
+html,
+body,
+#content {
+  height: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#content {
+  text-align: center;
+  -webkit-animation-duration: 3s;
+  -moz-animation-duration: 3s;
+  -o-animation-duration: 3s;
+  -ms-animation-duration: 3s;
+  animation-duration: 3s;
+  -webkit-animation-name: fadein;
+  -moz-animation-name: fadein;
+  -o-animation-name: fadein;
+  -ms-animation-name: fadein;
+  animation-name: fadein;
+}
+#sesame {
+  padding: 8px;
+  border: 0;
+  -webkit-border-radius: 40px;
+  border-radius: 40px;
+  text-align: center;
+  font-size: 30px;
+  color: #444;
+  -webkit-box-shadow: inset 1px 1px 10px #888, 0px 0px 5px #fff;
+  box-shadow: inset 1px 1px 10px #888, 0px 0px 5px #fff;
+}
+@-moz-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-webkit-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-o-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-ms-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
   }
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
