@@ -1,7 +1,5 @@
 import hashlib
 
-from tornado.escape import json_decode
-
 from newebe.apps.profile.models import User, UserManager
 from newebe.apps.contacts.handlers import NewebeHandler
 from newebe.apps.core.handlers import NewebeAuthHandler
@@ -239,18 +237,22 @@ class UserPasswordHandler(NewebeAuthHandler):
                         "Password must be at least 3 characters long.", 400)
 
 
-class UserStateHandler(NewebeAuthHandler):
+class UserStateHandler(NewebeHandler):
     '''
     Give current user state : registered, authenticated...
     '''
 
     def get(self):
         user = UserManager.getUser()
+        password = self.get_secure_cookie("password")
+
+        is_authenticated = password is not None and user is not None and \
+           user.password == hashlib.sha224(password).hexdigest()
 
         userState = {
             'registered': user is not None,
             'password': user is not None and user.password is not None,
-            'authenticated': self.get_current_user() is not None
+            'authenticated': is_authenticated
         }
 
         self.return_json(userState)

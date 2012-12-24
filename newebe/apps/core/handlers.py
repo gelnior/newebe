@@ -372,5 +372,9 @@ class NewebeAuthHandler(NewebeHandler):
                 return user
 
         else:
-            logger.error("User is not authenticated")
-            self.redirect("/#register/")
+            logger.error("User is not registered")
+            self.redirect("/#register")
+
+class IndexTHandler(NewebeHandler):
+    def get(self):
+        self.render("templates/base.html")
