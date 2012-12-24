@@ -9,11 +9,12 @@ from newebe.apps.activities import handlers as activities
 from newebe.apps.notes import handlers as notes
 from newebe.apps.pictures import handlers as pictures
 from newebe.apps.commons import handlers as commons
+from newebe.apps.core import handlers as core
 from newebe.apps.sync import handlers as sync
 
 
 routes = [
-    ('/', news.NewsTHandler),
+    ('/', core.IndexTHandler),
     ('/login/', auth.LoginHandler),
     ('/login/json/', auth.LoginJsonHandler),
     ('/logout/', auth.LogoutHandler),
