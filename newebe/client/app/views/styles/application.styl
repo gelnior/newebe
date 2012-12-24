@@ -2,6 +2,7 @@
 @import 'nib'
 
 @import '_base'
+@import '_font'
 @import '_ui'
 
 // Import your styles here
@@ -10,3 +11,28 @@
 @import '_layout'
 @import '_responsive'
 
+html
+body
+#content
+    height: 100%
+    box-sizing: border-box
+    
+#content
+    text-align: center
+    animation-duration: 3s
+    animation-name: fadein
+
+#sesame
+    padding: 8px
+    border: 0
+    border-radius: 40px
+    text-align: center
+    font-size: 30px
+    color: #444
+    box-shadow: inset 1px 1px 10px #888, 0px 0px 5px rgba(255, 255, 255, 1)
+
+@keyframes fadein
+    from
+        opacity: 0
+    to
+        opacity: 1
