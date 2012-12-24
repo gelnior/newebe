@@ -1,5 +1,5 @@
 module.exports = class View extends Backbone.View
-    tagName: 'section'
+    tagName: 'div'
 
     template: ->
 
@@ -10,9 +10,8 @@ module.exports = class View extends Backbone.View
         model: @model?.toJSON()
 
     render: ->
-        # console.debug "Rendering #{@constructor.name}", @
         @beforeRender()
-        @$el.html @template({})
+        @$el.html @template()(@getRenderData())
         @afterRender()
         @
 

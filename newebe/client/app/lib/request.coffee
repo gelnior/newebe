@@ -4,7 +4,7 @@ exports.request = (type, url, data, callback) ->
     $.ajax
         type: type
         url: url
-        data: data
+        data: if data? then JSON.stringify data else null
         contentType: "application/json"
         dataType: "json"
         success: (data) ->
@@ -34,4 +34,3 @@ exports.put = (url, data, callbacks) ->
 # Expected callbacks: success and error
 exports.del = (url, callbacks) ->
     exports.request "DELETE", url, null, callbacks
-
