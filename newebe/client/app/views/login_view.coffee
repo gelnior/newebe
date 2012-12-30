@@ -14,5 +14,8 @@ module.exports = class LoginView extends QuestionView
         password = @field.val()
 
         if password.length > 0
-            req = request.post 'login/json/', password: password, (err, data) ->
-                Newebe.views.appView.displayActivities()
+            req = request.post 'login/json/', password: password, (err, data) =>
+                if err
+                    @field.val null
+                else
+                    Newebe.views.appView.displayActivities()
