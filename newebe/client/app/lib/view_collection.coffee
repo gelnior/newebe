@@ -1,14 +1,19 @@
 View = require './view'
 
 class ViewCollection extends View
-    collection: new Backbone.Collection()
+    collection: null
 
-    view: new View()
+    view: null
 
     views: []
 
     length: ->
         @views.length
+
+    constructor: ->
+        super()
+
+        @collection.on "reset", @renderAll
 
     add: (views, options = {}) ->
         views = if _.isArray(views) then views.slice() else [views]
