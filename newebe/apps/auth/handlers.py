@@ -94,7 +94,7 @@ class LogoutHandler(NewebeHandler):
         '''
 
         self.clear_cookie("password")
-        self.redirect("/login/")
+        self.return_success("Succesfully logged out.")
 
 
 class RegisterPasswordTHandler(NewebeHandler):
