@@ -74,6 +74,41 @@
   globals.require.brunch = true;
 })();
 
+window.require.define({"collections/activity_collection": function(exports, require, module) {
+  var Activity, ActivityCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Activity = require('../models/activity_model');
+
+  ActivityCollection = (function(_super) {
+
+    __extends(ActivityCollection, _super);
+
+    function ActivityCollection() {
+      return ActivityCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    ActivityCollection.prototype.model = Activity;
+
+    ActivityCollection.prototype.url = '/activities/all/';
+
+    ActivityCollection.prototype.comparator = function(activity) {
+      return activity.get("date");
+    };
+
+    ActivityCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return ActivityCollection;
+
+  })(Backbone.Collection);
+
+  module.exports = ActivityCollection;
+  
+}});
+
 window.require.define({"initialize": function(exports, require, module) {
   var _ref, _ref1, _ref2, _ref3, _ref4;
 
@@ -146,7 +181,7 @@ window.require.define({"lib/request": function(exports, require, module) {
         }
       },
       error: function() {
-        if ((data.msg != null) && (callback != null)) {
+        if ((data != null) && (data.msg != null) && (callback != null)) {
           return callback(new Error(data.msg));
         } else if (callback != null) {
           return callback(new Error("Server error occured"));
@@ -237,22 +272,23 @@ window.require.define({"lib/view_collection": function(exports, require, module)
 
     __extends(ViewCollection, _super);
 
-    function ViewCollection() {
-      this.renderAll = __bind(this.renderAll, this);
+    ViewCollection.prototype.collection = null;
 
-      this.renderOne = __bind(this.renderOne, this);
-      return ViewCollection.__super__.constructor.apply(this, arguments);
-    }
-
-    ViewCollection.prototype.collection = new Backbone.Collection();
-
-    ViewCollection.prototype.view = new View();
+    ViewCollection.prototype.view = null;
 
     ViewCollection.prototype.views = [];
 
     ViewCollection.prototype.length = function() {
       return this.views.length;
     };
+
+    function ViewCollection() {
+      this.renderAll = __bind(this.renderAll, this);
+
+      this.renderOne = __bind(this.renderOne, this);
+      ViewCollection.__super__.constructor.call(this);
+      this.collection.on("reset", this.renderAll);
+    }
 
     ViewCollection.prototype.add = function(views, options) {
       var view, _i, _len;
@@ -368,6 +404,29 @@ window.require.define({"lib/view_collection": function(exports, require, module)
   
 }});
 
+window.require.define({"models/activity_model": function(exports, require, module) {
+  var Activity,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Activity = (function(_super) {
+
+    __extends(Activity, _super);
+
+    function Activity() {
+      return Activity.__super__.constructor.apply(this, arguments);
+    }
+
+    Activity.prototype.url = '/activities/all/';
+
+    return Activity;
+
+  })(Backbone.Model);
+
+  module.exports = Activity;
+  
+}});
+
 window.require.define({"routers/app_router": function(exports, require, module) {
   var AppRouter,
     __hasProp = {}.hasOwnProperty,
@@ -392,11 +451,15 @@ window.require.define({"routers/app_router": function(exports, require, module) 
 }});
 
 window.require.define({"views/activities_view": function(exports, require, module) {
-  var ActivitiesView, View,
+  var ActivitiesView, ActivityCollection, ActivityView, CollectionView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  View = require('../lib/view');
+  CollectionView = require('../lib/view_collection');
+
+  ActivityCollection = require('../collections/activity_collection');
+
+  ActivityView = require('../views/activity_view');
 
   module.exports = ActivitiesView = (function(_super) {
 
@@ -408,11 +471,43 @@ window.require.define({"views/activities_view": function(exports, require, modul
 
     ActivitiesView.prototype.id = 'activities-view';
 
+    ActivitiesView.prototype.collection = new ActivityCollection();
+
+    ActivitiesView.prototype.view = ActivityView;
+
     ActivitiesView.prototype.template = function() {
       return require('./templates/activities');
     };
 
     return ActivitiesView;
+
+  })(CollectionView);
+  
+}});
+
+window.require.define({"views/activity_view": function(exports, require, module) {
+  var ActivityView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = ActivityView = (function(_super) {
+
+    __extends(ActivityView, _super);
+
+    ActivityView.prototype["class"] = 'activity';
+
+    ActivityView.prototype.template = function() {
+      return require('./templates/activity');
+    };
+
+    function ActivityView(model) {
+      this.model = model;
+      ActivityView.__super__.constructor.call(this);
+    }
+
+    return ActivityView;
 
   })(View);
   
@@ -420,6 +515,7 @@ window.require.define({"views/activities_view": function(exports, require, modul
 
 window.require.define({"views/app_view": function(exports, require, module) {
   var ActivitiesView, AppRouter, AppView, LoginView, RegisterNameView, RegisterPasswordView, View, request,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -442,17 +538,30 @@ window.require.define({"views/app_view": function(exports, require, module) {
     __extends(AppView, _super);
 
     function AppView() {
+      this.changeView = __bind(this.changeView, this);
+
+      this.displayRegisterName = __bind(this.displayRegisterName, this);
+
+      this.displayRegisterPassword = __bind(this.displayRegisterPassword, this);
+
+      this.displayLogin = __bind(this.displayLogin, this);
+
+      this.displayActivities = __bind(this.displayActivities, this);
       return AppView.__super__.constructor.apply(this, arguments);
     }
 
     AppView.prototype.el = 'body.application';
+
+    AppView.prototype.events = {
+      'click #logout-button': 'onLogoutClicked'
+    };
 
     AppView.prototype.template = function() {
       return require('./templates/home');
     };
 
     AppView.prototype.initialize = function() {
-      this.router = Newebe.routers.appRouter = new AppRouter();
+      this.router = typeof Newebe !== "undefined" && Newebe !== null ? Newebe.routers.appRouter = new AppRouter() : void 0;
       this.activitiesView = new ActivitiesView();
       this.loginView = new LoginView();
       this.registerNameView = new RegisterNameView();
@@ -470,10 +579,23 @@ window.require.define({"views/app_view": function(exports, require, module) {
       });
     };
 
+    AppView.prototype.onLogoutClicked = function(event) {
+      var _this = this;
+      return request.get('logout/', function(err, data) {
+        if (err) {
+          return alert("Something went wrong while logging out");
+        } else {
+          return _this.displayLogin();
+        }
+      });
+    };
+
     AppView.prototype.start = function(userState) {
       this.home = this.$('#home');
+      this.menu = this.$("#menu");
       if (userState.authenticated) {
-        return this.displayActivities();
+        this.displayActivities();
+        return this.activitiesView.collection.fetch();
       } else if (userState.password) {
         return this.displayLogin();
       } else if (userState.registered) {
@@ -484,22 +606,44 @@ window.require.define({"views/app_view": function(exports, require, module) {
     };
 
     AppView.prototype.displayActivities = function() {
-      return this.home.html(this.activitiesView.$el);
+      var _this = this;
+      return this.changeView(this.activitiesView, function() {
+        _this.menu.hide();
+        _this.menu.removeClass('hidden');
+        return _this.menu.fadeIn();
+      });
     };
 
     AppView.prototype.displayLogin = function() {
-      this.home.html(this.loginView.$el);
-      return this.loginView.focusField();
+      return this.changeView(this.loginView);
     };
 
     AppView.prototype.displayRegisterPassword = function() {
-      this.home.html(this.registerPasswordView.$el);
-      return this.registerPasswordView.focusField();
+      return this.changeView(this.registerPasswordView);
     };
 
     AppView.prototype.displayRegisterName = function() {
-      this.home.html(this.registerNameView.$el);
-      return this.registerNameView.focusField();
+      return this.changeView(this.registerNameView);
+    };
+
+    AppView.prototype.changeView = function(view, callback) {
+      var _this = this;
+      if (view !== this.activitiesView) {
+        this.menu.fadeOut();
+      }
+      return this.home.children().fadeOut(function() {
+        _this.home.hide();
+        _this.home.html(view.$el);
+        view.$el.show();
+        _this.home.fadeIn(function() {
+          if (view.focusField != null) {
+            return view.focusField();
+          }
+        });
+        if (callback != null) {
+          return callback();
+        }
+      });
     };
 
     return AppView;
@@ -535,13 +679,18 @@ window.require.define({"views/login_view": function(exports, require, module) {
     };
 
     LoginView.prototype.onSubmit = function() {
-      var password, req;
+      var password, req,
+        _this = this;
       password = this.field.val();
       if (password.length > 0) {
         return req = request.post('login/json/', {
           password: password
         }, function(err, data) {
-          return Newebe.views.appView.displayActivities();
+          if (err) {
+            return _this.field.val(null);
+          } else {
+            return Newebe.views.appView.displayActivities();
+          }
         });
       }
     };
@@ -696,7 +845,19 @@ window.require.define({"views/templates/activities": function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<h1>activities</h1><div id="activity-list"></div>');
+  buf.push('<h1>activities</h1><div class="line"> <div id="activity-all" class="activity-list mod left w33"><h2 class="activity-list-title">all</h2><div class="activities"></div></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
+  }
+  return buf.join("");
+  };
+}});
+
+window.require.define({"views/templates/activity": function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<span>at ' + escape((interp = model.date) == null ? '' : interp) + '</span>');
   }
   return buf.join("");
   };
@@ -708,7 +869,7 @@ window.require.define({"views/templates/home": function(exports, require, module
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="home"><p>loading...</p></div>');
+  buf.push('<div id="menu" class="hidden"><button id="logout-button" class="ui-button">logout</button></div><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };
@@ -720,8 +881,8 @@ window.require.define({"views/templates/question": function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="middle"><p class="question">' + escape((interp = question) == null ? '' : interp) + '</p><input');
-  buf.push(attrs({ 'id':("" + (fieldId) + ""), 'type':("" + (type) + "") }, {"id":true,"type":true}));
+  buf.push('<div class="middle center question"> <p>' + escape((interp = question) == null ? '' : interp) + '</p><input');
+  buf.push(attrs({ 'id':("" + (fieldId) + ""), 'type':("" + (type) + ""), "class": ('center') }, {"id":true,"type":true}));
   buf.push('/></div>');
   }
   return buf.join("");

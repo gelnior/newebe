@@ -75,10 +75,17 @@
 })();
 
 window.require.define({"test/auth_test": function(exports, require, module) {
-  
+  var AppView;
+
+  AppView = require('views/app_view');
+
   describe("Register", function() {
     before(function() {
-      return this.mainView = new MainView();
+      window.Newebe = {};
+      window.Newebe.routers = {};
+      window.Newebe.views = {};
+      window.Newebe.views.appView = new AppView();
+      return this.mainView = window.Newebe.views.appView;
     });
     it('When I connect and no user is registered', function() {
       var data;
@@ -87,10 +94,12 @@ window.require.define({"test/auth_test": function(exports, require, module) {
         user: false,
         password: false
       };
-      return mainView.start(data);
+      return this.mainView.start(data);
     });
     it('Then it displays name page', function() {
-      return expect($("#register-name").is(":visible")).to.be.ok;
+      console.log($("#register-name-view").length);
+      console.log(window.Newebe.views.appView.home.html());
+      return expect(this.mainView.$("#register-name-view").is(":visible")).to.be.ok;
     });
     it('When I submit my name', function() {
       this.mainView.registerView.nameField.val("Jhon Doe");
@@ -142,7 +151,8 @@ window.require.define({"test/auth_test": function(exports, require, module) {
 window.require.define({"test/test-helpers": function(exports, require, module) {
   
   module.exports = {
-    expect: require('chai').expect
+    expect: require('chai').expect,
+    $: require('jquery')
   };
   
 }});
