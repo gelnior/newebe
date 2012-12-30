@@ -85,28 +85,33 @@ window.require.define({"test/auth_test": function(exports, require, module) {
       window.Newebe.routers = {};
       window.Newebe.views = {};
       window.Newebe.views.appView = new AppView();
-      return this.mainView = window.Newebe.views.appView;
+      this.mainView = window.Newebe.views.appView;
+      return this.mainView.render();
     });
-    it('When I connect and no user is registered', function() {
+    it('When I connect and no user is registered', function(done) {
       var data;
       data = {
         authenticated: false,
         user: false,
         password: false
       };
-      return this.mainView.start(data);
+      this.mainView.start(data);
+      return setTimeout(done, 1000);
     });
     it('Then it displays name page', function() {
-      console.log($("#register-name-view").length);
-      console.log(window.Newebe.views.appView.home.html());
       return expect(this.mainView.$("#register-name-view").is(":visible")).to.be.ok;
     });
-    it('When I submit my name', function() {
-      this.mainView.registerView.nameField.val("Jhon Doe");
-      return this.mainView.registerView.onSubmitName();
+    it('When I submit my name', function(done) {
+      this.mainView.registerNameView.field.val("Jhon Doe");
+      $.ajax = function(options) {
+        return options.success();
+      };
+      this.mainView.registerNameView.onSubmit();
+      return setTimeout(done, 1000);
     });
     it('Then it displays password page', function() {
-      return expect($("#register-password").is(":visible")).to.be.ok;
+      console.log(this.mainView.home.html());
+      return expect(this.mainView.$("#register-password-view").is(":visible")).to.be.ok;
     });
     it('When I submit my password', function() {
       this.mainView.registerView.passwordField.val("Jhon Doe");

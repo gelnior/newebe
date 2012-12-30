@@ -1,26 +1,37 @@
-# Write your [mocha](http://visionmedia.github.com/mocha/) specs here.
+AppView = require 'views/app_view'
 
 describe "Register", ->
     
     before ->
-        @mainView = new MainView()
+        window.Newebe = {}
+        window.Newebe.routers = {}
+        window.Newebe.views = {}
+        window.Newebe.views.appView = new AppView()
+        @mainView = window.Newebe.views.appView
+        @mainView.render()
 
-    it 'When I connect and no user is registered', ->
+    it 'When I connect and no user is registered', (done) ->
         data =
             authenticated: false
             user: false
             password: false
-        mainView.start data
+
+        @mainView.start data
+        setTimeout done, 1000
 
     it 'Then it displays name page', ->
-        expect($("#register-name").is(":visible")).to.be.ok
+        expect(@mainView.$("#register-name-view").is(":visible")).to.be.ok
 
-    it 'When I submit my name', ->
-        @mainView.registerView.nameField.val "Jhon Doe"
-        @mainView.registerView.onSubmitName()
+    it 'When I submit my name', (done) ->
+        @mainView.registerNameView.field.val "Jhon Doe"
+        $.ajax = (options) -> options.success({})
+        @mainView.registerNameView.onSubmit()
+        setTimeout done, 1000
 
     it 'Then it displays password page', ->
-        expect($("#register-password").is(":visible")).to.be.ok
+        console.log @mainView.home.html()
+        
+        expect(@mainView.$("#register-password-view").is(":visible")).to.be.ok
 
     it 'When I submit my password', ->
         @mainView.registerView.passwordField.val "Jhon Doe"

@@ -15,4 +15,7 @@ module.exports = class RegisterNameView extends QuestionView
 
         if name.length > 0
             request.post 'register/', name: name, (err, data) ->
-                Newebe.views.appView.displayRegisterPassword()
+                if err
+                    alert "Something went wrong while registering your name."
+                else
+                    Newebe.views.appView.displayRegisterPassword()

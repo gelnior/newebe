@@ -20,8 +20,6 @@ body
 
 #content
     text-align: center
-    animation-duration: 3s
-    animation-name: fadein
 
 #home
     .question
@@ -30,7 +28,21 @@ body
 
     input
         border: none
-        box-shadow: inset 4px 4px 10px #888, 0px 0px 5px rgba(255, 255, 255, 1)
         font-size: 2em
         padding: 0.4em
         border-radius: 2em
+
+    input:active
+        border: 0
+
+    input:focus
+        border: 0
+
+#activities-view
+    .activity
+        border-top: 1px solid #DDD
+
+    .author
+        font-weight: bold
+        margin-right: 5px 
+

@@ -1,7 +1,8 @@
 import logging
 
+from newebe.lib import date_util
 from newebe.apps.core.handlers import NewebeAuthHandler
-from newebe.apps.activities.models import ActivityManager
+from newebe.apps.activities.models import ActivityManager, Activity
 
 
 logger = logging.getLogger("newebe.activities")
@@ -24,7 +25,22 @@ class ActivityHandler(NewebeAuthHandler):
             *startKey* The date until where activities should be returned.
         '''
 
-        self.return_documents_since(ActivityManager.get_all, startKey)
+
+        if startKey:
+            dateString = date_util.get_db_utc_date_from_url_date(startKey)
+            docs = ActivityManager.get_all(startKey=dateString, tag="all")
+        else:
+            docs = ActivityManager.get_all()
+
+        for doc in docs:
+            try:
+                subdoc = Activity.get_db().get(doc.docId)
+                doc.subdoc = subdoc
+            except:
+                pass
+
+        self.return_documents(docs)
+
 
 
 class MyActivityHandler(NewebeAuthHandler):

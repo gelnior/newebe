@@ -496,7 +496,7 @@ window.require.define({"views/activity_view": function(exports, require, module)
 
     __extends(ActivityView, _super);
 
-    ActivityView.prototype["class"] = 'activity';
+    ActivityView.prototype.className = 'activity pt1 pb1 pl2';
 
     ActivityView.prototype.template = function() {
       return require('./templates/activity');
@@ -506,6 +506,21 @@ window.require.define({"views/activity_view": function(exports, require, module)
       this.model = model;
       ActivityView.__super__.constructor.call(this);
     }
+
+    ActivityView.prototype.getRenderData = function() {
+      var _ref;
+      if (this.model.get('docType') === 'micropost') {
+        this.model.set('content', this.model.get('subdoc').content);
+      } else {
+        this.model.set('content', '');
+      }
+      console.log(this.model.get('date'));
+      console.log('YYYY-MM-DDThh:mm:ssZ');
+      this.model.set('displayDate', moment(this.model.get('date'), 'YYYY-MM-DDThh:mm:ssZ').format('D MMM  YYYY, hh:mm'));
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
 
     return ActivityView;
 
@@ -689,7 +704,11 @@ window.require.define({"views/login_view": function(exports, require, module) {
           if (err) {
             return _this.field.val(null);
           } else {
-            return Newebe.views.appView.displayActivities();
+            return _this.field.animate({
+              boxShadow: '0'
+            }, function() {
+              return Newebe.views.appView.displayActivities();
+            });
           }
         });
       }
@@ -729,6 +748,9 @@ window.require.define({"views/question_view": function(exports, require, module)
     };
 
     QuestionView.prototype.focusField = function() {
+      this.field.animate({
+        boxShadow: 'inset 4px 4px 10px #888'
+      });
       return this.field.focus();
     };
 
@@ -783,7 +805,11 @@ window.require.define({"views/register_name_view": function(exports, require, mo
         return request.post('register/', {
           name: name
         }, function(err, data) {
-          return Newebe.views.appView.displayRegisterPassword();
+          if (err) {
+            return alert("Something went wrong while registering your name.");
+          } else {
+            return Newebe.views.appView.displayRegisterPassword();
+          }
         });
       }
     };
@@ -857,7 +883,7 @@ window.require.define({"views/templates/activity": function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<span>at ' + escape((interp = model.date) == null ? '' : interp) + '</span>');
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="content">' + escape((interp = model.content) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span>');
   }
   return buf.join("");
   };

@@ -7,11 +7,10 @@ RegisterPasswordView = require './register_password_view'
 
 request = require 'lib/request'
 
+# Main application view, that's here where we manage all other views.
+# It handles the navigation menu too.
 module.exports = class AppView extends View
     el: 'body.application'
-
-    events:
-        'click #logout-button': 'onLogoutClicked'
 
     template: ->
         require('./templates/home')
@@ -23,13 +22,10 @@ module.exports = class AppView extends View
         @registerNameView = new RegisterNameView()
         @registerPasswordView = new RegisterPasswordView()
 
-    checkUserState: ->
-        request.get 'user/state/', (err, data) =>
-            if err
-                alert "Something went wrong, can't load newebe data."
-            else
-                @start data
+    events:
+        'click #logout-button': 'onLogoutClicked'
 
+    # Transmit logout user request to backend.
     onLogoutClicked: (event) ->
         request.get 'logout/', (err, data) =>
             if err
@@ -37,6 +33,19 @@ module.exports = class AppView extends View
             else
                 @displayLogin()
 
+    # Depending on user state given by backend, it displays corresponding page.
+    # State is described by following parameters :
+    # * authenticated : if user is logged in or not.
+    # * registered: if user is registered or not.
+    # * password: if  user registered his password or not.
+    checkUserState: ->
+        request.get 'user/state/', (err, data) =>
+            if err
+                alert "Something went wrong, can't load newebe data."
+            else
+                @start data
+
+    # Display a page corresponding to user state.
     start: (userState) ->
         @home = @$('#home')
         @menu = @$("#menu")
@@ -66,11 +75,15 @@ module.exports = class AppView extends View
     displayRegisterName: =>
         @changeView @registerNameView
 
+    # Little function to change current view in a smooth way by using fade in
+    # and out effects.
     changeView: (view, callback) =>
         @menu.fadeOut() if view isnt @activitiesView
         @home.children().fadeOut =>
             @home.hide()
-            @home.html view.$el
+            @currentView.destroy if @currentView?
+            @currentView = view
+            @home.append view.$el
             view.$el.show()
             @home.fadeIn =>
                 view.focusField() if view.focusField?
