@@ -948,7 +948,7 @@ window.require.define({"views/templates/activities": function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<h1>activities</h1><div class="line"> <div id="activity-all"></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
+  buf.push('<div class="line"> <div id="activity-all"></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
   }
   return buf.join("");
   };
@@ -984,7 +984,7 @@ window.require.define({"views/templates/home": function(exports, require, module
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button">activities</a></li><li><a id="microposts-button">microposts</a></li><li><a id="contacts-button">contacts</a></li><li><a id="logout-button">logout</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" class="active">activities</a></li><li><a id="microposts-button">microposts</a></li><li><a id="contacts-button">contacts</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };

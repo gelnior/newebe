@@ -1,12 +1,15 @@
 nav#navigation.hidden
     ul
         li
-            a#activities-button activities
+            a#activities-button.active activities
         li
             a#microposts-button microposts
         li
             a#contacts-button contacts
-        li
+        li.right
             a#logout-button logout
+        li.right
+            a#infos-button(href="http://newebe.org/#documentation"
+                           target="_blank") help
 #home
     p loading...

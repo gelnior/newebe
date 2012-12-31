@@ -38,6 +38,30 @@ body
     input:focus
         border: 0
 
+#navigation
+    background: black
+    box-shadow: -1px 3px 4px black + 20%
+
+    li
+        a
+            border: 0
+            font-weight: bold
+            color: white
+            background-color: black
+            cursor: pointer
+            text-shadow: 0 0 0 #FFF
+
+        a:hover
+            color: #444
+            font-weight: bold
+            text-decoration: none
+            text-shadow: 0 0 0 #FFF
+
+        a.active
+            background-color: #DEF
+            color: #DEF - 80%
+
+
 #activities-view
     .activity
         border-top: 1px solid #DDD
@@ -45,4 +69,3 @@ body
     .author
         font-weight: bold
         margin-right: 5px 
-

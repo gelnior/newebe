@@ -1660,6 +1660,29 @@ body,
 #home input:focus {
   border: 0;
 }
+#navigation {
+  background: #000;
+  -webkit-box-shadow: -1px 3px 4px #333;
+  box-shadow: -1px 3px 4px #333;
+}
+#navigation li a {
+  border: 0;
+  font-weight: bold;
+  color: #fff;
+  background-color: #000;
+  cursor: pointer;
+  text-shadow: 0 0 0 #fff;
+}
+#navigation li a:hover {
+  color: #444;
+  font-weight: bold;
+  text-decoration: none;
+  text-shadow: 0 0 0 #fff;
+}
+#navigation li a.active {
+  background-color: #def;
+  color: #00305f;
+}
 #activities-view .activity {
   border-top: 1px solid #ddd;
 }
