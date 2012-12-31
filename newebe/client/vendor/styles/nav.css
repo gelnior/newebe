@@ -1,0 +1,83 @@
+/* nav.css : styles de base pour une navigation responsive.
+Attention : ne fonctionne pas toujours très bien sur les anciens navigateurs ou OS mobiles (par exemple Android 2.1) */
+
+label[for^="toggle"],
+[type="checkbox"] {
+	cursor: pointer;
+}
+label[for^="toggle"] + [type="checkbox"] { display: none; }
+
+#navigation ul {
+	margin: 0;
+	padding: 0;
+}
+#navigation li { display: inline; }
+#navigation li a {
+	display: inline-block;
+	padding: .6em 1em;
+	color: #111;
+	border: 1px solid #aaa;
+	text-decoration: none;
+	text-shadow: 1px 1px 0 #fff;
+	background: #eee;
+}
+#navigation li a:hover,
+#navigation li a:active {
+	background: #ddd;
+	text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+	/* unicode character for button */
+	[data-icon]:before { content: attr(data-icon); }
+
+	/* styling menu button */
+	label[for^="toggle"] {
+		position: absolute;
+			top: 7px; right: 4px;
+		z-index: 1337;
+		padding: .1em .25em;
+		font-size: 3.8em;
+		font-weight: bold;
+		line-height: .7em;
+		background-color: #444;
+		text-shadow: 1px 1px 0 rgba(255, 255, 255, .3);
+		border-radius: 4px;
+		color: #fff;
+	}
+
+	/* handling click/tap with CSS3 target */
+	#toggle-menu:checked + ul {
+		max-height: 30em !important; /* number of menu items * 6em */
+	}
+
+	/* styling navigation items */
+	#navigation ul {
+		max-height: 0;
+		overflow: hidden;
+		-webkit-transition: max-height .4s;
+		-moz-transition: max-height .4s;
+		-o-transition: max-height .4s;
+		-ms-transition: max-height .4s;
+		transition: max-height .4s;
+	}
+	#navigation li a {
+		display: block;
+		padding: .9em .6em;
+		border: 0; border-top: 1px solid #aaa;
+		font-size: 1.1em;
+	}
+	#navigation li a:before {
+		content: "›";
+		font-size: 1.2em;
+		margin-right: .6em;
+		line-height: 1;
+	}
+	#navigation li:last-child a {
+		border-bottom: 1px solid #aaa;
+	}
+	#navigation li a:hover,
+	#navigation li a:active {
+		text-decoration: none;
+	}
+}
