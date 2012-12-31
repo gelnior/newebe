@@ -1,11 +1,14 @@
-CollectionView = require '../lib/view_collection'
-ActivityCollection = require '../collections/activity_collection'
-ActivityView = require '../views/activity_view'
+View = require '../lib/view'
+ActivityListView = require '../views/activity_list_view'
 
-module.exports = class ActivitiesView extends CollectionView
+module.exports = class ActivitiesView extends View
     id: 'activities-view'
-    collection: new ActivityCollection()
-    view: ActivityView
 
     template: ->
         require('./templates/activities')
+
+    afterRender: ->
+        @activityList = new ActivityListView(el: @$("#activity-all"))
+
+    load: ->
+        @activityList.collection.fetch()

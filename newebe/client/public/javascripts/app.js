@@ -166,6 +166,42 @@ window.require.define({"lib/app_helpers": function(exports, require, module) {
   
 }});
 
+window.require.define({"lib/renderer": function(exports, require, module) {
+  var Renderer;
+
+  Renderer = (function() {
+
+    function Renderer() {}
+
+    Renderer.prototype.markdownConverter = new Showdown.converter();
+
+    Renderer.prototype.renderDoc = function(doc) {
+      if (doc != null) {
+        if (doc.doc_type === 'MicroPost') {
+          return this.markdownConverter.makeHtml(doc.content);
+        } else if (doc.doc_type === 'Picture') {
+          return '<img src="/pictures/' + doc._id + '/th_' + doc.path + '" />';
+        } else if (doc.doc_type === 'Common') {
+          return doc.path;
+        }
+      }
+      return '';
+    };
+
+    Renderer.prototype.renderDate = function(dateString) {
+      var date;
+      date = moment(dateString, 'YYYY-MM-DDThh:mm:ssZ');
+      return date.format('D MMM  YYYY, hh:mm');
+    };
+
+    return Renderer;
+
+  })();
+
+  module.exports = Renderer;
+  
+}});
+
 window.require.define({"lib/request": function(exports, require, module) {
   
   exports.request = function(type, url, data, callback) {
@@ -282,11 +318,11 @@ window.require.define({"lib/view_collection": function(exports, require, module)
       return this.views.length;
     };
 
-    function ViewCollection() {
+    function ViewCollection(options) {
       this.renderAll = __bind(this.renderAll, this);
 
       this.renderOne = __bind(this.renderOne, this);
-      ViewCollection.__super__.constructor.call(this);
+      ViewCollection.__super__.constructor.call(this, options);
       this.collection.on("reset", this.renderAll);
     }
 
@@ -451,15 +487,13 @@ window.require.define({"routers/app_router": function(exports, require, module) 
 }});
 
 window.require.define({"views/activities_view": function(exports, require, module) {
-  var ActivitiesView, ActivityCollection, ActivityView, CollectionView,
+  var ActivitiesView, ActivityListView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  CollectionView = require('../lib/view_collection');
+  View = require('../lib/view');
 
-  ActivityCollection = require('../collections/activity_collection');
-
-  ActivityView = require('../views/activity_view');
+  ActivityListView = require('../views/activity_list_view');
 
   module.exports = ActivitiesView = (function(_super) {
 
@@ -471,26 +505,71 @@ window.require.define({"views/activities_view": function(exports, require, modul
 
     ActivitiesView.prototype.id = 'activities-view';
 
-    ActivitiesView.prototype.collection = new ActivityCollection();
-
-    ActivitiesView.prototype.view = ActivityView;
-
     ActivitiesView.prototype.template = function() {
       return require('./templates/activities');
     };
 
+    ActivitiesView.prototype.afterRender = function() {
+      return this.activityList = new ActivityListView({
+        el: this.$("#activity-all")
+      });
+    };
+
+    ActivitiesView.prototype.load = function() {
+      return this.activityList.collection.fetch();
+    };
+
     return ActivitiesView;
+
+  })(View);
+  
+}});
+
+window.require.define({"views/activity_list_view": function(exports, require, module) {
+  var ActivityCollection, ActivityListView, ActivityView, CollectionView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  ActivityCollection = require('../collections/activity_collection');
+
+  ActivityView = require('../views/activity_view');
+
+  module.exports = ActivityListView = (function(_super) {
+
+    __extends(ActivityListView, _super);
+
+    function ActivityListView() {
+      return ActivityListView.__super__.constructor.apply(this, arguments);
+    }
+
+    ActivityListView.prototype.collection = new ActivityCollection();
+
+    ActivityListView.prototype.view = ActivityView;
+
+    ActivityListView.prototype.template = function() {
+      return require('./templates/activity_list');
+    };
+
+    ActivityListView.prototype.afterRender = function() {
+      return this.$el.addClass('activity-list mod left w33');
+    };
+
+    return ActivityListView;
 
   })(CollectionView);
   
 }});
 
 window.require.define({"views/activity_view": function(exports, require, module) {
-  var ActivityView, View,
+  var ActivityView, Renderer, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('../lib/view');
+
+  Renderer = require('../lib/renderer');
 
   module.exports = ActivityView = (function(_super) {
 
@@ -508,15 +587,10 @@ window.require.define({"views/activity_view": function(exports, require, module)
     }
 
     ActivityView.prototype.getRenderData = function() {
-      var _ref;
-      if (this.model.get('docType') === 'micropost') {
-        this.model.set('content', this.model.get('subdoc').content);
-      } else {
-        this.model.set('content', '');
-      }
-      console.log(this.model.get('date'));
-      console.log('YYYY-MM-DDThh:mm:ssZ');
-      this.model.set('displayDate', moment(this.model.get('date'), 'YYYY-MM-DDThh:mm:ssZ').format('D MMM  YYYY, hh:mm'));
+      var renderer, _ref;
+      renderer = new Renderer();
+      this.model.set('content', renderer.renderDoc(this.model.get('subdoc')));
+      this.model.set('displayDate', renderer.renderDate(this.model.get('date')));
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
       };
@@ -567,10 +641,6 @@ window.require.define({"views/app_view": function(exports, require, module) {
 
     AppView.prototype.el = 'body.application';
 
-    AppView.prototype.events = {
-      'click #logout-button': 'onLogoutClicked'
-    };
-
     AppView.prototype.template = function() {
       return require('./templates/home');
     };
@@ -583,15 +653,8 @@ window.require.define({"views/app_view": function(exports, require, module) {
       return this.registerPasswordView = new RegisterPasswordView();
     };
 
-    AppView.prototype.checkUserState = function() {
-      var _this = this;
-      return request.get('user/state/', function(err, data) {
-        if (err) {
-          return alert("Something went wrong, can't load newebe data.");
-        } else {
-          return _this.start(data);
-        }
-      });
+    AppView.prototype.events = {
+      'click #logout-button': 'onLogoutClicked'
     };
 
     AppView.prototype.onLogoutClicked = function(event) {
@@ -605,12 +668,23 @@ window.require.define({"views/app_view": function(exports, require, module) {
       });
     };
 
+    AppView.prototype.checkUserState = function() {
+      var _this = this;
+      return request.get('user/state/', function(err, data) {
+        if (err) {
+          return alert("Something went wrong, can't load newebe data.");
+        } else {
+          return _this.start(data);
+        }
+      });
+    };
+
     AppView.prototype.start = function(userState) {
       this.home = this.$('#home');
-      this.menu = this.$("#menu");
+      this.menu = this.$("#navigation");
       if (userState.authenticated) {
         this.displayActivities();
-        return this.activitiesView.collection.fetch();
+        return this.activitiesView.load();
       } else if (userState.password) {
         return this.displayLogin();
       } else if (userState.registered) {
@@ -623,7 +697,6 @@ window.require.define({"views/app_view": function(exports, require, module) {
     AppView.prototype.displayActivities = function() {
       var _this = this;
       return this.changeView(this.activitiesView, function() {
-        _this.menu.hide();
         _this.menu.removeClass('hidden');
         return _this.menu.fadeIn();
       });
@@ -648,7 +721,11 @@ window.require.define({"views/app_view": function(exports, require, module) {
       }
       return this.home.children().fadeOut(function() {
         _this.home.hide();
-        _this.home.html(view.$el);
+        if (_this.currentView != null) {
+          _this.currentView.destroy;
+        }
+        _this.currentView = view;
+        _this.home.append(view.$el);
         view.$el.show();
         _this.home.fadeIn(function() {
           if (view.focusField != null) {
@@ -747,13 +824,6 @@ window.require.define({"views/question_view": function(exports, require, module)
       return require('./templates/question');
     };
 
-    QuestionView.prototype.focusField = function() {
-      this.field.animate({
-        boxShadow: 'inset 4px 4px 10px #888'
-      });
-      return this.field.focus();
-    };
-
     QuestionView.prototype.afterRender = function() {
       var _this = this;
       this.field = this.$("#" + this.fieldId);
@@ -765,6 +835,13 @@ window.require.define({"views/question_view": function(exports, require, module)
     };
 
     QuestionView.prototype.onSubmit = function() {};
+
+    QuestionView.prototype.focusField = function() {
+      this.field.animate({
+        boxShadow: '4px 4px 10px #888'
+      });
+      return this.field.focus();
+    };
 
     return QuestionView;
 
@@ -871,7 +948,7 @@ window.require.define({"views/templates/activities": function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<h1>activities</h1><div class="line"> <div id="activity-all" class="activity-list mod left w33"><h2 class="activity-list-title">all</h2><div class="activities"></div></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
+  buf.push('<h1>activities</h1><div class="line"> <div id="activity-all"></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
   }
   return buf.join("");
   };
@@ -883,7 +960,19 @@ window.require.define({"views/templates/activity": function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="content">' + escape((interp = model.content) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span>');
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="pt05">' + ((interp = model.content) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span>');
+  }
+  return buf.join("");
+  };
+}});
+
+window.require.define({"views/templates/activity_list": function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<h2 class="activity-title">all</h2>');
   }
   return buf.join("");
   };
@@ -895,7 +984,7 @@ window.require.define({"views/templates/home": function(exports, require, module
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="menu" class="hidden"><button id="logout-button" class="ui-button">logout</button></div><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button">activities</a></li><li><a id="microposts-button">microposts</a></li><li><a id="contacts-button">contacts</a></li><li><a id="logout-button">logout</a></li></ul></nav><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };

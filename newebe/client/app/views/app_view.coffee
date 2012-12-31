@@ -48,11 +48,11 @@ module.exports = class AppView extends View
     # Display a page corresponding to user state.
     start: (userState) ->
         @home = @$('#home')
-        @menu = @$("#menu")
+        @menu = @$("#navigation")
 
         if userState.authenticated
             @displayActivities()
-            @activitiesView.collection.fetch()
+            @activitiesView.load()
         else if userState.password
             @displayLogin()
         else if userState.registered
@@ -62,7 +62,7 @@ module.exports = class AppView extends View
 
     displayActivities: =>
         @changeView @activitiesView, =>
-            @menu.hide()
+            #@menu.hide()
             @menu.removeClass 'hidden'
             @menu.fadeIn()
 

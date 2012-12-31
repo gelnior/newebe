@@ -2,7 +2,6 @@ View = require './view'
 
 class ViewCollection extends View
     collection: null
-
     view: null
 
     views: []
@@ -10,8 +9,8 @@ class ViewCollection extends View
     length: ->
         @views.length
 
-    constructor: ->
-        super()
+    constructor: (options) ->
+        super(options)
 
         @collection.on "reset", @renderAll
 

@@ -104,7 +104,7 @@ window.require.define({"test/auth_test": function(exports, require, module) {
     it('When I submit my name', function(done) {
       this.mainView.registerNameView.field.val("Jhon Doe");
       $.ajax = function(options) {
-        return options.success();
+        return options.success({});
       };
       this.mainView.registerNameView.onSubmit();
       return setTimeout(done, 1000);
