@@ -42,7 +42,9 @@ security:
         fi
         cd certs
         openssl genrsa -out ./server.key 1024
-        openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt
+        openssl req -new -x509 -days 3650 -key ./server.key \
+                -out ./server.crt -batch
+        
         cd ..
         chown -R newebe:newebe /etc/newebe/certs
 
