@@ -603,7 +603,7 @@ window.require.define({"views/activity_view": function(exports, require, module)
 }});
 
 window.require.define({"views/app_view": function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, LoginView, RegisterNameView, RegisterPasswordView, View, request,
+  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -613,6 +613,10 @@ window.require.define({"views/app_view": function(exports, require, module) {
   AppRouter = require('../routers/app_router');
 
   ActivitiesView = require('./activities_view');
+
+  MicropostsView = require('./microposts_view');
+
+  ContactsView = require('./contacts_view');
 
   LoginView = require('./login_view');
 
@@ -646,11 +650,7 @@ window.require.define({"views/app_view": function(exports, require, module) {
     };
 
     AppView.prototype.initialize = function() {
-      this.router = typeof Newebe !== "undefined" && Newebe !== null ? Newebe.routers.appRouter = new AppRouter() : void 0;
-      this.activitiesView = new ActivitiesView();
-      this.loginView = new LoginView();
-      this.registerNameView = new RegisterNameView();
-      return this.registerPasswordView = new RegisterPasswordView();
+      return this.router = typeof Newebe !== "undefined" && Newebe !== null ? Newebe.routers.appRouter = new AppRouter() : void 0;
     };
 
     AppView.prototype.events = {
@@ -681,7 +681,25 @@ window.require.define({"views/app_view": function(exports, require, module) {
 
     AppView.prototype.start = function(userState) {
       this.home = this.$('#home');
+      this.home.html(null);
       this.menu = this.$("#navigation");
+      this.loginView = new LoginView();
+      this.home.append(this.loginView.el);
+      this.registerNameView = new RegisterNameView();
+      this.registerNameView.hide();
+      this.home.append(this.registerNameView.el);
+      this.registerPasswordView = new RegisterPasswordView();
+      this.registerPasswordView.hide();
+      this.home.append(this.registerPasswordView.el);
+      this.activitiesView = new ActivitiesView();
+      this.activitiesView.hide();
+      this.home.append(this.activitiesView.el);
+      this.contactsView = new ContactsView();
+      this.contactsView.hide();
+      this.home.append(this.contactsView.el);
+      this.micropostsView = new MicropostsView();
+      this.micropostsView.hide();
+      this.home.append(this.micropostsView.el);
       if (userState.authenticated) {
         this.displayActivities();
         return this.activitiesView.load();
@@ -721,11 +739,6 @@ window.require.define({"views/app_view": function(exports, require, module) {
       }
       return this.home.children().fadeOut(function() {
         _this.home.hide();
-        if (_this.currentView != null) {
-          _this.currentView.destroy;
-        }
-        _this.currentView = view;
-        _this.home.append(view.$el);
         view.$el.show();
         _this.home.fadeIn(function() {
           if (view.focusField != null) {
@@ -739,6 +752,35 @@ window.require.define({"views/app_view": function(exports, require, module) {
     };
 
     return AppView;
+
+  })(View);
+  
+}});
+
+window.require.define({"views/contacts_view": function(exports, require, module) {
+  var ContactsView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = ContactsView = (function(_super) {
+
+    __extends(ContactsView, _super);
+
+    function ContactsView() {
+      return ContactsView.__super__.constructor.apply(this, arguments);
+    }
+
+    ContactsView.prototype.id = 'contacts-view';
+
+    ContactsView.prototype.template = function() {
+      return require('./templates/contacts');
+    };
+
+    ContactsView.prototype.afterRender = function() {};
+
+    return ContactsView;
 
   })(View);
   
@@ -794,6 +836,35 @@ window.require.define({"views/login_view": function(exports, require, module) {
     return LoginView;
 
   })(QuestionView);
+  
+}});
+
+window.require.define({"views/microposts_view": function(exports, require, module) {
+  var MicropostsView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = MicropostsView = (function(_super) {
+
+    __extends(MicropostsView, _super);
+
+    function MicropostsView() {
+      return MicropostsView.__super__.constructor.apply(this, arguments);
+    }
+
+    MicropostsView.prototype.id = 'microposts-view';
+
+    MicropostsView.prototype.template = function() {
+      return require('./templates/microposts');
+    };
+
+    MicropostsView.prototype.afterRender = function() {};
+
+    return MicropostsView;
+
+  })(View);
   
 }});
 
@@ -978,6 +1049,18 @@ window.require.define({"views/templates/activity_list": function(exports, requir
   };
 }});
 
+window.require.define({"views/templates/contacts": function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<h1>contacts</h1>');
+  }
+  return buf.join("");
+  };
+}});
+
 window.require.define({"views/templates/home": function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -985,6 +1068,18 @@ window.require.define({"views/templates/home": function(exports, require, module
   with (locals || {}) {
   var interp;
   buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" class="active">activities</a></li><li><a id="microposts-button">microposts</a></li><li><a id="contacts-button">contacts</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  }
+  return buf.join("");
+  };
+}});
+
+window.require.define({"views/templates/microposts": function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<h1>microposts</h1>');
   }
   return buf.join("");
   };

@@ -1,6 +1,8 @@
 View = require '../lib/view'
 AppRouter = require '../routers/app_router'
 ActivitiesView = require './activities_view'
+MicropostsView = require './microposts_view'
+ContactsView = require './contacts_view'
 LoginView = require './login_view'
 RegisterNameView = require './register_name_view'
 RegisterPasswordView = require './register_password_view'
@@ -17,10 +19,6 @@ module.exports = class AppView extends View
 
     initialize: ->
         @router = Newebe?.routers.appRouter = new AppRouter()
-        @activitiesView = new ActivitiesView()
-        @loginView = new LoginView()
-        @registerNameView = new RegisterNameView()
-        @registerPasswordView = new RegisterPasswordView()
 
     events:
         'click #logout-button': 'onLogoutClicked'
@@ -48,7 +46,26 @@ module.exports = class AppView extends View
     # Display a page corresponding to user state.
     start: (userState) ->
         @home = @$('#home')
+        @home.html null
         @menu = @$("#navigation")
+
+        @loginView = new LoginView()
+        @home.append @loginView.el
+        @registerNameView = new RegisterNameView()
+        @registerNameView.hide()
+        @home.append @registerNameView.el
+        @registerPasswordView = new RegisterPasswordView()
+        @registerPasswordView.hide()
+        @home.append @registerPasswordView.el
+        @activitiesView = new ActivitiesView()
+        @activitiesView.hide()
+        @home.append @activitiesView.el
+        @contactsView = new ContactsView()
+        @contactsView.hide()
+        @home.append @contactsView.el
+        @micropostsView = new MicropostsView()
+        @micropostsView.hide()
+        @home.append @micropostsView.el
 
         if userState.authenticated
             @displayActivities()
@@ -62,7 +79,6 @@ module.exports = class AppView extends View
 
     displayActivities: =>
         @changeView @activitiesView, =>
-            #@menu.hide()
             @menu.removeClass 'hidden'
             @menu.fadeIn()
 
@@ -81,9 +97,6 @@ module.exports = class AppView extends View
         @menu.fadeOut() if view isnt @activitiesView
         @home.children().fadeOut =>
             @home.hide()
-            @currentView.destroy if @currentView?
-            @currentView = view
-            @home.append view.$el
             view.$el.show()
             @home.fadeIn =>
                 view.focusField() if view.focusField?
