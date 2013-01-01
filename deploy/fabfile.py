@@ -120,7 +120,7 @@ def build_certificates():
         delete_if_exists('server.crt')
         newebedo("openssl genrsa -out ./server.key 1024")
         newebedo("openssl req -new -x509 -days 3650 -key ./server.key -out\
-                  ./server.crt")
+                  ./server.crt -batch")
     
 @task()
 def setup_supervisord():
