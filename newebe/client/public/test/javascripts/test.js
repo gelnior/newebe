@@ -61,20 +61,25 @@
     throw new Error('Cannot find module "' + name + '"');
   };
 
-  var define = function(bundle) {
-    for (var key in bundle) {
-      if (has(bundle, key)) {
-        modules[key] = bundle[key];
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
       }
+    } else {
+      modules[bundle] = fn;
     }
-  }
+  };
 
   globals.require = require;
   globals.require.define = define;
+  globals.require.register = define;
   globals.require.brunch = true;
 })();
 
-window.require.define({"test/auth_test": function(exports, require, module) {
+window.require.register("test/auth_test", function(exports, require, module) {
   var AppView;
 
   AppView = require('views/app_view');
@@ -151,15 +156,15 @@ window.require.define({"test/auth_test": function(exports, require, module) {
     });
   });
   
-}});
-
-window.require.define({"test/test-helpers": function(exports, require, module) {
+});
+window.require.register("test/test-helpers", function(exports, require, module) {
   
   module.exports = {
     expect: require('chai').expect,
     $: require('jquery')
   };
   
-}});
-
-window.require('test/auth_test');
+});
+var hasFilterer = window.brunch && window.brunch.test && window.brunch.test.filterer;
+var valid = hasFilterer ? window.brunch.test.filterer('test/auth_test') : true;
+if (valid) window.require('test/auth_test');

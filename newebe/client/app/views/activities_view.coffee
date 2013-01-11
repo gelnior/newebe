@@ -9,6 +9,9 @@ module.exports = class ActivitiesView extends View
 
     afterRender: ->
         @activityList = new ActivityListView(el: @$("#activity-all"))
+        @isLoaded = false
 
-    load: ->
-        @activityList.collection.fetch()
+    fetch: ->
+        @activityList.collection.fetch
+            success: =>
+                @isLoaded = true

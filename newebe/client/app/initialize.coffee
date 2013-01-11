@@ -6,14 +6,19 @@ Newebe.views ?= {}
 Newebe.models ?= {}
 Newebe.collections ?= {}
 
+
 $ ->
     # Load App Helpers
     require '../lib/app_helpers'
+    AppRouter = require 'routers/app_router'
+    AppView = require 'views/app_view'
+
 
     # Initialize App
-    Newebe.views.appView = new AppView = require 'views/app_view'
-    Newebe.views.appView.render()
-    Newebe.views.appView.checkUserState()
-
+    Newebe.views.appView = new AppView()
+    Newebe.routers.appRouter = new AppRouter Newebe.views.appView
+    
     # Initialize Backbone History
-    Backbone.history.start pushState: yes
+    Backbone.history.start()
+    if window.location.hash is ''
+        Newebe.routers.appRouter.navigate '', trigger: true

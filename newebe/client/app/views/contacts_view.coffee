@@ -7,3 +7,4 @@ module.exports = class ContactsView extends View
         require('./templates/contacts')
 
     afterRender: ->
+        @isLoaded = true

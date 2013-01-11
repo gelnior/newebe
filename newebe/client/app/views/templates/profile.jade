@@ -1,0 +1,13 @@
+.line
+    .w33.mod.left
+        img#profile-picture(src="static/images/owner_thumbnail.jpg")
+        p
+            input#profile-name-field(type="text", value="#{model.name}")
+        p
+            input#profile-url-field(type="text", value="#{model.url}")
+        p
+            button change thumbnail
+        p
+            button change password
+    .w66.mod.left
+        p #{model.description}

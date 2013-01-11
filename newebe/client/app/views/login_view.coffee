@@ -19,4 +19,4 @@ module.exports = class LoginView extends QuestionView
                     @field.val null
                 else
                     @field.animate {boxShadow: '0'}, =>
-                        Newebe.views.appView.displayActivities()
+                        Newebe.views.appView.displayHome()

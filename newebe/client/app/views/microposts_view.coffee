@@ -7,3 +7,4 @@ module.exports = class MicropostsView extends View
         require('./templates/microposts')
 
     afterRender: ->
+        @isLoaded = true

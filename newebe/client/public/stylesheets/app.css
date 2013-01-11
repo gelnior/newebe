@@ -1329,6 +1329,24 @@ a:hover,
 a:visited:hover {
   text-decoration: underline;
 }
+button {
+  background-color: #d82545;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border: 0;
+  padding: 10px;
+  margin: 10px;
+  color: #fff;
+  font-weight: bold;
+}
+button:hover {
+  background-color: #ad2bad;
+}
+button:active {
+  background-color: #9c279c;
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+}
 .middle {
   padding-top: 20%;
 }
@@ -1678,6 +1696,8 @@ body,
   font-weight: bold;
   text-decoration: none;
   text-shadow: 0 0 0 #fff;
+  background-color: #ad2bad;
+  color: #fff;
 }
 #navigation li a.active {
   background-color: #def;
@@ -1689,6 +1709,21 @@ body,
 #activities-view .author {
   font-weight: bold;
   margin-right: 5px;
+}
+#profile-view p {
+  margin: 0;
+}
+#profile-view #profile-name-field {
+  padding: 20px 0 0 20px;
+  font-size: 40px;
+  font-weight: bold;
+}
+#profile-view #profile-url-field {
+  font-size: 16px;
+  padding-left: 20px;
+}
+#profile-view #profile-picture {
+  margin: 20px;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
 .ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }

@@ -1,5 +1,9 @@
 // Base Styles
 
+red = #D82545
+purple = #AD2BAD
+blue = #AD2BAD
+
 *
   box-sizing: border-box
 
@@ -19,12 +23,6 @@ a:visited
     &:hover
         text-decoration underline
 
-.middle
-    padding-top: 20%
-    
-.pt05
-    padding-top: 5px
-
 // Animations
 
 @keyframes fadein
@@ -38,3 +36,29 @@ a:visited
         box-shadow: 0
     to
         box-shadow: inset 4px 4px 10px #888, 0px 0px 5px rgba(255, 255, 255, 1)
+
+// Buttons
+
+button
+    background-color: red
+    border-radius: 0
+    border: 0
+    padding: 10px
+    margin: 10px
+    color: white
+    font-weight: bold
+
+button:hover
+    background-color: purple
+
+button:active
+    background-color: purple - 10%
+    box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2)
+
+// Helpers
+
+.middle
+    padding-top: 20%
+    
+.pt05
+    padding-top: 5px

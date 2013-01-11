@@ -16,4 +16,4 @@ module.exports = class RegisterPasswordView extends QuestionView
         if password.length > 0
             data = password: password,
             request.post 'register/password/', data, (err, data) ->
-                Newebe.views.appView.displayActivities()
+                Newebe.views.appView.displayHome()

@@ -61,20 +61,25 @@
     throw new Error('Cannot find module "' + name + '"');
   };
 
-  var define = function(bundle) {
-    for (var key in bundle) {
-      if (has(bundle, key)) {
-        modules[key] = bundle[key];
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
       }
+    } else {
+      modules[bundle] = fn;
     }
-  }
+  };
 
   globals.require = require;
   globals.require.define = define;
+  globals.require.register = define;
   globals.require.brunch = true;
 })();
 
-window.require.define({"collections/activity_collection": function(exports, require, module) {
+window.require.register("collections/activity_collection", function(exports, require, module) {
   var Activity, ActivityCollection,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -107,9 +112,8 @@ window.require.define({"collections/activity_collection": function(exports, requ
 
   module.exports = ActivityCollection;
   
-}});
-
-window.require.define({"initialize": function(exports, require, module) {
+});
+window.require.register("initialize", function(exports, require, module) {
   var _ref, _ref1, _ref2, _ref3, _ref4;
 
   if ((_ref = this.Newebe) == null) {
@@ -133,19 +137,22 @@ window.require.define({"initialize": function(exports, require, module) {
   }
 
   $(function() {
-    var AppView;
+    var AppRouter, AppView;
     require('../lib/app_helpers');
-    Newebe.views.appView = new (AppView = require('views/app_view'));
-    Newebe.views.appView.render();
-    Newebe.views.appView.checkUserState();
-    return Backbone.history.start({
-      pushState: true
-    });
+    AppRouter = require('routers/app_router');
+    AppView = require('views/app_view');
+    Newebe.views.appView = new AppView();
+    Newebe.routers.appRouter = new AppRouter(Newebe.views.appView);
+    Backbone.history.start();
+    if (window.location.hash === '') {
+      return Newebe.routers.appRouter.navigate('', {
+        trigger: true
+      });
+    }
   });
   
-}});
-
-window.require.define({"lib/app_helpers": function(exports, require, module) {
+});
+window.require.register("lib/app_helpers", function(exports, require, module) {
   
   (function() {
     return (function() {
@@ -154,8 +161,8 @@ window.require.define({"lib/app_helpers": function(exports, require, module) {
       method = void 0;
       dummy = function() {};
       methods = 'assert,count,debug,dir,dirxml,error,exception,\
-                     group,groupCollapsed,groupEnd,info,log,markTimeline,\
-                     profile,profileEnd,time,timeEnd,trace,warn'.split(',');
+                   group,groupCollapsed,groupEnd,info,log,markTimeline,\
+                   profile,profileEnd,time,timeEnd,trace,warn'.split(',');
       _results = [];
       while (method = methods.pop()) {
         _results.push(console[method] = console[method] || dummy);
@@ -164,9 +171,8 @@ window.require.define({"lib/app_helpers": function(exports, require, module) {
     })();
   })();
   
-}});
-
-window.require.define({"lib/renderer": function(exports, require, module) {
+});
+window.require.register("lib/renderer", function(exports, require, module) {
   var Renderer;
 
   Renderer = (function() {
@@ -200,9 +206,8 @@ window.require.define({"lib/renderer": function(exports, require, module) {
 
   module.exports = Renderer;
   
-}});
-
-window.require.define({"lib/request": function(exports, require, module) {
+});
+window.require.register("lib/request", function(exports, require, module) {
   
   exports.request = function(type, url, data, callback) {
     return $.ajax({
@@ -242,9 +247,8 @@ window.require.define({"lib/request": function(exports, require, module) {
     return exports.request("DELETE", url, null, callbacks);
   };
   
-}});
-
-window.require.define({"lib/view": function(exports, require, module) {
+});
+window.require.register("lib/view", function(exports, require, module) {
   var View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -290,13 +294,28 @@ window.require.define({"lib/view": function(exports, require, module) {
       return Backbone.View.prototype.remove.call(this);
     };
 
+    View.prototype.hide = function() {
+      return this.$el.hide();
+    };
+
+    View.prototype.show = function() {
+      return this.$el.show();
+    };
+
+    View.prototype.fadeOut = function(callback) {
+      return this.$el.fadeOut(callback);
+    };
+
+    View.prototype.fadeIn = function(callback) {
+      return this.$el.fadeIn(callback);
+    };
+
     return View;
 
   })(Backbone.View);
   
-}});
-
-window.require.define({"lib/view_collection": function(exports, require, module) {
+});
+window.require.register("lib/view_collection", function(exports, require, module) {
   var View, ViewCollection, methods,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -438,9 +457,8 @@ window.require.define({"lib/view_collection": function(exports, require, module)
 
   module.exports = ViewCollection;
   
-}});
-
-window.require.define({"models/activity_model": function(exports, require, module) {
+});
+window.require.register("models/activity_model", function(exports, require, module) {
   var Activity,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -461,9 +479,56 @@ window.require.define({"models/activity_model": function(exports, require, modul
 
   module.exports = Activity;
   
-}});
+});
+window.require.register("models/owner_model", function(exports, require, module) {
+  var Owner,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-window.require.define({"routers/app_router": function(exports, require, module) {
+  module.exports = Owner = (function(_super) {
+
+    __extends(Owner, _super);
+
+    function Owner() {
+      return Owner.__super__.constructor.apply(this, arguments);
+    }
+
+    Owner.prototype.url = '/user/';
+
+    Owner.prototype.isNew = function() {
+      return false;
+    };
+
+    return Owner;
+
+  })(Backbone.Model);
+  
+});
+window.require.register("models/user_model", function(exports, require, module) {
+  var Owner,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Owner = (function(_super) {
+
+    __extends(Owner, _super);
+
+    function Owner() {
+      return Owner.__super__.constructor.apply(this, arguments);
+    }
+
+    Owner.prototype.url = '/user/';
+
+    Owner.prototype.isNew = function() {
+      return false;
+    };
+
+    return Owner;
+
+  })(Backbone.Model);
+  
+});
+window.require.register("routers/app_router", function(exports, require, module) {
   var AppRouter,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -472,21 +537,69 @@ window.require.define({"routers/app_router": function(exports, require, module) 
 
     __extends(AppRouter, _super);
 
-    function AppRouter() {
-      return AppRouter.__super__.constructor.apply(this, arguments);
+    AppRouter.prototype.routes = {
+      '': 'start',
+      'activities': 'activities',
+      'microposts': 'microposts',
+      'contacts': 'contacts',
+      'profile': 'profile'
+    };
+
+    function AppRouter(appView) {
+      this.appView = appView;
+      AppRouter.__super__.constructor.call(this);
     }
 
-    AppRouter.prototype.routes = {
-      '': function() {}
+    AppRouter.prototype.start = function() {
+      return this.appView.checkUserState();
+    };
+
+    AppRouter.prototype.activities = function() {
+      var _this = this;
+      return this.loadSubView(function() {
+        return _this.appView.changeSubView(_this.appView.activitiesView);
+      });
+    };
+
+    AppRouter.prototype.microposts = function() {
+      var _this = this;
+      return this.loadSubView(function() {
+        return _this.appView.changeSubView(_this.appView.micropostsView);
+      });
+    };
+
+    AppRouter.prototype.contacts = function() {
+      var _this = this;
+      return this.loadSubView(function() {
+        return _this.appView.changeSubView(_this.appView.contactsView);
+      });
+    };
+
+    AppRouter.prototype.profile = function() {
+      var _this = this;
+      return this.loadSubView(function() {
+        return _this.appView.changeSubView(_this.appView.profileView);
+      });
+    };
+
+    AppRouter.prototype.loadSubView = function(callback) {
+      var _this = this;
+      if (this.appView.isLoaded) {
+        return callback();
+      } else {
+        return this.appView.checkUserState(function() {
+          _this.appView.displayMenu();
+          return callback();
+        });
+      }
     };
 
     return AppRouter;
 
   })(Backbone.Router);
   
-}});
-
-window.require.define({"views/activities_view": function(exports, require, module) {
+});
+window.require.register("views/activities_view", function(exports, require, module) {
   var ActivitiesView, ActivityListView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -510,22 +623,27 @@ window.require.define({"views/activities_view": function(exports, require, modul
     };
 
     ActivitiesView.prototype.afterRender = function() {
-      return this.activityList = new ActivityListView({
+      this.activityList = new ActivityListView({
         el: this.$("#activity-all")
       });
+      return this.isLoaded = false;
     };
 
-    ActivitiesView.prototype.load = function() {
-      return this.activityList.collection.fetch();
+    ActivitiesView.prototype.fetch = function() {
+      var _this = this;
+      return this.activityList.collection.fetch({
+        success: function() {
+          return _this.isLoaded = true;
+        }
+      });
     };
 
     return ActivitiesView;
 
   })(View);
   
-}});
-
-window.require.define({"views/activity_list_view": function(exports, require, module) {
+});
+window.require.register("views/activity_list_view", function(exports, require, module) {
   var ActivityCollection, ActivityListView, ActivityView, CollectionView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -560,9 +678,8 @@ window.require.define({"views/activity_list_view": function(exports, require, mo
 
   })(CollectionView);
   
-}});
-
-window.require.define({"views/activity_view": function(exports, require, module) {
+});
+window.require.register("views/activity_view", function(exports, require, module) {
   var ActivityView, Renderer, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -600,10 +717,9 @@ window.require.define({"views/activity_view": function(exports, require, module)
 
   })(View);
   
-}});
-
-window.require.define({"views/app_view": function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, RegisterNameView, RegisterPasswordView, View, request,
+});
+window.require.register("views/app_view", function(exports, require, module) {
+  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -617,6 +733,8 @@ window.require.define({"views/app_view": function(exports, require, module) {
   MicropostsView = require('./microposts_view');
 
   ContactsView = require('./contacts_view');
+
+  ProfileView = require('./profile_view');
 
   LoginView = require('./login_view');
 
@@ -633,13 +751,25 @@ window.require.define({"views/app_view": function(exports, require, module) {
     function AppView() {
       this.changeView = __bind(this.changeView, this);
 
+      this.changeSubView = __bind(this.changeSubView, this);
+
+      this.displayView = __bind(this.displayView, this);
+
+      this._addView = __bind(this._addView, this);
+
+      this.displayMenu = __bind(this.displayMenu, this);
+
+      this.displayLogin = __bind(this.displayLogin, this);
+
       this.displayRegisterName = __bind(this.displayRegisterName, this);
 
       this.displayRegisterPassword = __bind(this.displayRegisterPassword, this);
 
-      this.displayLogin = __bind(this.displayLogin, this);
+      this.displayHome = __bind(this.displayHome, this);
 
       this.displayActivities = __bind(this.displayActivities, this);
+
+      this.displayProfile = __bind(this.displayProfile, this);
       return AppView.__super__.constructor.apply(this, arguments);
     }
 
@@ -647,10 +777,6 @@ window.require.define({"views/app_view": function(exports, require, module) {
 
     AppView.prototype.template = function() {
       return require('./templates/home');
-    };
-
-    AppView.prototype.initialize = function() {
-      return this.router = typeof Newebe !== "undefined" && Newebe !== null ? Newebe.routers.appRouter = new AppRouter() : void 0;
     };
 
     AppView.prototype.events = {
@@ -668,60 +794,29 @@ window.require.define({"views/app_view": function(exports, require, module) {
       });
     };
 
-    AppView.prototype.checkUserState = function() {
-      var _this = this;
-      return request.get('user/state/', function(err, data) {
-        if (err) {
-          return alert("Something went wrong, can't load newebe data.");
-        } else {
-          return _this.start(data);
-        }
-      });
+    AppView.prototype.onMicropostsClicked = function() {
+      return this.changeSubView(this.micropostsView);
     };
 
-    AppView.prototype.start = function(userState) {
-      this.home = this.$('#home');
-      this.home.html(null);
-      this.menu = this.$("#navigation");
-      this.loginView = new LoginView();
-      this.home.append(this.loginView.el);
-      this.registerNameView = new RegisterNameView();
-      this.registerNameView.hide();
-      this.home.append(this.registerNameView.el);
-      this.registerPasswordView = new RegisterPasswordView();
-      this.registerPasswordView.hide();
-      this.home.append(this.registerPasswordView.el);
-      this.activitiesView = new ActivitiesView();
-      this.activitiesView.hide();
-      this.home.append(this.activitiesView.el);
-      this.contactsView = new ContactsView();
-      this.contactsView.hide();
-      this.home.append(this.contactsView.el);
-      this.micropostsView = new MicropostsView();
-      this.micropostsView.hide();
-      this.home.append(this.micropostsView.el);
-      if (userState.authenticated) {
-        this.displayActivities();
-        return this.activitiesView.load();
-      } else if (userState.password) {
-        return this.displayLogin();
-      } else if (userState.registered) {
-        return this.displayRegisterPassword();
-      } else {
-        return this.displayRegisterName();
-      }
+    AppView.prototype.onActivitiesClicked = function() {
+      return this.changeSubView(this.activitiesView);
+    };
+
+    AppView.prototype.onContactsClicked = function() {
+      return this.changeSubView(this.contactsView);
+    };
+
+    AppView.prototype.displayProfile = function() {
+      return this.changeSubView(this.profileView);
     };
 
     AppView.prototype.displayActivities = function() {
-      var _this = this;
-      return this.changeView(this.activitiesView, function() {
-        _this.menu.removeClass('hidden');
-        return _this.menu.fadeIn();
-      });
+      return this.changeSubView(this.activitiesView);
     };
 
-    AppView.prototype.displayLogin = function() {
-      return this.changeView(this.loginView);
+    AppView.prototype.displayHome = function() {
+      this.displayMenu();
+      return this.displayActivities();
     };
 
     AppView.prototype.displayRegisterPassword = function() {
@@ -732,11 +827,105 @@ window.require.define({"views/app_view": function(exports, require, module) {
       return this.changeView(this.registerNameView);
     };
 
+    AppView.prototype.displayLogin = function() {
+      return this.changeView(this.loginView);
+    };
+
+    AppView.prototype.displayMenu = function() {
+      this.menu.removeClass('hidden');
+      return this.menu.fadeIn();
+    };
+
+    AppView.prototype.checkUserState = function(callback) {
+      var _this = this;
+      return request.get('user/state/', function(err, data) {
+        if (err) {
+          return alert("Something went wrong, can't load newebe data.");
+        } else {
+          return _this.start(data, callback);
+        }
+      });
+    };
+
+    AppView.prototype.start = function(userState, callback) {
+      this.home = this.$('#home');
+      this.menu = this.$("#navigation");
+      this.home.html(null);
+      this.loginView = this._addView(LoginView);
+      this.registerNameView = this._addView(RegisterNameView);
+      this.registerPasswordView = this._addView(RegisterPasswordView);
+      this.activitiesView = this._addView(ActivitiesView);
+      this.contactsView = this._addView(ContactsView);
+      this.profileView = this._addView(ProfileView);
+      this.micropostsView = this._addView(MicropostsView);
+      if (userState.authenticated) {
+        if (callback != null) {
+          callback();
+        } else {
+          this.displayHome();
+          this.activitiesView.load();
+        }
+      } else if (userState.password) {
+        this.displayLogin();
+      } else if (userState.registered) {
+        this.displayRegisterPassword();
+      } else {
+        this.displayRegisterName();
+      }
+      return this.isLoaded = true;
+    };
+
+    AppView.prototype._addView = function(viewClass) {
+      var view;
+      view = new viewClass();
+      view.hide();
+      this.home.append(view.el);
+      return view;
+    };
+
+    AppView.prototype.displayView = function(view) {
+      var showView,
+        _this = this;
+      showView = function() {
+        if (view.fetch != null) {
+          view.fetch();
+        }
+        return _this.changeView(view, function() {
+          _this.menu.removeClass('hidden');
+          return _this.menu.fadeIn();
+        });
+      };
+      if (this.isLoaded) {
+        return displayView();
+      } else {
+        return this.checkUserState(showView);
+      }
+    };
+
+    AppView.prototype.changeSubView = function(subView, callback) {
+      var showView,
+        _this = this;
+      showView = function() {
+        subView.fadeIn();
+        _this.currentSubView = subView;
+        if (!_this.currentSubView.isLoaded && (_this.currentSubView.fetch != null)) {
+          _this.currentSubView.fetch();
+        }
+        if (callback != null) {
+          return callback();
+        }
+      };
+      if (this.currentSubView != null) {
+        return this.currentSubView.fadeOut(showView);
+      } else {
+        return showView();
+      }
+    };
+
     AppView.prototype.changeView = function(view, callback) {
       var _this = this;
-      if (view !== this.activitiesView) {
-        this.menu.fadeOut();
-      }
+      this.currentView = view;
+      this.menu.fadeOut();
       return this.home.children().fadeOut(function() {
         _this.home.hide();
         view.$el.show();
@@ -755,9 +944,8 @@ window.require.define({"views/app_view": function(exports, require, module) {
 
   })(View);
   
-}});
-
-window.require.define({"views/contacts_view": function(exports, require, module) {
+});
+window.require.register("views/contacts_view", function(exports, require, module) {
   var ContactsView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -778,15 +966,16 @@ window.require.define({"views/contacts_view": function(exports, require, module)
       return require('./templates/contacts');
     };
 
-    ContactsView.prototype.afterRender = function() {};
+    ContactsView.prototype.afterRender = function() {
+      return this.isLoaded = true;
+    };
 
     return ContactsView;
 
   })(View);
   
-}});
-
-window.require.define({"views/login_view": function(exports, require, module) {
+});
+window.require.register("views/login_view", function(exports, require, module) {
   var LoginView, QuestionView, request,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -826,7 +1015,7 @@ window.require.define({"views/login_view": function(exports, require, module) {
             return _this.field.animate({
               boxShadow: '0'
             }, function() {
-              return Newebe.views.appView.displayActivities();
+              return Newebe.views.appView.displayHome();
             });
           }
         });
@@ -837,9 +1026,8 @@ window.require.define({"views/login_view": function(exports, require, module) {
 
   })(QuestionView);
   
-}});
-
-window.require.define({"views/microposts_view": function(exports, require, module) {
+});
+window.require.register("views/microposts_view", function(exports, require, module) {
   var MicropostsView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -860,15 +1048,84 @@ window.require.define({"views/microposts_view": function(exports, require, modul
       return require('./templates/microposts');
     };
 
-    MicropostsView.prototype.afterRender = function() {};
+    MicropostsView.prototype.afterRender = function() {
+      return this.isLoaded = true;
+    };
 
     return MicropostsView;
 
   })(View);
   
-}});
+});
+window.require.register("views/profile_view", function(exports, require, module) {
+  var Owner, ProfileView, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-window.require.define({"views/question_view": function(exports, require, module) {
+  View = require('../lib/view');
+
+  Owner = require('../models/owner_model');
+
+  module.exports = ProfileView = (function(_super) {
+
+    __extends(ProfileView, _super);
+
+    function ProfileView() {
+      this.setOwnerUrl = __bind(this.setOwnerUrl, this);
+      return ProfileView.__super__.constructor.apply(this, arguments);
+    }
+
+    ProfileView.prototype.id = 'profile-view';
+
+    ProfileView.prototype.template = function() {
+      return require('./templates/profile');
+    };
+
+    ProfileView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    ProfileView.prototype.render = function() {
+      this.model = new Owner();
+      return this.isLoaded = false;
+    };
+
+    ProfileView.prototype.fetch = function() {
+      var _this = this;
+      if (!this.isLoaded) {
+        return this.model.fetch({
+          success: function() {
+            if (_this.model.get("url") == null) {
+              _this.setOwnerUrl();
+            }
+            _this.beforeRender();
+            _this.$el.html(_this.template()(_this.getRenderData()));
+            _this.afterRender();
+            _this.isLoaded = true;
+            return _this;
+          },
+          error: function() {
+            return alert("something went wrong while retrieving profile.");
+          }
+        });
+      }
+    };
+
+    ProfileView.prototype.setOwnerUrl = function() {
+      this.model.set('url', "" + window.location.protocol + "//" + window.location.host + "/");
+      return this.model.save();
+    };
+
+    return ProfileView;
+
+  })(View);
+  
+});
+window.require.register("views/question_view", function(exports, require, module) {
   var QuestionView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -918,9 +1175,8 @@ window.require.define({"views/question_view": function(exports, require, module)
 
   })(View);
   
-}});
-
-window.require.define({"views/register_name_view": function(exports, require, module) {
+});
+window.require.register("views/register_name_view", function(exports, require, module) {
   var QuestionView, RegisterNameView, request,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -966,9 +1222,8 @@ window.require.define({"views/register_name_view": function(exports, require, mo
 
   })(QuestionView);
   
-}});
-
-window.require.define({"views/register_password_view": function(exports, require, module) {
+});
+window.require.register("views/register_password_view", function(exports, require, module) {
   var QuestionView, RegisterPasswordView, request,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1002,7 +1257,7 @@ window.require.define({"views/register_password_view": function(exports, require
           password: password
         };
         return request.post('register/password/', data, function(err, data) {
-          return Newebe.views.appView.displayActivities();
+          return Newebe.views.appView.displayHome();
         });
       }
     };
@@ -1011,9 +1266,8 @@ window.require.define({"views/register_password_view": function(exports, require
 
   })(QuestionView);
   
-}});
-
-window.require.define({"views/templates/activities": function(exports, require, module) {
+});
+window.require.register("views/templates/activities", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
@@ -1023,9 +1277,8 @@ window.require.define({"views/templates/activities": function(exports, require, 
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/activity": function(exports, require, module) {
+});
+window.require.register("views/templates/activity", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
@@ -1035,9 +1288,8 @@ window.require.define({"views/templates/activity": function(exports, require, mo
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/activity_list": function(exports, require, module) {
+});
+window.require.register("views/templates/activity_list", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
@@ -1047,9 +1299,8 @@ window.require.define({"views/templates/activity_list": function(exports, requir
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/contacts": function(exports, require, module) {
+});
+window.require.register("views/templates/contacts", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
@@ -1059,33 +1310,45 @@ window.require.define({"views/templates/contacts": function(exports, require, mo
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/home": function(exports, require, module) {
+});
+window.require.register("views/templates/home", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" class="active">activities</a></li><li><a id="microposts-button">microposts</a></li><li><a id="contacts-button">contacts</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" href="#activities" class="active">activities</a></li><li><a id="microposts-button" href="#microposts">microposts</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/microposts": function(exports, require, module) {
+});
+window.require.register("views/templates/microposts", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<h1>microposts</h1>');
+  buf.push('<div class="pa1"><textarea id="micropost-field"></textarea></div><div class="pa1"><button id="micropost-post-button">send</button></div><h1>all</h1><div id="microposts-all"></div>');
   }
   return buf.join("");
   };
-}});
-
-window.require.define({"views/templates/question": function(exports, require, module) {
+});
+window.require.register("views/templates/profile", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="line"><div class="w33 mod left"><img id="profile-picture" src="static/images/owner_thumbnail.jpg"/><p><input');
+  buf.push(attrs({ 'id':('profile-name-field'), 'type':("text"), 'value':("" + (model.name) + "") }, {"type":true,"value":true}));
+  buf.push('/></p><p><input');
+  buf.push(attrs({ 'id':('profile-url-field'), 'type':("text"), 'value':("" + (model.url) + "") }, {"type":true,"value":true}));
+  buf.push('/></p><p><button>change thumbnail</button></p><p><button>change password</button></p></div><div class="w66 mod left"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/question", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
@@ -1097,5 +1360,4 @@ window.require.define({"views/templates/question": function(exports, require, mo
   }
   return buf.join("");
   };
-}});
-
+});

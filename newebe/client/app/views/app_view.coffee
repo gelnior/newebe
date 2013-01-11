@@ -3,6 +3,7 @@ AppRouter = require '../routers/app_router'
 ActivitiesView = require './activities_view'
 MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
+ProfileView = require './profile_view'
 LoginView = require './login_view'
 RegisterNameView = require './register_name_view'
 RegisterPasswordView = require './register_password_view'
@@ -17,9 +18,6 @@ module.exports = class AppView extends View
     template: ->
         require('./templates/home')
 
-    initialize: ->
-        @router = Newebe?.routers.appRouter = new AppRouter()
-
     events:
         'click #logout-button': 'onLogoutClicked'
 
@@ -31,45 +29,62 @@ module.exports = class AppView extends View
             else
                 @displayLogin()
 
+    onMicropostsClicked: -> @changeSubView @micropostsView
+
+    onActivitiesClicked: -> @changeSubView @activitiesView
+
+    onContactsClicked: -> @changeSubView @contactsView
+
+    displayProfile: => @changeSubView @profileView
+
+    displayActivities: => @changeSubView @activitiesView
+
+    displayHome: =>
+        @displayMenu()
+        @displayActivities()
+
+    displayRegisterPassword: => @changeView @registerPasswordView
+
+    displayRegisterName: => @changeView @registerNameView
+
+    displayLogin: => @changeView @loginView
+
+    displayMenu: =>
+        @menu.removeClass 'hidden'
+        @menu.fadeIn()
+
     # Depending on user state given by backend, it displays corresponding page.
     # State is described by following parameters :
     # * authenticated : if user is logged in or not.
     # * registered: if user is registered or not.
     # * password: if  user registered his password or not.
-    checkUserState: ->
+    checkUserState: (callback) ->
         request.get 'user/state/', (err, data) =>
             if err
                 alert "Something went wrong, can't load newebe data."
             else
-                @start data
+                @start data, callback
 
     # Display a page corresponding to user state.
-    start: (userState) ->
-        @home = @$('#home')
+    start: (userState, callback) ->
+        @home = @$ '#home'
+        @menu = @$ "#navigation"
         @home.html null
-        @menu = @$("#navigation")
 
-        @loginView = new LoginView()
-        @home.append @loginView.el
-        @registerNameView = new RegisterNameView()
-        @registerNameView.hide()
-        @home.append @registerNameView.el
-        @registerPasswordView = new RegisterPasswordView()
-        @registerPasswordView.hide()
-        @home.append @registerPasswordView.el
-        @activitiesView = new ActivitiesView()
-        @activitiesView.hide()
-        @home.append @activitiesView.el
-        @contactsView = new ContactsView()
-        @contactsView.hide()
-        @home.append @contactsView.el
-        @micropostsView = new MicropostsView()
-        @micropostsView.hide()
-        @home.append @micropostsView.el
-
+        @loginView = @_addView LoginView
+        @registerNameView = @_addView RegisterNameView
+        @registerPasswordView = @_addView RegisterPasswordView
+        @activitiesView = @_addView ActivitiesView
+        @contactsView = @_addView ContactsView
+        @profileView = @_addView ProfileView
+        @micropostsView = @_addView MicropostsView
+        
         if userState.authenticated
-            @displayActivities()
-            @activitiesView.load()
+            if callback?
+                callback()
+            else
+                @displayHome()
+                @activitiesView.load()
         else if userState.password
             @displayLogin()
         else if userState.registered
@@ -77,24 +92,45 @@ module.exports = class AppView extends View
         else
             @displayRegisterName()
 
-    displayActivities: =>
-        @changeView @activitiesView, =>
-            @menu.removeClass 'hidden'
-            @menu.fadeIn()
+        @isLoaded = true
 
-    displayLogin: =>
-        @changeView @loginView
+    _addView: (viewClass) =>
+        view= new viewClass()
+        view.hide()
+        @home.append view.el
+        view
 
-    displayRegisterPassword: =>
-        @changeView @registerPasswordView
 
-    displayRegisterName: =>
-        @changeView @registerNameView
+    displayView: (view) =>
+        showView = =>
+            view.fetch() if view.fetch?
+            @changeView view, =>
+                @menu.removeClass 'hidden'
+                @menu.fadeIn()
+
+        if @isLoaded
+            displayView()
+        else
+            @checkUserState showView
+
+    changeSubView: (subView, callback) =>
+        showView = =>
+            subView.fadeIn()
+            @currentSubView = subView
+            if not @currentSubView.isLoaded and @currentSubView.fetch?
+                @currentSubView.fetch()
+            callback() if callback?
+
+        if @currentSubView?
+            @currentSubView.fadeOut showView
+        else
+            showView()
 
     # Little function to change current view in a smooth way by using fade in
     # and out effects.
     changeView: (view, callback) =>
-        @menu.fadeOut() if view isnt @activitiesView
+        @currentView = view
+        @menu.fadeOut()
         @home.children().fadeOut =>
             @home.hide()
             view.$el.show()
