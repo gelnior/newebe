@@ -114,6 +114,7 @@ module.exports = class AppView extends View
             @checkUserState showView
 
     changeSubView: (subView, callback) =>
+        @changeMenuState subView
         showView = =>
             subView.fadeIn()
             @currentSubView = subView
@@ -137,3 +138,14 @@ module.exports = class AppView extends View
             @home.fadeIn =>
                 view.focusField() if view.focusField?
             callback() if callback?
+
+    changeMenuState: (view) =>
+        @$("#navigation").find("a").removeClass "active"
+        if view is @activitiesView
+            @$("#activities-button").addClass "active"
+        else if view is @contactsView
+            @$("#contacts-button").addClass "active"
+        else if view is @micropostsView
+            @$("#microposts-button").addClass "active"
+        else if view is @profileView
+            @$("#profile-button").addClass "active"

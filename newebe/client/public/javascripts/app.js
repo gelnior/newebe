@@ -749,6 +749,8 @@ window.require.register("views/app_view", function(exports, require, module) {
     __extends(AppView, _super);
 
     function AppView() {
+      this.changeMenuState = __bind(this.changeMenuState, this);
+
       this.changeView = __bind(this.changeView, this);
 
       this.changeSubView = __bind(this.changeSubView, this);
@@ -905,6 +907,7 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.changeSubView = function(subView, callback) {
       var showView,
         _this = this;
+      this.changeMenuState(subView);
       showView = function() {
         subView.fadeIn();
         _this.currentSubView = subView;
@@ -938,6 +941,19 @@ window.require.register("views/app_view", function(exports, require, module) {
           return callback();
         }
       });
+    };
+
+    AppView.prototype.changeMenuState = function(view) {
+      this.$("#navigation").find("a").removeClass("active");
+      if (view === this.activitiesView) {
+        return this.$("#activities-button").addClass("active");
+      } else if (view === this.contactsView) {
+        return this.$("#contacts-button").addClass("active");
+      } else if (view === this.micropostsView) {
+        return this.$("#microposts-button").addClass("active");
+      } else if (view === this.profileView) {
+        return this.$("#profile-button").addClass("active");
+      }
     };
 
     return AppView;
