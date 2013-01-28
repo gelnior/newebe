@@ -47,7 +47,7 @@ module.exports = class AppView extends View
         if @currentView?
             @currentView.fadeOut showHome
         else
-            @showHome
+            showHome()
 
     displayRegisterPassword: => @changeView @registerPasswordView
 

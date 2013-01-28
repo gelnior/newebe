@@ -834,7 +834,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       if (this.currentView != null) {
         return this.currentView.fadeOut(showHome);
       } else {
-        return this.showHome;
+        return showHome();
       }
     };
 
