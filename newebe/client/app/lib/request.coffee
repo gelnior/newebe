@@ -17,20 +17,20 @@ exports.request = (type, url, data, callback) ->
 
 # Sends a get request with data as body
 # Expected callbacks: success and error
-exports.get = (url, callbacks) ->
-    exports.request "GET", url, null, callbacks
+exports.get = (url, callback) ->
+    exports.request "GET", url, null, callback
 
 # Sends a post request with data as body
 # Expected callbacks: success and error
-exports.post = (url, data, callbacks) ->
-    exports.request "POST", url, data, callbacks
+exports.post = (url, data, callback) ->
+    exports.request "POST", url, data, callback
 
 # Sends a put request with data as body
 # Expected callbacks: success and error
-exports.put = (url, data, callbacks) ->
-    exports.request "PUT", url, data, callbacks
+exports.put = (url, data, callback) ->
+    exports.request "PUT", url, data, callback
 
 # Sends a delete request with data as body
 # Expected callbacks: success and error
-exports.del = (url, callbacks) ->
-    exports.request "DELETE", url, null, callbacks
+exports.del = (url, callback) ->
+    exports.request "DELETE", url, null, callback
