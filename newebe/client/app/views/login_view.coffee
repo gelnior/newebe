@@ -1,5 +1,4 @@
 QuestionView = require './question_view'
-request = require '../lib/request'
 
 module.exports = class LoginView extends QuestionView
     id: 'login-view'
@@ -8,15 +7,13 @@ module.exports = class LoginView extends QuestionView
         @question = "What is your sesame ?"
         @fieldId = "login-password"
         @type = "password"
+        @fieldName = "password"
+        @submitPath = 'login/json/'
         @render()
 
-    onSubmit: ->
-        password = @field.val()
-
-        if password.length > 0
-            req = request.post 'login/json/', password: password, (err, data) =>
-                if err
-                    @field.val null
-                else
-                    @field.animate {boxShadow: '0'}, =>
-                        Newebe.views.appView.displayHome()
+    onServerResponse: (err, data) =>
+        if err
+            @field.val null
+        else
+            @field.animate {boxShadow: '0'}, =>
+                Newebe.views.appView.displayHome()
