@@ -13697,7 +13697,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   }
 }(this));
 ;
-//     Backbone.js 0.9.2
+//     Backbone.js 0.9.10
 
 //     (c) 2010-2012 Jeremy Ashkenas, DocumentCloud Inc.
 //     Backbone may be freely distributed under the MIT license.
@@ -13709,7 +13709,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   // Initial Setup
   // -------------
 
-  // Save a reference to the global object (`window` in the browser, `global`
+  // Save a reference to the global object (`window` in the browser, `exports`
   // on the server).
   var root = this;
 
@@ -13717,9 +13717,11 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   // restored later on, if `noConflict` is used.
   var previousBackbone = root.Backbone;
 
-  // Create a local reference to slice/splice.
-  var slice = Array.prototype.slice;
-  var splice = Array.prototype.splice;
+  // Create a local reference to array methods.
+  var array = [];
+  var push = array.push;
+  var slice = array.slice;
+  var splice = array.splice;
 
   // The top-level namespace. All public Backbone classes and modules will
   // be attached to this. Exported for both CommonJS and the browser.
@@ -13731,23 +13733,14 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   }
 
   // Current version of the library. Keep in sync with `package.json`.
-  Backbone.VERSION = '0.9.2';
+  Backbone.VERSION = '0.9.10';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
   if (!_ && (typeof require !== 'undefined')) _ = require('underscore');
 
   // For Backbone's purposes, jQuery, Zepto, or Ender owns the `$` variable.
-  var $ = root.jQuery || root.Zepto || root.ender;
-
-  // Set the JavaScript library that will be used for DOM manipulation and
-  // Ajax calls (a.k.a. the `$` variable). By default Backbone will use: jQuery,
-  // Zepto, or Ender; but the `setDomLibrary()` method lets you inject an
-  // alternate JavaScript library (or a mock library for testing your views
-  // outside of a browser).
-  Backbone.setDomLibrary = function(lib) {
-    $ = lib;
-  };
+  Backbone.$ = root.jQuery || root.Zepto || root.ender;
 
   // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable
   // to its previous owner. Returns a reference to this Backbone object.
@@ -13768,14 +13761,51 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   Backbone.emulateJSON = false;
 
   // Backbone.Events
-  // -----------------
+  // ---------------
 
-  // Regular expression used to split event strings
+  // Regular expression used to split event strings.
   var eventSplitter = /\s+/;
 
+  // Implement fancy features of the Events API such as multiple event
+  // names `"change blur"` and jQuery-style event maps `{change: action}`
+  // in terms of the existing API.
+  var eventsApi = function(obj, action, name, rest) {
+    if (!name) return true;
+    if (typeof name === 'object') {
+      for (var key in name) {
+        obj[action].apply(obj, [key, name[key]].concat(rest));
+      }
+    } else if (eventSplitter.test(name)) {
+      var names = name.split(eventSplitter);
+      for (var i = 0, l = names.length; i < l; i++) {
+        obj[action].apply(obj, [names[i]].concat(rest));
+      }
+    } else {
+      return true;
+    }
+  };
+
+  // Optimized internal dispatch function for triggering events. Tries to
+  // keep the usual cases speedy (most Backbone events have 3 arguments).
+  var triggerEvents = function(events, args) {
+    var ev, i = -1, l = events.length;
+    switch (args.length) {
+    case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx);
+    return;
+    case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0]);
+    return;
+    case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0], args[1]);
+    return;
+    case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0], args[1], args[2]);
+    return;
+    default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
+    }
+  };
+
   // A module that can be mixed in to *any object* in order to provide it with
-  // custom events. You may bind with `on` or remove with `off` callback functions
-  // to an event; trigger`-ing an event fires all callbacks in succession.
+  // custom events. You may bind with `on` or remove with `off` callback
+  // functions to an event; `trigger`-ing an event fires all callbacks in
+  // succession.
   //
   //     var object = {};
   //     _.extend(object, Backbone.Events);
@@ -13784,58 +13814,59 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   //
   var Events = Backbone.Events = {
 
-    // Bind one or more space separated events, `events`, to a `callback`
-    // function. Passing `"all"` will bind the callback to all events fired.
-    on: function(events, callback, context) {
-
-      var calls, event, node, tail, list;
-      if (!callback) return this;
-      events = events.split(eventSplitter);
-      calls = this._callbacks || (this._callbacks = {});
-
-      // Create an immutable callback list, allowing traversal during
-      // modification.  The tail is an empty object that will always be used
-      // as the next node.
-      while (event = events.shift()) {
-        list = calls[event];
-        node = list ? list.tail : {};
-        node.next = tail = {};
-        node.context = context;
-        node.callback = callback;
-        calls[event] = {tail: tail, next: list ? list.next : node};
-      }
-
+    // Bind one or more space separated events, or an events map,
+    // to a `callback` function. Passing `"all"` will bind the callback to
+    // all events fired.
+    on: function(name, callback, context) {
+      if (!(eventsApi(this, 'on', name, [callback, context]) && callback)) return this;
+      this._events || (this._events = {});
+      var list = this._events[name] || (this._events[name] = []);
+      list.push({callback: callback, context: context, ctx: context || this});
       return this;
     },
 
-    // Remove one or many callbacks. If `context` is null, removes all callbacks
-    // with that function. If `callback` is null, removes all callbacks for the
-    // event. If `events` is null, removes all bound callbacks for all events.
-    off: function(events, callback, context) {
-      var event, calls, node, tail, cb, ctx;
+    // Bind events to only be triggered a single time. After the first time
+    // the callback is invoked, it will be removed.
+    once: function(name, callback, context) {
+      if (!(eventsApi(this, 'once', name, [callback, context]) && callback)) return this;
+      var self = this;
+      var once = _.once(function() {
+        self.off(name, once);
+        callback.apply(this, arguments);
+      });
+      once._callback = callback;
+      this.on(name, once, context);
+      return this;
+    },
 
-      // No events, or removing *all* events.
-      if (!(calls = this._callbacks)) return;
-      if (!(events || callback || context)) {
-        delete this._callbacks;
+    // Remove one or many callbacks. If `context` is null, removes all
+    // callbacks with that function. If `callback` is null, removes all
+    // callbacks for the event. If `name` is null, removes all bound
+    // callbacks for all events.
+    off: function(name, callback, context) {
+      var list, ev, events, names, i, l, j, k;
+      if (!this._events || !eventsApi(this, 'off', name, [callback, context])) return this;
+      if (!name && !callback && !context) {
+        this._events = {};
         return this;
       }
 
-      // Loop through the listed events and contexts, splicing them out of the
-      // linked list of callbacks if appropriate.
-      events = events ? events.split(eventSplitter) : _.keys(calls);
-      while (event = events.shift()) {
-        node = calls[event];
-        delete calls[event];
-        if (!node || !(callback || context)) continue;
-        // Create a new list, omitting the indicated callbacks.
-        tail = node.tail;
-        while ((node = node.next) !== tail) {
-          cb = node.callback;
-          ctx = node.context;
-          if ((callback && cb !== callback) || (context && ctx !== context)) {
-            this.on(event, cb, ctx);
+      names = name ? [name] : _.keys(this._events);
+      for (i = 0, l = names.length; i < l; i++) {
+        name = names[i];
+        if (list = this._events[name]) {
+          events = [];
+          if (callback || context) {
+            for (j = 0, k = list.length; j < k; j++) {
+              ev = list[j];
+              if ((callback && callback !== ev.callback &&
+                               callback !== ev.callback._callback) ||
+                  (context && context !== ev.context)) {
+                events.push(ev);
+              }
+            }
           }
+          this._events[name] = events;
         }
       }
 
@@ -13846,39 +13877,53 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // passed the same arguments as `trigger` is, apart from the event name
     // (unless you're listening on `"all"`, which will cause your callback to
     // receive the true name of the event as the first argument).
-    trigger: function(events) {
-      var event, node, calls, tail, args, all, rest;
-      if (!(calls = this._callbacks)) return this;
-      all = calls.all;
-      events = events.split(eventSplitter);
-      rest = slice.call(arguments, 1);
+    trigger: function(name) {
+      if (!this._events) return this;
+      var args = slice.call(arguments, 1);
+      if (!eventsApi(this, 'trigger', name, args)) return this;
+      var events = this._events[name];
+      var allEvents = this._events.all;
+      if (events) triggerEvents(events, args);
+      if (allEvents) triggerEvents(allEvents, arguments);
+      return this;
+    },
 
-      // For each event, walk through the linked list of callbacks twice,
-      // first to trigger the event, then to trigger any `"all"` callbacks.
-      while (event = events.shift()) {
-        if (node = calls[event]) {
-          tail = node.tail;
-          while ((node = node.next) !== tail) {
-            node.callback.apply(node.context || this, rest);
-          }
+    // An inversion-of-control version of `on`. Tell *this* object to listen to
+    // an event in another object ... keeping track of what it's listening to.
+    listenTo: function(obj, name, callback) {
+      var listeners = this._listeners || (this._listeners = {});
+      var id = obj._listenerId || (obj._listenerId = _.uniqueId('l'));
+      listeners[id] = obj;
+      obj.on(name, typeof name === 'object' ? this : callback, this);
+      return this;
+    },
+
+    // Tell this object to stop listening to either specific events ... or
+    // to every object it's currently listening to.
+    stopListening: function(obj, name, callback) {
+      var listeners = this._listeners;
+      if (!listeners) return;
+      if (obj) {
+        obj.off(name, typeof name === 'object' ? this : callback, this);
+        if (!name && !callback) delete listeners[obj._listenerId];
+      } else {
+        if (typeof name === 'object') callback = this;
+        for (var id in listeners) {
+          listeners[id].off(name, callback, this);
         }
-        if (node = all) {
-          tail = node.tail;
-          args = [event].concat(rest);
-          while ((node = node.next) !== tail) {
-            node.callback.apply(node.context || this, args);
-          }
-        }
+        this._listeners = {};
       }
-
       return this;
     }
-
   };
 
   // Aliases for backwards compatibility.
   Events.bind   = Events.on;
   Events.unbind = Events.off;
+
+  // Allow the `Backbone` object to serve as a global event bus, for folks who
+  // want global "pubsub" in a convenient place.
+  _.extend(Backbone, Events);
 
   // Backbone.Model
   // --------------
@@ -13887,24 +13932,16 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   // is automatically generated and assigned for you.
   var Model = Backbone.Model = function(attributes, options) {
     var defaults;
-    attributes || (attributes = {});
-    if (options && options.parse) attributes = this.parse(attributes);
-    if (defaults = getValue(this, 'defaults')) {
-      attributes = _.extend({}, defaults, attributes);
-    }
-    if (options && options.collection) this.collection = options.collection;
-    this.attributes = {};
-    this._escapedAttributes = {};
+    var attrs = attributes || {};
     this.cid = _.uniqueId('c');
+    this.attributes = {};
+    if (options && options.collection) this.collection = options.collection;
+    if (options && options.parse) attrs = this.parse(attrs, options) || {};
+    if (defaults = _.result(this, 'defaults')) {
+      attrs = _.defaults({}, attrs, defaults);
+    }
+    this.set(attrs, options);
     this.changed = {};
-    this._silent = {};
-    this._pending = {};
-    this.set(attributes, {silent: true});
-    // Reset change tracking.
-    this.changed = {};
-    this._silent = {};
-    this._pending = {};
-    this._previousAttributes = _.clone(this.attributes);
     this.initialize.apply(this, arguments);
   };
 
@@ -13913,14 +13950,6 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
     // A hash of attributes whose current and previous value differ.
     changed: null,
-
-    // A hash of attributes that have silently changed since the last time
-    // `change` was called.  Will become pending attributes on the next call.
-    _silent: null,
-
-    // A hash of attributes that have changed since the last `'change'` event
-    // began.
-    _pending: null,
 
     // The default name for the JSON `id` attribute is `"id"`. MongoDB and
     // CouchDB users may want to set this to `"_id"`.
@@ -13935,6 +13964,11 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return _.clone(this.attributes);
     },
 
+    // Proxy `Backbone.sync` by default.
+    sync: function() {
+      return Backbone.sync.apply(this, arguments);
+    },
+
     // Get the value of an attribute.
     get: function(attr) {
       return this.attributes[attr];
@@ -13942,10 +13976,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
     // Get the HTML-escaped value of an attribute.
     escape: function(attr) {
-      var html;
-      if (html = this._escapedAttributes[attr]) return html;
-      var val = this.get(attr);
-      return this._escapedAttributes[attr] = _.escape(val == null ? '' : '' + val);
+      return _.escape(this.get(attr));
     },
 
     // Returns `true` if the attribute contains a value that is not null
@@ -13954,146 +13985,192 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return this.get(attr) != null;
     },
 
+    // ----------------------------------------------------------------------
+
     // Set a hash of model attributes on the object, firing `"change"` unless
     // you choose to silence it.
-    set: function(key, value, options) {
-      var attrs, attr, val;
+    set: function(key, val, options) {
+      var attr, attrs, unset, changes, silent, changing, prev, current;
+      if (key == null) return this;
 
-      // Handle both
-      if (_.isObject(key) || key == null) {
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (typeof key === 'object') {
         attrs = key;
-        options = value;
+        options = val;
       } else {
-        attrs = {};
-        attrs[key] = value;
+        (attrs = {})[key] = val;
       }
 
-      // Extract attributes and options.
       options || (options = {});
-      if (!attrs) return this;
-      if (attrs instanceof Model) attrs = attrs.attributes;
-      if (options.unset) for (attr in attrs) attrs[attr] = void 0;
 
       // Run validation.
       if (!this._validate(attrs, options)) return false;
 
+      // Extract attributes and options.
+      unset           = options.unset;
+      silent          = options.silent;
+      changes         = [];
+      changing        = this._changing;
+      this._changing  = true;
+
+      if (!changing) {
+        this._previousAttributes = _.clone(this.attributes);
+        this.changed = {};
+      }
+      current = this.attributes, prev = this._previousAttributes;
+
       // Check for changes of `id`.
       if (this.idAttribute in attrs) this.id = attrs[this.idAttribute];
 
-      var changes = options.changes = {};
-      var now = this.attributes;
-      var escaped = this._escapedAttributes;
-      var prev = this._previousAttributes || {};
-
-      // For each `set` attribute...
+      // For each `set` attribute, update or delete the current value.
       for (attr in attrs) {
         val = attrs[attr];
-
-        // If the new and current value differ, record the change.
-        if (!_.isEqual(now[attr], val) || (options.unset && _.has(now, attr))) {
-          delete escaped[attr];
-          (options.silent ? this._silent : changes)[attr] = true;
-        }
-
-        // Update or delete the current value.
-        options.unset ? delete now[attr] : now[attr] = val;
-
-        // If the new and previous value differ, record the change.  If not,
-        // then remove changes for this attribute.
-        if (!_.isEqual(prev[attr], val) || (_.has(now, attr) != _.has(prev, attr))) {
+        if (!_.isEqual(current[attr], val)) changes.push(attr);
+        if (!_.isEqual(prev[attr], val)) {
           this.changed[attr] = val;
-          if (!options.silent) this._pending[attr] = true;
         } else {
           delete this.changed[attr];
-          delete this._pending[attr];
+        }
+        unset ? delete current[attr] : current[attr] = val;
+      }
+
+      // Trigger all relevant attribute changes.
+      if (!silent) {
+        if (changes.length) this._pending = true;
+        for (var i = 0, l = changes.length; i < l; i++) {
+          this.trigger('change:' + changes[i], this, current[changes[i]], options);
         }
       }
 
-      // Fire the `"change"` events.
-      if (!options.silent) this.change(options);
+      if (changing) return this;
+      if (!silent) {
+        while (this._pending) {
+          this._pending = false;
+          this.trigger('change', this, options);
+        }
+      }
+      this._pending = false;
+      this._changing = false;
       return this;
     },
 
     // Remove an attribute from the model, firing `"change"` unless you choose
     // to silence it. `unset` is a noop if the attribute doesn't exist.
     unset: function(attr, options) {
-      (options || (options = {})).unset = true;
-      return this.set(attr, null, options);
+      return this.set(attr, void 0, _.extend({}, options, {unset: true}));
     },
 
     // Clear all attributes on the model, firing `"change"` unless you choose
     // to silence it.
     clear: function(options) {
-      (options || (options = {})).unset = true;
-      return this.set(_.clone(this.attributes), options);
+      var attrs = {};
+      for (var key in this.attributes) attrs[key] = void 0;
+      return this.set(attrs, _.extend({}, options, {unset: true}));
     },
+
+    // Determine if the model has changed since the last `"change"` event.
+    // If you specify an attribute name, determine if that attribute has changed.
+    hasChanged: function(attr) {
+      if (attr == null) return !_.isEmpty(this.changed);
+      return _.has(this.changed, attr);
+    },
+
+    // Return an object containing all the attributes that have changed, or
+    // false if there are no changed attributes. Useful for determining what
+    // parts of a view need to be updated and/or what attributes need to be
+    // persisted to the server. Unset attributes will be set to undefined.
+    // You can also pass an attributes object to diff against the model,
+    // determining if there *would be* a change.
+    changedAttributes: function(diff) {
+      if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
+      var val, changed = false;
+      var old = this._changing ? this._previousAttributes : this.attributes;
+      for (var attr in diff) {
+        if (_.isEqual(old[attr], (val = diff[attr]))) continue;
+        (changed || (changed = {}))[attr] = val;
+      }
+      return changed;
+    },
+
+    // Get the previous value of an attribute, recorded at the time the last
+    // `"change"` event was fired.
+    previous: function(attr) {
+      if (attr == null || !this._previousAttributes) return null;
+      return this._previousAttributes[attr];
+    },
+
+    // Get all of the attributes of the model at the time of the previous
+    // `"change"` event.
+    previousAttributes: function() {
+      return _.clone(this._previousAttributes);
+    },
+
+    // ---------------------------------------------------------------------
 
     // Fetch the model from the server. If the server's representation of the
     // model differs from its current attributes, they will be overriden,
     // triggering a `"change"` event.
     fetch: function(options) {
       options = options ? _.clone(options) : {};
-      var model = this;
+      if (options.parse === void 0) options.parse = true;
       var success = options.success;
-      options.success = function(resp, status, xhr) {
-        if (!model.set(model.parse(resp, xhr), options)) return false;
-        if (success) success(model, resp);
+      options.success = function(model, resp, options) {
+        if (!model.set(model.parse(resp, options), options)) return false;
+        if (success) success(model, resp, options);
       };
-      options.error = Backbone.wrapError(options.error, model, options);
-      return (this.sync || Backbone.sync).call(this, 'read', this, options);
+      return this.sync('read', this, options);
     },
 
     // Set a hash of model attributes, and sync the model to the server.
     // If the server returns an attributes hash that differs, the model's
     // state will be `set` again.
-    save: function(key, value, options) {
-      var attrs, current;
+    save: function(key, val, options) {
+      var attrs, success, method, xhr, attributes = this.attributes;
 
-      // Handle both `("key", value)` and `({key: value})` -style calls.
-      if (_.isObject(key) || key == null) {
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (key == null || typeof key === 'object') {
         attrs = key;
-        options = value;
+        options = val;
       } else {
-        attrs = {};
-        attrs[key] = value;
-      }
-      options = options ? _.clone(options) : {};
-
-      // If we're "wait"-ing to set changed attributes, validate early.
-      if (options.wait) {
-        if (!this._validate(attrs, options)) return false;
-        current = _.clone(this.attributes);
+        (attrs = {})[key] = val;
       }
 
-      // Regular saves `set` attributes before persisting to the server.
-      var silentOptions = _.extend({}, options, {silent: true});
-      if (attrs && !this.set(attrs, options.wait ? silentOptions : options)) {
-        return false;
+      // If we're not waiting and attributes exist, save acts as `set(attr).save(null, opts)`.
+      if (attrs && (!options || !options.wait) && !this.set(attrs, options)) return false;
+
+      options = _.extend({validate: true}, options);
+
+      // Do not persist invalid models.
+      if (!this._validate(attrs, options)) return false;
+
+      // Set temporary attributes if `{wait: true}`.
+      if (attrs && options.wait) {
+        this.attributes = _.extend({}, attributes, attrs);
       }
 
       // After a successful server-side save, the client is (optionally)
       // updated with the server-side state.
-      var model = this;
-      var success = options.success;
-      options.success = function(resp, status, xhr) {
-        var serverAttrs = model.parse(resp, xhr);
-        if (options.wait) {
-          delete options.wait;
-          serverAttrs = _.extend(attrs || {}, serverAttrs);
+      if (options.parse === void 0) options.parse = true;
+      success = options.success;
+      options.success = function(model, resp, options) {
+        // Ensure attributes are restored during synchronous saves.
+        model.attributes = attributes;
+        var serverAttrs = model.parse(resp, options);
+        if (options.wait) serverAttrs = _.extend(attrs || {}, serverAttrs);
+        if (_.isObject(serverAttrs) && !model.set(serverAttrs, options)) {
+          return false;
         }
-        if (!model.set(serverAttrs, options)) return false;
-        if (success) {
-          success(model, resp);
-        } else {
-          model.trigger('sync', model, resp, options);
-        }
+        if (success) success(model, resp, options);
       };
 
       // Finish configuring and sending the Ajax request.
-      options.error = Backbone.wrapError(options.error, model, options);
-      var method = this.isNew() ? 'create' : 'update';
-      var xhr = (this.sync || Backbone.sync).call(this, method, this, options);
-      if (options.wait) this.set(current, silentOptions);
+      method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
+      if (method === 'patch') options.attrs = attrs;
+      xhr = this.sync(method, this, options);
+
+      // Restore attributes.
+      if (attrs && options.wait) this.attributes = attributes;
+
       return xhr;
     },
 
@@ -14105,27 +14182,22 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       var model = this;
       var success = options.success;
 
-      var triggerDestroy = function() {
+      var destroy = function() {
         model.trigger('destroy', model, model.collection, options);
       };
 
+      options.success = function(model, resp, options) {
+        if (options.wait || model.isNew()) destroy();
+        if (success) success(model, resp, options);
+      };
+
       if (this.isNew()) {
-        triggerDestroy();
+        options.success(this, null, options);
         return false;
       }
 
-      options.success = function(resp) {
-        if (options.wait) triggerDestroy();
-        if (success) {
-          success(model, resp);
-        } else {
-          model.trigger('sync', model, resp, options);
-        }
-      };
-
-      options.error = Backbone.wrapError(options.error, model, options);
-      var xhr = (this.sync || Backbone.sync).call(this, 'delete', this, options);
-      if (!options.wait) triggerDestroy();
+      var xhr = this.sync('delete', this, options);
+      if (!options.wait) destroy();
       return xhr;
     },
 
@@ -14133,14 +14205,14 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // using Backbone's restful methods, override this to change the endpoint
     // that will be called.
     url: function() {
-      var base = getValue(this, 'urlRoot') || getValue(this.collection, 'url') || urlError();
+      var base = _.result(this, 'urlRoot') || _.result(this.collection, 'url') || urlError();
       if (this.isNew()) return base;
-      return base + (base.charAt(base.length - 1) == '/' ? '' : '/') + encodeURIComponent(this.id);
+      return base + (base.charAt(base.length - 1) === '/' ? '' : '/') + encodeURIComponent(this.id);
     },
 
     // **parse** converts a response into the hash of attributes to be `set` on
     // the model. The default implementation is just to pass the response along.
-    parse: function(resp, xhr) {
+    parse: function(resp, options) {
       return resp;
     },
 
@@ -14154,96 +14226,20 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return this.id == null;
     },
 
-    // Call this method to manually fire a `"change"` event for this model and
-    // a `"change:attribute"` event for each changed attribute.
-    // Calling this will cause all objects observing the model to update.
-    change: function(options) {
-      options || (options = {});
-      var changing = this._changing;
-      this._changing = true;
-
-      // Silent changes become pending changes.
-      for (var attr in this._silent) this._pending[attr] = true;
-
-      // Silent changes are triggered.
-      var changes = _.extend({}, options.changes, this._silent);
-      this._silent = {};
-      for (var attr in changes) {
-        this.trigger('change:' + attr, this, this.get(attr), options);
-      }
-      if (changing) return this;
-
-      // Continue firing `"change"` events while there are pending changes.
-      while (!_.isEmpty(this._pending)) {
-        this._pending = {};
-        this.trigger('change', this, options);
-        // Pending and silent changes still remain.
-        for (var attr in this.changed) {
-          if (this._pending[attr] || this._silent[attr]) continue;
-          delete this.changed[attr];
-        }
-        this._previousAttributes = _.clone(this.attributes);
-      }
-
-      this._changing = false;
-      return this;
-    },
-
-    // Determine if the model has changed since the last `"change"` event.
-    // If you specify an attribute name, determine if that attribute has changed.
-    hasChanged: function(attr) {
-      if (!arguments.length) return !_.isEmpty(this.changed);
-      return _.has(this.changed, attr);
-    },
-
-    // Return an object containing all the attributes that have changed, or
-    // false if there are no changed attributes. Useful for determining what
-    // parts of a view need to be updated and/or what attributes need to be
-    // persisted to the server. Unset attributes will be set to undefined.
-    // You can also pass an attributes object to diff against the model,
-    // determining if there *would be* a change.
-    changedAttributes: function(diff) {
-      if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
-      var val, changed = false, old = this._previousAttributes;
-      for (var attr in diff) {
-        if (_.isEqual(old[attr], (val = diff[attr]))) continue;
-        (changed || (changed = {}))[attr] = val;
-      }
-      return changed;
-    },
-
-    // Get the previous value of an attribute, recorded at the time the last
-    // `"change"` event was fired.
-    previous: function(attr) {
-      if (!arguments.length || !this._previousAttributes) return null;
-      return this._previousAttributes[attr];
-    },
-
-    // Get all of the attributes of the model at the time of the previous
-    // `"change"` event.
-    previousAttributes: function() {
-      return _.clone(this._previousAttributes);
-    },
-
-    // Check if the model is currently in a valid state. It's only possible to
-    // get into an *invalid* state if you're using silent changes.
-    isValid: function() {
-      return !this.validate(this.attributes);
+    // Check if the model is currently in a valid state.
+    isValid: function(options) {
+      return !this.validate || !this.validate(this.attributes, options);
     },
 
     // Run validation against the next complete set of model attributes,
-    // returning `true` if all is well. If a specific `error` callback has
-    // been passed, call that instead of firing the general `"error"` event.
+    // returning `true` if all is well. Otherwise, fire a general
+    // `"error"` event and call the error callback, if specified.
     _validate: function(attrs, options) {
-      if (options.silent || !this.validate) return true;
+      if (!options.validate || !this.validate) return true;
       attrs = _.extend({}, this.attributes, attrs);
-      var error = this.validate(attrs, options);
+      var error = this.validationError = this.validate(attrs, options) || null;
       if (!error) return true;
-      if (options && options.error) {
-        options.error(this, error, options);
-      } else {
-        this.trigger('error', this, error, options);
-      }
+      this.trigger('invalid', this, error, options || {});
       return false;
     }
 
@@ -14258,10 +14254,11 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   var Collection = Backbone.Collection = function(models, options) {
     options || (options = {});
     if (options.model) this.model = options.model;
-    if (options.comparator) this.comparator = options.comparator;
+    if (options.comparator !== void 0) this.comparator = options.comparator;
+    this.models = [];
     this._reset();
     this.initialize.apply(this, arguments);
-    if (models) this.reset(models, {silent: true, parse: options.parse});
+    if (models) this.reset(models, _.extend({silent: true}, options));
   };
 
   // Define the Collection's inheritable methods.
@@ -14281,68 +14278,86 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return this.map(function(model){ return model.toJSON(options); });
     },
 
-    // Add a model, or list of models to the set. Pass **silent** to avoid
-    // firing the `add` event for every new model.
-    add: function(models, options) {
-      var i, index, length, model, cid, id, cids = {}, ids = {}, dups = [];
-      options || (options = {});
-      models = _.isArray(models) ? models.slice() : [models];
+    // Proxy `Backbone.sync` by default.
+    sync: function() {
+      return Backbone.sync.apply(this, arguments);
+    },
 
-      // Begin by turning bare objects into model references, and preventing
-      // invalid models or duplicate models from being added.
-      for (i = 0, length = models.length; i < length; i++) {
-        if (!(model = models[i] = this._prepareModel(models[i], options))) {
-          throw new Error("Can't add an invalid model to a collection");
-        }
-        cid = model.cid;
-        id = model.id;
-        if (cids[cid] || this._byCid[cid] || ((id != null) && (ids[id] || this._byId[id]))) {
-          dups.push(i);
+    // Add a model, or list of models to the set.
+    add: function(models, options) {
+      models = _.isArray(models) ? models.slice() : [models];
+      options || (options = {});
+      var i, l, model, attrs, existing, doSort, add, at, sort, sortAttr;
+      add = [];
+      at = options.at;
+      sort = this.comparator && (at == null) && options.sort != false;
+      sortAttr = _.isString(this.comparator) ? this.comparator : null;
+
+      // Turn bare objects into model references, and prevent invalid models
+      // from being added.
+      for (i = 0, l = models.length; i < l; i++) {
+        if (!(model = this._prepareModel(attrs = models[i], options))) {
+          this.trigger('invalid', this, attrs, options);
           continue;
         }
-        cids[cid] = ids[id] = model;
-      }
 
-      // Remove duplicates.
-      i = dups.length;
-      while (i--) {
-        models.splice(dups[i], 1);
-      }
+        // If a duplicate is found, prevent it from being added and
+        // optionally merge it into the existing model.
+        if (existing = this.get(model)) {
+          if (options.merge) {
+            existing.set(attrs === model ? model.attributes : attrs, options);
+            if (sort && !doSort && existing.hasChanged(sortAttr)) doSort = true;
+          }
+          continue;
+        }
 
-      // Listen to added models' events, and index models for lookup by
-      // `id` and by `cid`.
-      for (i = 0, length = models.length; i < length; i++) {
-        (model = models[i]).on('all', this._onModelEvent, this);
-        this._byCid[model.cid] = model;
+        // This is a new model, push it to the `add` list.
+        add.push(model);
+
+        // Listen to added models' events, and index models for lookup by
+        // `id` and by `cid`.
+        model.on('all', this._onModelEvent, this);
+        this._byId[model.cid] = model;
         if (model.id != null) this._byId[model.id] = model;
       }
 
-      // Insert models into the collection, re-sorting if needed, and triggering
-      // `add` events unless silenced.
-      this.length += length;
-      index = options.at != null ? options.at : this.models.length;
-      splice.apply(this.models, [index, 0].concat(models));
-      if (this.comparator) this.sort({silent: true});
-      if (options.silent) return this;
-      for (i = 0, length = this.models.length; i < length; i++) {
-        if (!cids[(model = this.models[i]).cid]) continue;
-        options.index = i;
-        model.trigger('add', model, this, options);
+      // See if sorting is needed, update `length` and splice in new models.
+      if (add.length) {
+        if (sort) doSort = true;
+        this.length += add.length;
+        if (at != null) {
+          splice.apply(this.models, [at, 0].concat(add));
+        } else {
+          push.apply(this.models, add);
+        }
       }
+
+      // Silently sort the collection if appropriate.
+      if (doSort) this.sort({silent: true});
+
+      if (options.silent) return this;
+
+      // Trigger `add` events.
+      for (i = 0, l = add.length; i < l; i++) {
+        (model = add[i]).trigger('add', model, this, options);
+      }
+
+      // Trigger `sort` if the collection was sorted.
+      if (doSort) this.trigger('sort', this, options);
+
       return this;
     },
 
-    // Remove a model, or a list of models from the set. Pass silent to avoid
-    // firing the `remove` event for every model removed.
+    // Remove a model, or a list of models from the set.
     remove: function(models, options) {
-      var i, l, index, model;
-      options || (options = {});
       models = _.isArray(models) ? models.slice() : [models];
+      options || (options = {});
+      var i, l, index, model;
       for (i = 0, l = models.length; i < l; i++) {
-        model = this.getByCid(models[i]) || this.get(models[i]);
+        model = this.get(models[i]);
         if (!model) continue;
         delete this._byId[model.id];
-        delete this._byCid[model.cid];
+        delete this._byId[model.cid];
         index = this.indexOf(model);
         this.models.splice(index, 1);
         this.length--;
@@ -14358,7 +14373,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // Add a model to the end of the collection.
     push: function(model, options) {
       model = this._prepareModel(model, options);
-      this.add(model, options);
+      this.add(model, _.extend({at: this.length}, options));
       return model;
     },
 
@@ -14383,15 +14398,16 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return model;
     },
 
-    // Get a model from the set by id.
-    get: function(id) {
-      if (id == null) return void 0;
-      return this._byId[id.id != null ? id.id : id];
+    // Slice out a sub-array of models from the collection.
+    slice: function(begin, end) {
+      return this.models.slice(begin, end);
     },
 
-    // Get a model from the set by client id.
-    getByCid: function(cid) {
-      return cid && this._byCid[cid.cid || cid];
+    // Get a model from the set by id.
+    get: function(obj) {
+      if (obj == null) return void 0;
+      this._idAttr || (this._idAttr = this.model.prototype.idAttribute);
+      return this._byId[obj.id || obj.cid || obj[this._idAttr] || obj];
     },
 
     // Get the model at the given index.
@@ -14414,71 +14430,106 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // normal circumstances, as the set will maintain sort order as each item
     // is added.
     sort: function(options) {
-      options || (options = {});
-      if (!this.comparator) throw new Error('Cannot sort a set without a comparator');
-      var boundComparator = _.bind(this.comparator, this);
-      if (this.comparator.length == 1) {
-        this.models = this.sortBy(boundComparator);
-      } else {
-        this.models.sort(boundComparator);
+      if (!this.comparator) {
+        throw new Error('Cannot sort a set without a comparator');
       }
-      if (!options.silent) this.trigger('reset', this, options);
+      options || (options = {});
+
+      // Run sort based on type of `comparator`.
+      if (_.isString(this.comparator) || this.comparator.length === 1) {
+        this.models = this.sortBy(this.comparator, this);
+      } else {
+        this.models.sort(_.bind(this.comparator, this));
+      }
+
+      if (!options.silent) this.trigger('sort', this, options);
       return this;
     },
 
     // Pluck an attribute from each model in the collection.
     pluck: function(attr) {
-      return _.map(this.models, function(model){ return model.get(attr); });
+      return _.invoke(this.models, 'get', attr);
+    },
+
+    // Smartly update a collection with a change set of models, adding,
+    // removing, and merging as necessary.
+    update: function(models, options) {
+      options = _.extend({add: true, merge: true, remove: true}, options);
+      if (options.parse) models = this.parse(models, options);
+      var model, i, l, existing;
+      var add = [], remove = [], modelMap = {};
+
+      // Allow a single model (or no argument) to be passed.
+      if (!_.isArray(models)) models = models ? [models] : [];
+
+      // Proxy to `add` for this case, no need to iterate...
+      if (options.add && !options.remove) return this.add(models, options);
+
+      // Determine which models to add and merge, and which to remove.
+      for (i = 0, l = models.length; i < l; i++) {
+        model = models[i];
+        existing = this.get(model);
+        if (options.remove && existing) modelMap[existing.cid] = true;
+        if ((options.add && !existing) || (options.merge && existing)) {
+          add.push(model);
+        }
+      }
+      if (options.remove) {
+        for (i = 0, l = this.models.length; i < l; i++) {
+          model = this.models[i];
+          if (!modelMap[model.cid]) remove.push(model);
+        }
+      }
+
+      // Remove models (if applicable) before we add and merge the rest.
+      if (remove.length) this.remove(remove, options);
+      if (add.length) this.add(add, options);
+      return this;
     },
 
     // When you have more items than you want to add or remove individually,
     // you can reset the entire set with a new list of models, without firing
     // any `add` or `remove` events. Fires `reset` when finished.
     reset: function(models, options) {
-      models  || (models = []);
       options || (options = {});
+      if (options.parse) models = this.parse(models, options);
       for (var i = 0, l = this.models.length; i < l; i++) {
         this._removeReference(this.models[i]);
       }
+      options.previousModels = this.models.slice();
       this._reset();
-      this.add(models, _.extend({silent: true}, options));
+      if (models) this.add(models, _.extend({silent: true}, options));
       if (!options.silent) this.trigger('reset', this, options);
       return this;
     },
 
     // Fetch the default set of models for this collection, resetting the
-    // collection when they arrive. If `add: true` is passed, appends the
-    // models to the collection instead of resetting.
+    // collection when they arrive. If `update: true` is passed, the response
+    // data will be passed through the `update` method instead of `reset`.
     fetch: function(options) {
       options = options ? _.clone(options) : {};
-      if (options.parse === undefined) options.parse = true;
-      var collection = this;
+      if (options.parse === void 0) options.parse = true;
       var success = options.success;
-      options.success = function(resp, status, xhr) {
-        collection[options.add ? 'add' : 'reset'](collection.parse(resp, xhr), options);
-        if (success) success(collection, resp);
+      options.success = function(collection, resp, options) {
+        var method = options.update ? 'update' : 'reset';
+        collection[method](resp, options);
+        if (success) success(collection, resp, options);
       };
-      options.error = Backbone.wrapError(options.error, collection, options);
-      return (this.sync || Backbone.sync).call(this, 'read', this, options);
+      return this.sync('read', this, options);
     },
 
     // Create a new instance of a model in this collection. Add the model to the
     // collection immediately, unless `wait: true` is passed, in which case we
     // wait for the server to agree.
     create: function(model, options) {
-      var coll = this;
       options = options ? _.clone(options) : {};
-      model = this._prepareModel(model, options);
-      if (!model) return false;
-      if (!options.wait) coll.add(model, options);
+      if (!(model = this._prepareModel(model, options))) return false;
+      if (!options.wait) this.add(model, options);
+      var collection = this;
       var success = options.success;
-      options.success = function(nextModel, resp, xhr) {
-        if (options.wait) coll.add(nextModel, options);
-        if (success) {
-          success(nextModel, resp);
-        } else {
-          nextModel.trigger('sync', model, resp, options);
-        }
+      options.success = function(model, resp, options) {
+        if (options.wait) collection.add(model, options);
+        if (success) success(model, resp, options);
       };
       model.save(null, options);
       return model;
@@ -14486,44 +14537,38 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
     // **parse** converts a response into a list of models to be added to the
     // collection. The default implementation is just to pass it through.
-    parse: function(resp, xhr) {
+    parse: function(resp, options) {
       return resp;
     },
 
-    // Proxy to _'s chain. Can't be proxied the same way the rest of the
-    // underscore methods are proxied because it relies on the underscore
-    // constructor.
-    chain: function () {
-      return _(this.models).chain();
+    // Create a new collection with an identical list of models as this one.
+    clone: function() {
+      return new this.constructor(this.models);
     },
 
     // Reset all internal state. Called when the collection is reset.
-    _reset: function(options) {
+    _reset: function() {
       this.length = 0;
-      this.models = [];
+      this.models.length = 0;
       this._byId  = {};
-      this._byCid = {};
     },
 
     // Prepare a model or hash of attributes to be added to this collection.
-    _prepareModel: function(model, options) {
-      options || (options = {});
-      if (!(model instanceof Model)) {
-        var attrs = model;
-        options.collection = this;
-        model = new this.model(attrs, options);
-        if (!model._validate(model.attributes, options)) model = false;
-      } else if (!model.collection) {
-        model.collection = this;
+    _prepareModel: function(attrs, options) {
+      if (attrs instanceof Model) {
+        if (!attrs.collection) attrs.collection = this;
+        return attrs;
       }
+      options || (options = {});
+      options.collection = this;
+      var model = new this.model(attrs, options);
+      if (!model._validate(attrs, options)) return false;
       return model;
     },
 
     // Internal method to remove a model's ties to a collection.
     _removeReference: function(model) {
-      if (this == model.collection) {
-        delete model.collection;
-      }
+      if (this === model.collection) delete model.collection;
       model.off('all', this._onModelEvent, this);
     },
 
@@ -14532,35 +14577,57 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // events simply proxy through. "add" and "remove" events that originate
     // in other collections are ignored.
     _onModelEvent: function(event, model, collection, options) {
-      if ((event == 'add' || event == 'remove') && collection != this) return;
-      if (event == 'destroy') {
-        this.remove(model, options);
-      }
+      if ((event === 'add' || event === 'remove') && collection !== this) return;
+      if (event === 'destroy') this.remove(model, options);
       if (model && event === 'change:' + model.idAttribute) {
         delete this._byId[model.previous(model.idAttribute)];
-        this._byId[model.id] = model;
+        if (model.id != null) this._byId[model.id] = model;
       }
       this.trigger.apply(this, arguments);
+    },
+
+    sortedIndex: function (model, value, context) {
+      value || (value = this.comparator);
+      var iterator = _.isFunction(value) ? value : function(model) {
+        return model.get(value);
+      };
+      return _.sortedIndex(this.models, model, iterator, context);
     }
 
   });
 
   // Underscore methods that we want to implement on the Collection.
-  var methods = ['forEach', 'each', 'map', 'reduce', 'reduceRight', 'find',
-    'detect', 'filter', 'select', 'reject', 'every', 'all', 'some', 'any',
-    'include', 'contains', 'invoke', 'max', 'min', 'sortBy', 'sortedIndex',
-    'toArray', 'size', 'first', 'initial', 'rest', 'last', 'without', 'indexOf',
-    'shuffle', 'lastIndexOf', 'isEmpty', 'groupBy'];
+  var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl',
+    'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select',
+    'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke',
+    'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest',
+    'tail', 'drop', 'last', 'without', 'indexOf', 'shuffle', 'lastIndexOf',
+    'isEmpty', 'chain'];
 
   // Mix in each Underscore method as a proxy to `Collection#models`.
   _.each(methods, function(method) {
     Collection.prototype[method] = function() {
-      return _[method].apply(_, [this.models].concat(_.toArray(arguments)));
+      var args = slice.call(arguments);
+      args.unshift(this.models);
+      return _[method].apply(_, args);
+    };
+  });
+
+  // Underscore methods that take a property name as an argument.
+  var attributeMethods = ['groupBy', 'countBy', 'sortBy'];
+
+  // Use attributes instead of properties.
+  _.each(attributeMethods, function(method) {
+    Collection.prototype[method] = function(value, context) {
+      var iterator = _.isFunction(value) ? value : function(model) {
+        return model.get(value);
+      };
+      return _[method](this.models, iterator, context);
     };
   });
 
   // Backbone.Router
-  // -------------------
+  // ---------------
 
   // Routers map faux-URLs to actions, and fire events when routes are
   // matched. Creating a new one sets its `routes` hash, if not set statically.
@@ -14573,9 +14640,10 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
   // Cached regular expressions for matching named param parts and splatted
   // parts of route strings.
-  var namedParam    = /:\w+/g;
+  var optionalParam = /\((.*?)\)/g;
+  var namedParam    = /(\(\?)?:\w+/g;
   var splatParam    = /\*\w+/g;
-  var escapeRegExp  = /[-[\]{}()+?.,\\^$|#\s]/g;
+  var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
   // Set up all inheritable **Backbone.Router** properties and methods.
   _.extend(Router.prototype, Events, {
@@ -14591,13 +14659,13 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     //     });
     //
     route: function(route, name, callback) {
-      Backbone.history || (Backbone.history = new History);
       if (!_.isRegExp(route)) route = this._routeToRegExp(route);
       if (!callback) callback = this[name];
       Backbone.history.route(route, _.bind(function(fragment) {
         var args = this._extractParameters(route, fragment);
         callback && callback.apply(this, args);
         this.trigger.apply(this, ['route:' + name].concat(args));
+        this.trigger('route', name, args);
         Backbone.history.trigger('route', this, name, args);
       }, this));
       return this;
@@ -14606,6 +14674,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // Simple proxy to `Backbone.history` to save a fragment into the history.
     navigate: function(fragment, options) {
       Backbone.history.navigate(fragment, options);
+      return this;
     },
 
     // Bind all defined routes to `Backbone.history`. We have to reverse the
@@ -14613,12 +14682,9 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // routes can be defined at the bottom of the route map.
     _bindRoutes: function() {
       if (!this.routes) return;
-      var routes = [];
-      for (var route in this.routes) {
-        routes.unshift([route, this.routes[route]]);
-      }
-      for (var i = 0, l = routes.length; i < l; i++) {
-        this.route(routes[i][0], routes[i][1], this[routes[i][1]]);
+      var route, routes = _.keys(this.routes);
+      while ((route = routes.pop()) != null) {
+        this.route(route, this.routes[route]);
       }
     },
 
@@ -14626,7 +14692,10 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // against the current location hash.
     _routeToRegExp: function(route) {
       route = route.replace(escapeRegExp, '\\$&')
-                   .replace(namedParam, '([^\/]+)')
+                   .replace(optionalParam, '(?:$1)?')
+                   .replace(namedParam, function(match, optional){
+                     return optional ? match : '([^\/]+)';
+                   })
                    .replace(splatParam, '(.*?)');
       return new RegExp('^' + route + '$');
     },
@@ -14647,13 +14716,25 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   var History = Backbone.History = function() {
     this.handlers = [];
     _.bindAll(this, 'checkUrl');
+
+    // Ensure that `History` can be used outside of the browser.
+    if (typeof window !== 'undefined') {
+      this.location = window.location;
+      this.history = window.history;
+    }
   };
 
-  // Cached regex for cleaning leading hashes and slashes .
-  var routeStripper = /^[#\/]/;
+  // Cached regex for stripping a leading hash/slash and trailing space.
+  var routeStripper = /^[#\/]|\s+$/g;
+
+  // Cached regex for stripping leading and trailing slashes.
+  var rootStripper = /^\/+|\/+$/g;
 
   // Cached regex for detecting MSIE.
   var isExplorer = /msie [\w.]+/;
+
+  // Cached regex for removing a trailing slash.
+  var trailingSlash = /\/$/;
 
   // Has the history handling already been started?
   History.started = false;
@@ -14667,9 +14748,8 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
     // Gets the true hash value. Cannot use location.hash directly due to bug
     // in Firefox where location.hash will always be decoded.
-    getHash: function(windowOverride) {
-      var loc = windowOverride ? windowOverride.location : window.location;
-      var match = loc.href.match(/#(.*)$/);
+    getHash: function(window) {
+      var match = (window || this).location.href.match(/#(.*)$/);
       return match ? match[1] : '';
     },
 
@@ -14677,15 +14757,14 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // the hash, or the override.
     getFragment: function(fragment, forcePushState) {
       if (fragment == null) {
-        if (this._hasPushState || forcePushState) {
-          fragment = window.location.pathname;
-          var search = window.location.search;
-          if (search) fragment += search;
+        if (this._hasPushState || !this._wantsHashChange || forcePushState) {
+          fragment = this.location.pathname;
+          var root = this.root.replace(trailingSlash, '');
+          if (!fragment.indexOf(root)) fragment = fragment.substr(root.length);
         } else {
           fragment = this.getHash();
         }
       }
-      if (!fragment.indexOf(this.options.root)) fragment = fragment.substr(this.options.root.length);
       return fragment.replace(routeStripper, '');
     },
 
@@ -14698,24 +14777,28 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       // Figure out the initial configuration. Do we need an iframe?
       // Is pushState desired ... is it available?
       this.options          = _.extend({}, {root: '/'}, this.options, options);
+      this.root             = this.options.root;
       this._wantsHashChange = this.options.hashChange !== false;
       this._wantsPushState  = !!this.options.pushState;
-      this._hasPushState    = !!(this.options.pushState && window.history && window.history.pushState);
+      this._hasPushState    = !!(this.options.pushState && this.history && this.history.pushState);
       var fragment          = this.getFragment();
       var docMode           = document.documentMode;
       var oldIE             = (isExplorer.exec(navigator.userAgent.toLowerCase()) && (!docMode || docMode <= 7));
 
-      if (oldIE) {
-        this.iframe = $('<iframe src="javascript:0" tabindex="-1" />').hide().appendTo('body')[0].contentWindow;
+      // Normalize root to always include a leading and trailing slash.
+      this.root = ('/' + this.root + '/').replace(rootStripper, '/');
+
+      if (oldIE && this._wantsHashChange) {
+        this.iframe = Backbone.$('<iframe src="javascript:0" tabindex="-1" />').hide().appendTo('body')[0].contentWindow;
         this.navigate(fragment);
       }
 
       // Depending on whether we're using pushState or hashes, and whether
       // 'onhashchange' is supported, determine how we check the URL state.
       if (this._hasPushState) {
-        $(window).bind('popstate', this.checkUrl);
+        Backbone.$(window).on('popstate', this.checkUrl);
       } else if (this._wantsHashChange && ('onhashchange' in window) && !oldIE) {
-        $(window).bind('hashchange', this.checkUrl);
+        Backbone.$(window).on('hashchange', this.checkUrl);
       } else if (this._wantsHashChange) {
         this._checkUrlInterval = setInterval(this.checkUrl, this.interval);
       }
@@ -14723,14 +14806,14 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       // Determine if we need to change the base url, for a pushState link
       // opened by a non-pushState browser.
       this.fragment = fragment;
-      var loc = window.location;
-      var atRoot  = loc.pathname == this.options.root;
+      var loc = this.location;
+      var atRoot = loc.pathname.replace(/[^\/]$/, '$&/') === this.root;
 
       // If we've started off with a route from a `pushState`-enabled browser,
       // but we're currently in a browser that doesn't support it...
       if (this._wantsHashChange && this._wantsPushState && !this._hasPushState && !atRoot) {
         this.fragment = this.getFragment(null, true);
-        window.location.replace(this.options.root + '#' + this.fragment);
+        this.location.replace(this.root + this.location.search + '#' + this.fragment);
         // Return immediately as browser will do redirect to new url
         return true;
 
@@ -14738,18 +14821,16 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       // in a browser where it could be `pushState`-based instead...
       } else if (this._wantsPushState && this._hasPushState && atRoot && loc.hash) {
         this.fragment = this.getHash().replace(routeStripper, '');
-        window.history.replaceState({}, document.title, loc.protocol + '//' + loc.host + this.options.root + this.fragment);
+        this.history.replaceState({}, document.title, this.root + this.fragment + loc.search);
       }
 
-      if (!this.options.silent) {
-        return this.loadUrl();
-      }
+      if (!this.options.silent) return this.loadUrl();
     },
 
     // Disable Backbone.history, perhaps temporarily. Not useful in a real app,
     // but possibly useful for unit testing Routers.
     stop: function() {
-      $(window).unbind('popstate', this.checkUrl).unbind('hashchange', this.checkUrl);
+      Backbone.$(window).off('popstate', this.checkUrl).off('hashchange', this.checkUrl);
       clearInterval(this._checkUrlInterval);
       History.started = false;
     },
@@ -14764,8 +14845,10 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // calls `loadUrl`, normalizing across the hidden iframe.
     checkUrl: function(e) {
       var current = this.getFragment();
-      if (current == this.fragment && this.iframe) current = this.getFragment(this.getHash(this.iframe));
-      if (current == this.fragment) return false;
+      if (current === this.fragment && this.iframe) {
+        current = this.getFragment(this.getHash(this.iframe));
+      }
+      if (current === this.fragment) return false;
       if (this.iframe) this.navigate(current);
       this.loadUrl() || this.loadUrl(this.getHash());
     },
@@ -14794,31 +14877,31 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     navigate: function(fragment, options) {
       if (!History.started) return false;
       if (!options || options === true) options = {trigger: options};
-      var frag = (fragment || '').replace(routeStripper, '');
-      if (this.fragment == frag) return;
+      fragment = this.getFragment(fragment || '');
+      if (this.fragment === fragment) return;
+      this.fragment = fragment;
+      var url = this.root + fragment;
 
       // If pushState is available, we use it to set the fragment as a real URL.
       if (this._hasPushState) {
-        if (frag.indexOf(this.options.root) != 0) frag = this.options.root + frag;
-        this.fragment = frag;
-        window.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, frag);
+        this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
 
       // If hash changes haven't been explicitly disabled, update the hash
       // fragment to store history.
       } else if (this._wantsHashChange) {
-        this.fragment = frag;
-        this._updateHash(window.location, frag, options.replace);
-        if (this.iframe && (frag != this.getFragment(this.getHash(this.iframe)))) {
-          // Opening and closing the iframe tricks IE7 and earlier to push a history entry on hash-tag change.
-          // When replace is true, we don't want this.
+        this._updateHash(this.location, fragment, options.replace);
+        if (this.iframe && (fragment !== this.getFragment(this.getHash(this.iframe)))) {
+          // Opening and closing the iframe tricks IE7 and earlier to push a
+          // history entry on hash-tag change.  When replace is true, we don't
+          // want this.
           if(!options.replace) this.iframe.document.open().close();
-          this._updateHash(this.iframe.location, frag, options.replace);
+          this._updateHash(this.iframe.location, fragment, options.replace);
         }
 
       // If you've told us that you explicitly don't want fallback hashchange-
       // based history, then `navigate` becomes a page refresh.
       } else {
-        window.location.assign(this.options.root + fragment);
+        return this.location.assign(url);
       }
       if (options.trigger) this.loadUrl(fragment);
     },
@@ -14827,12 +14910,18 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // a new one to the browser history.
     _updateHash: function(location, fragment, replace) {
       if (replace) {
-        location.replace(location.toString().replace(/(javascript:|#).*$/, '') + '#' + fragment);
+        var href = location.href.replace(/(javascript:|#).*$/, '');
+        location.replace(href + '#' + fragment);
       } else {
-        location.hash = fragment;
+        // Some browsers require that `hash` contains a leading #.
+        location.hash = '#' + fragment;
       }
     }
+
   });
+
+  // Create the default Backbone.history.
+  Backbone.history = new History;
 
   // Backbone.View
   // -------------
@@ -14851,7 +14940,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   var delegateEventSplitter = /^(\S+)\s*(.*)$/;
 
   // List of view options to be merged as properties.
-  var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName'];
+  var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
   // Set up all inheritable **Backbone.View** properties and methods.
   _.extend(View.prototype, Events, {
@@ -14876,30 +14965,19 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
       return this;
     },
 
-    // Remove this view from the DOM. Note that the view isn't present in the
-    // DOM by default, so calling this method may be a no-op.
+    // Remove this view by taking the element out of the DOM, and removing any
+    // applicable Backbone.Events listeners.
     remove: function() {
       this.$el.remove();
+      this.stopListening();
       return this;
-    },
-
-    // For small amounts of DOM Elements, where a full-blown template isn't
-    // needed, use **make** to manufacture elements, one at a time.
-    //
-    //     var el = this.make('li', {'class': 'row'}, this.model.escape('title'));
-    //
-    make: function(tagName, attributes, content) {
-      var el = document.createElement(tagName);
-      if (attributes) $(el).attr(attributes);
-      if (content) $(el).html(content);
-      return el;
     },
 
     // Change the view's element (`this.el` property), including event
     // re-delegation.
     setElement: function(element, delegate) {
       if (this.$el) this.undelegateEvents();
-      this.$el = (element instanceof $) ? element : $(element);
+      this.$el = element instanceof Backbone.$ ? element : Backbone.$(element);
       this.el = this.$el[0];
       if (delegate !== false) this.delegateEvents();
       return this;
@@ -14921,7 +14999,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // This only works for delegate-able events: not `focus`, `blur`, and
     // not `change`, `submit`, and `reset` in Internet Explorer.
     delegateEvents: function(events) {
-      if (!(events || (events = getValue(this, 'events')))) return;
+      if (!(events || (events = _.result(this, 'events')))) return;
       this.undelegateEvents();
       for (var key in events) {
         var method = events[key];
@@ -14932,9 +15010,9 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
         method = _.bind(method, this);
         eventName += '.delegateEvents' + this.cid;
         if (selector === '') {
-          this.$el.bind(eventName, method);
+          this.$el.on(eventName, method);
         } else {
-          this.$el.delegate(selector, eventName, method);
+          this.$el.on(eventName, selector, method);
         }
       }
     },
@@ -14943,18 +15021,15 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // You usually don't need to use this, but may wish to if you have multiple
     // Backbone views attached to the same DOM element.
     undelegateEvents: function() {
-      this.$el.unbind('.delegateEvents' + this.cid);
+      this.$el.off('.delegateEvents' + this.cid);
     },
 
     // Performs the initial configuration of a View with a set of options.
     // Keys with special meaning *(model, collection, id, className)*, are
     // attached directly to the view.
     _configure: function(options) {
-      if (this.options) options = _.extend({}, this.options, options);
-      for (var i = 0, l = viewOptions.length; i < l; i++) {
-        var attr = viewOptions[i];
-        if (options[attr]) this[attr] = options[attr];
-      }
+      if (this.options) options = _.extend({}, _.result(this, 'options'), options);
+      _.extend(this, _.pick(options, viewOptions));
       this.options = options;
     },
 
@@ -14964,26 +15039,17 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     // an element from the `id`, `className` and `tagName` properties.
     _ensureElement: function() {
       if (!this.el) {
-        var attrs = getValue(this, 'attributes') || {};
-        if (this.id) attrs.id = this.id;
-        if (this.className) attrs['class'] = this.className;
-        this.setElement(this.make(this.tagName, attrs), false);
+        var attrs = _.extend({}, _.result(this, 'attributes'));
+        if (this.id) attrs.id = _.result(this, 'id');
+        if (this.className) attrs['class'] = _.result(this, 'className');
+        var $el = Backbone.$('<' + _.result(this, 'tagName') + '>').attr(attrs);
+        this.setElement($el, false);
       } else {
-        this.setElement(this.el, false);
+        this.setElement(_.result(this, 'el'), false);
       }
     }
 
   });
-
-  // The self-propagating extend function that Backbone classes use.
-  var extend = function (protoProps, classProps) {
-    var child = inherits(this, protoProps, classProps);
-    child.extend = this.extend;
-    return child;
-  };
-
-  // Set up inheritance for the model, collection, and view.
-  Model.extend = Collection.extend = Router.extend = View.extend = extend;
 
   // Backbone.sync
   // -------------
@@ -14992,6 +15058,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
   var methodMap = {
     'create': 'POST',
     'update': 'PUT',
+    'patch':  'PATCH',
     'delete': 'DELETE',
     'read':   'GET'
   };
@@ -15015,119 +15082,673 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
     var type = methodMap[method];
 
     // Default options, unless specified.
-    options || (options = {});
+    _.defaults(options || (options = {}), {
+      emulateHTTP: Backbone.emulateHTTP,
+      emulateJSON: Backbone.emulateJSON
+    });
 
     // Default JSON-request options.
     var params = {type: type, dataType: 'json'};
 
     // Ensure that we have a URL.
     if (!options.url) {
-      params.url = getValue(model, 'url') || urlError();
+      params.url = _.result(model, 'url') || urlError();
     }
 
     // Ensure that we have the appropriate request data.
-    if (!options.data && model && (method == 'create' || method == 'update')) {
+    if (options.data == null && model && (method === 'create' || method === 'update' || method === 'patch')) {
       params.contentType = 'application/json';
-      params.data = JSON.stringify(model.toJSON());
+      params.data = JSON.stringify(options.attrs || model.toJSON(options));
     }
 
     // For older servers, emulate JSON by encoding the request into an HTML-form.
-    if (Backbone.emulateJSON) {
+    if (options.emulateJSON) {
       params.contentType = 'application/x-www-form-urlencoded';
       params.data = params.data ? {model: params.data} : {};
     }
 
     // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
     // And an `X-HTTP-Method-Override` header.
-    if (Backbone.emulateHTTP) {
-      if (type === 'PUT' || type === 'DELETE') {
-        if (Backbone.emulateJSON) params.data._method = type;
-        params.type = 'POST';
-        params.beforeSend = function(xhr) {
-          xhr.setRequestHeader('X-HTTP-Method-Override', type);
-        };
-      }
+    if (options.emulateHTTP && (type === 'PUT' || type === 'DELETE' || type === 'PATCH')) {
+      params.type = 'POST';
+      if (options.emulateJSON) params.data._method = type;
+      var beforeSend = options.beforeSend;
+      options.beforeSend = function(xhr) {
+        xhr.setRequestHeader('X-HTTP-Method-Override', type);
+        if (beforeSend) return beforeSend.apply(this, arguments);
+      };
     }
 
     // Don't process data on a non-GET request.
-    if (params.type !== 'GET' && !Backbone.emulateJSON) {
+    if (params.type !== 'GET' && !options.emulateJSON) {
       params.processData = false;
     }
 
+    var success = options.success;
+    options.success = function(resp) {
+      if (success) success(model, resp, options);
+      model.trigger('sync', model, resp, options);
+    };
+
+    var error = options.error;
+    options.error = function(xhr) {
+      if (error) error(model, xhr, options);
+      model.trigger('error', model, xhr, options);
+    };
+
     // Make the request, allowing the user to override any Ajax options.
-    return $.ajax(_.extend(params, options));
+    var xhr = options.xhr = Backbone.ajax(_.extend(params, options));
+    model.trigger('request', model, xhr, options);
+    return xhr;
   };
 
-  // Wrap an optional error callback with a fallback error event.
-  Backbone.wrapError = function(onError, originalModel, options) {
-    return function(model, resp) {
-      resp = model === originalModel ? resp : model;
-      if (onError) {
-        onError(originalModel, resp, options);
-      } else {
-        originalModel.trigger('error', originalModel, resp, options);
-      }
-    };
+  // Set the default implementation of `Backbone.ajax` to proxy through to `$`.
+  Backbone.ajax = function() {
+    return Backbone.$.ajax.apply(Backbone.$, arguments);
   };
 
   // Helpers
   // -------
 
-  // Shared empty constructor function to aid in prototype-chain creation.
-  var ctor = function(){};
-
   // Helper function to correctly set up the prototype chain, for subclasses.
   // Similar to `goog.inherits`, but uses a hash of prototype properties and
   // class properties to be extended.
-  var inherits = function(parent, protoProps, staticProps) {
+  var extend = function(protoProps, staticProps) {
+    var parent = this;
     var child;
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
     // by us to simply call the parent's constructor.
-    if (protoProps && protoProps.hasOwnProperty('constructor')) {
+    if (protoProps && _.has(protoProps, 'constructor')) {
       child = protoProps.constructor;
     } else {
-      child = function(){ parent.apply(this, arguments); };
+      child = function(){ return parent.apply(this, arguments); };
     }
 
-    // Inherit class (static) properties from parent.
-    _.extend(child, parent);
+    // Add static properties to the constructor function, if supplied.
+    _.extend(child, parent, staticProps);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor();
+    var Surrogate = function(){ this.constructor = child; };
+    Surrogate.prototype = parent.prototype;
+    child.prototype = new Surrogate;
 
     // Add prototype properties (instance properties) to the subclass,
     // if supplied.
     if (protoProps) _.extend(child.prototype, protoProps);
 
-    // Add static properties to the constructor function, if supplied.
-    if (staticProps) _.extend(child, staticProps);
-
-    // Correctly set child's `prototype.constructor`.
-    child.prototype.constructor = child;
-
-    // Set a convenience property in case the parent's prototype is needed later.
+    // Set a convenience property in case the parent's prototype is needed
+    // later.
     child.__super__ = parent.prototype;
 
     return child;
   };
 
-  // Helper function to get a value from a Backbone object as a property
-  // or as a function.
-  var getValue = function(object, prop) {
-    if (!(object && object[prop])) return null;
-    return _.isFunction(object[prop]) ? object[prop]() : object[prop];
-  };
+  // Set up inheritance for the model, collection, router, view and history.
+  Model.extend = Collection.extend = Router.extend = View.extend = History.extend = extend;
 
   // Throw an error when a URL is needed, and none is supplied.
   var urlError = function() {
     throw new Error('A "url" property or function must be specified');
   };
 
-}).call(this);;
+}).call(this);
+;
+/**
+ * Full HTML5 compatibility rule set
+ * These rules define which tags and CSS classes are supported and which tags should be specially treated.
+ *
+ * Examples based on this rule set:
+ *
+ *    <a href="http://foobar.com">foo</a>
+ *    ... becomes ...
+ *    <a href="http://foobar.com" target="_blank" rel="nofollow">foo</a>
+ *
+ *    <img align="left" src="http://foobar.com/image.png">
+ *    ... becomes ...
+ *    <img class="wysiwyg-float-left" src="http://foobar.com/image.png" alt="">
+ *
+ *    <div>foo<script>alert(document.cookie)</script></div>
+ *    ... becomes ...
+ *    <div>foo</div>
+ *
+ *    <marquee>foo</marquee>
+ *    ... becomes ...
+ *    <span>foo</span>
+ *
+ *    foo <br clear="both"> bar
+ *    ... becomes ...
+ *    foo <br class="wysiwyg-clear-both"> bar
+ *
+ *    <div>hello <iframe src="http://google.com"></iframe></div>
+ *    ... becomes ...
+ *    <div>hello </div>
+ *
+ *    <center>hello</center>
+ *    ... becomes ...
+ *    <div class="wysiwyg-text-align-center">hello</div>
+ */
+var wysihtml5ParserRules = {
+    /**
+     * CSS Class white-list
+     * Following CSS classes won't be removed when parsed by the wysihtml5 HTML parser
+     */
+    "classes": {
+        "wysiwyg-clear-both": 1,
+        "wysiwyg-clear-left": 1,
+        "wysiwyg-clear-right": 1,
+        "wysiwyg-color-aqua": 1,
+        "wysiwyg-color-black": 1,
+        "wysiwyg-color-blue": 1,
+        "wysiwyg-color-fuchsia": 1,
+        "wysiwyg-color-gray": 1,
+        "wysiwyg-color-green": 1,
+        "wysiwyg-color-lime": 1,
+        "wysiwyg-color-maroon": 1,
+        "wysiwyg-color-navy": 1,
+        "wysiwyg-color-olive": 1,
+        "wysiwyg-color-purple": 1,
+        "wysiwyg-color-red": 1,
+        "wysiwyg-color-silver": 1,
+        "wysiwyg-color-teal": 1,
+        "wysiwyg-color-white": 1,
+        "wysiwyg-color-yellow": 1,
+        "wysiwyg-float-left": 1,
+        "wysiwyg-float-right": 1,
+        "wysiwyg-font-size-large": 1,
+        "wysiwyg-font-size-larger": 1,
+        "wysiwyg-font-size-medium": 1,
+        "wysiwyg-font-size-small": 1,
+        "wysiwyg-font-size-smaller": 1,
+        "wysiwyg-font-size-x-large": 1,
+        "wysiwyg-font-size-x-small": 1,
+        "wysiwyg-font-size-xx-large": 1,
+        "wysiwyg-font-size-xx-small": 1,
+        "wysiwyg-text-align-center": 1,
+        "wysiwyg-text-align-justify": 1,
+        "wysiwyg-text-align-left": 1,
+        "wysiwyg-text-align-right": 1
+    },
+    /**
+     * Tag list
+     *
+     * The following options are available:
+     *
+     *    - add_class:        converts and deletes the given HTML4 attribute (align, clear, ...) via the given method to a css class
+     *                        The following methods are implemented in wysihtml5.dom.parse:
+     *                          - align_text:  converts align attribute values (right/left/center/justify) to their corresponding css class "wysiwyg-text-align-*")
+     *                            <p align="center">foo</p> ... becomes ... <p> class="wysiwyg-text-align-center">foo</p>
+     *                          - clear_br:    converts clear attribute values left/right/all/both to their corresponding css class "wysiwyg-clear-*"
+     *                            <br clear="all"> ... becomes ... <br class="wysiwyg-clear-both">
+     *                          - align_img:    converts align attribute values (right/left) on <img> to their corresponding css class "wysiwyg-float-*"
+     *                          
+     *    - remove:             removes the element and its content
+     *
+     *    - rename_tag:         renames the element to the given tag
+     *
+     *    - set_class:          adds the given class to the element (note: make sure that the class is in the "classes" white list above)
+     *
+     *    - set_attributes:     sets/overrides the given attributes
+     *
+     *    - check_attributes:   checks the given HTML attribute via the given method
+     *                            - url:            allows only valid urls (starting with http:// or https://)
+     *                            - src:            allows something like "/foobar.jpg", "http://google.com", ...
+     *                            - href:           allows something like "mailto:bert@foo.com", "http://google.com", "/foobar.jpg"
+     *                            - alt:            strips unwanted characters. if the attribute is not set, then it gets set (to ensure valid and compatible HTML)
+     *                            - numbers:  ensures that the attribute only contains numeric characters
+     */
+    "tags": {
+        "tr": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "strike": {
+            "remove": 1
+        },
+        "form": {
+            "rename_tag": "div"
+        },
+        "rt": {
+            "rename_tag": "span"
+        },
+        "code": {},
+        "acronym": {
+            "rename_tag": "span"
+        },
+        "br": {
+            "add_class": {
+                "clear": "clear_br"
+            }
+        },
+        "details": {
+            "rename_tag": "div"
+        },
+        "h4": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "em": {},
+        "title": {
+            "remove": 1
+        },
+        "multicol": {
+            "rename_tag": "div"
+        },
+        "figure": {
+            "rename_tag": "div"
+        },
+        "xmp": {
+            "rename_tag": "span"
+        },
+        "small": {
+            "rename_tag": "span",
+            "set_class": "wysiwyg-font-size-smaller"
+        },
+        "area": {
+            "remove": 1
+        },
+        "time": {
+            "rename_tag": "span"
+        },
+        "dir": {
+            "rename_tag": "ul"
+        },
+        "bdi": {
+            "rename_tag": "span"
+        },
+        "command": {
+            "remove": 1
+        },
+        "ul": {},
+        "progress": {
+            "rename_tag": "span"
+        },
+        "dfn": {
+            "rename_tag": "span"
+        },
+        "iframe": {
+            "remove": 1
+        },
+        "figcaption": {
+            "rename_tag": "div"
+        },
+        "a": {
+            "check_attributes": {
+                "href": "url" // if you compiled master manually then change this from 'url' to 'href'
+            },
+            "set_attributes": {
+                "rel": "nofollow",
+                "target": "_blank"
+            }
+        },
+        "img": {
+            "check_attributes": {
+                "width": "numbers",
+                "alt": "alt",
+                "src": "url", // if you compiled master manually then change this from 'url' to 'src'
+                "height": "numbers"
+            },
+            "add_class": {
+                "align": "align_img"
+            }
+        },
+        "rb": {
+            "rename_tag": "span"
+        },
+        "footer": {
+            "rename_tag": "div"
+        },
+        "noframes": {
+            "remove": 1
+        },
+        "abbr": {
+            "rename_tag": "span"
+        },
+        "u": {},
+        "bgsound": {
+            "remove": 1
+        },
+        "sup": {
+            "rename_tag": "span"
+        },
+        "address": {
+            "rename_tag": "div"
+        },
+        "basefont": {
+            "remove": 1
+        },
+        "nav": {
+            "rename_tag": "div"
+        },
+        "h1": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "head": {
+            "remove": 1
+        },
+        "tbody": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "dd": {
+            "rename_tag": "div"
+        },
+        "s": {
+            "rename_tag": "span"
+        },
+        "li": {},
+        "td": {
+            "check_attributes": {
+                "rowspan": "numbers",
+                "colspan": "numbers"
+            },
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "object": {
+            "remove": 1
+        },
+        "div": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "option": {
+            "rename_tag": "span"
+        },
+        "select": {
+            "rename_tag": "span"
+        },
+        "i": {},
+        "track": {
+            "remove": 1
+        },
+        "wbr": {
+            "remove": 1
+        },
+        "fieldset": {
+            "rename_tag": "div"
+        },
+        "big": {
+            "rename_tag": "span",
+            "set_class": "wysiwyg-font-size-larger"
+        },
+        "button": {
+            "rename_tag": "span"
+        },
+        "noscript": {
+            "remove": 1
+        },
+        "svg": {
+            "remove": 1
+        },
+        "input": {
+            "remove": 1
+        },
+        "table": {},
+        "keygen": {
+            "remove": 1
+        },
+        "h5": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "meta": {
+            "remove": 1
+        },
+        "map": {
+            "rename_tag": "div"
+        },
+        "isindex": {
+            "remove": 1
+        },
+        "mark": {
+            "rename_tag": "span"
+        },
+        "caption": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "tfoot": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "base": {
+            "remove": 1
+        },
+        "video": {
+            "remove": 1
+        },
+        "strong": {},
+        "canvas": {
+            "remove": 1
+        },
+        "output": {
+            "rename_tag": "span"
+        },
+        "marquee": {
+            "rename_tag": "span"
+        },
+        "b": {},
+        "q": {
+            "check_attributes": {
+                "cite": "url"
+            }
+        },
+        "applet": {
+            "remove": 1
+        },
+        "span": {},
+        "rp": {
+            "rename_tag": "span"
+        },
+        "spacer": {
+            "remove": 1
+        },
+        "source": {
+            "remove": 1
+        },
+        "aside": {
+            "rename_tag": "div"
+        },
+        "frame": {
+            "remove": 1
+        },
+        "section": {
+            "rename_tag": "div"
+        },
+        "body": {
+            "rename_tag": "div"
+        },
+        "ol": {},
+        "nobr": {
+            "rename_tag": "span"
+        },
+        "html": {
+            "rename_tag": "div"
+        },
+        "summary": {
+            "rename_tag": "span"
+        },
+        "var": {
+            "rename_tag": "span"
+        },
+        "del": {
+            "remove": 1
+        },
+        "blockquote": {
+            "check_attributes": {
+                "cite": "url"
+            }
+        },
+        "style": {
+            "remove": 1
+        },
+        "device": {
+            "remove": 1
+        },
+        "meter": {
+            "rename_tag": "span"
+        },
+        "h3": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "textarea": {
+            "rename_tag": "span"
+        },
+        "embed": {
+            "remove": 1
+        },
+        "hgroup": {
+            "rename_tag": "div"
+        },
+        "font": {
+            "rename_tag": "span",
+            "add_class": {
+                "size": "size_font"
+            }
+        },
+        "tt": {
+            "rename_tag": "span"
+        },
+        "noembed": {
+            "remove": 1
+        },
+        "thead": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "blink": {
+            "rename_tag": "span"
+        },
+        "plaintext": {
+            "rename_tag": "span"
+        },
+        "xml": {
+            "remove": 1
+        },
+        "h6": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "param": {
+            "remove": 1
+        },
+        "th": {
+            "check_attributes": {
+                "rowspan": "numbers",
+                "colspan": "numbers"
+            },
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "legend": {
+            "rename_tag": "span"
+        },
+        "hr": {},
+        "label": {
+            "rename_tag": "span"
+        },
+        "dl": {
+            "rename_tag": "div"
+        },
+        "kbd": {
+            "rename_tag": "span"
+        },
+        "listing": {
+            "rename_tag": "div"
+        },
+        "dt": {
+            "rename_tag": "span"
+        },
+        "nextid": {
+            "remove": 1
+        },
+        "pre": {},
+        "center": {
+            "rename_tag": "div",
+            "set_class": "wysiwyg-text-align-center"
+        },
+        "audio": {
+            "remove": 1
+        },
+        "datalist": {
+            "rename_tag": "span"
+        },
+        "samp": {
+            "rename_tag": "span"
+        },
+        "col": {
+            "remove": 1
+        },
+        "article": {
+            "rename_tag": "div"
+        },
+        "cite": {},
+        "link": {
+            "remove": 1
+        },
+        "script": {
+            "remove": 1
+        },
+        "bdo": {
+            "rename_tag": "span"
+        },
+        "menu": {
+            "rename_tag": "ul"
+        },
+        "colgroup": {
+            "remove": 1
+        },
+        "ruby": {
+            "rename_tag": "span"
+        },
+        "h2": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "ins": {
+            "rename_tag": "span"
+        },
+        "p": {
+            "add_class": {
+                "align": "align_text"
+            }
+        },
+        "sub": {
+            "rename_tag": "span"
+        },
+        "comment": {
+            "remove": 1
+        },
+        "frameset": {
+            "remove": 1
+        },
+        "optgroup": {
+            "rename_tag": "span"
+        },
+        "header": {
+            "rename_tag": "div"
+        }
+    }
+};;
 /**
  * |-------------------|
  * | Backbone-Mediator |
@@ -15552,6 +16173,1621 @@ exports.rethrow = function rethrow(err, filename, lineno){
   return exports;
 
 })({});
+;
+(function() {
+  'use strict';
+    
+  var models = {},
+    views = {},
+    collections = {},
+    etch = {};
+	
+  // versioning as per semver.org
+  etch.VERSION = '0.6.2';
+
+  etch.config = {
+    // selector to specify editable elements   
+    selector: '.editable',
+      
+    // Named sets of buttons to be specified on the editable element
+    // in the markup as "data-button-class"   
+    buttonClasses: {
+      'default': ['save'],
+      'all': ['bold', 'italic', 'underline', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'],
+      'title': ['bold', 'italic', 'underline', 'save']
+    }
+  };
+
+  models.Editor = Backbone.Model;
+
+  views.Editor = Backbone.View.extend({
+    initialize: function() {
+      this.$el = $(this.el);
+            
+      // Model attribute event listeners:
+      _.bindAll(this, 'changeButtons', 'changePosition', 'changeEditable', 'insertImage');
+      this.model.bind('change:buttons', this.changeButtons);
+      this.model.bind('change:position', this.changePosition);
+      this.model.bind('change:editable', this.changeEditable);
+
+      // Init Routines:
+      this.changeEditable();
+    },
+
+    events: {
+      'click .etch-bold': 'toggleBold',
+      'click .etch-italic': 'toggleItalic',
+      'click .etch-underline': 'toggleUnderline',
+      'click .etch-heading': 'toggleHeading',
+      'click .etch-unordered-list': 'toggleUnorderedList',
+      'click .etch-justify-left': 'justifyLeft',
+      'click .etch-justify-center': 'justifyCenter',
+      'click .etch-justify-right': 'justifyRight',
+      'click .etch-ordered-list': 'toggleOrderedList',
+      'click .etch-link': 'toggleLink',
+      'click .etch-image': 'getImage',
+      'click .etch-save': 'save',
+      'click .etch-clear-formatting': 'clearFormatting'
+    },
+        
+    changeEditable: function() {
+      this.setButtonClass();
+      // Im assuming that Ill add more functionality here
+    },
+
+    setButtonClass: function() {
+      // check the button class of the element being edited and set the associated buttons on the model
+      var editorModel = this.model;
+      var buttonClass = editorModel.get('editable').attr('data-button-class') || 'default';
+      editorModel.set({ buttons: etch.config.buttonClasses[buttonClass] });
+    },
+
+    changeButtons: function() {
+      // render the buttons into the editor-panel
+      this.$el.empty();
+      var view = this;
+      var buttons = this.model.get('buttons');
+            
+      // hide editor panel if there are no buttons in it and exit early
+      if (!buttons.length) { $(this.el).hide(); return; }
+            
+      _.each(this.model.get('buttons'), function(button){
+        var $buttonEl = $('<a href="#" class="etch-editor-button etch-'+ button +'" title="'+ button.replace('-', ' ') +'"><span></span></a>');
+        view.$el.append($buttonEl);
+      });
+            
+      $(this.el).show('fast');
+    },
+
+    changePosition: function() {
+      // animate editor-panel to new position
+      var pos = this.model.get('position');
+      this.$el.animate({'top': pos.y, 'left': pos.x}, { queue: false });
+    },
+        
+    wrapSelection: function(selectionOrRange, elString, cb) {
+      // wrap current selection with elString tag
+      var range = selectionOrRange === Range ? selectionOrRange : selectionOrRange.getRangeAt(0);
+      var el = document.createElement(elString);
+      range.surroundContents(el);
+    },
+        
+    clearFormatting: function(e) {
+      e.preventDefault();
+      document.execCommand('removeFormat', false, null);
+    },
+        
+    toggleBold: function(e) {
+      e.preventDefault();
+      document.execCommand('bold', false, null);
+    },
+
+    toggleItalic: function(e) {
+      e.preventDefault();
+      document.execCommand('italic', false, null);
+    },
+
+    toggleUnderline: function(e) {
+      e.preventDefault();
+      document.execCommand('underline', false, null);
+    },
+        
+    toggleHeading: function(e) {
+      e.preventDefault();
+      var range = window.getSelection().getRangeAt(0);
+      var wrapper = range.commonAncestorContainer.parentElement
+      if ($(wrapper).is('h3')) {
+        $(wrapper).replaceWith(wrapper.textContent)
+        return;
+      }
+      var h3 = document.createElement('h3');
+      range.surroundContents(h3);
+    },
+
+    urlPrompt: function(callback) {
+      // This uses the default browser UI prompt to get a url.
+      // Override this function if you want to implement a custom UI.
+        
+      var url = prompt('Enter a url', 'http://');
+        
+      // Ensure a new link URL starts with http:// or https:// 
+      // before it's added to the DOM.
+      //
+      // NOTE: This implementation will disallow relative URLs from being added
+      // but will make it easier for users typing external URLs.
+      if (/^((http|https)...)/.test(url)) {
+        callback(url);
+      } else {
+        callback("http://" + url);
+      }
+    },
+    
+    toggleLink: function(e) {
+      e.preventDefault();
+      var range = window.getSelection().getRangeAt(0);
+
+      // are we in an anchor element?
+      if (range.startContainer.parentNode.tagName === 'A' || range.endContainer.parentNode.tagName === 'A') {
+        // unlink anchor
+        document.execCommand('unlink', false, null);
+      } else {
+        // promt for url and create link
+        this.urlPrompt(function(url) {
+          document.execCommand('createLink', false, url);
+        });
+      }
+    },
+
+    toggleUnorderedList: function(e) {
+      e.preventDefault();
+      document.execCommand('insertUnorderedList', false, null);
+    },
+
+    toggleOrderedList: function(e){
+      e.preventDefault();
+      document.execCommand('insertOrderedList', false, null);
+    },
+        
+    justifyLeft: function(e) {
+      e.preventDefault();
+      document.execCommand('justifyLeft', false, null);
+    },
+
+    justifyCenter: function(e) {
+      e.preventDefault();
+      document.execCommand('justifyCenter', false, null);
+    },
+
+    justifyRight: function(e) {
+      e.preventDefault();
+      document.execCommand('justifyRight', false, null);
+    },
+
+    getImage: function(e) {
+      e.preventDefault();
+
+      // call startUploader with callback to handle inserting it once it is uploded/cropped
+      this.startUploader(this.insertImage);
+    },
+        
+    startUploader: function(cb) {
+      // initialize Image Uploader
+      var model = new models.ImageUploader();
+      var view = new views.ImageUploader({model: model});
+            
+      // stash a reference to the callback to be called after image is uploaded
+      model._imageCallback = function(image) {
+        view.startCropper(image, cb);
+      };
+
+
+      // stash reference to saved range for inserting the image once its 
+      this._savedRange = window.getSelection().getRangeAt(0);
+
+      // insert uploader html into DOM
+      $('body').append(view.render().el);
+    },
+        
+    insertImage: function(image) {
+      // insert image - passed as a callback to startUploader
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(this._savedRange);
+            
+      var attrs = {
+        'editable': this.model.get('editable'),
+        'editableModel': this.model.get('editableModel')
+      };
+            
+      _.extend(attrs, image);
+
+      var model = new models.EditableImage(attrs);
+      var view = new views.EditableImage({model: model});
+      this._savedRange.insertNode($(view.render().el).addClass('etch-float-left')[0]);
+    },
+        
+    save: function(e) {
+      e.preventDefault();
+      var editableModel = this.model.get('editableModel');
+      editableModel.trigger('save');
+    }
+  });
+
+  // tack on models, views, etc... as well as init function
+  _.extend(etch, {
+    models: models,
+    views: views,
+    collections: collections,
+
+    // This function is to be used as callback to whatever event
+    // you use to initialize editing 
+    editableInit: function(e) {
+      e.stopPropagation();
+      var target = e.target || e.srcElement;
+      var $editable = $(target).etchFindEditable();
+      $editable.attr('contenteditable', true);
+
+      // if the editor isn't already built, build it
+      var $editor = $('.etch-editor-panel');
+      var editorModel = $editor.data('model');
+      if (!$editor.size()) {
+        $editor = $('<div class="etch-editor-panel">');
+        var editorAttrs = { editable: $editable, editableModel: this.model };
+        document.body.appendChild($editor[0]);
+        $editor.etchInstantiate({classType: 'Editor', attrs: editorAttrs});
+        editorModel = $editor.data('model');
+
+      // check if we are on a new editable
+      } else if ($editable[0] !== editorModel.get('editable')[0]) {
+        // set new editable
+        editorModel.set({
+          editable: $editable,
+          editableModel: this.model
+        });
+      }
+      
+      // Firefox seems to be only browser that defaults to `StyleWithCSS == true`
+      // so we turn it off here. Plus a try..catch to avoid an error being thrown in IE8.
+      try {
+        document.execCommand('StyleWithCSS', false, false);
+      }
+      catch (err) {
+        // expecting to just eat IE8 error, but if different error, rethrow
+        if (err.message !== "Invalid argument.") {
+          throw err;
+        }
+      }
+
+      if (models.EditableImage) {
+        // instantiate any images that may be in the editable
+        var $imgs = $editable.find('img');
+        if ($imgs.size()) {
+          var attrs = { editable: $editable, editableModel: this.model };
+          $imgs.each(function() {
+            var $this = $(this);
+            if (!$this.data('editableImageModel')) {
+              var editableImageModel =  new models.EditableImage(attrs);
+              var editableImageView = new views.EditableImage({model: editableImageModel, el: this, tagName: this.tagName});
+              $this.data('editableImageModel', editableImageModel);
+            }
+          });
+        }
+      }
+
+      // listen for mousedowns that are not coming from the editor
+      // and close the editor
+      $('body').bind('mousedown.editor', function(e) {
+        // check to see if the click was in an etch tool
+        var target = e.target || e.srcElement;
+        if ($(target).not('.etch-editor-panel, .etch-editor-panel *, .etch-image-tools, .etch-image-tools *').size()) {
+          // remove editor
+          $editor.remove();
+                    
+                    
+          if (models.EditableImage) {
+            // unblind the image-tools if the editor isn't active
+            $editable.find('img').unbind('mouseenter');
+
+            // remove any latent image tool model references
+            $(etch.config.selector+' img').data('editableImageModel', false)
+          }
+                    
+          // once the editor is removed, remove the body binding for it
+          $(this).unbind('mousedown.editor');
+        }
+      });
+
+      editorModel.set({position: {x: e.pageX - 15, y: e.pageY - 80}});
+    }
+  });
+
+  // jquery helper functions
+  $.fn.etchInstantiate = function(options, cb) {
+    return this.each(function() {
+      var $el = $(this);
+      options || (options = {});
+
+      var settings = {
+        el: this,
+        attrs: {}
+      }
+
+      _.extend(settings, options);
+
+      var model = new models[settings.classType](settings.attrs, settings);
+
+      // initialize a view is there is one
+      if (_.isFunction(views[settings.classType])) {
+        var view = new views[settings.classType]({model: model, el: this, tagName: this.tagName});
+      }
+           
+      // stash the model and view on the elements data object
+      $el.data({model: model});
+      $el.data({view: view});
+
+      if (_.isFunction(cb)) {
+        cb({model: model, view: view});
+      }
+    });
+  }
+
+  $.fn.etchFindEditable = function() {
+    // function that looks for the editable selector on itself or its parents
+    // and returns that el when it is found
+    var $el = $(this);
+    return $el.is(etch.config.selector) ? $el : $el.closest(etch.config.selector);
+  }
+    
+  window.etch = etch;
+})();
+;
+/**
+ * http://github.com/valums/file-uploader
+ * 
+ * Multiple file upload component with progress-bar, drag-and-drop. 
+ * © 2010 Andrew Valums ( andrew(at)valums.com ) 
+ * 
+ * Licensed under GNU GPL 2 or later and GNU LGPL 2 or later, see license.txt.
+ */    
+
+//
+// Helper functions
+//
+
+var qq = qq || {};
+
+/**
+ * Adds all missing properties from second obj to first obj
+ */ 
+qq.extend = function(first, second){
+    for (var prop in second){
+        first[prop] = second[prop];
+    }
+};  
+
+/**
+ * Searches for a given element in the array, returns -1 if it is not present.
+ * @param {Number} [from] The index at which to begin the search
+ */
+qq.indexOf = function(arr, elt, from){
+    if (arr.indexOf) return arr.indexOf(elt, from);
+    
+    from = from || 0;
+    var len = arr.length;    
+    
+    if (from < 0) from += len;  
+
+    for (; from < len; from++){  
+        if (from in arr && arr[from] === elt){  
+            return from;
+        }
+    }  
+    return -1;  
+}; 
+    
+qq.getUniqueId = (function(){
+    var id = 0;
+    return function(){ return id++; };
+})();
+
+//
+// Events
+
+qq.attach = function(element, type, fn){
+    if (element.addEventListener){
+        element.addEventListener(type, fn, false);
+    } else if (element.attachEvent){
+        element.attachEvent('on' + type, fn);
+    }
+};
+qq.detach = function(element, type, fn){
+    if (element.removeEventListener){
+        element.removeEventListener(type, fn, false);
+    } else if (element.attachEvent){
+        element.detachEvent('on' + type, fn);
+    }
+};
+
+qq.preventDefault = function(e){
+    if (e.preventDefault){
+        e.preventDefault();
+    } else{
+        e.returnValue = false;
+    }
+};
+
+//
+// Node manipulations
+
+/**
+ * Insert node a before node b.
+ */
+qq.insertBefore = function(a, b){
+    b.parentNode.insertBefore(a, b);
+};
+qq.remove = function(element){
+    element.parentNode.removeChild(element);
+};
+
+qq.contains = function(parent, descendant){       
+    // compareposition returns false in this case
+    if (parent == descendant) return true;
+    
+    if (parent.contains){
+        return parent.contains(descendant);
+    } else {
+        return !!(descendant.compareDocumentPosition(parent) & 8);
+    }
+};
+
+/**
+ * Creates and returns element from html string
+ * Uses innerHTML to create an element
+ */
+qq.toElement = (function(){
+    var div = document.createElement('div');
+    return function(html){
+        div.innerHTML = html;
+        var element = div.firstChild;
+        div.removeChild(element);
+        return element;
+    };
+})();
+
+//
+// Node properties and attributes
+
+/**
+ * Sets styles for an element.
+ * Fixes opacity in IE6-8.
+ */
+qq.css = function(element, styles){
+    if (styles.opacity != null){
+        if (typeof element.style.opacity != 'string' && typeof(element.filters) != 'undefined'){
+            styles.filter = 'alpha(opacity=' + Math.round(100 * styles.opacity) + ')';
+        }
+    }
+    qq.extend(element.style, styles);
+};
+qq.hasClass = function(element, name){
+    var re = new RegExp('(^| )' + name + '( |$)');
+    return re.test(element.className);
+};
+qq.addClass = function(element, name){
+    if (!qq.hasClass(element, name)){
+        element.className += ' ' + name;
+    }
+};
+qq.removeClass = function(element, name){
+    var re = new RegExp('(^| )' + name + '( |$)');
+    element.className = element.className.replace(re, ' ').replace(/^\s+|\s+$/g, "");
+};
+qq.setText = function(element, text){
+    element.innerText = text;
+    element.textContent = text;
+};
+
+//
+// Selecting elements
+
+qq.children = function(element){
+    var children = [],
+    child = element.firstChild;
+
+    while (child){
+        if (child.nodeType == 1){
+            children.push(child);
+        }
+        child = child.nextSibling;
+    }
+
+    return children;
+};
+
+qq.getByClass = function(element, className){
+    if (element.querySelectorAll){
+        return element.querySelectorAll('.' + className);
+    }
+
+    var result = [];
+    var candidates = element.getElementsByTagName("*");
+    var len = candidates.length;
+
+    for (var i = 0; i < len; i++){
+        if (qq.hasClass(candidates[i], className)){
+            result.push(candidates[i]);
+        }
+    }
+    return result;
+};
+
+/**
+ * obj2url() takes a json-object as argument and generates
+ * a querystring. pretty much like jQuery.param()
+ * 
+ * how to use:
+ *
+ *    `qq.obj2url({a:'b',c:'d'},'http://any.url/upload?otherParam=value');`
+ *
+ * will result in:
+ *
+ *    `http://any.url/upload?otherParam=value&a=b&c=d`
+ *
+ * @param  Object JSON-Object
+ * @param  String current querystring-part
+ * @return String encoded querystring
+ */
+qq.obj2url = function(obj, temp, prefixDone){
+    var uristrings = [],
+        prefix = '&',
+        add = function(nextObj, i){
+            var nextTemp = temp 
+                ? (/\[\]$/.test(temp)) // prevent double-encoding
+                   ? temp
+                   : temp+'['+i+']'
+                : i;
+            if ((nextTemp != 'undefined') && (i != 'undefined')) {  
+                uristrings.push(
+                    (typeof nextObj === 'object') 
+                        ? qq.obj2url(nextObj, nextTemp, true)
+                        : (Object.prototype.toString.call(nextObj) === '[object Function]')
+                            ? encodeURIComponent(nextTemp) + '=' + encodeURIComponent(nextObj())
+                            : encodeURIComponent(nextTemp) + '=' + encodeURIComponent(nextObj)                                                          
+                );
+            }
+        }; 
+
+    if (!prefixDone && temp) {
+      prefix = (/\?/.test(temp)) ? (/\?$/.test(temp)) ? '' : '&' : '?';
+      uristrings.push(temp);
+      uristrings.push(qq.obj2url(obj));
+    } else if ((Object.prototype.toString.call(obj) === '[object Array]') && (typeof obj != 'undefined') ) {
+        // we wont use a for-in-loop on an array (performance)
+        for (var i = 0, len = obj.length; i < len; ++i){
+            add(obj[i], i);
+        }
+    } else if ((typeof obj != 'undefined') && (obj !== null) && (typeof obj === "object")){
+        // for anything else but a scalar, we will use for-in-loop
+        for (var i in obj){
+            add(obj[i], i);
+        }
+    } else {
+        uristrings.push(encodeURIComponent(temp) + '=' + encodeURIComponent(obj));
+    }
+
+    return uristrings.join(prefix)
+                     .replace(/^&/, '')
+                     .replace(/%20/g, '+'); 
+};
+
+//
+//
+// Uploader Classes
+//
+//
+
+var qq = qq || {};
+    
+/**
+ * Creates upload button, validates upload, but doesn't create file list or dd. 
+ */
+qq.FileUploaderBasic = function(o){
+    this._options = {
+        // set to true to see the server response
+        debug: false,
+        action: '/server/upload',
+        params: {},
+        button: null,
+        multiple: true,
+        maxConnections: 3,
+        // validation        
+        allowedExtensions: [],               
+        sizeLimit: 0,   
+        minSizeLimit: 0,                             
+        // events
+        // return false to cancel submit
+        onSubmit: function(id, fileName){},
+        onProgress: function(id, fileName, loaded, total){},
+        onComplete: function(id, fileName, responseJSON){},
+        onCancel: function(id, fileName){},
+        // messages                
+        messages: {
+            typeError: "{file} has invalid extension. Only {extensions} are allowed.",
+            sizeError: "{file} is too large, maximum file size is {sizeLimit}.",
+            minSizeError: "{file} is too small, minimum file size is {minSizeLimit}.",
+            emptyError: "{file} is empty, please select files again without it.",
+            onLeave: "The files are being uploaded, if you leave now the upload will be cancelled."            
+        },
+        showMessage: function(message){
+            alert(message);
+        }               
+    };
+    qq.extend(this._options, o);
+        
+    // number of files being uploaded
+    this._filesInProgress = 0;
+    this._handler = this._createUploadHandler(); 
+    
+    if (this._options.button){ 
+        this._button = this._createUploadButton(this._options.button);
+    }
+                        
+    this._preventLeaveInProgress();         
+};
+   
+qq.FileUploaderBasic.prototype = {
+    setParams: function(params){
+        this._options.params = params;
+    },
+    getInProgress: function(){
+        return this._filesInProgress;         
+    },
+    _createUploadButton: function(element){
+        var self = this;
+        
+        return new qq.UploadButton({
+            element: element,
+            multiple: this._options.multiple && qq.UploadHandlerXhr.isSupported(),
+            onChange: function(input){
+                self._onInputChange(input);
+            }        
+        });           
+    },    
+    _createUploadHandler: function(){
+        var self = this,
+            handlerClass;        
+        
+        if(qq.UploadHandlerXhr.isSupported()){           
+            handlerClass = 'UploadHandlerXhr';                        
+        } else {
+            handlerClass = 'UploadHandlerForm';
+        }
+
+        var handler = new qq[handlerClass]({
+            debug: this._options.debug,
+            action: this._options.action,         
+            maxConnections: this._options.maxConnections,   
+            onProgress: function(id, fileName, loaded, total){                
+                self._onProgress(id, fileName, loaded, total);
+                self._options.onProgress(id, fileName, loaded, total);                    
+            },            
+            onComplete: function(id, fileName, result){
+                self._onComplete(id, fileName, result);
+                self._options.onComplete(id, fileName, result);
+            },
+            onCancel: function(id, fileName){
+                self._onCancel(id, fileName);
+                self._options.onCancel(id, fileName);
+            }
+        });
+
+        return handler;
+    },    
+    _preventLeaveInProgress: function(){
+        var self = this;
+        
+        qq.attach(window, 'beforeunload', function(e){
+            if (!self._filesInProgress){return;}
+            
+            var e = e || window.event;
+            // for ie, ff
+            e.returnValue = self._options.messages.onLeave;
+            // for webkit
+            return self._options.messages.onLeave;             
+        });        
+    },    
+    _onSubmit: function(id, fileName){
+        this._filesInProgress++;  
+    },
+    _onProgress: function(id, fileName, loaded, total){        
+    },
+    _onComplete: function(id, fileName, result){
+        this._filesInProgress--;                 
+        if (result.error){
+            this._options.showMessage(result.error);
+        }             
+    },
+    _onCancel: function(id, fileName){
+        this._filesInProgress--;        
+    },
+    _onInputChange: function(input){
+        if (this._handler instanceof qq.UploadHandlerXhr){                
+            this._uploadFileList(input.files);                   
+        } else {             
+            if (this._validateFile(input)){                
+                this._uploadFile(input);                                    
+            }                      
+        }               
+        this._button.reset();   
+    },  
+    _uploadFileList: function(files){
+        for (var i=0; i<files.length; i++){
+            if ( !this._validateFile(files[i])){
+                return;
+            }            
+        }
+        
+        for (var i=0; i<files.length; i++){
+            this._uploadFile(files[i]);        
+        }        
+    },       
+    _uploadFile: function(fileContainer){      
+        var id = this._handler.add(fileContainer);
+        var fileName = this._handler.getName(id);
+        
+        if (this._options.onSubmit(id, fileName) !== false){
+            this._onSubmit(id, fileName);
+            this._handler.upload(id, this._options.params);
+        }
+    },      
+    _validateFile: function(file){
+        var name, size;
+        
+        if (file.value){
+            // it is a file input            
+            // get input value and remove path to normalize
+            name = file.value.replace(/.*(\/|\\)/, "");
+        } else {
+            // fix missing properties in Safari
+            name = file.fileName != null ? file.fileName : file.name;
+            size = file.fileSize != null ? file.fileSize : file.size;
+        }
+                    
+        if (! this._isAllowedExtension(name)){            
+            this._error('typeError', name);
+            return false;
+            
+        } else if (size === 0){            
+            this._error('emptyError', name);
+            return false;
+                                                     
+        } else if (size && this._options.sizeLimit && size > this._options.sizeLimit){            
+            this._error('sizeError', name);
+            return false;
+                        
+        } else if (size && size < this._options.minSizeLimit){
+            this._error('minSizeError', name);
+            return false;            
+        }
+        
+        return true;                
+    },
+    _error: function(code, fileName){
+        var message = this._options.messages[code];        
+        function r(name, replacement){ message = message.replace(name, replacement); }
+        
+        r('{file}', this._formatFileName(fileName));        
+        r('{extensions}', this._options.allowedExtensions.join(', '));
+        r('{sizeLimit}', this._formatSize(this._options.sizeLimit));
+        r('{minSizeLimit}', this._formatSize(this._options.minSizeLimit));
+        
+        this._options.showMessage(message);                
+    },
+    _formatFileName: function(name){
+        if (name.length > 33){
+            name = name.slice(0, 19) + '...' + name.slice(-13);    
+        }
+        return name;
+    },
+    _isAllowedExtension: function(fileName){
+        var ext = (-1 !== fileName.indexOf('.')) ? fileName.replace(/.*[.]/, '').toLowerCase() : '';
+        var allowed = this._options.allowedExtensions;
+        
+        if (!allowed.length){return true;}        
+        
+        for (var i=0; i<allowed.length; i++){
+            if (allowed[i].toLowerCase() == ext){ return true;}    
+        }
+        
+        return false;
+    },    
+    _formatSize: function(bytes){
+        var i = -1;                                    
+        do {
+            bytes = bytes / 1024;
+            i++;  
+        } while (bytes > 99);
+        
+        return Math.max(bytes, 0.1).toFixed(1) + ['kB', 'MB', 'GB', 'TB', 'PB', 'EB'][i];          
+    }
+};
+    
+       
+/**
+ * Class that creates upload widget with drag-and-drop and file list
+ * @inherits qq.FileUploaderBasic
+ */
+qq.FileUploader = function(o){
+    // call parent constructor
+    qq.FileUploaderBasic.apply(this, arguments);
+    
+    // additional options    
+    qq.extend(this._options, {
+        element: null,
+        // if set, will be used instead of qq-upload-list in template
+        listElement: null,
+                
+        template: '<div class="qq-uploader">' + 
+                '<div class="qq-upload-drop-area"><span>Drop files here to upload</span></div>' +
+                '<div class="qq-upload-button">Upload file</div>' +
+                '<ul class="qq-upload-list"></ul>' + 
+             '</div>',
+
+        // template for one item in file list
+        fileTemplate: '<li>' +
+                '<span class="qq-upload-file"></span>' +
+                '<span class="qq-upload-spinner"></span>' +
+                '<span class="qq-upload-size"></span>' +
+                '<a class="qq-upload-cancel" href="#">Cancel</a>' +
+                '<span class="qq-upload-failed-text">Failed</span>' +
+            '</li>',        
+        
+        classes: {
+            // used to get elements from templates
+            button: 'qq-upload-button',
+            drop: 'qq-upload-drop-area',
+            dropActive: 'qq-upload-drop-area-active',
+            list: 'qq-upload-list',
+                        
+            file: 'qq-upload-file',
+            spinner: 'qq-upload-spinner',
+            size: 'qq-upload-size',
+            cancel: 'qq-upload-cancel',
+
+            // added to list item when upload completes
+            // used in css to hide progress spinner
+            success: 'qq-upload-success',
+            fail: 'qq-upload-fail'
+        }
+    });
+    // overwrite options with user supplied    
+    qq.extend(this._options, o);       
+
+    this._element = this._options.element;
+    this._element.innerHTML = this._options.template;        
+    this._listElement = this._options.listElement || this._find(this._element, 'list');
+    
+    this._classes = this._options.classes;
+        
+    this._button = this._createUploadButton(this._find(this._element, 'button'));        
+    
+    this._bindCancelEvent();
+    this._setupDragDrop();
+};
+
+// inherit from Basic Uploader
+qq.extend(qq.FileUploader.prototype, qq.FileUploaderBasic.prototype);
+
+qq.extend(qq.FileUploader.prototype, {
+    /**
+     * Gets one of the elements listed in this._options.classes
+     **/
+    _find: function(parent, type){                                
+        var element = qq.getByClass(parent, this._options.classes[type])[0];        
+        if (!element){
+            throw new Error('element not found ' + type);
+        }
+        
+        return element;
+    },
+    _setupDragDrop: function(){
+        var self = this,
+            dropArea = this._find(this._element, 'drop');                        
+
+        var dz = new qq.UploadDropZone({
+            element: dropArea,
+            onEnter: function(e){
+                qq.addClass(dropArea, self._classes.dropActive);
+                e.stopPropagation();
+            },
+            onLeave: function(e){
+                e.stopPropagation();
+            },
+            onLeaveNotDescendants: function(e){
+                qq.removeClass(dropArea, self._classes.dropActive);  
+            },
+            onDrop: function(e){
+                dropArea.style.display = 'none';
+                qq.removeClass(dropArea, self._classes.dropActive);
+                self._uploadFileList(e.dataTransfer.files);    
+            }
+        });
+                
+        dropArea.style.display = 'none';
+
+        qq.attach(document, 'dragenter', function(e){     
+            if (!dz._isValidFileDrag(e)) return; 
+            
+            dropArea.style.display = 'block';            
+        });                 
+        qq.attach(document, 'dragleave', function(e){
+            if (!dz._isValidFileDrag(e)) return;            
+            
+            var relatedTarget = document.elementFromPoint(e.clientX, e.clientY);
+            // only fire when leaving document out
+            if ( ! relatedTarget || relatedTarget.nodeName == "HTML"){               
+                dropArea.style.display = 'none';                                            
+            }
+        });                
+    },
+    _onSubmit: function(id, fileName){
+        qq.FileUploaderBasic.prototype._onSubmit.apply(this, arguments);
+        this._addToList(id, fileName);  
+    },
+    _onProgress: function(id, fileName, loaded, total){
+        qq.FileUploaderBasic.prototype._onProgress.apply(this, arguments);
+
+        var item = this._getItemByFileId(id);
+        var size = this._find(item, 'size');
+        size.style.display = 'inline';
+        
+        var text; 
+        if (loaded != total){
+            text = Math.round(loaded / total * 100) + '% from ' + this._formatSize(total);
+        } else {                                   
+            text = this._formatSize(total);
+        }          
+        
+        qq.setText(size, text);         
+    },
+    _onComplete: function(id, fileName, result){
+        qq.FileUploaderBasic.prototype._onComplete.apply(this, arguments);
+
+        // mark completed
+        var item = this._getItemByFileId(id);                
+        qq.remove(this._find(item, 'cancel'));
+        qq.remove(this._find(item, 'spinner'));
+        
+        if (result.success){
+            qq.addClass(item, this._classes.success);    
+        } else {
+            qq.addClass(item, this._classes.fail);
+        }         
+    },
+    _addToList: function(id, fileName){
+        var item = qq.toElement(this._options.fileTemplate);                
+        item.qqFileId = id;
+
+        var fileElement = this._find(item, 'file');        
+        qq.setText(fileElement, this._formatFileName(fileName));
+        this._find(item, 'size').style.display = 'none';        
+
+        this._listElement.appendChild(item);
+    },
+    _getItemByFileId: function(id){
+        var item = this._listElement.firstChild;        
+        
+        // there can't be txt nodes in dynamically created list
+        // and we can  use nextSibling
+        while (item){            
+            if (item.qqFileId == id) return item;            
+            item = item.nextSibling;
+        }          
+    },
+    /**
+     * delegate click event for cancel link 
+     **/
+    _bindCancelEvent: function(){
+        var self = this,
+            list = this._listElement;            
+        
+        qq.attach(list, 'click', function(e){            
+            e = e || window.event;
+            var target = e.target || e.srcElement;
+            
+            if (qq.hasClass(target, self._classes.cancel)){                
+                qq.preventDefault(e);
+               
+                var item = target.parentNode;
+                self._handler.cancel(item.qqFileId);
+                qq.remove(item);
+            }
+        });
+    }    
+});
+    
+qq.UploadDropZone = function(o){
+    this._options = {
+        element: null,  
+        onEnter: function(e){},
+        onLeave: function(e){},  
+        // is not fired when leaving element by hovering descendants   
+        onLeaveNotDescendants: function(e){},   
+        onDrop: function(e){}                       
+    };
+    qq.extend(this._options, o); 
+    
+    this._element = this._options.element;
+    
+    this._disableDropOutside();
+    this._attachEvents();   
+};
+
+qq.UploadDropZone.prototype = {
+    _disableDropOutside: function(e){
+        // run only once for all instances
+        if (!qq.UploadDropZone.dropOutsideDisabled ){
+
+            qq.attach(document, 'dragover', function(e){
+                if (e.dataTransfer){
+                    e.dataTransfer.dropEffect = 'none';
+                    e.preventDefault(); 
+                }           
+            });
+            
+            qq.UploadDropZone.dropOutsideDisabled = true; 
+        }        
+    },
+    _attachEvents: function(){
+        var self = this;              
+                  
+        qq.attach(self._element, 'dragover', function(e){
+            if (!self._isValidFileDrag(e)) return;
+            
+            var effect = e.dataTransfer.effectAllowed;
+            if (effect == 'move' || effect == 'linkMove'){
+                e.dataTransfer.dropEffect = 'move'; // for FF (only move allowed)    
+            } else {                    
+                e.dataTransfer.dropEffect = 'copy'; // for Chrome
+            }
+                                                     
+            e.stopPropagation();
+            e.preventDefault();                                                                    
+        });
+        
+        qq.attach(self._element, 'dragenter', function(e){
+            if (!self._isValidFileDrag(e)) return;
+                        
+            self._options.onEnter(e);
+        });
+        
+        qq.attach(self._element, 'dragleave', function(e){
+            if (!self._isValidFileDrag(e)) return;
+            
+            self._options.onLeave(e);
+            
+            var relatedTarget = document.elementFromPoint(e.clientX, e.clientY);                      
+            // do not fire when moving a mouse over a descendant
+            if (qq.contains(this, relatedTarget)) return;
+                        
+            self._options.onLeaveNotDescendants(e); 
+        });
+                
+        qq.attach(self._element, 'drop', function(e){
+            if (!self._isValidFileDrag(e)) return;
+            
+            e.preventDefault();
+            self._options.onDrop(e);
+        });          
+    },
+    _isValidFileDrag: function(e){
+        var dt = e.dataTransfer,
+            // do not check dt.types.contains in webkit, because it crashes safari 4            
+            isWebkit = navigator.userAgent.indexOf("AppleWebKit") > -1;                        
+
+        // dt.effectAllowed is none in Safari 5
+        // dt.types.contains check is for firefox            
+        return dt && dt.effectAllowed != 'none' && 
+            (dt.files || (!isWebkit && dt.types.contains && dt.types.contains('Files')));
+        
+    }        
+}; 
+
+qq.UploadButton = function(o){
+    this._options = {
+        element: null,  
+        // if set to true adds multiple attribute to file input      
+        multiple: false,
+        // name attribute of file input
+        name: 'file',
+        onChange: function(input){},
+        hoverClass: 'qq-upload-button-hover',
+        focusClass: 'qq-upload-button-focus'                       
+    };
+    
+    qq.extend(this._options, o);
+        
+    this._element = this._options.element;
+    
+    // make button suitable container for input
+    qq.css(this._element, {
+        position: 'relative',
+        overflow: 'hidden',
+        // Make sure browse button is in the right side
+        // in Internet Explorer
+        direction: 'ltr'
+    });   
+    
+    this._input = this._createInput();
+};
+
+qq.UploadButton.prototype = {
+    /* returns file input element */    
+    getInput: function(){
+        return this._input;
+    },
+    /* cleans/recreates the file input */
+    reset: function(){
+        if (this._input.parentNode){
+            qq.remove(this._input);    
+        }                
+        
+        qq.removeClass(this._element, this._options.focusClass);
+        this._input = this._createInput();
+    },    
+    _createInput: function(){                
+        var input = document.createElement("input");
+        
+        if (this._options.multiple){
+            input.setAttribute("multiple", "multiple");
+        }
+                
+        input.setAttribute("type", "file");
+        input.setAttribute("name", this._options.name);
+        
+        qq.css(input, {
+            position: 'absolute',
+            // in Opera only 'browse' button
+            // is clickable and it is located at
+            // the right side of the input
+            right: 0,
+            top: 0,
+            fontFamily: 'Arial',
+            // 4 persons reported this, the max values that worked for them were 243, 236, 236, 118
+            fontSize: '118px',
+            margin: 0,
+            padding: 0,
+            cursor: 'pointer',
+            opacity: 0
+        });
+        
+        this._element.appendChild(input);
+
+        var self = this;
+        qq.attach(input, 'change', function(){
+            self._options.onChange(input);
+        });
+                
+        qq.attach(input, 'mouseover', function(){
+            qq.addClass(self._element, self._options.hoverClass);
+        });
+        qq.attach(input, 'mouseout', function(){
+            qq.removeClass(self._element, self._options.hoverClass);
+        });
+        qq.attach(input, 'focus', function(){
+            qq.addClass(self._element, self._options.focusClass);
+        });
+        qq.attach(input, 'blur', function(){
+            qq.removeClass(self._element, self._options.focusClass);
+        });
+
+        // IE and Opera, unfortunately have 2 tab stops on file input
+        // which is unacceptable in our case, disable keyboard access
+        if (window.attachEvent){
+            // it is IE or Opera
+            input.setAttribute('tabIndex', "-1");
+        }
+
+        return input;            
+    }        
+};
+
+/**
+ * Class for uploading files, uploading itself is handled by child classes
+ */
+qq.UploadHandlerAbstract = function(o){
+    this._options = {
+        debug: false,
+        action: '/upload.php',
+        // maximum number of concurrent uploads        
+        maxConnections: 999,
+        onProgress: function(id, fileName, loaded, total){},
+        onComplete: function(id, fileName, response){},
+        onCancel: function(id, fileName){}
+    };
+    qq.extend(this._options, o);    
+    
+    this._queue = [];
+    // params for files in queue
+    this._params = [];
+};
+qq.UploadHandlerAbstract.prototype = {
+    log: function(str){
+        if (this._options.debug && window.console) console.log('[uploader] ' + str);        
+    },
+    /**
+     * Adds file or file input to the queue
+     * @returns id
+     **/    
+    add: function(file){},
+    /**
+     * Sends the file identified by id and additional query params to the server
+     */
+    upload: function(id, params){
+        var len = this._queue.push(id);
+
+        var copy = {};        
+        qq.extend(copy, params);
+        this._params[id] = copy;        
+                
+        // if too many active uploads, wait...
+        if (len <= this._options.maxConnections){               
+            this._upload(id, this._params[id]);
+        }
+    },
+    /**
+     * Cancels file upload by id
+     */
+    cancel: function(id){
+        this._cancel(id);
+        this._dequeue(id);
+    },
+    /**
+     * Cancells all uploads
+     */
+    cancelAll: function(){
+        for (var i=0; i<this._queue.length; i++){
+            this._cancel(this._queue[i]);
+        }
+        this._queue = [];
+    },
+    /**
+     * Returns name of the file identified by id
+     */
+    getName: function(id){},
+    /**
+     * Returns size of the file identified by id
+     */          
+    getSize: function(id){},
+    /**
+     * Returns id of files being uploaded or
+     * waiting for their turn
+     */
+    getQueue: function(){
+        return this._queue;
+    },
+    /**
+     * Actual upload method
+     */
+    _upload: function(id){},
+    /**
+     * Actual cancel method
+     */
+    _cancel: function(id){},     
+    /**
+     * Removes element from queue, starts upload of next
+     */
+    _dequeue: function(id){
+        var i = qq.indexOf(this._queue, id);
+        this._queue.splice(i, 1);
+                
+        var max = this._options.maxConnections;
+        
+        if (this._queue.length >= max && i < max){
+            var nextId = this._queue[max-1];
+            this._upload(nextId, this._params[nextId]);
+        }
+    }        
+};
+
+/**
+ * Class for uploading files using form and iframe
+ * @inherits qq.UploadHandlerAbstract
+ */
+qq.UploadHandlerForm = function(o){
+    qq.UploadHandlerAbstract.apply(this, arguments);
+       
+    this._inputs = {};
+};
+// @inherits qq.UploadHandlerAbstract
+qq.extend(qq.UploadHandlerForm.prototype, qq.UploadHandlerAbstract.prototype);
+
+qq.extend(qq.UploadHandlerForm.prototype, {
+    add: function(fileInput){
+        fileInput.setAttribute('name', 'qqfile');
+        var id = 'qq-upload-handler-iframe' + qq.getUniqueId();       
+        
+        this._inputs[id] = fileInput;
+        
+        // remove file input from DOM
+        if (fileInput.parentNode){
+            qq.remove(fileInput);
+        }
+                
+        return id;
+    },
+    getName: function(id){
+        // get input value and remove path to normalize
+        return this._inputs[id].value.replace(/.*(\/|\\)/, "");
+    },    
+    _cancel: function(id){
+        this._options.onCancel(id, this.getName(id));
+        
+        delete this._inputs[id];        
+
+        var iframe = document.getElementById(id);
+        if (iframe){
+            // to cancel request set src to something else
+            // we use src="javascript:false;" because it doesn't
+            // trigger ie6 prompt on https
+            iframe.setAttribute('src', 'javascript:false;');
+
+            qq.remove(iframe);
+        }
+    },     
+    _upload: function(id, params){                        
+        var input = this._inputs[id];
+        
+        if (!input){
+            throw new Error('file with passed id was not added, or already uploaded or cancelled');
+        }                
+
+        var fileName = this.getName(id);
+                
+        var iframe = this._createIframe(id);
+        var form = this._createForm(iframe, params);
+        form.appendChild(input);
+
+        var self = this;
+        this._attachLoadEvent(iframe, function(){                                 
+            self.log('iframe loaded');
+            
+            var response = self._getIframeContentJSON(iframe);
+
+            self._options.onComplete(id, fileName, response);
+            self._dequeue(id);
+            
+            delete self._inputs[id];
+            // timeout added to fix busy state in FF3.6
+            setTimeout(function(){
+                qq.remove(iframe);
+            }, 1);
+        });
+
+        form.submit();        
+        qq.remove(form);        
+        
+        return id;
+    }, 
+    _attachLoadEvent: function(iframe, callback){
+        qq.attach(iframe, 'load', function(){
+            // when we remove iframe from dom
+            // the request stops, but in IE load
+            // event fires
+            if (!iframe.parentNode){
+                return;
+            }
+
+            // fixing Opera 10.53
+            if (iframe.contentDocument &&
+                iframe.contentDocument.body &&
+                iframe.contentDocument.body.innerHTML == "false"){
+                // In Opera event is fired second time
+                // when body.innerHTML changed from false
+                // to server response approx. after 1 sec
+                // when we upload file with iframe
+                return;
+            }
+
+            callback();
+        });
+    },
+    /**
+     * Returns json object received by iframe from server.
+     */
+    _getIframeContentJSON: function(iframe){
+        // iframe.contentWindow.document - for IE<7
+        var doc = iframe.contentDocument ? iframe.contentDocument: iframe.contentWindow.document,
+            response;
+        
+        this.log("converting iframe's innerHTML to JSON");
+        this.log("innerHTML = " + doc.body.innerHTML);
+                        
+        try {
+            response = eval("(" + doc.body.innerHTML + ")");
+        } catch(err){
+            response = {};
+        }        
+
+        return response;
+    },
+    /**
+     * Creates iframe with unique name
+     */
+    _createIframe: function(id){
+        // We can't use following code as the name attribute
+        // won't be properly registered in IE6, and new window
+        // on form submit will open
+        // var iframe = document.createElement('iframe');
+        // iframe.setAttribute('name', id);
+
+        var iframe = qq.toElement('<iframe src="javascript:false;" name="' + id + '" />');
+        // src="javascript:false;" removes ie6 prompt on https
+
+        iframe.setAttribute('id', id);
+
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        return iframe;
+    },
+    /**
+     * Creates form, that will be submitted to iframe
+     */
+    _createForm: function(iframe, params){
+        // We can't use the following code in IE6
+        // var form = document.createElement('form');
+        // form.setAttribute('method', 'post');
+        // form.setAttribute('enctype', 'multipart/form-data');
+        // Because in this case file won't be attached to request
+        var form = qq.toElement('<form method="post" enctype="multipart/form-data"></form>');
+
+        var queryString = qq.obj2url(params, this._options.action);
+
+        form.setAttribute('action', queryString);
+        form.setAttribute('target', iframe.name);
+        form.style.display = 'none';
+        document.body.appendChild(form);
+
+        return form;
+    }
+});
+
+/**
+ * Class for uploading files using xhr
+ * @inherits qq.UploadHandlerAbstract
+ */
+qq.UploadHandlerXhr = function(o){
+    qq.UploadHandlerAbstract.apply(this, arguments);
+
+    this._files = [];
+    this._xhrs = [];
+    
+    // current loaded size in bytes for each file 
+    this._loaded = [];
+};
+
+// static method
+qq.UploadHandlerXhr.isSupported = function(){
+    var input = document.createElement('input');
+    input.type = 'file';        
+    
+    return (
+        'multiple' in input &&
+        typeof File != "undefined" &&
+        typeof (new XMLHttpRequest()).upload != "undefined" );       
+};
+
+// @inherits qq.UploadHandlerAbstract
+qq.extend(qq.UploadHandlerXhr.prototype, qq.UploadHandlerAbstract.prototype)
+
+qq.extend(qq.UploadHandlerXhr.prototype, {
+    /**
+     * Adds file to the queue
+     * Returns id to use with upload, cancel
+     **/    
+    add: function(file){
+        if (!(file instanceof File)){
+            throw new Error('Passed obj in not a File (in qq.UploadHandlerXhr)');
+        }
+                
+        return this._files.push(file) - 1;        
+    },
+    getName: function(id){        
+        var file = this._files[id];
+        // fix missing name in Safari 4
+        return file.fileName != null ? file.fileName : file.name;       
+    },
+    getSize: function(id){
+        var file = this._files[id];
+        return file.fileSize != null ? file.fileSize : file.size;
+    },    
+    /**
+     * Returns uploaded bytes for file identified by id 
+     */    
+    getLoaded: function(id){
+        return this._loaded[id] || 0; 
+    },
+    /**
+     * Sends the file identified by id and additional query params to the server
+     * @param {Object} params name-value string pairs
+     */    
+    _upload: function(id, params){
+        var file = this._files[id],
+            name = this.getName(id),
+            size = this.getSize(id);
+                
+        this._loaded[id] = 0;
+                                
+        var xhr = this._xhrs[id] = new XMLHttpRequest();
+        var self = this;
+                                        
+        xhr.upload.onprogress = function(e){
+            if (e.lengthComputable){
+                self._loaded[id] = e.loaded;
+                self._options.onProgress(id, name, e.loaded, e.total);
+            }
+        };
+
+        xhr.onreadystatechange = function(){            
+            if (xhr.readyState == 4){
+                self._onComplete(id, xhr);                    
+            }
+        };
+
+        // build query string
+        params = params || {};
+        params['qqfile'] = name;
+        var queryString = qq.obj2url(params, this._options.action);
+
+        xhr.open("POST", queryString, true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("X-File-Name", encodeURIComponent(name));
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.send(file);
+    },
+    _onComplete: function(id, xhr){
+        // the request was aborted/cancelled
+        if (!this._files[id]) return;
+        
+        var name = this.getName(id);
+        var size = this.getSize(id);
+        
+        this._options.onProgress(id, name, size, size);
+                
+        if (xhr.status == 200 || xhr.status == 201){
+            this.log("xhr - server response received");
+            this.log("responseText = " + xhr.responseText);
+                        
+            var response;
+                    
+            try {
+                response = eval("(" + xhr.responseText + ")");
+            } catch(err){
+                response = {};
+            }
+            
+            this._options.onComplete(id, name, response);
+                        
+        } else {                   
+            this._options.onComplete(id, name, {});
+        }
+                
+        this._files[id] = null;
+        this._xhrs[id] = null;    
+        this._dequeue(id);                    
+    },
+    _cancel: function(id){
+        this._options.onCancel(id, this.getName(id));
+        
+        this._files[id] = null;
+        
+        if (this._xhrs[id]){
+            this._xhrs[id].abort();
+            this._xhrs[id] = null;                                   
+        }
+    }
+});
 ;
 /**!
  * @preserve Shadow animation 20120928
@@ -18360,4 +20596,1812 @@ if (typeof define === 'function' && define.amd) {
         return Showdown;
     });
 }
+;
+/*
+ * to-markdown - an HTML to Markdown converter
+ *
+ * Copyright 2011, Dom Christie
+ * Licenced under the MIT licence
+ *
+ */
+
+var toMarkdown = function(string) {
+  
+  var ELEMENTS = [
+    {
+      patterns: 'p',
+      replacement: function(str, attrs, innerHTML) {
+        return innerHTML ? '\n\n' + innerHTML + '\n' : '';
+      }
+    },
+    {
+      patterns: 'br',
+      type: 'void',
+      replacement: '\n'
+    },
+    {
+      patterns: 'h([1-6])',
+      replacement: function(str, hLevel, attrs, innerHTML) {
+        var hPrefix = '';
+        for(var i = 0; i < hLevel; i++) {
+          hPrefix += '#';
+        }
+        return '\n\n' + hPrefix + ' ' + innerHTML + '\n';
+      }
+    },
+    {
+      patterns: 'hr',
+      type: 'void',
+      replacement: '\n\n* * *\n'
+    },
+    {
+      patterns: 'a',
+      replacement: function(str, attrs, innerHTML) {
+        var href = attrs.match(attrRegExp('href')),
+            title = attrs.match(attrRegExp('title'));
+        return href ? '[' + innerHTML + ']' + '(' + href[1] + (title && title[1] ? ' "' + title[1] + '"' : '') + ')' : str;
+      }
+    },
+    {
+      patterns: ['b', 'strong'],
+      replacement: function(str, attrs, innerHTML) {
+        return innerHTML ? '**' + innerHTML + '**' : '';
+      }
+    },
+    {
+      patterns: ['i', 'em'],
+      replacement: function(str, attrs, innerHTML) {
+        return innerHTML ? '_' + innerHTML + '_' : '';
+      }
+    },
+    {
+      patterns: 'code',
+      replacement: function(str, attrs, innerHTML) {
+        return innerHTML ? '`' + innerHTML + '`' : '';
+      }
+    },
+    {
+      patterns: 'img',
+      type: 'void',
+      replacement: function(str, attrs, innerHTML) {
+        var src = attrs.match(attrRegExp('src')),
+            alt = attrs.match(attrRegExp('alt')),
+            title = attrs.match(attrRegExp('title'));
+        return '![' + (alt && alt[1] ? alt[1] : '') + ']' + '(' + src[1] + (title && title[1] ? ' "' + title[1] + '"' : '') + ')';
+      }
+    }
+  ];
+  
+  for(var i = 0, len = ELEMENTS.length; i < len; i++) {
+    if(typeof ELEMENTS[i].patterns === 'string') {
+      string = replaceEls(string, { tag: ELEMENTS[i].patterns, replacement: ELEMENTS[i].replacement, type:  ELEMENTS[i].type });
+    }
+    else {
+      for(var j = 0, pLen = ELEMENTS[i].patterns.length; j < pLen; j++) {
+        string = replaceEls(string, { tag: ELEMENTS[i].patterns[j], replacement: ELEMENTS[i].replacement, type:  ELEMENTS[i].type });
+      }
+    }
+  }
+  
+  function replaceEls(html, elProperties) {
+    var pattern = elProperties.type === 'void' ? '<' + elProperties.tag + '\\b([^>]*)\\/?>' : '<' + elProperties.tag + '\\b([^>]*)>([\\s\\S]*?)<\\/' + elProperties.tag + '>',
+        regex = new RegExp(pattern, 'gi'),
+        markdown = '';
+    if(typeof elProperties.replacement === 'string') {
+      markdown = html.replace(regex, elProperties.replacement);
+    }
+    else {
+      markdown = html.replace(regex, function(str, p1, p2, p3) {
+        return elProperties.replacement.call(this, str, p1, p2, p3);
+      });
+    }
+    return markdown;
+  }
+  
+  function attrRegExp(attr) {
+    return new RegExp(attr + '\\s*=\\s*["\']?([^"\']*)["\']?', 'i');
+  }
+  
+  // Pre code blocks
+  
+  string = string.replace(/<pre\b[^>]*>`([\s\S]*)`<\/pre>/gi, function(str, innerHTML) {
+    innerHTML = innerHTML.replace(/^\t+/g, '  '); // convert tabs to spaces (you know it makes sense)
+    innerHTML = innerHTML.replace(/\n/g, '\n    ');
+    return '\n\n    ' + innerHTML + '\n';
+  });
+  
+  // Lists
+
+  // Escape numbers that could trigger an ol
+  // If there are more than three spaces before the code, it would be in a pre tag
+  // Make sure we are escaping the period not matching any character
+  string = string.replace(/^(\s{0,3}\d+)\. /g, '$1\\. ');
+  
+  // Converts lists that have no child lists (of same type) first, then works it's way up
+  var noChildrenRegex = /<(ul|ol)\b[^>]*>(?:(?!<ul|<ol)[\s\S])*?<\/\1>/gi;
+  while(string.match(noChildrenRegex)) {
+    string = string.replace(noChildrenRegex, function(str) {
+      return replaceLists(str);
+    });
+  }
+  
+  function replaceLists(html) {
+    
+    html = html.replace(/<(ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi, function(str, listType, innerHTML) {
+      var lis = innerHTML.split('</li>');
+      lis.splice(lis.length - 1, 1);
+      
+      for(i = 0, len = lis.length; i < len; i++) {
+        if(lis[i]) {
+          var prefix = (listType === 'ol') ? (i + 1) + ".  " : "*   ";
+          lis[i] = lis[i].replace(/\s*<li[^>]*>([\s\S]*)/i, function(str, innerHTML) {
+            
+            innerHTML = innerHTML.replace(/^\s+/, '');
+            innerHTML = innerHTML.replace(/\n\n/g, '\n\n    ');
+            // indent nested lists
+            innerHTML = innerHTML.replace(/\n([ ]*)+(\*|\d+\.) /g, '\n$1    $2 ');
+            return prefix + innerHTML;
+          });
+        }
+      }
+      return lis.join('\n');
+    });
+    return '\n\n' + html.replace(/[ \t]+\n|\s+$/g, '');
+  }
+  
+  // Blockquotes
+  var deepest = /<blockquote\b[^>]*>((?:(?!<blockquote)[\s\S])*?)<\/blockquote>/gi;
+  while(string.match(deepest)) {
+    string = string.replace(deepest, function(str) {
+      return replaceBlockquotes(str);
+    });
+  }
+  
+  function replaceBlockquotes(html) {
+    html = html.replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/gi, function(str, inner) {
+      inner = inner.replace(/^\s+|\s+$/g, '');
+      inner = cleanUp(inner);
+      inner = inner.replace(/^/gm, '> ');
+      inner = inner.replace(/^(>([ \t]{2,}>)+)/gm, '> >');
+      return inner;
+    });
+    return html;
+  }
+  
+  function cleanUp(string) {
+    string = string.replace(/^[\t\r\n]+|[\t\r\n]+$/g, ''); // trim leading/trailing whitespace
+    string = string.replace(/\n\s+\n/g, '\n\n');
+    string = string.replace(/\n{3,}/g, '\n\n'); // limit consecutive linebreaks to 2
+    return string;
+  }
+  
+  return cleanUp(string);
+};
+
+if (typeof exports === 'object') {
+  exports.toMarkdown = toMarkdown;
+}
+;
+/**
+ * http://github.com/Valums-File-Uploader/file-uploader
+ *
+ * Multiple file upload component with progress-bar, drag-and-drop.
+ *
+ * Have ideas for improving this JS for the general community?
+ * Submit your changes at: https://github.com/Valums-File-Uploader/file-uploader
+ * Readme at https://github.com/valums/file-uploader/blob/2.0/readme.md
+ *
+ * VERSION 2.1-SNAPSHOT
+ * Original version: 1.0 © 2010 Andrew Valums ( andrew(at)valums.com )
+ * Current Maintainer (2.0+): © 2012, Ray Nicholus ( fineuploader(at)garstasio.com )
+ *
+ * Licensed under MIT license, GNU GPL 2 or later, GNU LGPL 2 or later, see license.txt.
+ */
+
+//
+// Helper functions
+//
+
+var qq = qq || {};
+
+/**
+ * Adds all missing properties from second obj to first obj
+ */
+qq.extend = function(first, second){
+    for (var prop in second){
+        first[prop] = second[prop];
+    }
+};
+
+/**
+ * Searches for a given element in the array, returns -1 if it is not present.
+ * @param {Number} [from] The index at which to begin the search
+ */
+qq.indexOf = function(arr, elt, from){
+    if (arr.indexOf) return arr.indexOf(elt, from);
+
+    from = from || 0;
+    var len = arr.length;
+
+    if (from < 0) from += len;
+
+    for (; from < len; from++){
+        if (from in arr && arr[from] === elt){
+            return from;
+        }
+    }
+    return -1;
+};
+
+qq.getUniqueId = (function(){
+    var id = 0;
+    return function(){ return id++; };
+})();
+
+//
+// Browsers and platforms detection
+
+qq.ie       = function(){ return navigator.userAgent.indexOf('MSIE') != -1; }
+qq.safari   = function(){ return navigator.vendor != undefined && navigator.vendor.indexOf("Apple") != -1; }
+qq.chrome   = function(){ return navigator.vendor != undefined && navigator.vendor.indexOf('Google') != -1; }
+qq.firefox  = function(){ return (navigator.userAgent.indexOf('Mozilla') != -1 && navigator.vendor != undefined && navigator.vendor == ''); }
+qq.windows  = function(){ return navigator.platform == "Win32"; }
+
+//
+// Events
+
+/** Returns the function which detaches attached event */
+qq.attach = function(element, type, fn){
+    if (element.addEventListener){
+        element.addEventListener(type, fn, false);
+    } else if (element.attachEvent){
+        element.attachEvent('on' + type, fn);
+    }
+    return function() {
+        qq.detach(element, type, fn)
+    }
+};
+qq.detach = function(element, type, fn){
+    if (element.removeEventListener){
+        element.removeEventListener(type, fn, false);
+    } else if (element.attachEvent){
+        element.detachEvent('on' + type, fn);
+    }
+};
+
+qq.preventDefault = function(e){
+    if (e.preventDefault){
+        e.preventDefault();
+    } else{
+        e.returnValue = false;
+    }
+};
+
+//
+// Node manipulations
+
+/**
+ * Insert node a before node b.
+ */
+qq.insertBefore = function(a, b){
+    b.parentNode.insertBefore(a, b);
+};
+qq.remove = function(element){
+    element.parentNode.removeChild(element);
+};
+
+qq.contains = function(parent, descendant){
+    // compareposition returns false in this case
+    if (parent == descendant) return true;
+
+    if (parent.contains){
+        return parent.contains(descendant);
+    } else {
+        return !!(descendant.compareDocumentPosition(parent) & 8);
+    }
+};
+
+/**
+ * Creates and returns element from html string
+ * Uses innerHTML to create an element
+ */
+qq.toElement = (function(){
+    var div = document.createElement('div');
+    return function(html){
+        div.innerHTML = html;
+        var element = div.firstChild;
+        div.removeChild(element);
+        return element;
+    };
+})();
+
+//
+// Node properties and attributes
+
+/**
+ * Sets styles for an element.
+ * Fixes opacity in IE6-8.
+ */
+qq.css = function(element, styles){
+    if (styles.opacity != null){
+        if (typeof element.style.opacity != 'string' && typeof(element.filters) != 'undefined'){
+            styles.filter = 'alpha(opacity=' + Math.round(100 * styles.opacity) + ')';
+        }
+    }
+    qq.extend(element.style, styles);
+};
+qq.hasClass = function(element, name){
+    var re = new RegExp('(^| )' + name + '( |$)');
+    return re.test(element.className);
+};
+qq.addClass = function(element, name){
+    if (!qq.hasClass(element, name)){
+        element.className += ' ' + name;
+    }
+};
+qq.removeClass = function(element, name){
+    var re = new RegExp('(^| )' + name + '( |$)');
+    element.className = element.className.replace(re, ' ').replace(/^\s+|\s+$/g, "");
+};
+qq.setText = function(element, text){
+    element.innerText = text;
+    element.textContent = text;
+};
+
+//
+// Selecting elements
+
+qq.children = function(element){
+    var children = [],
+        child = element.firstChild;
+
+    while (child){
+        if (child.nodeType == 1){
+            children.push(child);
+        }
+        child = child.nextSibling;
+    }
+
+    return children;
+};
+
+qq.getByClass = function(element, className){
+    if (element.querySelectorAll){
+        return element.querySelectorAll('.' + className);
+    }
+
+    var result = [];
+    var candidates = element.getElementsByTagName("*");
+    var len = candidates.length;
+
+    for (var i = 0; i < len; i++){
+        if (qq.hasClass(candidates[i], className)){
+            result.push(candidates[i]);
+        }
+    }
+    return result;
+};
+
+/**
+ * obj2url() takes a json-object as argument and generates
+ * a querystring. pretty much like jQuery.param()
+ *
+ * how to use:
+ *
+ *    `qq.obj2url({a:'b',c:'d'},'http://any.url/upload?otherParam=value');`
+ *
+ * will result in:
+ *
+ *    `http://any.url/upload?otherParam=value&a=b&c=d`
+ *
+ * @param  Object JSON-Object
+ * @param  String current querystring-part
+ * @return String encoded querystring
+ */
+qq.obj2url = function(obj, temp, prefixDone){
+    var uristrings = [],
+        prefix = '&',
+        add = function(nextObj, i){
+            var nextTemp = temp
+                ? (/\[\]$/.test(temp)) // prevent double-encoding
+                ? temp
+                : temp+'['+i+']'
+                : i;
+            if ((nextTemp != 'undefined') && (i != 'undefined')) {
+                uristrings.push(
+                    (typeof nextObj === 'object')
+                        ? qq.obj2url(nextObj, nextTemp, true)
+                        : (Object.prototype.toString.call(nextObj) === '[object Function]')
+                        ? encodeURIComponent(nextTemp) + '=' + encodeURIComponent(nextObj())
+                        : encodeURIComponent(nextTemp) + '=' + encodeURIComponent(nextObj)
+                );
+            }
+        };
+
+    if (!prefixDone && temp) {
+        prefix = (/\?/.test(temp)) ? (/\?$/.test(temp)) ? '' : '&' : '?';
+        uristrings.push(temp);
+        uristrings.push(qq.obj2url(obj));
+    } else if ((Object.prototype.toString.call(obj) === '[object Array]') && (typeof obj != 'undefined') ) {
+        // we wont use a for-in-loop on an array (performance)
+        for (var i = 0, len = obj.length; i < len; ++i){
+            add(obj[i], i);
+        }
+    } else if ((typeof obj != 'undefined') && (obj !== null) && (typeof obj === "object")){
+        // for anything else but a scalar, we will use for-in-loop
+        for (var i in obj){
+            add(obj[i], i);
+        }
+    } else {
+        uristrings.push(encodeURIComponent(temp) + '=' + encodeURIComponent(obj));
+    }
+
+    return uristrings.join(prefix)
+        .replace(/^&/, '')
+        .replace(/%20/g, '+');
+};
+
+//
+//
+// Uploader Classes
+//
+//
+
+var qq = qq || {};
+
+/**
+ * Creates upload button, validates upload, but doesn't create file list or dd.
+ */
+qq.FileUploaderBasic = function(o){
+    var that = this;
+    this._options = {
+        // set to true to see the server response
+        debug: false,
+        action: '/server/upload',
+        params: {},
+        customHeaders: {},
+        button: null,
+        multiple: true,
+        maxConnections: 3,
+        disableCancelForFormUploads: false,
+        autoUpload: true,
+        forceMultipart: false,
+        // validation
+        allowedExtensions: [],
+        acceptFiles: null,		// comma separated string of mime-types for browser to display in browse dialog
+        sizeLimit: 0,
+        minSizeLimit: 0,
+        stopOnFirstInvalidFile: true,
+        // events
+        // return false to cancel submit
+        onSubmit: function(id, fileName){},
+        onComplete: function(id, fileName, responseJSON){},
+        onCancel: function(id, fileName){},
+        onUpload: function(id, fileName, xhr){},
+        onProgress: function(id, fileName, loaded, total){},
+        onError: function(id, fileName, reason) {},
+        // messages
+        messages: {
+            typeError: "{file} has an invalid extension. Valid extension(s): {extensions}.",
+            sizeError: "{file} is too large, maximum file size is {sizeLimit}.",
+            minSizeError: "{file} is too small, minimum file size is {minSizeLimit}.",
+            emptyError: "{file} is empty, please select files again without it.",
+            noFilesError: "No files to upload.",
+            onLeave: "The files are being uploaded, if you leave now the upload will be cancelled."
+        },
+        showMessage: function(message){
+            alert(message);
+        },
+        inputName: 'qqfile'
+    };
+    qq.extend(this._options, o);
+    this._wrapCallbacks();
+    qq.extend(this, qq.DisposeSupport);
+
+    // number of files being uploaded
+    this._filesInProgress = 0;
+
+    this._storedFileIds = [];
+
+    this._handler = this._createUploadHandler();
+
+    if (this._options.button){
+        this._button = this._createUploadButton(this._options.button);
+    }
+
+    this._preventLeaveInProgress();
+};
+
+qq.FileUploaderBasic.prototype = {
+    log: function(str){
+        if (this._options.debug && window.console) console.log('[uploader] ' + str);
+    },
+    setParams: function(params){
+        this._options.params = params;
+    },
+    getInProgress: function(){
+        return this._filesInProgress;
+    },
+    uploadStoredFiles: function(){
+        for (var i = 0; i < this._storedFileIds.length; i++) {
+            this._filesInProgress++;
+            this._handler.upload(this._storedFileIds[i], this._options.params);
+        }
+    },
+    clearStoredFiles: function(){
+        this._storedFileIds = [];
+    },
+    _createUploadButton: function(element){
+        var self = this;
+
+        var button = new qq.UploadButton({
+            element: element,
+            multiple: this._options.multiple && qq.UploadHandlerXhr.isSupported(),
+            acceptFiles: this._options.acceptFiles,
+            onChange: function(input){
+                self._onInputChange(input);
+            }
+        });
+
+        this.addDisposer(function() { button.dispose(); });
+        return button;
+    },
+    _createUploadHandler: function(){
+        var self = this,
+            handlerClass;
+
+        if(qq.UploadHandlerXhr.isSupported()){
+            handlerClass = 'UploadHandlerXhr';
+        } else {
+            handlerClass = 'UploadHandlerForm';
+        }
+
+        var handler = new qq[handlerClass]({
+            debug: this._options.debug,
+            action: this._options.action,
+            forceMultipart: this._options.forceMultipart,
+            maxConnections: this._options.maxConnections,
+            customHeaders: this._options.customHeaders,
+            inputName: this._options.inputName,
+            demoMode: this._options.demoMode,
+            onProgress: function(id, fileName, loaded, total){
+                self._onProgress(id, fileName, loaded, total);
+                self._options.onProgress(id, fileName, loaded, total);
+            },
+            onComplete: function(id, fileName, result){
+                self._onComplete(id, fileName, result);
+                self._options.onComplete(id, fileName, result);
+            },
+            onCancel: function(id, fileName){
+                var indexToRemove = qq.indexOf(self._storedFileIds, id);
+                if (indexToRemove >= 0) {
+                    self._storedFileIds.splice(indexToRemove, 1);
+                }
+
+                self._onCancel(id, fileName);
+                self._options.onCancel(id, fileName);
+            },
+            onError: self._options.onError,
+            onUpload: function(id, fileName, xhr){
+                self._onUpload(id, fileName, xhr);
+                self._options.onUpload(id, fileName, xhr);
+            }
+        });
+
+        return handler;
+    },
+    _preventLeaveInProgress: function(){
+        var self = this;
+
+        this._attach(window, 'beforeunload', function(e){
+            if (!self._filesInProgress){return;}
+
+            var e = e || window.event;
+            // for ie, ff
+            e.returnValue = self._options.messages.onLeave;
+            // for webkit
+            return self._options.messages.onLeave;
+        });
+    },
+    _onSubmit: function(id, fileName){
+        if (this._options.autoUpload) {
+            this._filesInProgress++;
+        }
+    },
+    _onProgress: function(id, fileName, loaded, total){
+    },
+    _onComplete: function(id, fileName, result){
+        var indexToRemove = qq.indexOf(this._storedFileIds, id);
+        if (indexToRemove >= 0) {
+            this._storedFileIds.splice(indexToRemove, 1);
+        }
+        this._filesInProgress--;
+    },
+    _onCancel: function(id, fileName){
+        if (this._options.autoUpload) {
+            this._filesInProgress--;
+        }
+    },
+    _onUpload: function(id, fileName, xhr){
+    },
+    _onInputChange: function(input){
+        if (this._handler instanceof qq.UploadHandlerXhr){
+            this._uploadFileList(input.files);
+        } else {
+            if (this._validateFile(input)){
+                this._uploadFile(input);
+            }
+        }
+        this._button.reset();
+    },
+    _uploadFileList: function(files){
+        if (files.length > 0) {
+            for (var i=0; i<files.length; i++){
+                if (this._validateFile(files[i])){
+                    this._uploadFile(files[i]);
+                } else {
+                    if (this._options.stopOnFirstInvalidFile){
+                        return;
+                    }
+                }
+            }
+        }
+        else {
+            this._error('noFilesError', "");
+        }
+    },
+    _uploadFile: function(fileContainer){
+        var id = this._handler.add(fileContainer);
+        var fileName = this._handler.getName(id);
+
+        if (this._options.onSubmit(id, fileName) !== false){
+            this._onSubmit(id, fileName);
+            if (this._options.autoUpload) {
+                this._handler.upload(id, this._options.params);
+            }
+            else {
+                this._storeFileForLater(id);
+            }
+        }
+    },
+    _storeFileForLater: function(id) {
+        this._storedFileIds.push(id);
+    },
+    _validateFile: function(file){
+        var name, size;
+
+        if (file.value){
+            // it is a file input
+            // get input value and remove path to normalize
+            name = file.value.replace(/.*(\/|\\)/, "");
+        } else {
+            // fix missing properties in Safari 4 and firefox 11.0a2
+            name = (file.fileName !== null && file.fileName !== undefined) ? file.fileName : file.name;
+            size = (file.fileSize !== null && file.fileSize !== undefined) ? file.fileSize : file.size;
+        }
+
+        if (! this._isAllowedExtension(name)){
+            this._error('typeError', name);
+            return false;
+
+        } else if (size === 0){
+            this._error('emptyError', name);
+            return false;
+
+        } else if (size && this._options.sizeLimit && size > this._options.sizeLimit){
+            this._error('sizeError', name);
+            return false;
+
+        } else if (size && size < this._options.minSizeLimit){
+            this._error('minSizeError', name);
+            return false;
+        }
+
+        return true;
+    },
+    _error: function(code, fileName){
+        var message = this._options.messages[code];
+        function r(name, replacement){ message = message.replace(name, replacement); }
+
+        var extensions = this._options.allowedExtensions.join(', ');
+
+        r('{file}', this._formatFileName(fileName));
+        r('{extensions}', extensions);
+        r('{sizeLimit}', this._formatSize(this._options.sizeLimit));
+        r('{minSizeLimit}', this._formatSize(this._options.minSizeLimit));
+
+        this._options.onError(null, fileName, message);
+        this._options.showMessage(message);
+    },
+    _formatFileName: function(name){
+        if (name.length > 33){
+            name = name.slice(0, 19) + '...' + name.slice(-13);
+        }
+        return name;
+    },
+    _isAllowedExtension: function(fileName){
+        var ext = (-1 !== fileName.indexOf('.'))
+            ? fileName.replace(/.*[.]/, '').toLowerCase()
+            : '';
+        var allowed = this._options.allowedExtensions;
+
+        if (!allowed.length){return true;}
+
+        for (var i=0; i<allowed.length; i++){
+            if (allowed[i].toLowerCase() == ext){ return true;}
+        }
+
+        return false;
+    },
+    _formatSize: function(bytes){
+        var i = -1;
+        do {
+            bytes = bytes / 1024;
+            i++;
+        } while (bytes > 99);
+
+        return Math.max(bytes, 0.1).toFixed(1) + ['kB', 'MB', 'GB', 'TB', 'PB', 'EB'][i];
+    },
+    _wrapCallbacks: function() {
+        var self, safeCallback;
+
+        self = this;
+
+        safeCallback = function(callback, args) {
+            try {
+                return callback.apply(this, args);
+            }
+            catch (exception) {
+                self.log("Caught " + exception + " in callback: " + callback);
+            }
+        }
+
+        for (var prop in this._options) {
+            if (/^on[A-Z]/.test(prop)) {
+                (function() {
+                    var oldCallback = self._options[prop];
+                    self._options[prop] = function() {
+                        return safeCallback(oldCallback, arguments);
+                    }
+                }());
+            }
+        }
+    }
+};
+
+
+/**
+ * Class that creates upload widget with drag-and-drop and file list
+ * @inherits qq.FileUploaderBasic
+ */
+qq.FileUploader = function(o){
+    // call parent constructor
+    qq.FileUploaderBasic.apply(this, arguments);
+
+    // additional options
+    qq.extend(this._options, {
+        element: null,
+        // if set, will be used instead of qq-upload-list in template
+        listElement: null,
+        dragText: 'Drop files here to upload',
+        extraDropzones : [],
+        uploadButtonText: 'Upload a file',
+        cancelButtonText: 'Cancel',
+        failUploadText: 'Upload failed',
+
+        template: '<div class="qq-uploader">' +
+            '<div class="qq-upload-drop-area"><span>{dragText}</span></div>' +
+            (!this._options.button ? '<div class="qq-upload-button">{uploadButtonText}</div>' : '') +
+            (!this._options.listElement ? '<ul class="qq-upload-list"></ul>' : '') +
+            '</div>',
+
+        // template for one item in file list
+        fileTemplate: '<li>' +
+            '<div class="qq-progress-bar"></div>' +
+            '<span class="qq-upload-spinner"></span>' +
+            '<span class="qq-upload-finished"></span>' +
+            '<span class="qq-upload-file"></span>' +
+            '<span class="qq-upload-size"></span>' +
+            '<a class="qq-upload-cancel" href="#">{cancelButtonText}</a>' +
+            '<span class="qq-upload-failed-text">{failUploadtext}</span>' +
+            '</li>',
+
+        classes: {
+            // used to get elements from templates
+            button: 'qq-upload-button',
+            drop: 'qq-upload-drop-area',
+            dropActive: 'qq-upload-drop-area-active',
+            dropDisabled: 'qq-upload-drop-area-disabled',
+            list: 'qq-upload-list',
+            progressBar: 'qq-progress-bar',
+            file: 'qq-upload-file',
+            spinner: 'qq-upload-spinner',
+            finished: 'qq-upload-finished',
+            size: 'qq-upload-size',
+            cancel: 'qq-upload-cancel',
+            failText: 'qq-upload-failed-text',
+
+            // added to list item <li> when upload completes
+            // used in css to hide progress spinner
+            success: 'qq-upload-success',
+            fail: 'qq-upload-fail',
+
+            successIcon: null,
+            failIcon: null
+        },
+        extraMessages: {
+            formatProgress: "{percent}% of {total_size}",
+            tooManyFilesError: "You may only drop one file"
+        },
+        failedUploadTextDisplay: {
+            mode: 'default', //default, custom, or none
+            maxChars: 50,
+            responseProperty: 'error',
+            enableTooltip: true
+        }
+    });
+    // overwrite options with user supplied
+    qq.extend(this._options, o);
+    this._wrapCallbacks();
+
+    qq.extend(this._options.messages, this._options.extraMessages);
+
+    // overwrite the upload button text if any
+    // same for the Cancel button and Fail message text
+    this._options.template     = this._options.template.replace(/\{dragText\}/g, this._options.dragText);
+    this._options.template     = this._options.template.replace(/\{uploadButtonText\}/g, this._options.uploadButtonText);
+    this._options.fileTemplate = this._options.fileTemplate.replace(/\{cancelButtonText\}/g, this._options.cancelButtonText);
+    this._options.fileTemplate = this._options.fileTemplate.replace(/\{failUploadtext\}/g, this._options.failUploadText);
+
+    this._element = this._options.element;
+    this._element.innerHTML = this._options.template;
+    this._listElement = this._options.listElement || this._find(this._element, 'list');
+
+    this._classes = this._options.classes;
+
+    if (!this._button) {
+        this._button = this._createUploadButton(this._find(this._element, 'button'));
+    }
+
+    this._bindCancelEvent();
+    this._setupDragDrop();
+};
+
+// inherit from Basic Uploader
+qq.extend(qq.FileUploader.prototype, qq.FileUploaderBasic.prototype);
+
+qq.extend(qq.FileUploader.prototype, {
+    clearStoredFiles: function() {
+        qq.FileUploaderBasic.prototype.clearStoredFiles.apply(this, arguments);
+        this._listElement.innerHTML = "";
+    },
+    addExtraDropzone: function(element){
+        this._setupExtraDropzone(element);
+    },
+    removeExtraDropzone: function(element){
+        var dzs = this._options.extraDropzones;
+        for(var i in dzs) if (dzs[i] === element) return this._options.extraDropzones.splice(i,1);
+    },
+    _leaving_document_out: function(e){
+        return ((qq.chrome() || (qq.safari() && qq.windows())) && e.clientX == 0 && e.clientY == 0) // null coords for Chrome and Safari Windows
+            || (qq.firefox() && !e.relatedTarget); // null e.relatedTarget for Firefox
+    },
+    _storeFileForLater: function(id) {
+        qq.FileUploaderBasic.prototype._storeFileForLater.apply(this, arguments);
+        var item = this._getItemByFileId(id);
+        this._find(item, 'spinner').style.display = "none";
+    },
+    /**
+     * Gets one of the elements listed in this._options.classes
+     **/
+    _find: function(parent, type){
+        var element = qq.getByClass(parent, this._options.classes[type])[0];
+        if (!element){
+            throw new Error('element not found ' + type);
+        }
+
+        return element;
+    },
+    _setupExtraDropzone: function(element){
+        this._options.extraDropzones.push(element);
+        this._setupDropzone(element);
+    },
+    _setupDropzone: function(dropArea){
+        var self = this;
+
+        var dz = new qq.UploadDropZone({
+            element: dropArea,
+            onEnter: function(e){
+                qq.addClass(dropArea, self._classes.dropActive);
+                e.stopPropagation();
+            },
+            onLeave: function(e){
+                //e.stopPropagation();
+            },
+            onLeaveNotDescendants: function(e){
+                qq.removeClass(dropArea, self._classes.dropActive);
+            },
+            onDrop: function(e){
+                dropArea.style.display = 'none';
+                qq.removeClass(dropArea, self._classes.dropActive);
+                if (e.dataTransfer.files.length > 1 && !self._options.multiple) {
+                    self._error('tooManyFilesError', "");
+                }
+                else {
+                    self._uploadFileList(e.dataTransfer.files);
+                }
+            }
+        });
+
+        this.addDisposer(function() { dz.dispose(); });
+
+        dropArea.style.display = 'none';
+    },
+    _setupDragDrop: function(){
+        var dropArea = this._find(this._element, 'drop');
+        var self = this;
+        this._options.extraDropzones.push(dropArea);
+
+        var dropzones = this._options.extraDropzones;
+        var i;
+        for (i=0; i < dropzones.length; i++){
+            this._setupDropzone(dropzones[i]);
+        }
+
+        // IE <= 9 does not support the File API used for drag+drop uploads
+        // Any volunteers to enable & test this for IE10?
+        if (!qq.ie()) {
+            this._attach(document, 'dragenter', function(e){
+                if (qq.hasClass(dropArea, self._classes.dropDisabled)) return;
+
+                dropArea.style.display = 'block';
+                for (i=0; i < dropzones.length; i++){ dropzones[i].style.display = 'block'; }
+
+            });
+        }
+        this._attach(document, 'dragleave', function(e){
+            var relatedTarget = document.elementFromPoint(e.clientX, e.clientY);
+            // only fire when leaving document out
+            if (qq.FileUploader.prototype._leaving_document_out(e)) {
+                for (i=0; i < dropzones.length; i++){ dropzones[i].style.display = 'none'; }
+            }
+        });
+        qq.attach(document, 'drop', function(e){
+            for (i=0; i < dropzones.length; i++){ dropzones[i].style.display = 'none'; }
+            e.preventDefault();
+        });
+    },
+    _onSubmit: function(id, fileName){
+        qq.FileUploaderBasic.prototype._onSubmit.apply(this, arguments);
+        this._addToList(id, fileName);
+    },
+    // Update the progress bar & percentage as the file is uploaded
+    _onProgress: function(id, fileName, loaded, total){
+        qq.FileUploaderBasic.prototype._onProgress.apply(this, arguments);
+
+        var item = this._getItemByFileId(id);
+
+        if (loaded === total) {
+            var cancelLink = this._find(item, 'cancel');
+            cancelLink.style.display = 'none';
+        }
+
+        var size = this._find(item, 'size');
+        size.style.display = 'inline';
+
+        var text;
+        var percent = Math.round(loaded / total * 100);
+
+        if (loaded != total) {
+            // If still uploading, display percentage
+            text = this._formatProgress(loaded, total);
+        } else {
+            // If complete, just display final size
+            text = this._formatSize(total);
+        }
+
+        // Update progress bar <span> tag
+        this._find(item, 'progressBar').style.width = percent + '%';
+
+        qq.setText(size, text);
+    },
+    _onComplete: function(id, fileName, result){
+        qq.FileUploaderBasic.prototype._onComplete.apply(this, arguments);
+
+        var item = this._getItemByFileId(id);
+
+        if (qq.UploadHandlerXhr.isSupported()) {
+            qq.remove(this._find(item, 'progressBar'));
+        }
+
+        if (!this._options.disableCancelForFormUploads || qq.UploadHandlerXhr.isSupported()) {
+            qq.remove(this._find(item, 'cancel'));
+        }
+        qq.remove(this._find(item, 'spinner'));
+
+        if (result.success){
+            qq.addClass(item, this._classes.success);
+            if (this._classes.successIcon) {
+                this._find(item, 'finished').style.display = "inline-block";
+                qq.addClass(item, this._classes.successIcon)
+            }
+        } else {
+            var errorReason = result.error ? result.error : this._options.failUploadText;
+            this._options.onError(id, fileName, errorReason);
+            qq.addClass(item, this._classes.fail);
+            if (this._classes.failIcon) {
+                this._find(item, 'finished').style.display = "inline-block";
+                qq.addClass(item, this._classes.failIcon)
+            }
+            this._controlFailureTextDisplay(item, result);
+        }
+    },
+    _onUpload: function(id, fileName, xhr){
+        qq.FileUploaderBasic.prototype._onUpload.apply(this, arguments);
+
+        var item = this._getItemByFileId(id);
+        var spinnerEl = this._find(item, 'spinner');
+        if (spinnerEl.style.display == "none") {
+            spinnerEl.style.display = "inline-block";
+        }
+    },
+    _addToList: function(id, fileName){
+        var item = qq.toElement(this._options.fileTemplate);
+        if (this._options.disableCancelForFormUploads && !qq.UploadHandlerXhr.isSupported()) {
+            var cancelLink = this._find(item, 'cancel');
+            qq.remove(cancelLink);
+        }
+
+        if (!qq.UploadHandlerXhr.isSupported()) {
+            qq.remove(this._find(item, 'progressBar'));
+        }
+
+        item.qqFileId = id;
+
+        var fileElement = this._find(item, 'file');
+        qq.setText(fileElement, this._formatFileName(fileName));
+        this._find(item, 'size').style.display = 'none';
+        if (!this._options.multiple) this._clearList();
+        this._listElement.appendChild(item);
+    },
+    _clearList: function(){
+        this._listElement.innerHTML = '';
+        this.clearStoredFiles();
+    },
+    _getItemByFileId: function(id){
+        var item = this._listElement.firstChild;
+
+        // there can't be txt nodes in dynamically created list
+        // and we can  use nextSibling
+        while (item){
+            if (item.qqFileId == id) return item;
+            item = item.nextSibling;
+        }
+    },
+    /**
+     * delegate click event for cancel link
+     **/
+    _bindCancelEvent: function(){
+        var self = this,
+            list = this._listElement;
+
+        this._attach(list, 'click', function(e){
+            e = e || window.event;
+            var target = e.target || e.srcElement;
+
+            if (qq.hasClass(target, self._classes.cancel)){
+                qq.preventDefault(e);
+
+                var item = target.parentNode;
+                self._handler.cancel(item.qqFileId);
+                qq.remove(item);
+            }
+        });
+    },
+    _formatProgress: function (uploadedSize, totalSize) {
+        var message = this._options.messages.formatProgress;
+        function r(name, replacement) { message = message.replace(name, replacement); }
+
+        r('{percent}', Math.round(uploadedSize / totalSize * 100));
+        r('{total_size}', this._formatSize(totalSize));
+        return message;
+    },
+    _controlFailureTextDisplay: function(item, response) {
+        var mode, maxChars, responseProperty, failureReason, shortFailureReason;
+
+        mode = this._options.failedUploadTextDisplay.mode;
+        maxChars = this._options.failedUploadTextDisplay.maxChars;
+        responseProperty = this._options.failedUploadTextDisplay.responseProperty;
+
+        if (mode === 'custom') {
+            var failureReason = response[responseProperty];
+            if (failureReason) {
+                if (failureReason.length > maxChars) {
+                    shortFailureReason = failureReason.substring(0, maxChars) + '...';
+                }
+                this._find(item, 'failText').innerText = shortFailureReason || failureReason;
+
+                if (this._options.failedUploadTextDisplay.enableTooltip) {
+                    this._showTooltip(item, failureReason);
+                }
+            }
+            else {
+                this.log("'" + responseProperty + "' is not a valid property on the server response.");
+            }
+        }
+        else if (mode === 'none') {
+            qq.remove(this._find(item, 'failText'));
+        }
+        else if (mode !== 'default') {
+            this.log("failedUploadTextDisplay.mode value of '" + mode + "' is not valid");
+        }
+    },
+    //TODO turn this into a real tooltip, with click trigger (so it is usable on mobile devices).  See case #355 for details.
+    _showTooltip: function(item, text) {
+        item.title = text;
+    }
+});
+
+qq.UploadDropZone = function(o){
+    this._options = {
+        element: null,
+        onEnter: function(e){},
+        onLeave: function(e){},
+        // is not fired when leaving element by hovering descendants
+        onLeaveNotDescendants: function(e){},
+        onDrop: function(e){}
+    };
+    qq.extend(this._options, o);
+    qq.extend(this, qq.DisposeSupport);
+
+    this._element = this._options.element;
+
+    this._disableDropOutside();
+    this._attachEvents();
+};
+
+qq.UploadDropZone.prototype = {
+    _dragover_should_be_canceled: function(){
+        return qq.safari() || (qq.firefox() && qq.windows());
+    },
+    _disableDropOutside: function(e){
+        // run only once for all instances
+        if (!qq.UploadDropZone.dropOutsideDisabled ){
+
+            // for these cases we need to catch onDrop to reset dropArea
+            if (this._dragover_should_be_canceled){
+                qq.attach(document, 'dragover', function(e){
+                    e.preventDefault();
+                });
+            } else {
+                qq.attach(document, 'dragover', function(e){
+                    if (e.dataTransfer){
+                        e.dataTransfer.dropEffect = 'none';
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            qq.UploadDropZone.dropOutsideDisabled = true;
+        }
+    },
+    _attachEvents: function(){
+        var self = this;
+
+        self._attach(self._element, 'dragover', function(e){
+            if (!self._isValidFileDrag(e)) return;
+
+            var effect = qq.ie() ? null : e.dataTransfer.effectAllowed;
+            if (effect == 'move' || effect == 'linkMove'){
+                e.dataTransfer.dropEffect = 'move'; // for FF (only move allowed)
+            } else {
+                e.dataTransfer.dropEffect = 'copy'; // for Chrome
+            }
+
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
+        self._attach(self._element, 'dragenter', function(e){
+            if (!self._isValidFileDrag(e)) return;
+
+            self._options.onEnter(e);
+        });
+
+        self._attach(self._element, 'dragleave', function(e){
+            if (!self._isValidFileDrag(e)) return;
+
+            self._options.onLeave(e);
+
+            var relatedTarget = document.elementFromPoint(e.clientX, e.clientY);
+            // do not fire when moving a mouse over a descendant
+            if (qq.contains(this, relatedTarget)) return;
+
+            self._options.onLeaveNotDescendants(e);
+        });
+
+        self._attach(self._element, 'drop', function(e){
+            if (!self._isValidFileDrag(e)) return;
+
+            e.preventDefault();
+            self._options.onDrop(e);
+        });
+    },
+    _isValidFileDrag: function(e){
+        // e.dataTransfer currently causing IE errors
+        // IE9 does NOT support file API, so drag-and-drop is not possible
+        // IE10 should work, but currently has not been tested - any volunteers?
+        if (qq.ie()) return false;
+
+        var dt = e.dataTransfer,
+        // do not check dt.types.contains in webkit, because it crashes safari 4
+            isSafari = qq.safari();
+
+        // dt.effectAllowed is none in Safari 5
+        // dt.types.contains check is for firefox
+        return dt && dt.effectAllowed != 'none' &&
+            (dt.files || (!isSafari && dt.types.contains && dt.types.contains('Files')));
+
+    }
+};
+
+qq.UploadButton = function(o){
+    this._options = {
+        element: null,
+        // if set to true adds multiple attribute to file input
+        multiple: false,
+        acceptFiles: null,
+        // name attribute of file input
+        name: 'file',
+        onChange: function(input){},
+        hoverClass: 'qq-upload-button-hover',
+        focusClass: 'qq-upload-button-focus'
+    };
+
+    qq.extend(this._options, o);
+    qq.extend(this, qq.DisposeSupport);
+
+    this._element = this._options.element;
+
+    // make button suitable container for input
+    qq.css(this._element, {
+        position: 'relative',
+        overflow: 'hidden',
+        // Make sure browse button is in the right side
+        // in Internet Explorer
+        direction: 'ltr'
+    });
+
+    this._input = this._createInput();
+};
+
+qq.UploadButton.prototype = {
+    /* returns file input element */
+    getInput: function(){
+        return this._input;
+    },
+    /* cleans/recreates the file input */
+    reset: function(){
+        if (this._input.parentNode){
+            qq.remove(this._input);
+        }
+
+        qq.removeClass(this._element, this._options.focusClass);
+        this._input = this._createInput();
+    },
+    _createInput: function(){
+        var input = document.createElement("input");
+
+        if (this._options.multiple){
+            input.setAttribute("multiple", "multiple");
+        }
+
+        if (this._options.acceptFiles) input.setAttribute("accept", this._options.acceptFiles);
+
+        input.setAttribute("type", "file");
+        input.setAttribute("name", this._options.name);
+
+        qq.css(input, {
+            position: 'absolute',
+            // in Opera only 'browse' button
+            // is clickable and it is located at
+            // the right side of the input
+            right: 0,
+            top: 0,
+            fontFamily: 'Arial',
+            // 4 persons reported this, the max values that worked for them were 243, 236, 236, 118
+            fontSize: '118px',
+            margin: 0,
+            padding: 0,
+            cursor: 'pointer',
+            opacity: 0
+        });
+
+        this._element.appendChild(input);
+
+        var self = this;
+        this._attach(input, 'change', function(){
+            self._options.onChange(input);
+        });
+
+        this._attach(input, 'mouseover', function(){
+            qq.addClass(self._element, self._options.hoverClass);
+        });
+        this._attach(input, 'mouseout', function(){
+            qq.removeClass(self._element, self._options.hoverClass);
+        });
+        this._attach(input, 'focus', function(){
+            qq.addClass(self._element, self._options.focusClass);
+        });
+        this._attach(input, 'blur', function(){
+            qq.removeClass(self._element, self._options.focusClass);
+        });
+
+        // IE and Opera, unfortunately have 2 tab stops on file input
+        // which is unacceptable in our case, disable keyboard access
+        if (window.attachEvent){
+            // it is IE or Opera
+            input.setAttribute('tabIndex', "-1");
+        }
+
+        return input;
+    }
+};
+
+/**
+ * Class for uploading files, uploading itself is handled by child classes
+ */
+qq.UploadHandlerAbstract = function(o){
+    // Default options, can be overridden by the user
+    this._options = {
+        debug: false,
+        action: '/upload.php',
+        // maximum number of concurrent uploads
+        maxConnections: 999,
+        onProgress: function(id, fileName, loaded, total){},
+        onComplete: function(id, fileName, response){},
+        onCancel: function(id, fileName){},
+        onUpload: function(id, fileName, xhr){}
+    };
+    qq.extend(this._options, o);
+
+    this._queue = [];
+    // params for files in queue
+    this._params = [];
+};
+qq.UploadHandlerAbstract.prototype = {
+    log: function(str){
+        if (this._options.debug && window.console) console.log('[uploader] ' + str);
+    },
+    /**
+     * Adds file or file input to the queue
+     * @returns id
+     **/
+    add: function(file){},
+    /**
+     * Sends the file identified by id and additional query params to the server
+     */
+    upload: function(id, params){
+        var len = this._queue.push(id);
+
+        var copy = {};
+        qq.extend(copy, params);
+        this._params[id] = copy;
+
+        // if too many active uploads, wait...
+        if (len <= this._options.maxConnections){
+            this._upload(id, this._params[id]);
+        }
+    },
+    /**
+     * Cancels file upload by id
+     */
+    cancel: function(id){
+        this._cancel(id);
+        this._dequeue(id);
+    },
+    /**
+     * Cancells all uploads
+     */
+    cancelAll: function(){
+        for (var i=0; i<this._queue.length; i++){
+            this._cancel(this._queue[i]);
+        }
+        this._queue = [];
+    },
+    /**
+     * Returns name of the file identified by id
+     */
+    getName: function(id){},
+    /**
+     * Returns size of the file identified by id
+     */
+    getSize: function(id){},
+    /**
+     * Returns id of files being uploaded or
+     * waiting for their turn
+     */
+    getQueue: function(){
+        return this._queue;
+    },
+    /**
+     * Actual upload method
+     */
+    _upload: function(id){},
+    /**
+     * Actual cancel method
+     */
+    _cancel: function(id){},
+    /**
+     * Removes element from queue, starts upload of next
+     */
+    _dequeue: function(id){
+        var i = qq.indexOf(this._queue, id);
+        this._queue.splice(i, 1);
+
+        var max = this._options.maxConnections;
+
+        if (this._queue.length >= max && i < max){
+            var nextId = this._queue[max-1];
+            this._upload(nextId, this._params[nextId]);
+        }
+    }
+};
+
+/**
+ * Class for uploading files using form and iframe
+ * @inherits qq.UploadHandlerAbstract
+ */
+qq.UploadHandlerForm = function(o){
+    qq.UploadHandlerAbstract.apply(this, arguments);
+
+    this._inputs = {};
+    this._detach_load_events = {};
+};
+// @inherits qq.UploadHandlerAbstract
+qq.extend(qq.UploadHandlerForm.prototype, qq.UploadHandlerAbstract.prototype);
+
+qq.extend(qq.UploadHandlerForm.prototype, {
+    add: function(fileInput){
+        fileInput.setAttribute('name', this._options.inputName);
+        var id = 'qq-upload-handler-iframe' + qq.getUniqueId();
+
+        this._inputs[id] = fileInput;
+
+        // remove file input from DOM
+        if (fileInput.parentNode){
+            qq.remove(fileInput);
+        }
+
+        return id;
+    },
+    getName: function(id){
+        // get input value and remove path to normalize
+        return this._inputs[id].value.replace(/.*(\/|\\)/, "");
+    },
+    _cancel: function(id){
+        this._options.onCancel(id, this.getName(id));
+
+        delete this._inputs[id];
+        delete this._detach_load_events[id];
+
+        var iframe = document.getElementById(id);
+        if (iframe){
+            // to cancel request set src to something else
+            // we use src="javascript:false;" because it doesn't
+            // trigger ie6 prompt on https
+            iframe.setAttribute('src', 'javascript:false;');
+
+            qq.remove(iframe);
+        }
+    },
+    _upload: function(id, params){
+        this._options.onUpload(id, this.getName(id), false);
+        var input = this._inputs[id];
+
+        if (!input){
+            throw new Error('file with passed id was not added, or already uploaded or cancelled');
+        }
+
+        var fileName = this.getName(id);
+        params[this._options.inputName] = fileName;
+
+        var iframe = this._createIframe(id);
+        var form = this._createForm(iframe, params);
+        form.appendChild(input);
+
+        var self = this;
+        this._attachLoadEvent(iframe, function(){
+            self.log('iframe loaded');
+
+            var response = self._getIframeContentJSON(iframe);
+
+            self._options.onComplete(id, fileName, response);
+            self._dequeue(id);
+
+            delete self._inputs[id];
+            // timeout added to fix busy state in FF3.6
+            setTimeout(function(){
+                self._detach_load_events[id]();
+                delete self._detach_load_events[id];
+                qq.remove(iframe);
+            }, 1);
+        });
+
+        form.submit();
+        qq.remove(form);
+
+        return id;
+    },
+    _attachLoadEvent: function(iframe, callback){
+        this._detach_load_events[iframe.id] = qq.attach(iframe, 'load', function(){
+            // when we remove iframe from dom
+            // the request stops, but in IE load
+            // event fires
+            if (!iframe.parentNode){
+                return;
+            }
+
+            try {
+                // fixing Opera 10.53
+                if (iframe.contentDocument &&
+                    iframe.contentDocument.body &&
+                    iframe.contentDocument.body.innerHTML == "false"){
+                    // In Opera event is fired second time
+                    // when body.innerHTML changed from false
+                    // to server response approx. after 1 sec
+                    // when we upload file with iframe
+                    return;
+                }
+            }
+            catch (error) {
+                //IE may throw an "access is denied" error when attempting to access contentDocument on the iframe in some cases
+            }
+
+            callback();
+        });
+    },
+    /**
+     * Returns json object received by iframe from server.
+     */
+    _getIframeContentJSON: function(iframe){
+        //IE may throw an "access is denied" error when attempting to access contentDocument on the iframe in some cases
+        try {
+            // iframe.contentWindow.document - for IE<7
+            var doc = iframe.contentDocument ? iframe.contentDocument: iframe.contentWindow.document,
+                response;
+
+            var innerHTML = doc.body.innerHTML;
+            this.log("converting iframe's innerHTML to JSON");
+            this.log("innerHTML = " + innerHTML);
+            //plain text response may be wrapped in <pre> tag
+            if (innerHTML.slice(0, 5).toLowerCase() == '<pre>' && innerHTML.slice(-6).toLowerCase() == '</pre>') {
+                innerHTML = doc.body.firstChild.firstChild.nodeValue;
+            }
+            response = eval("(" + innerHTML + ")");
+        } catch(err){
+            response = {success: false};
+        }
+
+        return response;
+    },
+    /**
+     * Creates iframe with unique name
+     */
+    _createIframe: function(id){
+        // We can't use following code as the name attribute
+        // won't be properly registered in IE6, and new window
+        // on form submit will open
+        // var iframe = document.createElement('iframe');
+        // iframe.setAttribute('name', id);
+
+        var iframe = qq.toElement('<iframe src="javascript:false;" name="' + id + '" />');
+        // src="javascript:false;" removes ie6 prompt on https
+
+        iframe.setAttribute('id', id);
+
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        return iframe;
+    },
+    /**
+     * Creates form, that will be submitted to iframe
+     */
+    _createForm: function(iframe, params){
+        // We can't use the following code in IE6
+        // var form = document.createElement('form');
+        // form.setAttribute('method', 'post');
+        // form.setAttribute('enctype', 'multipart/form-data');
+        // Because in this case file won't be attached to request
+        var protocol = this._options.demoMode ? "GET" : "POST"
+        var form = qq.toElement('<form method="' + protocol + '" enctype="multipart/form-data"></form>');
+
+        var queryString = qq.obj2url(params, this._options.action);
+
+        form.setAttribute('action', queryString);
+        form.setAttribute('target', iframe.name);
+        form.style.display = 'none';
+        document.body.appendChild(form);
+
+        return form;
+    }
+});
+
+/**
+ * Class for uploading files using xhr
+ * @inherits qq.UploadHandlerAbstract
+ */
+qq.UploadHandlerXhr = function(o){
+    qq.UploadHandlerAbstract.apply(this, arguments);
+
+    this._files = [];
+    this._xhrs = [];
+
+    // current loaded size in bytes for each file
+    this._loaded = [];
+};
+
+// static method
+qq.UploadHandlerXhr.isSupported = function(){
+    var input = document.createElement('input');
+    input.type = 'file';
+
+    return (
+        'multiple' in input &&
+            typeof File != "undefined" &&
+            typeof FormData != "undefined" &&
+            typeof (new XMLHttpRequest()).upload != "undefined" );
+};
+
+// @inherits qq.UploadHandlerAbstract
+qq.extend(qq.UploadHandlerXhr.prototype, qq.UploadHandlerAbstract.prototype)
+
+qq.extend(qq.UploadHandlerXhr.prototype, {
+    /**
+     * Adds file to the queue
+     * Returns id to use with upload, cancel
+     **/
+    add: function(file){
+        if (!(file instanceof File)){
+            throw new Error('Passed obj in not a File (in qq.UploadHandlerXhr)');
+        }
+
+        return this._files.push(file) - 1;
+    },
+    getName: function(id){
+        var file = this._files[id];
+        // fix missing name in Safari 4
+        //NOTE: fixed missing name firefox 11.0a2 file.fileName is actually undefined
+        return (file.fileName !== null && file.fileName !== undefined) ? file.fileName : file.name;
+    },
+    getSize: function(id){
+        var file = this._files[id];
+        return file.fileSize != null ? file.fileSize : file.size;
+    },
+    /**
+     * Returns uploaded bytes for file identified by id
+     */
+    getLoaded: function(id){
+        return this._loaded[id] || 0;
+    },
+    /**
+     * Sends the file identified by id and additional query params to the server
+     * @param {Object} params name-value string pairs
+     */
+    _upload: function(id, params){
+        this._options.onUpload(id, this.getName(id), true);
+
+        var file = this._files[id],
+            name = this.getName(id),
+            size = this.getSize(id);
+
+        this._loaded[id] = 0;
+
+        var xhr = this._xhrs[id] = new XMLHttpRequest();
+        var self = this;
+
+        xhr.upload.onprogress = function(e){
+            if (e.lengthComputable){
+                self._loaded[id] = e.loaded;
+                self._options.onProgress(id, name, e.loaded, e.total);
+            }
+        };
+
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState == 4){
+                self._onComplete(id, xhr);
+            }
+        };
+
+        // build query string
+        params = params || {};
+        params[this._options.inputName] = name;
+        var queryString = qq.obj2url(params, this._options.action);
+
+        var protocol = this._options.demoMode ? "GET" : "POST";
+        xhr.open(protocol, queryString, true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("X-File-Name", encodeURIComponent(name));
+        if (this._options.forceMultipart) {
+            var formData = new FormData();
+            formData.append(this._options.inputName, file);
+            file = formData;
+        } else {
+            xhr.setRequestHeader("Content-Type", "application/octet-stream");
+            //NOTE: return mime type in xhr works on chrome 16.0.9 firefox 11.0a2
+            xhr.setRequestHeader("X-Mime-Type",file.type );
+        }
+        for (key in this._options.customHeaders){
+            xhr.setRequestHeader(key, this._options.customHeaders[key]);
+        };
+        xhr.send(file);
+    },
+    _onComplete: function(id, xhr){
+        "use strict";
+        // the request was aborted/cancelled
+        if (!this._files[id]) { return; }
+
+        var name = this.getName(id);
+        var size = this.getSize(id);
+        var response; //the parsed JSON response from the server, or the empty object if parsing failed.
+
+        this._options.onProgress(id, name, size, size);
+
+        this.log("xhr - server response received");
+        this.log("responseText = " + xhr.responseText);
+
+        try {
+            if (typeof JSON.parse === "function") {
+                response = JSON.parse(xhr.responseText);
+            } else {
+                response = eval("(" + xhr.responseText + ")");
+            }
+        } catch(err){
+            response = {};
+        }
+        if (xhr.status !== 200){
+            this._options.onError(id, name, "XHR returned response code " + xhr.status);
+        }
+        this._options.onComplete(id, name, response);
+
+        this._xhrs[id] = null;
+        this._dequeue(id);
+    },
+    _cancel: function(id){
+        this._options.onCancel(id, this.getName(id));
+
+        this._files[id] = null;
+
+        if (this._xhrs[id]){
+            this._xhrs[id].abort();
+            this._xhrs[id] = null;
+        }
+    }
+});
+
+/**
+ * A generic module which supports object disposing in dispose() method.
+ * */
+qq.DisposeSupport = {
+    _disposers: [],
+
+    /** Run all registered disposers */
+    dispose: function() {
+        var disposer;
+        while (disposer = this._disposers.shift()) {
+            disposer();
+        }
+    },
+
+    /** Add disposer to the collection */
+    addDisposer: function(disposeFunction) {
+        this._disposers.push(disposeFunction);
+    },
+
+    /** Attach event handler and register de-attacher as a disposer */
+    _attach: function() {
+        this.addDisposer(qq.attach.apply(this, arguments));
+    }
+};
 ;
