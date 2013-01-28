@@ -1,5 +1,6 @@
 
-class Renderer
+# Utilities to render stuff from newebe document data.
+module.exports = class Renderer
 
     markdownConverter: new Showdown.converter()
 
@@ -16,5 +17,3 @@ class Renderer
     renderDate: (dateString) ->
         date =  moment dateString, 'YYYY-MM-DDThh:mm:ssZ'
         return date.format('D MMM  YYYY, hh:mm')
-
-module.exports = Renderer
