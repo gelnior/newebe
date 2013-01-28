@@ -3,20 +3,20 @@
 @Newebe ?= {}
 Newebe.routers ?= {}
 Newebe.views ?= {}
-Newebe.models ?= {}
-Newebe.collections ?= {}
-
 
 $ ->
+
     # Load App Helpers
     require '../lib/app_helpers'
     AppRouter = require 'routers/app_router'
     AppView = require 'views/app_view'
 
-
     # Initialize App
     Newebe.views.appView = new AppView()
     Newebe.routers.appRouter = new AppRouter Newebe.views.appView
+
+    # Configure vendor stuff
+    etch.config.default = etch.config.all
     
     # Initialize Backbone History
     Backbone.history.start()
