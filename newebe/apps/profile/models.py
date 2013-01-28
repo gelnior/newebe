@@ -39,6 +39,8 @@ class User(NewebeDocument):
     url = StringProperty()
     key = StringProperty()
     password = StringProperty()
+    picture_name = StringProperty()
+    picture_content_type = StringProperty()
 
     def save(self):
         '''

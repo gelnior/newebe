@@ -134,6 +134,14 @@ class NewebeHandler(RequestHandler):
         else:
             self.return_failure("Not found", 404)
 
+    def get_qq_file_infos(self):
+        filebody = self.request.body
+        filename = self.get_argument("qqfile")
+        filetype = mimetypes.guess_type(filename)[0] or \
+                'application/octet-stream'
+
+        return (filebody, filename, filetype)
+
     def get_body_as_dict(self, expectedFields=[]):
         '''
         Return request body as a dict if body is written in JSON. Else None
