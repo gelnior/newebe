@@ -20,7 +20,7 @@ module.exports = class QuestionView extends View
         if val.length > 0
             data = {}
             data[@fieldName] = val
-            requet.post @submitPath, data, @onServerResponse
+            request.post @submitPath, data, @onServerResponse
 
     onServerResponse: (err, data) ->
  

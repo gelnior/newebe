@@ -1377,7 +1377,7 @@ window.require.register("views/question_view", function(exports, require, module
       if (val.length > 0) {
         data = {};
         data[this.fieldName] = val;
-        return requet.post(this.submitPath, data, this.onServerResponse);
+        return request.post(this.submitPath, data, this.onServerResponse);
       }
     };
 
