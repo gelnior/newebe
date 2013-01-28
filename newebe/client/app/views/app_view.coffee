@@ -40,8 +40,14 @@ module.exports = class AppView extends View
     displayActivities: => @changeSubView @activitiesView
 
     displayHome: =>
-        @displayMenu()
-        @displayActivities()
+        showHome = =>
+            @displayMenu()
+            @displayActivities()
+
+        if @currentView?
+            @currentView.fadeOut showHome
+        else
+            @showHome
 
     displayRegisterPassword: => @changeView @registerPasswordView
 
@@ -84,7 +90,7 @@ module.exports = class AppView extends View
                 callback()
             else
                 @displayHome()
-                @activitiesView.load()
+                @activitiesView.fetch()
         else if userState.password
             @displayLogin()
         else if userState.registered
