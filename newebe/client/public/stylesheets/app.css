@@ -2688,6 +2688,8 @@ body,
 }
 #profile-view #profile-description {
   border: 1px solid transparent;
+  padding: 1em;
+  font-size: 1.4em;
 }
 #profile-view #profile-description:hover,
 #profile-view #profile-description:active {
