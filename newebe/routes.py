@@ -25,12 +25,8 @@ routes = [
     ('/user/state/', auth.UserStateHandler),
 
     ('/user/$', profile.UserHandler),
-    ('/profile/$', profile.ProfileTHandler),
-    ('/profile/public/$', profile.ProfilePublicTHandler),
-    ('/profile/content/$', profile.ProfileContentTHandler),
-    ('/profile/menu-content/$', profile.ProfileMenuContentTHandler),
-    ('/profile/tutorial/1/$', profile.ProfileTutorial1THandler),
-    ('/profile/tutorial/2/$', profile.ProfileTutorial2THandler),
+    ('/user/picture$', profile.ProfilePictureHandler),
+    ('/user/picture.jpg$', profile.ProfilePictureHandler),
 
     ('/contacts/all/$', contacts.ContactsHandler),
     ('/contacts/update-profile/$', contacts.ContactUpdateHandler),
