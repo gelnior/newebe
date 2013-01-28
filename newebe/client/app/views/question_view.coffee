@@ -28,3 +28,5 @@ module.exports = class QuestionView extends View
         @field.animate boxShadow: '4px 4px 10px #888'
         @field.focus()
 
+    clearField: ->
+        @field.val ''

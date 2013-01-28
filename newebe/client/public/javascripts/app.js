@@ -799,6 +799,7 @@ window.require.register("views/app_view", function(exports, require, module) {
         if (err) {
           return alert("Something went wrong while logging out");
         } else {
+          Newebe.routers.appRouter.navigate('');
           return _this.displayLogin();
         }
       });
@@ -847,6 +848,7 @@ window.require.register("views/app_view", function(exports, require, module) {
     };
 
     AppView.prototype.displayLogin = function() {
+      this.loginView.clearField();
       return this.changeView(this.loginView);
     };
 
@@ -1388,6 +1390,10 @@ window.require.register("views/question_view", function(exports, require, module
         boxShadow: '4px 4px 10px #888'
       });
       return this.field.focus();
+    };
+
+    QuestionView.prototype.clearField = function() {
+      return this.field.val('');
     };
 
     return QuestionView;

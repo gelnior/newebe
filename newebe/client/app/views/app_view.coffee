@@ -27,6 +27,7 @@ module.exports = class AppView extends View
             if err
                 alert "Something went wrong while logging out"
             else
+                Newebe.routers.appRouter.navigate ''
                 @displayLogin()
 
     onMicropostsClicked: -> @changeSubView @micropostsView
@@ -53,7 +54,9 @@ module.exports = class AppView extends View
 
     displayRegisterName: => @changeView @registerNameView
 
-    displayLogin: => @changeView @loginView
+    displayLogin: =>
+        @loginView.clearField()
+        @changeView @loginView
 
     displayMenu: =>
         @menu.removeClass 'hidden'
