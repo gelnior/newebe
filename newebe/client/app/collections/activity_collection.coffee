@@ -1,7 +1,7 @@
 Activity = require '../models/activity_model'
 
 ## Activity collection
-class ActivityCollection extends Backbone.Collection
+module.exports = class ActivityCollection extends Backbone.Collection
     model: Activity
 
     # Url where activities can be retrieved.
@@ -15,5 +15,3 @@ class ActivityCollection extends Backbone.Collection
     # collection.
     parse: (response) ->
         response.rows
-
-module.exports = ActivityCollection
