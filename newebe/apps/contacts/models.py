@@ -1,6 +1,6 @@
 import logging
 
-from couchdbkit.schema import StringProperty, DateTimeProperty
+from couchdbkit.schema import Document, StringProperty, DateTimeProperty
 
 from newebe.apps.core.models import NewebeDocument
 from newebe.lib import date_util
@@ -100,6 +100,9 @@ class ContactManager():
         return [result["key"] for result in Contact.view("core/tags",
                                                          group=True)]
 
+
+class ContactTag(Document):
+    name = StringProperty()
 
 class Contact(NewebeDocument):
     '''

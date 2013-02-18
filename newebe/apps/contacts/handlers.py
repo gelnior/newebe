@@ -431,6 +431,11 @@ class ContactTagsHandler(NewebeAuthHandler):
             tags.append("all")
         self.return_list(tags)
 
+    def post(self):
+        pass
+
+    def delete(self):
+        pass
 
 class ContactTagHandler(NewebeAuthHandler):
     '''

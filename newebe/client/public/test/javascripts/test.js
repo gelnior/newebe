@@ -157,6 +157,23 @@ window.require.register("test/auth_test", function(exports, require, module) {
   });
   
 });
+window.require.register("test/collections/contacts_test", function(exports, require, module) {
+  
+
+  
+});
+window.require.register("test/models/contact", function(exports, require, module) {
+  var ContactModel;
+
+  ContactModel = require('models/contact');
+
+  describe('ContactModel', function() {
+    return beforeEach(function() {
+      return this.model = new ContactModel();
+    });
+  });
+  
+});
 window.require.register("test/test-helpers", function(exports, require, module) {
   
   module.exports = {
@@ -165,6 +182,5 @@ window.require.register("test/test-helpers", function(exports, require, module) 
   };
   
 });
-var hasFilterer = window.brunch && window.brunch.test && window.brunch.test.filterer;
-var valid = hasFilterer ? window.brunch.test.filterer('test/auth_test') : true;
-if (valid) window.require('test/auth_test');
+window.require('test/auth_test');
+window.require('test/collections/contacts_test');

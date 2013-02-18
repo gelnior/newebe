@@ -2,6 +2,8 @@
 # Utility methods for models
 module.exports = class Model extends Backbone.Model
 
+    idAttribute: '_id'
+
     # Model-view binding for forms. It binds an attribute of the model to a
     # field.
     bindField: (attribute, field) ->

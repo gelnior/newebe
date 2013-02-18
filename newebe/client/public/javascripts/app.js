@@ -111,6 +111,32 @@ window.require.register("collections/activity_collection", function(exports, req
   })(Backbone.Collection);
   
 });
+window.require.register("collections/contacts", function(exports, require, module) {
+  var ContactsCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = ContactsCollection = (function(_super) {
+
+    __extends(ContactsCollection, _super);
+
+    function ContactsCollection() {
+      return ContactsCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    ContactsCollection.prototype.model = require('../models/contact');
+
+    ContactsCollection.prototype.url = 'contacts/';
+
+    ContactsCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return ContactsCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("initialize", function(exports, require, module) {
   var _ref, _ref1, _ref2;
 
@@ -175,6 +201,8 @@ window.require.register("lib/model", function(exports, require, module) {
     function Model() {
       return Model.__super__.constructor.apply(this, arguments);
     }
+
+    Model.prototype.idAttribute = '_id';
 
     Model.prototype.bindField = function(attribute, field) {
       var _this = this;
@@ -500,6 +528,30 @@ window.require.register("models/activity_model", function(exports, require, modu
     return Activity;
 
   })(Backbone.Model);
+  
+});
+window.require.register("models/contact", function(exports, require, module) {
+  var ContactModel, Model,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Model = require('lib/model');
+
+  module.exports = ContactModel = (function(_super) {
+
+    __extends(ContactModel, _super);
+
+    function ContactModel() {
+      return ContactModel.__super__.constructor.apply(this, arguments);
+    }
+
+    ContactModel.prototype.urlRoot = 'contacts/';
+
+    ContactModel.prototype.idAttribute = 'slug';
+
+    return ContactModel;
+
+  })(Model);
   
 });
 window.require.register("models/owner_model", function(exports, require, module) {
@@ -980,34 +1032,126 @@ window.require.register("views/app_view", function(exports, require, module) {
   })(View);
   
 });
-window.require.register("views/contacts_view", function(exports, require, module) {
-  var ContactsView, View,
+window.require.register("views/contact_view", function(exports, require, module) {
+  var ContactView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  View = require('../lib/view');
+  View = require('lib/view');
+
+  module.exports = ContactView = (function(_super) {
+
+    __extends(ContactView, _super);
+
+    ContactView.prototype["class"] = 'contact';
+
+    ContactView.prototype.rootUrl = "contacts/";
+
+    ContactView.prototype.events = {
+      'click .contact-delete-button': 'onDeleteClicked'
+    };
+
+    function ContactView(model) {
+      this.model = model;
+      ContactView.__super__.constructor.call(this);
+    }
+
+    ContactView.prototype.template = function() {
+      return require('./templates/contact');
+    };
+
+    ContactView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    ContactView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('An error occured while deleting contact');
+        }
+      });
+    };
+
+    return ContactView;
+
+  })(View);
+  
+});
+window.require.register("views/contacts_view", function(exports, require, module) {
+  var CollectionView, ContactView, Contacts, ContactsView, request,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  Contacts = require('../collections/contacts');
+
+  ContactView = require('./contact_view');
+
+  request = require('lib/request');
 
   module.exports = ContactsView = (function(_super) {
 
     __extends(ContactsView, _super);
 
     function ContactsView() {
+      this.onAddContactClicked = __bind(this.onAddContactClicked, this);
       return ContactsView.__super__.constructor.apply(this, arguments);
     }
 
     ContactsView.prototype.id = 'contacts-view';
+
+    ContactsView.prototype.collection = new Contacts();
+
+    ContactsView.prototype.view = ContactView;
+
+    ContactsView.prototype.events = {
+      "click #add-contact-button": "onAddContactClicked"
+    };
 
     ContactsView.prototype.template = function() {
       return require('./templates/contacts');
     };
 
     ContactsView.prototype.afterRender = function() {
-      return this.isLoaded = true;
+      this.isLoaded = false;
+      this.newContactInput = this.$("#new-contact-field");
+      return this.addContactButton = this.$("#add-contact-button");
+    };
+
+    ContactsView.prototype.onAddContactClicked = function() {
+      var contactUrl, data,
+        _this = this;
+      contactUrl = this.newContactInput.val();
+      data = {
+        url: contactUrl
+      };
+      return this.collection.create(data, {
+        success: function(model) {
+          return _this.renderOne(model);
+        },
+        error: function() {
+          return alert("Something went wrong while adding contact");
+        }
+      });
+    };
+
+    ContactsView.prototype.fetch = function() {
+      this.$(".contact").remove();
+      return this.collection.fetch();
     };
 
     return ContactsView;
 
-  })(View);
+  })(CollectionView);
   
 });
 window.require.register("views/login_view", function(exports, require, module) {
@@ -1221,28 +1365,29 @@ window.require.register("views/profile_view", function(exports, require, module)
 
     ProfileView.prototype.afterRender = function() {
       var _this = this;
-      this.converter = new Showdown.converter();
-      this.passwordButton = this.$("#change-password-button");
-      this.confirmPasswordButton = this.$("#confirm-password-button");
       this.sesameForm = this.$("#sesame-form");
       this.profileSesameField = this.$("#profile-sesame-field");
+      this.profileNameField = this.$("#profile-name-field");
+      this.profileUrlField = this.$("#profile-url-field");
+      this.model.bindField("name", this.profileNameField);
+      this.model.bindField("url", this.profileUrlField);
       this.model.bindField("sesame", this.profileSesameField);
       this.descriptionField = this.$("#profile-description");
-      this.model.bind('save', this.model.save);
+      this.converter = new Showdown.converter();
       if (this.model.get("description").length > 0) {
         this.descriptionField.html(this.converter.makeHtml(this.model.get('description')));
       } else {
         this.descriptionField.html("your description");
       }
-      this.profileNameField = this.$("#profile-name-field");
-      this.profileUrlField = this.$("#profile-url-field");
-      this.model.bindField("name", this.profileNameField);
-      this.model.bindField("url", this.profileUrlField);
       this.descriptionField.keyup(function() {
-        console.log(_this.descriptionField.html());
-        console.log(toMarkdown(_this.descriptionField.html()));
         return _this.model.set("description", toMarkdown(_this.descriptionField.html()));
       });
+      this.model.bind('save', function() {
+        _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+        return _this.model.save;
+      });
+      this.passwordButton = this.$("#change-password-button");
+      this.confirmPasswordButton = this.$("#confirm-password-button");
       this.pictureButton = this.$("#change-thumbnail-button");
       this.profilePicture = this.$("#profile-picture");
       this.fileUploader = new qq.FileUploader({
@@ -1512,13 +1657,24 @@ window.require.register("views/templates/activity_list", function(exports, requi
   return buf.join("");
   };
 });
+window.require.register("views/templates/contact", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="contact line"><div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div></div>');
+  }
+  return buf.join("");
+  };
+});
 window.require.register("views/templates/contacts", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<h1>contacts</h1>');
+  buf.push('<input id="new-contact-field" type="text"/><button id="add-contact-button">add contact</button>');
   }
   return buf.join("");
   };

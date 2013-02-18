@@ -162,3 +162,44 @@ body
         cursor: pointer
         background-color: purple - 10%
         box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2)
+
+
+#contacts-view
+
+    #new-contact-field
+        margin-top: 12px
+        margin-bottom: 20px
+        margin-left: 10px
+        margin: 15px 0 20px 10px
+        border-radius: 0em
+        width: 400px
+        padding: 0
+        border-bottom: 1px solid transparent
+
+    #new-contact-field:focus
+    #new-contact-field:active
+        border-bottom: 1px solid purple
+
+    .contact
+        padding: 10px
+
+        .url
+            font-style: italic
+            margin-left: 20px
+            padding-top: 15px
+
+        .state
+            padding-top: 15px
+            width: 100px
+             
+        .contact-buttons
+            padding: 0
+            display: none
+
+            button
+                padding: 5px 10px
+
+    .contact:hover
+
+        .contact-buttons
+            display: table

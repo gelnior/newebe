@@ -1,7 +1,5 @@
 function(doc) {
-  if("Contact" == doc.doc_type) {
-    doc.tags.forEach(function(tag) {
-      emit(tag, null);
-    });
+  if("ContactTag" == doc.doc_type) {
+    emit(tag, doc);
   }
 }

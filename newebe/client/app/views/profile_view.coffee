@@ -7,7 +7,6 @@ class ProfileController
         @model.isLoaded = false
 
     onProfileChanged: ->
-        # TODO: model view binding
         @model.save()
 
     onUploadComplete: ->
@@ -78,32 +77,29 @@ module.exports = class ProfileView extends View
 
 
     afterRender: ->
-        @converter = new Showdown.converter()
 
-        @passwordButton = @$ "#change-password-button"
-        @confirmPasswordButton = @$ "#confirm-password-button"
         @sesameForm = @$ "#sesame-form"
         @profileSesameField = @$ "#profile-sesame-field"
-        @model.bindField "sesame", @profileSesameField
-        @descriptionField = @$ "#profile-description"
-
-        #_.bindAll @, 'save'
-        @model.bind 'save', @model.save
-        if @model.get("description").length > 0
-            @descriptionField.html @converter.makeHtml(@model.get('description'))
-        else
-            @descriptionField.html "your description"
-
         @profileNameField = @$ "#profile-name-field"
         @profileUrlField = @$ "#profile-url-field"
         @model.bindField "name", @profileNameField
         @model.bindField "url", @profileUrlField
-        @descriptionField.keyup =>
-            console.log @descriptionField.html()
-            console.log toMarkdown(@descriptionField.html())
-            
-            @model.set "description", toMarkdown(@descriptionField.html())
+        @model.bindField "sesame", @profileSesameField
 
+        @descriptionField = @$ "#profile-description"
+        @converter = new Showdown.converter()
+        if @model.get("description").length > 0
+            @descriptionField.html @converter.makeHtml(@model.get('description'))
+        else
+            @descriptionField.html "your description"
+        @descriptionField.keyup =>
+            @model.set "description", toMarkdown(@descriptionField.html())
+        @model.bind 'save', =>
+            @model.set "description", toMarkdown(@descriptionField.html())
+            @model.save
+
+        @passwordButton = @$ "#change-password-button"
+        @confirmPasswordButton = @$ "#confirm-password-button"
         @pictureButton = @$("#change-thumbnail-button")
         @profilePicture = @$("#profile-picture")
         @fileUploader = new qq.FileUploader
