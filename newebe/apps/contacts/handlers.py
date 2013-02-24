@@ -225,8 +225,6 @@ class ContactsHandler(NewebeAuthHandler):
                     self.contact.state = STATE_ERROR
                     self.contact.save()
 
-                return self.return_one_document(self.contact, 201)
-
             else:
                 return self.return_failure(
                         "Wrong data. Url is same as owner URL.", 400)
@@ -242,7 +240,6 @@ class ContactsHandler(NewebeAuthHandler):
 
         try:
             newebeResponse = json_decode(response.body)
-            print newebeResponse
             if not "success" in newebeResponse or \
                not newebeResponse["success"]:
                 self.contact.state = STATE_ERROR
@@ -255,6 +252,9 @@ class ContactsHandler(NewebeAuthHandler):
 
             self.contact.state = STATE_ERROR
             self.contact.save()
+
+        finally:
+            return self.return_one_document(self.contact, 201)
 
 
 class ContactRetryHandler(NewebeAuthHandler):
@@ -294,7 +294,6 @@ class ContactRetryHandler(NewebeAuthHandler):
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
-            self.return_one_document(self.contact)
         else:
             self.return_failure("Contact does not exist", 404)
 
@@ -307,6 +306,8 @@ class ContactRetryHandler(NewebeAuthHandler):
         else:
             self.contact.state = STATE_PENDING
             self.contact.save()
+
+        self.return_one_document(self.contact)
 
 
 class ContactPushHandler(NewebeHandler):

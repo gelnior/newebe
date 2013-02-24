@@ -6,3 +6,7 @@ module.exports = class ContactsCollection extends Backbone.Collection
     # collection.
     parse: (response) ->
         response.rows
+        
+    containsContact: (contactUrl) ->
+        @find (contact) -> contactUrl is contact.get "url"
+

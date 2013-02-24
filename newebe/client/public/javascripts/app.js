@@ -132,6 +132,12 @@ window.require.register("collections/contacts", function(exports, require, modul
       return response.rows;
     };
 
+    ContactsCollection.prototype.containsContact = function(contactUrl) {
+      return this.find(function(contact) {
+        return contactUrl === contact.get("url");
+      });
+    };
+
     return ContactsCollection;
 
   })(Backbone.Collection);
@@ -531,11 +537,13 @@ window.require.register("models/activity_model", function(exports, require, modu
   
 });
 window.require.register("models/contact", function(exports, require, module) {
-  var ContactModel, Model,
+  var ContactModel, Model, request,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('lib/model');
+
+  request = require('lib/request');
 
   module.exports = ContactModel = (function(_super) {
 
@@ -548,6 +556,42 @@ window.require.register("models/contact", function(exports, require, module) {
     ContactModel.prototype.urlRoot = 'contacts/';
 
     ContactModel.prototype.idAttribute = 'slug';
+
+    ContactModel.prototype.retry = function(callback) {
+      var data,
+        _this = this;
+      data = {
+        slug: this.get("slug")
+      };
+      return request.post("/contacts/" + (this.get("slug")) + "/retry/", data, function(err, contact) {
+        console.log(contact);
+        if (!err) {
+          _this.set('state', 'Pending');
+        }
+        if (contact.state === 'Error') {
+          err = {
+            error: true
+          };
+        }
+        return callback(err);
+      });
+    };
+
+    ContactModel.prototype.accept = function(callback) {
+      var _this = this;
+      return this.save({}, {
+        success: function() {
+          _this.set('state', 'Trusted');
+          return callback();
+        },
+        error: function() {
+          _this.set('state', 'Error');
+          return callback({
+            error: true
+          });
+        }
+      });
+    };
 
     return ContactModel;
 
@@ -1048,7 +1092,9 @@ window.require.register("views/contact_view", function(exports, require, module)
     ContactView.prototype.rootUrl = "contacts/";
 
     ContactView.prototype.events = {
-      'click .contact-delete-button': 'onDeleteClicked'
+      'click .contact-delete-button': 'onDeleteClicked',
+      'click .contact-retry-button': 'onRetryClicked',
+      'click .contact-accept-button': 'onAcceptClicked'
     };
 
     function ContactView(model) {
@@ -1058,6 +1104,15 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     ContactView.prototype.template = function() {
       return require('./templates/contact');
+    };
+
+    ContactView.prototype.afterRender = function() {
+      if (this.model.get('state') !== 'Error') {
+        this.$('.contact-retry-button').hide();
+      }
+      if (this.model.get('state') !== 'Wait for approval') {
+        return this.$('.contact-accept-button').hide();
+      }
     };
 
     ContactView.prototype.getRenderData = function() {
@@ -1075,6 +1130,30 @@ window.require.register("views/contact_view", function(exports, require, module)
         },
         error: function() {
           return alert('An error occured while deleting contact');
+        }
+      });
+    };
+
+    ContactView.prototype.onRetryClicked = function() {
+      var _this = this;
+      return this.model.retry(function(err) {
+        if (err) {
+          return alert('Contact request failed again.');
+        } else {
+          return _this.$('.state').html('Pending');
+        }
+      });
+    };
+
+    ContactView.prototype.onAcceptClicked = function() {
+      var _this = this;
+      return this.model.accept(function(err) {
+        if (err) {
+          alert('Contact approval failed.');
+          _this.$('.state').html('Error');
+          return _this.$('.contact-retry-button').show();
+        } else {
+          return _this.$('.state').html('Trusted');
         }
       });
     };
@@ -1114,7 +1193,7 @@ window.require.register("views/contacts_view", function(exports, require, module
     ContactsView.prototype.view = ContactView;
 
     ContactsView.prototype.events = {
-      "click #add-contact-button": "onAddContactClicked"
+      'click #add-contact-button': 'onAddContactClicked'
     };
 
     ContactsView.prototype.template = function() {
@@ -1123,8 +1202,30 @@ window.require.register("views/contacts_view", function(exports, require, module
 
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
-      this.newContactInput = this.$("#new-contact-field");
-      return this.addContactButton = this.$("#add-contact-button");
+      this.newContactInput = this.$('#new-contact-field');
+      return this.addContactButton = this.$('#add-contact-button');
+    };
+
+    ContactsView.prototype.isValidUrl = function(string) {
+      var isValid, regexp;
+      regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+      isValid = string.match(regexp) !== null;
+      return isValid;
+    };
+
+    ContactsView.prototype.checkUrl = function(contactUrl) {
+      if (contactUrl.indexOf('/', contactUrl.length - 1) === -1) {
+        contactUrl += '/';
+      }
+      if (this.collection.containsContact(contactUrl)) {
+        this.$('.error').html('Contact is already in your list');
+        return false;
+      } else if (!this.isValidUrl(contactUrl)) {
+        this.$('.error').html("Wrong URL, URL should look like https://newebe.mydomain.net/ or\nlike https://87.123.21.13:12000/.");
+        return false;
+      } else {
+        return true;
+      }
     };
 
     ContactsView.prototype.onAddContactClicked = function() {
@@ -1134,18 +1235,21 @@ window.require.register("views/contacts_view", function(exports, require, module
       data = {
         url: contactUrl
       };
-      return this.collection.create(data, {
-        success: function(model) {
-          return _this.renderOne(model);
-        },
-        error: function() {
-          return alert("Something went wrong while adding contact");
-        }
-      });
+      if (this.checkUrl(contactUrl)) {
+        this.$('.error').html("");
+        return this.collection.create(data, {
+          success: function(model) {
+            return _this.renderOne(model);
+          },
+          error: function() {
+            return alert('Something went wrong while adding contact');
+          }
+        });
+      }
     };
 
     ContactsView.prototype.fetch = function() {
-      this.$(".contact").remove();
+      this.$('.contact').remove();
       return this.collection.fetch();
     };
 
@@ -1663,7 +1767,7 @@ window.require.register("views/templates/contact", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="contact line"><div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div></div>');
+  buf.push('<div class="contact line"><div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-accept-button">accept</button><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div></div>');
   }
   return buf.join("");
   };
@@ -1674,7 +1778,7 @@ window.require.register("views/templates/contacts", function(exports, require, m
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<input id="new-contact-field" type="text"/><button id="add-contact-button">add contact</button>');
+  buf.push('<input id="new-contact-field" type="text" class="field"/><button id="add-contact-button">add contact</button><p class="error">&nbsp;</p>');
   }
   return buf.join("");
   };

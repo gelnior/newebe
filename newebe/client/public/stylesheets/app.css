@@ -2304,6 +2304,11 @@ button:active {
 .w400p {
   width: 400px;
 }
+.field {
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  padding-left: 10px;
+}
 @-moz-keyframes fadein {
   0% {
     opacity: 0;
@@ -2748,15 +2753,12 @@ body,
   box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
 }
 #contacts-view #new-contact-field {
-  margin-top: 12px;
-  margin-bottom: 20px;
-  margin-left: 10px;
-  margin: 15px 0 20px 10px;
+  margin: 19px 0 20px 20px;
   -webkit-border-radius: 0em;
   border-radius: 0em;
-  width: 400px;
-  padding: 0;
-  border-bottom: 1px solid transparent;
+  width: 600px;
+  padding: 0 0 0 10px;
+  border: 1px solid #ddd;
 }
 #contacts-view #new-contact-field:focus,
 #contacts-view #new-contact-field:active {
@@ -2764,6 +2766,9 @@ body,
 }
 #contacts-view .contact {
   padding: 10px;
+}
+#contacts-view .contact .name {
+  padding-top: 15px;
 }
 #contacts-view .contact .url {
   font-style: italic;
@@ -2780,6 +2785,10 @@ body,
 }
 #contacts-view .contact .contact-buttons button {
   padding: 5px 10px;
+}
+#contacts-view p.error {
+  margin-top: 0;
+  margin-left: 20px;
 }
 #contacts-view .contact:hover .contact-buttons {
   display: table;
