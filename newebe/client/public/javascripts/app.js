@@ -1140,7 +1140,7 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     __extends(ContactView, _super);
 
-    ContactView.prototype["class"] = 'contact';
+    ContactView.prototype.className = 'contact-line';
 
     ContactView.prototype.rootUrl = "contacts/";
 
@@ -1998,7 +1998,7 @@ window.require.register("views/templates/contact", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="contact line"><div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-accept-button">accept</button><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div></div>');
+  buf.push('<div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-accept-button">accept</button><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div>');
   }
   return buf.join("");
   };
