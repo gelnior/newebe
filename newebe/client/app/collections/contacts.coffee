@@ -9,4 +9,3 @@ module.exports = class ContactsCollection extends Backbone.Collection
         
     containsContact: (contactUrl) ->
         @find (contact) -> contactUrl is contact.get "url"
-

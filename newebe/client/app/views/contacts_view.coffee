@@ -1,6 +1,7 @@
 CollectionView = require '../lib/view_collection'
 Contacts = require '../collections/contacts'
 ContactView = require './contact_view'
+TagsView = require './tags_view'
 
 request = require 'lib/request'
 
@@ -18,6 +19,10 @@ module.exports = class ContactsView extends CollectionView
 
     afterRender: ->
         @isLoaded = false
+        @tagsView = new TagsView()
+        @tagsView.$el = @$ "#tag-list"
+        @tagsView.el = @$("#tag-list").el
+        @tagsView.render()
 
         @newContactInput = @$ '#new-contact-field'
         @addContactButton = @$ '#add-contact-button'
@@ -30,7 +35,6 @@ module.exports = class ContactsView extends CollectionView
     checkUrl: (contactUrl) ->
         if contactUrl.indexOf('/', contactUrl.length - 1) is -1
             contactUrl += '/'
-
 
         if @collection.containsContact contactUrl
             @$('.error').html 'Contact is already in your list'
@@ -57,6 +61,20 @@ module.exports = class ContactsView extends CollectionView
                 error: =>
                     alert 'Something went wrong while adding contact'
 
+    renderOne: (model) =>
+        view = new @view model
+        @$el.append view.render().el
+        @add view
+        
+        if model.get("state") is "Trusted"
+            for tag in @tagsView.collection.toArray()
+                view.addTag tag
+        @
+
     fetch: ->
         @$('.contact').remove()
-        @collection.fetch()
+        @tagsView.fetch
+            success: =>
+                @collection.fetch()
+            error: =>
+                alert "an error occured"

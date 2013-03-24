@@ -11,4 +11,3 @@ module.exports = class ActivityListView extends CollectionView
 
     afterRender: ->
         @$el.addClass 'activity-list mod left w33'
-        

@@ -10,6 +10,8 @@ module.exports = class ContactView extends View
         'click .contact-accept-button': 'onAcceptClicked'
 
     constructor: (@model) ->
+        console.log true
+        
         super()
 
     template: ->
@@ -26,7 +28,7 @@ module.exports = class ContactView extends View
 
     onDeleteClicked: ->
         @model.destroy
-            success: =>
+            succes: =>
                 @remove()
             error: =>
                 alert 'An error occured while deleting contact'
@@ -46,3 +48,22 @@ module.exports = class ContactView extends View
                 @$('.contact-retry-button').show()
             else
                 @$('.state').html 'Trusted'
+
+    addTag: (tag) ->
+        @$el.append "<button class=\"contact-tag toggle-button\">#{tag.get "name"}</button>"
+        tagView = @$el.find(".contact-tag").last()
+        
+        if tag.get("name") in @model.get "tags"
+            tagView.addClass "selected"
+
+        if tag.get("name") isnt "all"
+            tagView.click =>
+                tags = @model.get "tags"
+                if tag.get("name") in @model.get "tags"
+                    tagView.removeClass "selected"
+                    tags = _.without(tags, tag.get "name")
+                    @model.set "tags", tags
+                else
+                    @model.get("tags").push(tag.get "name")
+                    tagView.addClass "selected"
+                @model.save()

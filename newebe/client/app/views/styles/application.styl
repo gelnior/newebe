@@ -165,9 +165,11 @@ body
 
 
 #contacts-view
+    padding-top: 10px
+    padding-left: 10px
 
     #new-contact-field
-        margin: 19px 0 20px 20px
+        margin: 2px 0 0 10px
         border-radius: 0em
         width: 600px
         padding: 0 0 0 10px
@@ -199,11 +201,27 @@ body
             button
                 padding: 5px 10px
 
-    p.error
-        margin-top: 0
-        margin-left: 20px
-
     .contact:hover
-
         .contact-buttons
             display: table
+
+    p.error
+        margin: 0 0 0 20px
+
+    .tag-delete-button
+        margin-left: 0
+        padding: 2px 4px
+        display: none
+
+    .tag-selector
+        display: inline
+
+    .tag-selector:hover
+        .tag-delete-button
+            display: inline-block
+
+.tag-select-button
+    display: inline-block
+    
+.toggle-button:active
+    box-shadow: none

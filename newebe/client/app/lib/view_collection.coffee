@@ -18,7 +18,7 @@ class ViewCollection extends View
         views = if _.isArray(views) then views.slice() else [views]
         for view in views
             unless @get view.cid
-                @views.push(view)
+                @views.push view
                 @trigger('add', view, @) unless options.silent
         @
 
@@ -28,7 +28,7 @@ class ViewCollection extends View
     remove: (views, options = {}) ->
         views = if _.isArray(views) then views.slice() else [views]
         for view in views
-            @destroy(view)
+            @destroy view
             @trigger('remove', view, @) unless options.silent
         @
 

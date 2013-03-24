@@ -35,6 +35,7 @@ routes = [
     ('/contacts/confirm/$', contacts.ContactConfirmHandler),
     ('/contacts/request/$', contacts.ContactPushHandler),
     ('/contacts/tags/$', contacts.ContactTagsHandler),
+    ('/contacts/tags/([0-9A-Za-z-]+)$', contacts.ContactTagsHandler),
     ('/contacts/$', contacts.ContactsHandler),
     ('/contacts/([0-9A-Za-z-]+)/retry/$', contacts.ContactRetryHandler),
     ('/contacts/([0-9A-Za-z-]+)/tags/$', contacts.ContactTagHandler),

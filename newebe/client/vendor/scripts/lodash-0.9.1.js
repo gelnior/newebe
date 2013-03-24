@@ -1752,7 +1752,7 @@
 
       while (++index < length) {
         var key = props[index];
-        if (key in object) {
+        if (object[key]) {
           result[key] = object[key];
         }
       }

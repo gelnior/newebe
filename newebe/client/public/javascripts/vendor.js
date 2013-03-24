@@ -11274,7 +11274,7 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
       while (++index < length) {
         var key = props[index];
-        if (key in object) {
+        if (object[key]) {
           result[key] = object[key];
         }
       }

@@ -143,6 +143,32 @@ window.require.register("collections/contacts", function(exports, require, modul
   })(Backbone.Collection);
   
 });
+window.require.register("collections/tags", function(exports, require, module) {
+  var TagsCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = TagsCollection = (function(_super) {
+
+    __extends(TagsCollection, _super);
+
+    function TagsCollection() {
+      return TagsCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    TagsCollection.prototype.model = require('../models/tag');
+
+    TagsCollection.prototype.url = 'contacts/tags/';
+
+    TagsCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return TagsCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("initialize", function(exports, require, module) {
   var _ref, _ref1, _ref2;
 
@@ -579,7 +605,9 @@ window.require.register("models/contact", function(exports, require, module) {
 
     ContactModel.prototype.accept = function(callback) {
       var _this = this;
-      return this.save({}, {
+      return this.save({
+        state: 'Trusted'
+      }, {
         success: function() {
           _this.set('state', 'Trusted');
           return callback();
@@ -628,6 +656,30 @@ window.require.register("models/owner_model", function(exports, require, module)
     };
 
     return Owner;
+
+  })(Model);
+  
+});
+window.require.register("models/tag", function(exports, require, module) {
+  var Model, TagModel,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Model = require('lib/model');
+
+  module.exports = TagModel = (function(_super) {
+
+    __extends(TagModel, _super);
+
+    function TagModel() {
+      return TagModel.__super__.constructor.apply(this, arguments);
+    }
+
+    TagModel.prototype.urlRoot = 'contacts/tags/';
+
+    TagModel.prototype.idAttribute = '_id';
+
+    return TagModel;
 
   })(Model);
   
@@ -1079,7 +1131,8 @@ window.require.register("views/app_view", function(exports, require, module) {
 window.require.register("views/contact_view", function(exports, require, module) {
   var ContactView, View,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   View = require('lib/view');
 
@@ -1099,6 +1152,7 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     function ContactView(model) {
       this.model = model;
+      console.log(true);
       ContactView.__super__.constructor.call(this);
     }
 
@@ -1125,7 +1179,7 @@ window.require.register("views/contact_view", function(exports, require, module)
     ContactView.prototype.onDeleteClicked = function() {
       var _this = this;
       return this.model.destroy({
-        success: function() {
+        succes: function() {
           return _this.remove();
         },
         error: function() {
@@ -1158,13 +1212,38 @@ window.require.register("views/contact_view", function(exports, require, module)
       });
     };
 
+    ContactView.prototype.addTag = function(tag) {
+      var tagView, _ref,
+        _this = this;
+      this.$el.append("<button class=\"contact-tag toggle-button\">" + (tag.get("name")) + "</button>");
+      tagView = this.$el.find(".contact-tag").last();
+      if (_ref = tag.get("name"), __indexOf.call(this.model.get("tags"), _ref) >= 0) {
+        tagView.addClass("selected");
+      }
+      if (tag.get("name") !== "all") {
+        return tagView.click(function() {
+          var tags, _ref1;
+          tags = _this.model.get("tags");
+          if (_ref1 = tag.get("name"), __indexOf.call(_this.model.get("tags"), _ref1) >= 0) {
+            tagView.removeClass("selected");
+            tags = _.without(tags, tag.get("name"));
+            _this.model.set("tags", tags);
+          } else {
+            _this.model.get("tags").push(tag.get("name"));
+            tagView.addClass("selected");
+          }
+          return _this.model.save();
+        });
+      }
+    };
+
     return ContactView;
 
   })(View);
   
 });
 window.require.register("views/contacts_view", function(exports, require, module) {
-  var CollectionView, ContactView, Contacts, ContactsView, request,
+  var CollectionView, ContactView, Contacts, ContactsView, TagsView, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1175,6 +1254,8 @@ window.require.register("views/contacts_view", function(exports, require, module
 
   ContactView = require('./contact_view');
 
+  TagsView = require('./tags_view');
+
   request = require('lib/request');
 
   module.exports = ContactsView = (function(_super) {
@@ -1182,6 +1263,8 @@ window.require.register("views/contacts_view", function(exports, require, module
     __extends(ContactsView, _super);
 
     function ContactsView() {
+      this.renderOne = __bind(this.renderOne, this);
+
       this.onAddContactClicked = __bind(this.onAddContactClicked, this);
       return ContactsView.__super__.constructor.apply(this, arguments);
     }
@@ -1202,6 +1285,10 @@ window.require.register("views/contacts_view", function(exports, require, module
 
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
+      this.tagsView = new TagsView();
+      this.tagsView.$el = this.$("#tag-list");
+      this.tagsView.el = this.$("#tag-list").el;
+      this.tagsView.render();
       this.newContactInput = this.$('#new-contact-field');
       return this.addContactButton = this.$('#add-contact-button');
     };
@@ -1248,9 +1335,32 @@ window.require.register("views/contacts_view", function(exports, require, module
       }
     };
 
+    ContactsView.prototype.renderOne = function(model) {
+      var tag, view, _i, _len, _ref;
+      view = new this.view(model);
+      this.$el.append(view.render().el);
+      this.add(view);
+      if (model.get("state") === "Trusted") {
+        _ref = this.tagsView.collection.toArray();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          tag = _ref[_i];
+          view.addTag(tag);
+        }
+      }
+      return this;
+    };
+
     ContactsView.prototype.fetch = function() {
+      var _this = this;
       this.$('.contact').remove();
-      return this.collection.fetch();
+      return this.tagsView.fetch({
+        success: function() {
+          return _this.collection.fetch();
+        },
+        error: function() {
+          return alert("an error occured");
+        }
+      });
     };
 
     return ContactsView;
@@ -1728,6 +1838,127 @@ window.require.register("views/register_password_view", function(exports, requir
   })(QuestionView);
   
 });
+window.require.register("views/tag_view", function(exports, require, module) {
+  var TagView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('lib/view');
+
+  module.exports = TagView = (function(_super) {
+
+    __extends(TagView, _super);
+
+    TagView.prototype.className = 'tag-selector';
+
+    TagView.prototype.events = {
+      'click .tag-select-button': 'onSelectClicked',
+      'click .tag-delete-button': 'onDeleteClicked'
+    };
+
+    function TagView(model) {
+      this.model = model;
+      TagView.__super__.constructor.call(this);
+    }
+
+    TagView.prototype.template = function() {
+      return require('./templates/tag');
+    };
+
+    TagView.prototype.afterRender = function() {};
+
+    TagView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    TagView.prototype.onSelectClicked = function() {};
+
+    TagView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('An error occured while deleting tag');
+        }
+      });
+    };
+
+    return TagView;
+
+  })(View);
+  
+});
+window.require.register("views/tags_view", function(exports, require, module) {
+  var CollectionView, TagView, Tags, TagsView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  TagView = require('./tag_view');
+
+  Tags = require('../collections/tags');
+
+  module.exports = TagsView = (function(_super) {
+
+    __extends(TagsView, _super);
+
+    function TagsView() {
+      this.onNewTagClicked = __bind(this.onNewTagClicked, this);
+      return TagsView.__super__.constructor.apply(this, arguments);
+    }
+
+    TagsView.prototype.id = 'tag-list';
+
+    TagsView.prototype.collection = new Tags();
+
+    TagsView.prototype.view = TagView;
+
+    TagsView.prototype.events = {
+      "click #new-tag-button": "onNewTagClicked"
+    };
+
+    TagsView.prototype.afterRender = function() {
+      this.newTagField = this.$("#new-tag-field");
+      return this.$("#new-tag-button").click(this.onNewTagClicked);
+    };
+
+    TagsView.prototype.template = function() {
+      this.$el = $("#" + this.id);
+      return require('./templates/tags');
+    };
+
+    TagsView.prototype.fetch = function(callbacks) {
+      this.$el = $("#" + this.id);
+      this.afterRender();
+      if (this.views.length > 0) {
+        this.remove(this.views);
+      }
+      return this.collection.fetch(callbacks);
+    };
+
+    TagsView.prototype.onNewTagClicked = function() {
+      var _this = this;
+      return this.collection.create({
+        name: this.newTagField.val()
+      }, {
+        success: function(tag) {
+          return _this.renderOne(tag);
+        }
+      });
+    };
+
+    return TagsView;
+
+  })(CollectionView);
+  
+});
 window.require.register("views/templates/activities", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -1778,7 +2009,7 @@ window.require.register("views/templates/contacts", function(exports, require, m
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<input id="new-contact-field" type="text" class="field"/><button id="add-contact-button">add contact</button><p class="error">&nbsp;</p>');
+  buf.push('<input id="new-contact-field" type="text" class="field"/><button id="add-contact-button">add contact</button><p class="error">&nbsp;</p><div id="tag-list"></div>');
   }
   return buf.join("");
   };
@@ -1829,6 +2060,28 @@ window.require.register("views/templates/question", function(exports, require, m
   buf.push('<div class="middle center question"> <p>' + escape((interp = question) == null ? '' : interp) + '</p><input');
   buf.push(attrs({ 'id':("" + (fieldId) + ""), 'type':("" + (type) + ""), "class": ('center') }, {"id":true,"type":true}));
   buf.push('/></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/tag", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<button class="tag-select-button toggle-button">' + escape((interp = model.name) == null ? '' : interp) + '</button><button class="tag-delete-button">X</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/tags", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div><input id="new-tag-field"/><button id="new-tag-button">add tags</button></div>');
   }
   return buf.join("");
   };

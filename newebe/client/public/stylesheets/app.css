@@ -2309,6 +2309,22 @@ button:active {
   box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
   padding-left: 10px;
 }
+.toggle-button {
+  background-color: #000;
+  -webkit-box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
+}
+.toggle-button:hover {
+  background: #ad2bad;
+}
+.toggle-button.selected {
+  background-color: #def;
+  color: #00305f;
+}
+.toggle-button.selected:hover {
+  background: #ad2bad;
+  color: #fff;
+}
 @-moz-keyframes fadein {
   0% {
     opacity: 0;
@@ -2752,8 +2768,12 @@ body,
   -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
   box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
 }
+#contacts-view {
+  padding-top: 10px;
+  padding-left: 10px;
+}
 #contacts-view #new-contact-field {
-  margin: 19px 0 20px 20px;
+  margin: 2px 0 0 10px;
   -webkit-border-radius: 0em;
   border-radius: 0em;
   width: 600px;
@@ -2786,12 +2806,29 @@ body,
 #contacts-view .contact .contact-buttons button {
   padding: 5px 10px;
 }
-#contacts-view p.error {
-  margin-top: 0;
-  margin-left: 20px;
-}
 #contacts-view .contact:hover .contact-buttons {
   display: table;
+}
+#contacts-view p.error {
+  margin: 0 0 0 20px;
+}
+#contacts-view .tag-delete-button {
+  margin-left: 0;
+  padding: 2px 4px;
+  display: none;
+}
+#contacts-view .tag-selector {
+  display: inline;
+}
+#contacts-view .tag-selector:hover .tag-delete-button {
+  display: inline-block;
+}
+.tag-select-button {
+  display: inline-block;
+}
+.toggle-button:active {
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
 .ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }

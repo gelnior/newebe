@@ -16,7 +16,7 @@ module.exports = class ContactModel extends Model
             callback err
     
     accept: (callback) ->
-        @save {},
+        @save state: 'Trusted',
             success: =>
                 @set 'state', 'Trusted'
                 callback()

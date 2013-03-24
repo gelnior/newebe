@@ -9,7 +9,7 @@ from newebe.lib.slugify import slugify
 from newebe.lib.http_util import ContactClient
 
 from newebe.apps.profile.models import UserManager
-from newebe.apps.contacts.models import Contact, ContactManager, \
+from newebe.apps.contacts.models import Contact, ContactManager, ContactTag, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED, STATE_PENDING
 from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
@@ -38,6 +38,7 @@ class ContactUpdateHandler(NewebeHandler):
                 contact.url = data["url"]
                 contact.description = data["description"]
                 contact.name = data["name"]
+                contact.tags = data["tags"]
                 contact.save()
 
                 self.create_modify_activity(contact, "modifies", "profile")
@@ -117,25 +118,39 @@ class ContactHandler(NewebeAuthHandler):
     @asynchronous
     def put(self, slug):
         '''
-        Confirm contact request.
+        Confirm contact request or update tag data.
         '''
 
+        data = self.get_body_as_dict(["tags", "state"])
+        state = data["state"]
+        tags = data.get("tags", None)
         self.contact = ContactManager.getContact(slug)
+
         if self.contact:
-            self.contact.state = STATE_TRUSTED
-            self.contact.save()
-
-            user = UserManager.getUser()
-            data = user.asContact().toJson(localized=False)
-
-            try:
-                client = ContactClient()
-                client.post(self.contact, "contacts/confirm/", data,
-                            self.on_contact_response)
-            except:
-                self.contact.state = STATE_ERROR
+            if self.contact.state != STATE_TRUSTED and state == STATE_TRUSTED:
+                self.contact.state = STATE_TRUSTED
                 self.contact.save()
-                self.return_failure("Error occurs while confirming contact.")
+
+                user = UserManager.getUser()
+                data = user.asContact().toJson(localized=False)
+
+                try:
+                    client = ContactClient()
+                    client.post(self.contact, "contacts/confirm/", data,
+                                self.on_contact_response)
+                except:
+                    self.contact.state = STATE_ERROR
+                    self.contact.save()
+                    self.return_failure("Error occurs while confirming contact.")
+
+            elif tags != None:
+                self.contact.tags = tags
+                self.contact.save()
+                self.return_success("Contact tags updated.")
+
+            else:
+                self.return_success("Nothing to change.")
+
         else:
             self.return_failure("Contact to confirm does not exist.")
 
@@ -182,7 +197,6 @@ class ContactsHandler(NewebeAuthHandler):
         Retrieves whole contact list at JSON format.
         '''
         contacts = ContactManager.getContacts()
-
         self.return_documents(contacts)
 
     @asynchronous
@@ -419,33 +433,45 @@ class ContactRenderTHandler(NewebeAuthHandler):
 
 class ContactTagsHandler(NewebeAuthHandler):
     '''
-    Return the list of tags set on owner contacts.
+    Tag operations: create, get, delete.
     '''
 
     def get(self):
         '''
-        Return the list of tags set on owner contacts.
+        Returns the list of available tags.
         '''
 
         tags = ContactManager.getTags()
-        if "all" not in tags:
-            tags.append("all")
-        self.return_list(tags)
+        tags.append(ContactTag(name="all"))
+        self.return_documents(tags)
 
     def post(self):
-        pass
+        '''
+        Creates a new tag.
+        '''
 
-    def delete(self):
-        pass
+        data = self.get_body_as_dict(["name"])
+        tag = ContactTag(name=data["name"])
+        tag.save()
+        self.return_one_document(tag, 201)
+
+    def delete(self, id):
+        '''
+        Deletes given tag.
+        '''
+
+        tag = ContactManager.getTag(id)
+        tag.delete()
+        self.return_success("Tag successfully deleted.", 204)
+
 
 class ContactTagHandler(NewebeAuthHandler):
     '''
-    Return the list of tags set on owner contacts.
     '''
 
     def put(self, slug):
         '''
-        Grab tags sent inside request to set is on contact matching slug.
+        Grab tags sent inside request to set is on given contact.
         '''
 
         contact = ContactManager.getContact(slug)
@@ -459,25 +485,3 @@ class ContactTagHandler(NewebeAuthHandler):
                 self.return_failure("No tags were sent")
         else:
             self.return_failure("Contact to modify does not exist.", 404)
-
-
-# Template handlers.
-class ContactContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/contact_content.html")
-
-
-class ContactTutorial1THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_1.html")
-
-
-class ContactTutorial2THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_2.html")
-
-
-class ContactTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/contact.html",
-                    isTheme=self.is_file_theme_exists())
