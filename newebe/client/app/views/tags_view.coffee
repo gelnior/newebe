@@ -44,7 +44,8 @@ module.exports = class TagsView extends CollectionView
         @onNewTagClicked() if event.which is 13
 
     onNewTagClicked: =>
-        @collection.create name: @newTagField.val(),
-            success: (tag) =>
-                @renderOne tag
-                @newTagField.val ''
+        if @collection.length < 6
+            @collection.create name: @newTagField.val(),
+                success: (tag) =>
+                    @renderOne tag
+                    @newTagField.val ''
