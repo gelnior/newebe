@@ -1,7 +1,7 @@
 View = require 'lib/view'
 
 module.exports = class ContactView extends View
-    className: 'contact-line'
+    className: 'contact-line clearfix'
     rootUrl: "contacts/"
 
     events:

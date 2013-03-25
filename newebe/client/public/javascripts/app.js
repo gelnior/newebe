@@ -1140,7 +1140,7 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     __extends(ContactView, _super);
 
-    ContactView.prototype.className = 'contact-line';
+    ContactView.prototype.className = 'contact-line clearfix';
 
     ContactView.prototype.rootUrl = "contacts/";
 
@@ -1911,6 +1911,10 @@ window.require.register("views/tags_view", function(exports, require, module) {
 
     function TagsView() {
       this.onNewTagClicked = __bind(this.onNewTagClicked, this);
+
+      this.onNewTagKeyup = __bind(this.onNewTagKeyup, this);
+
+      this.onNewTagKeypress = __bind(this.onNewTagKeypress, this);
       return TagsView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1921,12 +1925,16 @@ window.require.register("views/tags_view", function(exports, require, module) {
     TagsView.prototype.view = TagView;
 
     TagsView.prototype.events = {
-      "click #new-tag-button": "onNewTagClicked"
+      'keyup #new-tag-field': 'onNewTagKeyup',
+      'click #new-tag-button': 'onNewTagClicked'
     };
 
     TagsView.prototype.afterRender = function() {
-      this.newTagField = this.$("#new-tag-field");
-      return this.$("#new-tag-button").click(this.onNewTagClicked);
+      this.newTagField = this.$('#new-tag-field');
+      this.newTagButton = this.$('#new-tag-button');
+      this.newTagButton.click(this.onNewTagClicked);
+      this.newTagField.keyup(this.onNewTagKeyup);
+      return this.newTagField.keypress(this.onNewTagKeypress);
     };
 
     TagsView.prototype.template = function() {
@@ -1943,15 +1951,36 @@ window.require.register("views/tags_view", function(exports, require, module) {
       return this.collection.fetch(callbacks);
     };
 
+    TagsView.prototype.onNewTagKeypress = function(event) {
+      var key, keychar;
+      key = event.which;
+      keychar = String.fromCharCode(key).toLowerCase();
+      if ((key === null) || (key === 0) || (key === 8) || (key === 9) || (key === 13) || (key === 27)) {
+        return true;
+      } else if ('abcdefghijklmnopqrstuvwxyz0123456789'.indexOf(keychar) === -1) {
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    TagsView.prototype.onNewTagKeyup = function(event) {
+      if (event.which === 13) {
+        return this.onNewTagClicked();
+      }
+    };
+
     TagsView.prototype.onNewTagClicked = function() {
       var _this = this;
-      return this.collection.create({
-        name: this.newTagField.val()
-      }, {
-        success: function(tag) {
-          return _this.renderOne(tag);
-        }
-      });
+      if (this.collection.length < 7) {
+        return this.collection.create({
+          name: this.newTagField.val()
+        }, {
+          success: function(tag) {
+            _this.renderOne(tag);
+            return _this.newTagField.val('');
+          }
+        });
+      }
     };
 
     return TagsView;
@@ -2081,7 +2110,7 @@ window.require.register("views/templates/tags", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><input id="new-tag-field"/><button id="new-tag-button">add tags</button></div>');
+  buf.push('<div><input id="new-tag-field"/><button id="new-tag-button">add tag</button></div>');
   }
   return buf.join("");
   };

@@ -2320,6 +2320,8 @@ button:active {
 .toggle-button.selected {
   background-color: #def;
   color: #00305f;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 .toggle-button.selected:hover {
   background: #ad2bad;
@@ -2784,29 +2786,35 @@ body,
 #contacts-view #new-contact-field:active {
   border-bottom: 1px solid #ad2bad;
 }
-#contacts-view .contact {
+#contacts-view .contact-line {
+  display: block;
+  width: 100%;
   padding: 10px;
 }
-#contacts-view .contact .name {
+#contacts-view .contact-line .name {
   padding-top: 15px;
 }
-#contacts-view .contact .url {
+#contacts-view .contact-line .url {
   font-style: italic;
   margin-left: 20px;
   padding-top: 15px;
 }
-#contacts-view .contact .state {
+#contacts-view .contact-line .state {
   padding-top: 15px;
   width: 100px;
 }
-#contacts-view .contact .contact-buttons {
+#contacts-view .contact-line .contact-buttons {
   padding: 0;
   display: none;
 }
-#contacts-view .contact .contact-buttons button {
+#contacts-view .contact-line .contact-buttons button {
   padding: 5px 10px;
 }
-#contacts-view .contact:hover .contact-buttons {
+#contacts-view .contact-line .contact-tag {
+  font-size: 10px;
+  padding: 5px;
+}
+#contacts-view .contact-line:hover .contact-buttons {
   display: table;
 }
 #contacts-view p.error {
