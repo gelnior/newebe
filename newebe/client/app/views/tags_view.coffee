@@ -10,11 +10,15 @@ module.exports = class TagsView extends CollectionView
     view: TagView
     
     events:
-        "click #new-tag-button": "onNewTagClicked"
+        'keyup #new-tag-field': 'onNewTagKeyup'
+        'click #new-tag-button': 'onNewTagClicked'
     
     afterRender: ->
-        @newTagField = @$ "#new-tag-field"
-        @$("#new-tag-button").click @onNewTagClicked
+        @newTagField = @$ '#new-tag-field'
+        @newTagButton = @$ '#new-tag-button'
+        @newTagButton.click @onNewTagClicked
+        @newTagField.keyup @onNewTagKeyup
+        @newTagField.keypress @onNewTagKeypress
 
     template: ->
         @$el = $ "##{@id}"
@@ -23,10 +27,24 @@ module.exports = class TagsView extends CollectionView
     fetch: (callbacks) ->
         @$el = $ "##{@id}"
         @afterRender()
-        if @views.length > 0
-            @remove @views
+        @remove(@views) if @views.length > 0
         @collection.fetch callbacks
+
+    onNewTagKeypress: (event) =>
+        key = event.which
+        keychar = String.fromCharCode(key).toLowerCase()
+        if (key is null) or (key is 0) or (key is 8) or (key is 9) or
+        (key is 13) or (key is 27)
+             return true
+        else if ('abcdefghijklmnopqrstuvwxyz0123456789').indexOf(keychar) is -1
+            event.preventDefault()
+            return false
+
+    onNewTagKeyup: (event) =>
+        @onNewTagClicked() if event.which is 13
 
     onNewTagClicked: =>
         @collection.create name: @newTagField.val(),
-            success: (tag) => @renderOne tag
+            success: (tag) =>
+                @renderOne tag
+                @newTagField.val ''
