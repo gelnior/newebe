@@ -461,7 +461,14 @@ class ContactTagsHandler(NewebeAuthHandler):
         '''
 
         tag = ContactManager.getTag(id)
+        name = tag.name
         tag.delete()
+
+        for contact in ContactManager.getTrustedContacts():
+            if name in contact.tags:
+                contact.tags.remove(name)
+                contact.save()
+
         self.return_success("Tag successfully deleted.", 204)
 
 
