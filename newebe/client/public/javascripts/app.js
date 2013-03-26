@@ -583,6 +583,12 @@ window.require.register("models/contact", function(exports, require, module) {
 
     ContactModel.prototype.idAttribute = 'slug';
 
+    ContactModel.prototype.initialize = function() {
+      if (this.get("name") == null) {
+        return this.set("name", this.get('url'));
+      }
+    };
+
     ContactModel.prototype.retry = function(callback) {
       var data,
         _this = this;
@@ -1142,7 +1148,7 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     ContactView.prototype.className = 'contact-line clearfix';
 
-    ContactView.prototype.rootUrl = "contacts/";
+    ContactView.prototype.rootUrl = 'contacts/';
 
     ContactView.prototype.events = {
       'click .contact-delete-button': 'onDeleteClicked',
@@ -1215,12 +1221,12 @@ window.require.register("views/contact_view", function(exports, require, module)
     ContactView.prototype.addTag = function(tag) {
       var tagView, _ref,
         _this = this;
-      this.$el.append("<button class=\"contact-tag toggle-button\">" + (tag.get("name")) + "</button>");
-      tagView = this.$el.find(".contact-tag").last();
-      if (_ref = tag.get("name"), __indexOf.call(this.model.get("tags"), _ref) >= 0) {
-        tagView.addClass("selected");
-      }
       if (tag.get("name") !== "all") {
+        this.$('.contact-tags').append("<button class=\"contact-tag toggle-button\">" + (tag.get("name")) + "</button>");
+        tagView = this.$el.find(".contact-tag").last();
+        if (_ref = tag.get("name"), __indexOf.call(this.model.get("tags"), _ref) >= 0) {
+          tagView.addClass("selected");
+        }
         return tagView.click(function() {
           var tags, _ref1;
           tags = _this.model.get("tags");
@@ -1856,8 +1862,9 @@ window.require.register("views/tag_view", function(exports, require, module) {
       'click .tag-delete-button': 'onDeleteClicked'
     };
 
-    function TagView(model) {
+    function TagView(model, tagsView) {
       this.model = model;
+      this.tagsView = tagsView;
       TagView.__super__.constructor.call(this);
     }
 
@@ -1865,7 +1872,15 @@ window.require.register("views/tag_view", function(exports, require, module) {
       return require('./templates/tag');
     };
 
-    TagView.prototype.afterRender = function() {};
+    TagView.prototype.afterRender = function() {
+      var _this = this;
+      if (this.model.get('name') === 'all') {
+        this.$('.tag-delete-button').html('+');
+        return this.onDeleteClicked = function() {
+          return _this.contactsView.displayAddTag();
+        };
+      }
+    };
 
     TagView.prototype.getRenderData = function() {
       var _ref;
@@ -1915,6 +1930,8 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.onNewTagKeyup = __bind(this.onNewTagKeyup, this);
 
       this.onNewTagKeypress = __bind(this.onNewTagKeypress, this);
+
+      this.renderOne = __bind(this.renderOne, this);
       return TagsView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1934,7 +1951,16 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.newTagButton = this.$('#new-tag-button');
       this.newTagButton.click(this.onNewTagClicked);
       this.newTagField.keyup(this.onNewTagKeyup);
-      return this.newTagField.keypress(this.onNewTagKeypress);
+      this.newTagField.keypress(this.onNewTagKeypress);
+      return this.tagList = this.$('#tag-list');
+    };
+
+    TagsView.prototype.renderOne = function(model) {
+      var view;
+      view = new this.view(model);
+      this.tagList.append(view.render().el);
+      this.add(view);
+      return this;
     };
 
     TagsView.prototype.template = function() {
@@ -1971,7 +1997,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
 
     TagsView.prototype.onNewTagClicked = function() {
       var _this = this;
-      if (this.collection.length < 7) {
+      if (this.collection.length < 6) {
         return this.collection.create({
           name: this.newTagField.val()
         }, {
@@ -2027,7 +2053,14 @@ window.require.register("views/templates/contact", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div><div class="name mod left">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="url mod left">' + escape((interp = model.url) == null ? '' : interp) + '</div><div class="contact-buttons mod left"><button class="contact-accept-button">accept</button><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div>');
+  buf.push('<div class="contact-tags mod left"></div><div class="name mod left"> <a');
+  buf.push(attrs({ 'href':(model.url) }, {"href":true}));
+  buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a></div>');
+  if ( model.state != "Trusted")
+  {
+  buf.push('<div class="state mod left">' + escape((interp = model.state) == null ? '' : interp) + '</div>');
+  }
+  buf.push('<div class="contact-buttons mod left"><button class="contact-accept-button">accept</button><button class="contact-retry-button">retry</button><button class="contact-delete-button">X</button></div>');
   }
   return buf.join("");
   };
@@ -2110,7 +2143,7 @@ window.require.register("views/templates/tags", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><input id="new-tag-field"/><button id="new-tag-button">add tag</button></div>');
+  buf.push('<div id="tag-list"></div><div id="add-tag"><input id="new-tag-field"/><button id="new-tag-button">add tag</button></div>');
   }
   return buf.join("");
   };

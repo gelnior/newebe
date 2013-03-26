@@ -2789,7 +2789,7 @@ body,
 #contacts-view .contact-line {
   display: block;
   width: 100%;
-  padding: 10px;
+  padding: 0;
 }
 #contacts-view .contact-line .name {
   padding-top: 15px;
@@ -2830,6 +2830,18 @@ body,
 }
 #contacts-view .tag-selector:hover .tag-delete-button {
   display: inline-block;
+}
+#contacts-view #tag-list {
+  margin-bottom: 20px;
+}
+#contacts-view #tag-list,
+#contacts-view #add-tag,
+#contacts-view .contact-tags {
+  display: inline-block;
+}
+#contacts-view .contact-tags {
+  padding: 0;
+  margin-top: 4px;
 }
 .tag-select-button {
   display: inline-block;

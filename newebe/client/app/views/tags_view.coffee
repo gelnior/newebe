@@ -19,6 +19,13 @@ module.exports = class TagsView extends CollectionView
         @newTagButton.click @onNewTagClicked
         @newTagField.keyup @onNewTagKeyup
         @newTagField.keypress @onNewTagKeypress
+        @tagList = @$ '#tag-list'
+
+    renderOne: (model) =>
+        view = new @view model
+        @tagList.append view.render().el
+        @add view
+        @
 
     template: ->
         @$el = $ "##{@id}"

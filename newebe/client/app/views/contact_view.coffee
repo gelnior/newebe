@@ -2,7 +2,7 @@ View = require 'lib/view'
 
 module.exports = class ContactView extends View
     className: 'contact-line clearfix'
-    rootUrl: "contacts/"
+    rootUrl: 'contacts/'
 
     events:
         'click .contact-delete-button': 'onDeleteClicked'
@@ -50,13 +50,13 @@ module.exports = class ContactView extends View
                 @$('.state').html 'Trusted'
 
     addTag: (tag) ->
-        @$el.append "<button class=\"contact-tag toggle-button\">#{tag.get "name"}</button>"
-        tagView = @$el.find(".contact-tag").last()
-        
-        if tag.get("name") in @model.get "tags"
-            tagView.addClass "selected"
-
         if tag.get("name") isnt "all"
+            @$('.contact-tags').append "<button class=\"contact-tag toggle-button\">#{tag.get "name"}</button>"
+            tagView = @$el.find(".contact-tag").last()
+            
+            if tag.get("name") in @model.get "tags"
+                tagView.addClass "selected"
+
             tagView.click =>
                 tags = @model.get "tags"
                 if tag.get("name") in @model.get "tags"

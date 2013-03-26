@@ -7,13 +7,18 @@ module.exports = class TagView extends View
         'click .tag-select-button': 'onSelectClicked'
         'click .tag-delete-button': 'onDeleteClicked'
 
-    constructor: (@model) ->
+    constructor: (@model, @tagsView) ->
         super()
 
     template: ->
         require './templates/tag'
 
     afterRender: ->
+        if @model.get('name') is 'all'
+            @$('.tag-delete-button').html '+'
+            @onDeleteClicked = =>
+                # send a backbone event
+                @contactsView.displayAddTag()
 
     getRenderData: ->
         model: @model?.toJSON()

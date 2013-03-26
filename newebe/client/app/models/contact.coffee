@@ -6,6 +6,10 @@ module.exports = class ContactModel extends Model
     urlRoot: 'contacts/'
     idAttribute: 'slug'
 
+    initialize: ->
+        unless @get("name")?
+            @set "name", @get 'url'
+
     retry: (callback) ->
         data = slug: @get "slug"
         request.post "/contacts/#{@get("slug")}/retry/", data, (err, contact) =>

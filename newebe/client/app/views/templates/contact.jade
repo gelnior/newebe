@@ -1,6 +1,8 @@
-.state.mod.left #{model.state}
-.name.mod.left #{model.name}
-.url.mod.left #{model.url}
+.contact-tags.mod.left
+.name.mod.left 
+    a(href=model.url) #{model.name}
+if model.state != "Trusted"
+    .state.mod.left #{model.state}
 
 .contact-buttons.mod.left
     button.contact-accept-button accept
