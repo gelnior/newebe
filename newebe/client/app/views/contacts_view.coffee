@@ -39,12 +39,14 @@ module.exports = class ContactsView extends CollectionView
         if @collection.containsContact contactUrl
             @$('.error').html 'Contact is already in your list'
             false
+
         else if not @isValidUrl contactUrl
             @$('.error').html """
             Wrong URL, URL should look like https://newebe.mydomain.net/ or
             like https://87.123.21.13:12000/.
             """
             false
+
         else
             true
         

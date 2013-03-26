@@ -10,8 +10,6 @@ module.exports = class ContactView extends View
         'click .contact-accept-button': 'onAcceptClicked'
 
     constructor: (@model) ->
-        console.log true
-        
         super()
 
     template: ->

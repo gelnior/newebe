@@ -1158,7 +1158,6 @@ window.require.register("views/contact_view", function(exports, require, module)
 
     function ContactView(model) {
       this.model = model;
-      console.log(true);
       ContactView.__super__.constructor.call(this);
     }
 
@@ -1844,6 +1843,59 @@ window.require.register("views/register_password_view", function(exports, requir
   })(QuestionView);
   
 });
+window.require.register("views/tag_all_view", function(exports, require, module) {
+  var TagAllView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('lib/view');
+
+  module.exports = TagAllView = (function(_super) {
+
+    __extends(TagAllView, _super);
+
+    TagAllView.prototype.className = 'tag-selector';
+
+    TagAllView.prototype.events = {
+      'click .tag-add-button': 'onAddClicked'
+    };
+
+    function TagAllView(model, tagsView) {
+      this.model = model;
+      this.tagsView = tagsView;
+      TagAllView.__super__.constructor.call(this);
+    }
+
+    TagAllView.prototype.afterRender = function() {
+      this.addTagButton = this.$('.tag-add-button');
+      if (this.tagsView.isFull()) {
+        return this.addTagButton.hide();
+      }
+    };
+
+    TagAllView.prototype.template = function() {
+      return require('./templates/tag_all');
+    };
+
+    TagAllView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    TagAllView.prototype.onAddClicked = function() {
+      var _this = this;
+      return this.$('.tag-add-button').fadeOut(function() {
+        return _this.tagsView.showNewTagForm();
+      });
+    };
+
+    return TagAllView;
+
+  })(View);
+  
+});
 window.require.register("views/tag_view", function(exports, require, module) {
   var TagView, View,
     __hasProp = {}.hasOwnProperty,
@@ -1870,16 +1922,6 @@ window.require.register("views/tag_view", function(exports, require, module) {
 
     TagView.prototype.template = function() {
       return require('./templates/tag');
-    };
-
-    TagView.prototype.afterRender = function() {
-      var _this = this;
-      if (this.model.get('name') === 'all') {
-        this.$('.tag-delete-button').html('+');
-        return this.onDeleteClicked = function() {
-          return _this.contactsView.displayAddTag();
-        };
-      }
     };
 
     TagView.prototype.getRenderData = function() {
@@ -1909,7 +1951,7 @@ window.require.register("views/tag_view", function(exports, require, module) {
   
 });
 window.require.register("views/tags_view", function(exports, require, module) {
-  var CollectionView, TagView, Tags, TagsView,
+  var CollectionView, TagAllView, TagView, Tags, TagsView,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1917,6 +1959,8 @@ window.require.register("views/tags_view", function(exports, require, module) {
   CollectionView = require('../lib/view_collection');
 
   TagView = require('./tag_view');
+
+  TagAllView = require('./tag_all_view');
 
   Tags = require('../collections/tags');
 
@@ -1952,15 +1996,29 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.newTagButton.click(this.onNewTagClicked);
       this.newTagField.keyup(this.onNewTagKeyup);
       this.newTagField.keypress(this.onNewTagKeypress);
+      this.newTagField.hide();
+      this.newTagButton.hide();
       return this.tagList = this.$('#tag-list');
     };
 
     TagsView.prototype.renderOne = function(model) {
       var view;
-      view = new this.view(model);
+      if (model.get('name') !== 'all') {
+        view = new this.view(model);
+      } else {
+        view = new TagAllView(model, this);
+      }
       this.tagList.append(view.render().el);
       this.add(view);
       return this;
+    };
+
+    TagsView.prototype.showNewTagForm = function() {
+      if (this.collection.length < 6) {
+        this.newTagField.show();
+        this.newTagButton.show();
+        return this.newTagField.focus();
+      }
     };
 
     TagsView.prototype.template = function() {
@@ -1997,7 +2055,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
 
     TagsView.prototype.onNewTagClicked = function() {
       var _this = this;
-      if (this.collection.length < 6) {
+      if (!this.isFull()) {
         return this.collection.create({
           name: this.newTagField.val()
         }, {
@@ -2007,6 +2065,10 @@ window.require.register("views/tags_view", function(exports, require, module) {
           }
         });
       }
+    };
+
+    TagsView.prototype.isFull = function() {
+      return this.collection.length > 6;
     };
 
     return TagsView;
@@ -2133,6 +2195,17 @@ window.require.register("views/templates/tag", function(exports, require, module
   with (locals || {}) {
   var interp;
   buf.push('<button class="tag-select-button toggle-button">' + escape((interp = model.name) == null ? '' : interp) + '</button><button class="tag-delete-button">X</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/tag_all", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<button class="tag-select-button toggle-button">' + escape((interp = model.name) == null ? '' : interp) + '</button><button class="tag-add-button">+</button>');
   }
   return buf.join("");
   };

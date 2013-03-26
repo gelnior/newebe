@@ -1,5 +1,6 @@
 CollectionView = require '../lib/view_collection'
 TagView = require './tag_view'
+TagAllView = require './tag_all_view'
 Tags = require '../collections/tags'
 
 
@@ -19,13 +20,25 @@ module.exports = class TagsView extends CollectionView
         @newTagButton.click @onNewTagClicked
         @newTagField.keyup @onNewTagKeyup
         @newTagField.keypress @onNewTagKeypress
+        @newTagField.hide()
+        @newTagButton.hide()
         @tagList = @$ '#tag-list'
 
     renderOne: (model) =>
-        view = new @view model
+        if model.get('name') isnt 'all'
+            view = new @view model
+        else
+            view = new TagAllView model, @
+
         @tagList.append view.render().el
         @add view
         @
+
+    showNewTagForm: ->
+        if @collection.length < 6
+            @newTagField.show()
+            @newTagButton.show()
+            @newTagField.focus()
 
     template: ->
         @$el = $ "##{@id}"
@@ -51,8 +64,11 @@ module.exports = class TagsView extends CollectionView
         @onNewTagClicked() if event.which is 13
 
     onNewTagClicked: =>
-        if @collection.length < 6
+        unless @isFull()
             @collection.create name: @newTagField.val(),
                 success: (tag) =>
                     @renderOne tag
                     @newTagField.val ''
+
+    isFull: ->
+        @collection.length > 6
