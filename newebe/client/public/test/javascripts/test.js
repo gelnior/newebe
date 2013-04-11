@@ -182,5 +182,3 @@ window.require.register("test/test-helpers", function(exports, require, module) 
   };
   
 });
-window.require('test/auth_test');
-window.require('test/collections/contacts_test');

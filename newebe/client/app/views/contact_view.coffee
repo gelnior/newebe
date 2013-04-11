@@ -37,7 +37,7 @@ module.exports = class ContactView extends View
                 alert 'Contact request failed again.'
             else
                 @$('.state').html 'Pending'
-                
+
     onAcceptClicked: ->
         @model.accept (err) =>
             if err
@@ -48,12 +48,14 @@ module.exports = class ContactView extends View
                 @$('.state').html 'Trusted'
 
     addTag: (tag) ->
-        if tag.get("name") isnt "all"
-            @$('.contact-tags').append "<button class=\"contact-tag toggle-button\">#{tag.get "name"}</button>"
+        name = tag.get 'name'
+        if name isnt "all"
+            @$('.contact-tags').append "<button class=\"tag-#{name} contact-tag toggle-button\">#{tag.get "name"}</button>"
             tagView = @$el.find(".contact-tag").last()
-            
+
             if tag.get("name") in @model.get "tags"
                 tagView.addClass "selected"
+                @$el.addClass "filter-#{name}"
 
             tagView.click =>
                 tags = @model.get "tags"

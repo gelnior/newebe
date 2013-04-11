@@ -2725,17 +2725,20 @@ body,
 #profile-view #profile-url-field {
   font-size: 16px;
 }
-#profile-view .main-section #change-picture-button,
-#profile-view .main-section #sesame-stuff {
-  display: none;
+#profile-view .main-section #change-picture-button:not(:hover) {
+  background-color: #eee;
+}
+#profile-view .main-section #sesame-stuff button:not(:hover) {
+  background-color: #eee;
 }
 #profile-view .main-section #change-password-button {
   margin-left: 0;
-  display: none;
 }
-#profile-view .main-section:hover #change-picture-button,
-#profile-view .main-section:hover #sesame-stuff {
-  display: block;
+#profile-view .main-section:hover #change-picture-button:not(:hover) {
+  background-color: #d82545;
+}
+#profile-view .main-section:hover #sesame-stuff button:not(:hover) {
+  background-color: #d82545;
 }
 #profile-view .main-section:hover #change-password-button {
   display: inline;
@@ -2786,6 +2789,9 @@ body,
 #contacts-view #new-contact-field:active {
   border-bottom: 1px solid #ad2bad;
 }
+#contacts-view .contact-line:not(:hover) .contact-buttons button {
+  background: #eee;
+}
 #contacts-view .contact-line {
   display: block;
   width: 100%;
@@ -2805,7 +2811,6 @@ body,
 }
 #contacts-view .contact-line .contact-buttons {
   padding: 0;
-  display: none;
 }
 #contacts-view .contact-line .contact-buttons button {
   padding: 5px 10px;
@@ -2823,13 +2828,12 @@ body,
 #contacts-view .tag-delete-button {
   margin-left: 0;
   padding: 2px 4px;
-  display: none;
 }
 #contacts-view .tag-selector {
   display: inline;
 }
-#contacts-view .tag-selector:hover .tag-delete-button {
-  display: inline-block;
+#contacts-view .tag-selector:not(:hover) .tag-delete-button {
+  background: #eee;
 }
 #contacts-view #tag-list {
   margin-bottom: 20px;
@@ -2838,6 +2842,9 @@ body,
 #contacts-view #add-tag,
 #contacts-view .contact-tags {
   display: inline-block;
+}
+#contacts-view .tag-all:not(:hover) .tag-add-button {
+  background: #eee;
 }
 #contacts-view .contact-tags {
   padding: 0;

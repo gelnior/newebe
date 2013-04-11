@@ -367,6 +367,10 @@ window.require.register("lib/view", function(exports, require, module) {
       return this;
     };
 
+    View.prototype.publish = function(channel, data) {
+      return Backbone.Mediator.pub(channel, data);
+    };
+
     View.prototype.beforeRender = function() {};
 
     View.prototype.afterRender = function() {};
@@ -1218,13 +1222,15 @@ window.require.register("views/contact_view", function(exports, require, module)
     };
 
     ContactView.prototype.addTag = function(tag) {
-      var tagView, _ref,
+      var name, tagView, _ref,
         _this = this;
-      if (tag.get("name") !== "all") {
-        this.$('.contact-tags').append("<button class=\"contact-tag toggle-button\">" + (tag.get("name")) + "</button>");
+      name = tag.get('name');
+      if (name !== "all") {
+        this.$('.contact-tags').append("<button class=\"tag-" + name + " contact-tag toggle-button\">" + (tag.get("name")) + "</button>");
         tagView = this.$el.find(".contact-tag").last();
         if (_ref = tag.get("name"), __indexOf.call(this.model.get("tags"), _ref) >= 0) {
           tagView.addClass("selected");
+          this.$el.addClass("filter-" + name);
         }
         return tagView.click(function() {
           var tags, _ref1;
@@ -1268,6 +1274,8 @@ window.require.register("views/contacts_view", function(exports, require, module
     __extends(ContactsView, _super);
 
     function ContactsView() {
+      this.onTagAdded = __bind(this.onTagAdded, this);
+
       this.renderOne = __bind(this.renderOne, this);
 
       this.onAddContactClicked = __bind(this.onAddContactClicked, this);
@@ -1284,13 +1292,17 @@ window.require.register("views/contacts_view", function(exports, require, module
       'click #add-contact-button': 'onAddContactClicked'
     };
 
+    ContactsView.prototype.subscriptions = {
+      'tag:selected': 'onTagSelected'
+    };
+
     ContactsView.prototype.template = function() {
       return require('./templates/contacts');
     };
 
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
-      this.tagsView = new TagsView();
+      this.tagsView = new TagsView(this);
       this.tagsView.$el = this.$("#tag-list");
       this.tagsView.el = this.$("#tag-list").el;
       this.tagsView.render();
@@ -1366,6 +1378,34 @@ window.require.register("views/contacts_view", function(exports, require, module
           return alert("an error occured");
         }
       });
+    };
+
+    ContactsView.prototype.onTagSelected = function(name) {
+      this.tagsView.$(".tag-select-button").removeClass('selected');
+      if (name === 'all') {
+        return this.$('.contact-line').show();
+      } else {
+        this.$('.contact-line').hide();
+        return this.$(".filter-" + name).show();
+      }
+    };
+
+    ContactsView.prototype.onTagDeleted = function(name) {
+      this.$(".contact-line").removeClass("tag-" + name);
+      return this.$(".tag-" + name).remove();
+    };
+
+    ContactsView.prototype.onTagAdded = function(tag) {
+      var view, _i, _len, _ref, _results;
+      _ref = this.views;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        view = _ref[_i];
+        if (view.model.get('state') === 'Trusted') {
+          _results.push(view.addTag(tag));
+        }
+      }
+      return _results;
     };
 
     return ContactsView;
@@ -1854,9 +1894,10 @@ window.require.register("views/tag_all_view", function(exports, require, module)
 
     __extends(TagAllView, _super);
 
-    TagAllView.prototype.className = 'tag-selector';
+    TagAllView.prototype.className = 'tag-selector tag-all';
 
     TagAllView.prototype.events = {
+      'click .tag-select-button': 'onSelectClicked',
       'click .tag-add-button': 'onAddClicked'
     };
 
@@ -1868,6 +1909,7 @@ window.require.register("views/tag_all_view", function(exports, require, module)
 
     TagAllView.prototype.afterRender = function() {
       this.addTagButton = this.$('.tag-add-button');
+      this.selectTagButton = this.$('.tag-select-button');
       if (this.tagsView.isFull()) {
         return this.addTagButton.hide();
       }
@@ -1882,6 +1924,11 @@ window.require.register("views/tag_all_view", function(exports, require, module)
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
       };
+    };
+
+    TagAllView.prototype.onSelectClicked = function() {
+      this.publish('tag:selected', 'all');
+      return this.selectTagButton.addClass('selected');
     };
 
     TagAllView.prototype.onAddClicked = function() {
@@ -1924,6 +1971,10 @@ window.require.register("views/tag_view", function(exports, require, module) {
       return require('./templates/tag');
     };
 
+    TagView.prototype.afterRender = function() {
+      return this.selectTagButton = this.$('.tag-select-button');
+    };
+
     TagView.prototype.getRenderData = function() {
       var _ref;
       return {
@@ -1931,12 +1982,16 @@ window.require.register("views/tag_view", function(exports, require, module) {
       };
     };
 
-    TagView.prototype.onSelectClicked = function() {};
+    TagView.prototype.onSelectClicked = function() {
+      this.publish('tag:selected', this.model.get('name'));
+      return this.selectTagButton.addClass('selected');
+    };
 
     TagView.prototype.onDeleteClicked = function() {
       var _this = this;
       return this.model.destroy({
         success: function() {
+          _this.tagsView.onTagDeleted(_this.model.get('name'));
           return _this.remove();
         },
         error: function() {
@@ -1968,7 +2023,14 @@ window.require.register("views/tags_view", function(exports, require, module) {
 
     __extends(TagsView, _super);
 
-    function TagsView() {
+    TagsView.prototype.id = 'tag-list';
+
+    TagsView.prototype.collection = new Tags();
+
+    TagsView.prototype.view = TagView;
+
+    function TagsView(contactsView) {
+      this.contactsView = contactsView;
       this.onNewTagClicked = __bind(this.onNewTagClicked, this);
 
       this.onNewTagKeyup = __bind(this.onNewTagKeyup, this);
@@ -1976,14 +2038,9 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.onNewTagKeypress = __bind(this.onNewTagKeypress, this);
 
       this.renderOne = __bind(this.renderOne, this);
-      return TagsView.__super__.constructor.apply(this, arguments);
+
+      TagsView.__super__.constructor.call(this);
     }
-
-    TagsView.prototype.id = 'tag-list';
-
-    TagsView.prototype.collection = new Tags();
-
-    TagsView.prototype.view = TagView;
 
     TagsView.prototype.events = {
       'keyup #new-tag-field': 'onNewTagKeyup',
@@ -2004,7 +2061,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
     TagsView.prototype.renderOne = function(model) {
       var view;
       if (model.get('name') !== 'all') {
-        view = new this.view(model);
+        view = new this.view(model, this);
       } else {
         view = new TagAllView(model, this);
       }
@@ -2061,10 +2118,15 @@ window.require.register("views/tags_view", function(exports, require, module) {
         }, {
           success: function(tag) {
             _this.renderOne(tag);
+            _this.contactsView.onTagAdded(tag);
             return _this.newTagField.val('');
           }
         });
       }
+    };
+
+    TagsView.prototype.onTagDeleted = function(name) {
+      return this.contactsView.onTagDeleted(name);
     };
 
     TagsView.prototype.isFull = function() {
@@ -2082,7 +2144,7 @@ window.require.register("views/templates/activities", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="line"> <div id="activity-all"></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
+  buf.push('<div class="pa1"><textarea id="micropost-field"></textarea></div><div class="pa1"><button id="micropost-post-button">send</button></div><div class="line"> <div id="activity-all"></div><div id="activity-family" class="activity-list mod left w33"><h2 class="activity-list-title">family</h2><div class="activities"></div></div><div id="activity-geeks" class="activity-list mod left w33"><h2 class="activity-list-title">geeks</h2><div class="activities"></div></div></div>');
   }
   return buf.join("");
   };
@@ -2205,7 +2267,7 @@ window.require.register("views/templates/tag_all", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<button class="tag-select-button toggle-button">' + escape((interp = model.name) == null ? '' : interp) + '</button><button class="tag-add-button">+</button>');
+  buf.push('<button class="tag-select-button toggle-button selected">' + escape((interp = model.name) == null ? '' : interp) + '</button><button class="tag-add-button">+</button>');
   }
   return buf.join("");
   };

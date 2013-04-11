@@ -15,6 +15,9 @@ module.exports = class View extends Backbone.View
         @afterRender()
         @
 
+    publish: (channel, data) ->
+        Backbone.Mediator.pub channel, data
+
     beforeRender: ->
 
     afterRender: ->

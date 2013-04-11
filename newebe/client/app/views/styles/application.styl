@@ -118,18 +118,23 @@ body
 
     // Display action buttons when mouse is over the section
     .main-section
-        #change-picture-button
+        #change-picture-button:not(:hover)
+            background-color: lightgrey
+
         #sesame-stuff
-            display:none
+            button:not(:hover)
+                background-color: lightgrey
 
         #change-password-button
             margin-left: 0
-            display: none
 
     .main-section:hover
-        #change-picture-button
+        #change-picture-button:not(:hover)
+            background-color: red
+
         #sesame-stuff
-            display:block
+            button:not(:hover)
+                background-color: red
 
         #change-password-button
             display: inline
@@ -179,6 +184,11 @@ body
     #new-contact-field:active
         border-bottom: 1px solid purple
 
+    .contact-line:not(:hover)
+        .contact-buttons
+            button
+                background: lightgrey
+
     .contact-line
         display: block
         width: 100%
@@ -198,7 +208,6 @@ body
              
         .contact-buttons
             padding: 0
-            display: none
 
             button
                 padding: 5px 10px
@@ -217,14 +226,13 @@ body
     .tag-delete-button
         margin-left: 0
         padding: 2px 4px
-        display: none
 
     .tag-selector
         display: inline
 
-    .tag-selector:hover
+    .tag-selector:not(:hover)
         .tag-delete-button
-            display: inline-block
+            background: lightgrey
 
     #tag-list
         margin-bottom: 20px
@@ -233,6 +241,10 @@ body
     #add-tag
     .contact-tags
         display: inline-block
+
+    .tag-all:not(:hover)
+        .tag-add-button
+            background: lightgrey
 
     .contact-tags
         padding: 0

@@ -13,15 +13,20 @@ module.exports = class TagView extends View
     template: ->
         require './templates/tag'
 
+    afterRender: ->
+        @selectTagButton = @$('.tag-select-button')
+
     getRenderData: ->
         model: @model?.toJSON()
 
     onSelectClicked: ->
-
+        @publish 'tag:selected', @model.get 'name'
+        @selectTagButton.addClass 'selected'
 
     onDeleteClicked: ->
         @model.destroy
             success: =>
+                @tagsView.onTagDeleted @model.get 'name'
                 @remove()
             error: =>
                 alert 'An error occured while deleting tag'

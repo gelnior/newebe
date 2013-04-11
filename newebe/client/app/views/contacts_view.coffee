@@ -14,12 +14,15 @@ module.exports = class ContactsView extends CollectionView
     events:
         'click #add-contact-button': 'onAddContactClicked'
 
+    subscriptions:
+        'tag:selected': 'onTagSelected'
+
     template: ->
         require './templates/contacts'
 
     afterRender: ->
         @isLoaded = false
-        @tagsView = new TagsView()
+        @tagsView = new TagsView @
         @tagsView.$el = @$ "#tag-list"
         @tagsView.el = @$("#tag-list").el
         @tagsView.render()
@@ -49,7 +52,7 @@ module.exports = class ContactsView extends CollectionView
 
         else
             true
-        
+
     onAddContactClicked: =>
         contactUrl = @newContactInput.val()
         data = url: contactUrl
@@ -67,7 +70,7 @@ module.exports = class ContactsView extends CollectionView
         view = new @view model
         @$el.append view.render().el
         @add view
-        
+
         if model.get("state") is "Trusted"
             for tag in @tagsView.collection.toArray()
                 view.addTag tag
@@ -80,3 +83,18 @@ module.exports = class ContactsView extends CollectionView
                 @collection.fetch()
             error: =>
                 alert "an error occured"
+
+    onTagSelected: (name) ->
+        @tagsView.$(".tag-select-button").removeClass 'selected'
+        if name is 'all' then @$('.contact-line').show()
+        else
+            @$('.contact-line').hide()
+            @$(".filter-#{name}").show()
+
+    onTagDeleted: (name) ->
+        @$(".contact-line").removeClass "tag-#{name}"
+        @$(".tag-#{name}").remove()
+
+    onTagAdded: (tag) =>
+        for view in @views when view.model.get('state') is 'Trusted'
+            view.addTag tag

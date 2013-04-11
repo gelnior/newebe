@@ -10,6 +10,10 @@ module.exports = class TagsView extends CollectionView
     collection: new Tags()
     view: TagView
     
+    constructor: (@contactsView) ->
+        super()
+        
+
     events:
         'keyup #new-tag-field': 'onNewTagKeyup'
         'click #new-tag-button': 'onNewTagClicked'
@@ -26,7 +30,7 @@ module.exports = class TagsView extends CollectionView
 
     renderOne: (model) =>
         if model.get('name') isnt 'all'
-            view = new @view model
+            view = new @view model, @
         else
             view = new TagAllView model, @
 
@@ -68,7 +72,11 @@ module.exports = class TagsView extends CollectionView
             @collection.create name: @newTagField.val(),
                 success: (tag) =>
                     @renderOne tag
+                    @contactsView.onTagAdded tag
                     @newTagField.val ''
+
+    onTagDeleted: (name) ->
+        @contactsView.onTagDeleted name
 
     isFull: ->
         @collection.length > 6
