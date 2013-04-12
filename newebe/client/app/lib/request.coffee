@@ -8,8 +8,8 @@ exports.request = (type, url, data, callback) ->
         contentType: "application/json"
         dataType: "json"
         success: (data) ->
-            callback(null, data) if callback?
-        error: ->
+            callback null, data if callback?
+        error: (data) ->
             if data? and data.msg? and callback?
                 callback new Error data.msg
             else if callback?

@@ -12,42 +12,41 @@ class ViewCollection extends View
     constructor: (options) ->
         super(options)
 
-        @collection.on "reset", @renderAll
+        @collection.on 'reset', @renderAll
 
     add: (views, options = {}) ->
-        views = if _.isArray(views) then views.slice() else [views]
+        views = if _.isArray views then views.slice() else [views]
         for view in views
             unless @get view.cid
                 @views.push view
-                @trigger('add', view, @) unless options.silent
+                @trigger 'add', view, @ unless options.silent
         @
 
     get: (cid) ->
         @find((view) -> view.cid is cid) or null
 
     remove: (views, options = {}) ->
-        views = if _.isArray(views) then views.slice() else [views]
+        views = if _.isArray views then views.slice() else [views]
         for view in views
             @destroy view
-            @trigger('remove', view, @) unless options.silent
+            @trigger 'remove', view, @ unless options.silent
         @
 
     destroy: (view = @, options = {}) ->
-        _views = @filter(_view) -> view.cid isnt _view.cid
-        @views = _views
+        @views = @filter(_view) -> view.cid isnt _view.cid
         view.undelegateEvents()
         view.$el.removeData().unbind()
         view.remove()
         Backbone.View::remove.call view
-        @trigger('remove', view, @) unless options.silent
+        @trigger 'remove', view, @ unless options.silent
         @
 
     reset: (views, options = {}) ->
-        views = if _.isArray(views) then views.slice() else [views]
-        @destroy(view, options) for view in @views
+        views = if _.isArray views then views.slice() else [views]
+        @destroy view, options for view in @views
         if views.length isnt 0
-            @add(view, options) for view in views
-            @trigger('reset', view, @) unless options.silent
+            @add view, options for view in views
+            @trigger 'reset', view, @ unless options.silent
         @
 
     renderOne: (model) =>
@@ -70,6 +69,6 @@ methods = ['forEach', 'each', 'map', 'reduce', 'reduceRight', 'find',
 # Mix in each Underscore method as a proxy to `ViewCollection#views`.
 _.each methods, (method) ->
     ViewCollection::[method] = ->
-        _[method].apply _, [@views].concat(_.toArray(arguments))
+        _[method].apply _, [@views].concat(_.toArray arguments)
 
 module.exports = ViewCollection
