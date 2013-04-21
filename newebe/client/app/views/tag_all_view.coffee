@@ -1,14 +1,11 @@
-View = require 'lib/view'
+TagView = require './tag_view'
 
-module.exports = class TagAllView extends View
+module.exports = class TagAllView extends TagView
     className: 'tag-selector tag-all'
 
     events:
         'click .tag-select-button': 'onSelectClicked'
         'click .tag-add-button': 'onAddClicked'
-
-    constructor: (@model, @tagsView) ->
-        super()
 
     afterRender: ->
         @addTagButton = @$('.tag-add-button')
@@ -17,9 +14,6 @@ module.exports = class TagAllView extends View
 
     template: ->
         require './templates/tag_all'
-
-    getRenderData: ->
-        model: @model?.toJSON()
 
     onSelectClicked: ->
         @publish 'tag:selected', 'all'

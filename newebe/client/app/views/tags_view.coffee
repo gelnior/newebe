@@ -9,15 +9,18 @@ module.exports = class TagsView extends CollectionView
 
     collection: new Tags()
     view: TagView
-    
+
     constructor: (@contactsView) ->
         super()
-        
 
     events:
         'keyup #new-tag-field': 'onNewTagKeyup'
         'click #new-tag-button': 'onNewTagClicked'
-    
+
+    template: ->
+        @$el = $ "##{@id}"
+        require './templates/tags'
+
     afterRender: ->
         @newTagField = @$ '#new-tag-field'
         @newTagButton = @$ '#new-tag-button'
@@ -44,9 +47,8 @@ module.exports = class TagsView extends CollectionView
             @newTagButton.show()
             @newTagField.focus()
 
-    template: ->
-        @$el = $ "##{@id}"
-        require './templates/tags'
+    isFull: ->
+        @collection.length > 6
 
     fetch: (callbacks) ->
         @$el = $ "##{@id}"
@@ -54,6 +56,7 @@ module.exports = class TagsView extends CollectionView
         @remove(@views) if @views.length > 0
         @collection.fetch callbacks
 
+    # prevent special chars in tags
     onNewTagKeypress: (event) =>
         key = event.which
         keychar = String.fromCharCode(key).toLowerCase()
@@ -77,6 +80,3 @@ module.exports = class TagsView extends CollectionView
 
     onTagDeleted: (name) ->
         @contactsView.onTagDeleted name
-
-    isFull: ->
-        @collection.length > 6

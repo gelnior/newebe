@@ -87,7 +87,7 @@ module.exports = class AppView extends View
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @micropostsView = @_addView MicropostsView
-        
+
         if userState.authenticated
             if callback?
                 callback()

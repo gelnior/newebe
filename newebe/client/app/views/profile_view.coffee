@@ -100,8 +100,8 @@ module.exports = class ProfileView extends View
 
         @passwordButton = @$ "#change-password-button"
         @confirmPasswordButton = @$ "#confirm-password-button"
-        @pictureButton = @$("#change-thumbnail-button")
-        @profilePicture = @$("#profile-picture")
+        @pictureButton = @$ "#change-thumbnail-button"
+        @profilePicture = @$ "#profile-picture"
         @fileUploader = new qq.FileUploader
             element: document.getElementById('change-picture-button')
             action: '/user/picture'
@@ -124,7 +124,7 @@ module.exports = class ProfileView extends View
 
     reloadPicture: ->
         now = new Date().getTime()
-        @profilePicture.attr "src", "user/picture.jpg?date=" + now
+        @profilePicture.attr "src", "user/picture.jpg?date=#{now}"
         true
 
     displaySesameForm: ->

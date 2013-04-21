@@ -6,6 +6,17 @@ Newebe.views ?= {}
 
 $ ->
 
+    $.fn.disable = ->
+        @each ->
+            $(@).prop 'disabled', true
+            $(@).addClass 'disabled'
+
+    $.fn.enable = ->
+        @each ->
+            $(@).prop 'disabled', false
+            $(@).removeClass 'disabled'
+
+
     # Load App Helpers
     require '../lib/app_helpers'
     AppRouter = require 'routers/app_router'
@@ -17,7 +28,7 @@ $ ->
 
     # Configure vendor stuff
     etch.config.default = etch.config.all
-    
+
     # Initialize Backbone History
     Backbone.history.start()
     if window.location.hash is ''

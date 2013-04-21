@@ -12,8 +12,7 @@ module.exports = class LoginView extends QuestionView
         @render()
 
     onServerResponse: (err, data) =>
-        if err
-            @field.val null
+        if err then @field.val null
         else
             @field.animate {boxShadow: '0'}, =>
                 Newebe.views.appView.displayHome()

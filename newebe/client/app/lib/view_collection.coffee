@@ -33,7 +33,7 @@ class ViewCollection extends View
         @
 
     destroy: (view = @, options = {}) ->
-        @views = @filter(_view) -> view.cid isnt _view.cid
+        _views = (@filter(_view) -> view.cid isnt _view.cid)
         view.undelegateEvents()
         view.$el.removeData().unbind()
         view.remove()
@@ -49,9 +49,13 @@ class ViewCollection extends View
             @trigger 'reset', view, @ unless options.silent
         @
 
-    renderOne: (model) =>
+    renderOne: (model, options) =>
         view = new @view model
-        @$el.append view.render().el
+
+        if options?.prepend
+            @$el.prepend view.render().el
+        else
+            @$el.append view.render().el
         @add view
         @
 

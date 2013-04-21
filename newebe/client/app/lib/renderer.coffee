@@ -16,4 +16,4 @@ module.exports = class Renderer
 
     renderDate: (dateString) ->
         date =  moment dateString, 'YYYY-MM-DDThh:mm:ssZ'
-        return date.format('D MMM  YYYY, hh:mm')
+        return date.format 'D MMM  YYYY, HH:mm'
