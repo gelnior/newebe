@@ -734,7 +734,7 @@ window.require.register("models/note", function(exports, require, module) {
       return NoteModel.__super__.constructor.apply(this, arguments);
     }
 
-    NoteModel.prototype.urlRoot = "notes/";
+    NoteModel.prototype.urlRoot = "notes/all/";
 
     return NoteModel;
 
@@ -1773,13 +1773,15 @@ window.require.register("views/note", function(exports, require, module) {
   
 });
 window.require.register("views/notes", function(exports, require, module) {
-  var CollectionView, NoteView, NotesCollection, NotesView,
+  var CollectionView, Note, NoteView, NotesCollection, NotesView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   CollectionView = require('../lib/view_collection');
 
   NotesCollection = require('../collections/notes');
+
+  Note = require('../models/note');
 
   NoteView = require('./note');
 
@@ -1797,12 +1799,30 @@ window.require.register("views/notes", function(exports, require, module) {
 
     NotesView.prototype.view = NoteView;
 
+    NotesView.prototype.events = {
+      'click #add-note': 'onAddNoteClicked'
+    };
+
     NotesView.prototype.template = function() {
       return require('./templates/notes');
     };
 
     NotesView.prototype.fetch = function() {
       return this.collection.fetch();
+    };
+
+    NotesView.prototype.onAddNoteClicked = function() {
+      var note;
+      note = new Note({
+        title: 'New note',
+        content: ''
+      });
+      return this.collection.create(note, {
+        success: function() {},
+        error: function() {
+          return alert('Note creation failed');
+        }
+      });
     };
 
     return NotesView;
@@ -2550,7 +2570,7 @@ window.require.register("views/templates/notes", function(exports, require, modu
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<button>add note</button><button>sort by date</button><button>sort by title</button>');
+  buf.push('<button id="add-note">add note</button><button id="sort-date-note">sort by date</button><button id="sort-title-note">sort by title</button>');
   }
   return buf.join("");
   };
