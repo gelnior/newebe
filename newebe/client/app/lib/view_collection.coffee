@@ -33,7 +33,7 @@ class ViewCollection extends View
         @
 
     destroy: (view = @, options = {}) ->
-        _views = (@filter(_view) -> view.cid isnt _view.cid)
+        _views = (@filter (_view) -> view.cid isnt _view.cid)
         view.undelegateEvents()
         view.$el.removeData().unbind()
         view.remove()

@@ -145,6 +145,28 @@ window.require.register("collections/contacts", function(exports, require, modul
   })(Backbone.Collection);
   
 });
+window.require.register("collections/notes", function(exports, require, module) {
+  var NotesCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = NotesCollection = (function(_super) {
+
+    __extends(NotesCollection, _super);
+
+    function NotesCollection() {
+      return NotesCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    NotesCollection.prototype.model = require('../models/note');
+
+    NotesCollection.prototype.url = 'notes/all/';
+
+    return NotesCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("collections/tags", function(exports, require, module) {
   var TagsCollection,
     __hasProp = {}.hasOwnProperty,
@@ -495,7 +517,7 @@ window.require.register("lib/view_collection", function(exports, require, module
       if (options == null) {
         options = {};
       }
-      _views = this.filter(_view)(function() {
+      _views = this.filter(function(_view) {
         return view.cid !== _view.cid;
       });
       view.undelegateEvents();
@@ -699,6 +721,26 @@ window.require.register("models/micropost", function(exports, require, module) {
   })(Model);
   
 });
+window.require.register("models/note", function(exports, require, module) {
+  var NoteModel,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = NoteModel = (function(_super) {
+
+    __extends(NoteModel, _super);
+
+    function NoteModel() {
+      return NoteModel.__super__.constructor.apply(this, arguments);
+    }
+
+    NoteModel.prototype.urlRoot = "notes/";
+
+    return NoteModel;
+
+  })(Backbone.Model);
+  
+});
 window.require.register("models/owner_model", function(exports, require, module) {
   var Model, Owner, request,
     __hasProp = {}.hasOwnProperty,
@@ -769,7 +811,7 @@ window.require.register("routers/app_router", function(exports, require, module)
     AppRouter.prototype.routes = {
       '': 'start',
       'activities': 'activities',
-      'microposts': 'microposts',
+      'notes': 'notes',
       'contacts': 'contacts',
       'profile': 'profile'
     };
@@ -790,10 +832,10 @@ window.require.register("routers/app_router", function(exports, require, module)
       });
     };
 
-    AppRouter.prototype.microposts = function() {
+    AppRouter.prototype.notes = function() {
       var _this = this;
       return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.micropostsView);
+        return _this.appView.changeSubView(_this.appView.notesView);
       });
     };
 
@@ -850,6 +892,8 @@ window.require.register("views/activities_view", function(exports, require, modu
       this.createNewPost = __bind(this.createNewPost, this);
 
       this.onMicropostFieldKeyup = __bind(this.onMicropostFieldKeyup, this);
+
+      this.onMicropostFieldKeydown = __bind(this.onMicropostFieldKeydown, this);
       return ActivitiesView.__super__.constructor.apply(this, arguments);
     }
 
@@ -863,6 +907,7 @@ window.require.register("views/activities_view", function(exports, require, modu
 
     ActivitiesView.prototype.events = {
       "keyup #micropost-field": "onMicropostFieldKeyup",
+      "keydown #micropost-field": "onMicropostFieldKeydown",
       "click #micropost-post-button": "createNewPost",
       "click #more-activities-button": "loadMoreActivities"
     };
@@ -877,23 +922,27 @@ window.require.register("views/activities_view", function(exports, require, modu
 
     ActivitiesView.prototype.fetch = function() {
       var _this = this;
-      this.isLoaded = true;
       return this.activityList.collection.fetch({
-        success: function() {
-          return _this.isLoaded = true;
+        success: function() {},
+        error: function() {
+          return alert('A server error occured while retrieving news feed');
         }
       });
+    };
+
+    ActivitiesView.prototype.onMicropostFieldKeydown = function(event) {
+      if (event.keyCode === 17) {
+        return this.isCtrl = true;
+      }
     };
 
     ActivitiesView.prototype.onMicropostFieldKeyup = function(event) {
       var keyCode;
       keyCode = event.which ? event.which : event.keyCode;
-      if (keyCode === 13) {
-        this.createNewPost();
-        event.preventDefault();
-        return false;
-      } else {
-        return true;
+      if (event.keyCode === 17) {
+        return this.isCtrl = false;
+      } else if (keyCode === 13 && this.isCtrl) {
+        return this.createNewPost();
       }
     };
 
@@ -1087,7 +1136,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1098,9 +1147,9 @@ window.require.register("views/app_view", function(exports, require, module) {
 
   ActivitiesView = require('./activities_view');
 
-  MicropostsView = require('./microposts_view');
-
   ContactsView = require('./contacts_view');
+
+  NotesView = require('./notes');
 
   ProfileView = require('./profile_view');
 
@@ -1165,16 +1214,16 @@ window.require.register("views/app_view", function(exports, require, module) {
       });
     };
 
-    AppView.prototype.onMicropostsClicked = function() {
-      return this.changeSubView(this.micropostsView);
-    };
-
     AppView.prototype.onActivitiesClicked = function() {
       return this.changeSubView(this.activitiesView);
     };
 
     AppView.prototype.onContactsClicked = function() {
       return this.changeSubView(this.contactsView);
+    };
+
+    AppView.prototype.onNotesClicked = function() {
+      return this.changeSubView(this.notesView);
     };
 
     AppView.prototype.displayProfile = function() {
@@ -1238,7 +1287,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       this.activitiesView = this._addView(ActivitiesView);
       this.contactsView = this._addView(ContactsView);
       this.profileView = this._addView(ProfileView);
-      this.micropostsView = this._addView(MicropostsView);
+      this.notesView = this._addView(NotesView);
       if (userState.authenticated) {
         if (callback != null) {
           callback();
@@ -1260,6 +1309,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       var view;
       view = new viewClass();
       view.hide();
+      console.log(view.el);
       this.home.append(view.el);
       return view;
     };
@@ -1284,23 +1334,22 @@ window.require.register("views/app_view", function(exports, require, module) {
     };
 
     AppView.prototype.changeSubView = function(subView, callback) {
-      var showView,
-        _this = this;
+      var _this = this;
       this.changeMenuState(subView);
-      showView = function() {
+      if (this.currentSubView != null) {
+        return this.currentSubView.fadeOut(function() {
+          _this.currentSubView = null;
+          return _this.changeSubView(subView, callback);
+        });
+      } else {
         subView.fadeIn();
-        _this.currentSubView = subView;
-        if (!_this.currentSubView.isLoaded && (_this.currentSubView.fetch != null)) {
-          _this.currentSubView.fetch();
+        this.currentSubView = subView;
+        if (!this.currentSubView.isLoaded && (this.currentSubView.fetch != null)) {
+          this.currentSubView.fetch();
         }
         if (callback != null) {
           return callback();
         }
-      };
-      if (this.currentSubView != null) {
-        return this.currentSubView.fadeOut(showView);
-      } else {
-        return showView();
       }
     };
 
@@ -1328,8 +1377,6 @@ window.require.register("views/app_view", function(exports, require, module) {
         return this.$("#activities-button").addClass("active");
       } else if (view === this.contactsView) {
         return this.$("#contacts-button").addClass("active");
-      } else if (view === this.micropostsView) {
-        return this.$("#microposts-button").addClass("active");
       } else if (view === this.profileView) {
         return this.$("#profile-button").addClass("active");
       }
@@ -1371,6 +1418,13 @@ window.require.register("views/contact_view", function(exports, require, module)
       return require('./templates/contact');
     };
 
+    ContactView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
     ContactView.prototype.afterRender = function() {
       if (this.model.get('state') !== 'Error') {
         this.$('.contact-retry-button').hide();
@@ -1378,13 +1432,6 @@ window.require.register("views/contact_view", function(exports, require, module)
       if (this.model.get('state') !== 'Wait for approval') {
         return this.$('.contact-accept-button').hide();
       }
-    };
-
-    ContactView.prototype.getRenderData = function() {
-      var _ref;
-      return {
-        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
-      };
     };
 
     ContactView.prototype.onDeleteClicked = function() {
@@ -1689,6 +1736,78 @@ window.require.register("views/microposts_view", function(exports, require, modu
     return MicropostsView;
 
   })(View);
+  
+});
+window.require.register("views/note", function(exports, require, module) {
+  var NoteView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = NoteView = (function(_super) {
+
+    __extends(NoteView, _super);
+
+    NoteView.prototype.className = 'note';
+
+    NoteView.prototype.template = function() {
+      return require('./templates/note');
+    };
+
+    function NoteView(model) {
+      this.model = model;
+      NoteView.__super__.constructor.call(this);
+    }
+
+    NoteView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    return NoteView;
+
+  })(View);
+  
+});
+window.require.register("views/notes", function(exports, require, module) {
+  var CollectionView, NoteView, NotesCollection, NotesView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  NotesCollection = require('../collections/notes');
+
+  NoteView = require('./note');
+
+  module.exports = NotesView = (function(_super) {
+
+    __extends(NotesView, _super);
+
+    function NotesView() {
+      return NotesView.__super__.constructor.apply(this, arguments);
+    }
+
+    NotesView.prototype.id = 'notes-view';
+
+    NotesView.prototype.collection = new NotesCollection();
+
+    NotesView.prototype.view = NoteView;
+
+    NotesView.prototype.template = function() {
+      return require('./templates/notes');
+    };
+
+    NotesView.prototype.fetch = function() {
+      return this.collection.fetch();
+    };
+
+    return NotesView;
+
+  })(CollectionView);
   
 });
 window.require.register("views/profile_view", function(exports, require, module) {
@@ -2398,7 +2517,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" href="#activities" class="active">news feed</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" href="#activities" class="active">news feed</a></li><li><a id="activities-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };
@@ -2410,6 +2529,28 @@ window.require.register("views/templates/microposts", function(exports, require,
   with (locals || {}) {
   var interp;
   buf.push('<div class="pa1"><textarea id="micropost-field"></textarea></div><div class="pa1"><button id="micropost-post-button">send</button></div><h1>all</h1><div id="microposts-all"></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/note", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="note-line">' + escape((interp = model) == null ? '' : interp) + '</div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/notes", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<button>add note</button><button>sort by date</button><button>sort by title</button>');
   }
   return buf.join("");
   };

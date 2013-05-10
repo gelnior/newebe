@@ -9,7 +9,7 @@
             "to": "app/views/{{name}}.coffee"
         },
         {
-            "from": "collections.coffee.hbs",
+            "from": "collection.coffee.hbs",
             "to": "app/collections/{{name}}s.coffee"
         },
         {

@@ -11,6 +11,7 @@ module.exports = class ActivitiesView extends View
 
     events:
         "keyup #micropost-field": "onMicropostFieldKeyup"
+        "keydown #micropost-field": "onMicropostFieldKeydown"
         "click #micropost-post-button": "createNewPost"
         "click #more-activities-button": "loadMoreActivities"
 
@@ -20,19 +21,19 @@ module.exports = class ActivitiesView extends View
         @micropostField = @$ "#micropost-field"
 
     fetch: ->
-        @isLoaded = true
         @activityList.collection.fetch
             success: =>
-                @isLoaded = true
+            error: =>
+                alert 'A server error occured while retrieving news feed'
+
+    onMicropostFieldKeydown: (event) =>
+        if event.keyCode is 17 then @isCtrl = true
 
     onMicropostFieldKeyup: (event) =>
         keyCode = if event.which then event.which else event.keyCode
-        if keyCode is 13
-            @createNewPost()
-            event.preventDefault()
-            false
-        else
-            true
+
+        if event.keyCode is 17 then @isCtrl = false
+        else if keyCode is 13 and @isCtrl then @createNewPost()
 
     createNewPost: =>
         content = @micropostField.val()

@@ -1,8 +1,8 @@
 View = require '../lib/view'
 AppRouter = require '../routers/app_router'
 ActivitiesView = require './activities_view'
-MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
+NotesView = require './notes'
 ProfileView = require './profile_view'
 LoginView = require './login_view'
 RegisterNameView = require './register_name_view'
@@ -30,11 +30,11 @@ module.exports = class AppView extends View
                 Newebe.routers.appRouter.navigate ''
                 @displayLogin()
 
-    onMicropostsClicked: -> @changeSubView @micropostsView
-
     onActivitiesClicked: -> @changeSubView @activitiesView
 
     onContactsClicked: -> @changeSubView @contactsView
+
+    onNotesClicked: -> @changeSubView @notesView
 
     displayProfile: => @changeSubView @profileView
 
@@ -86,7 +86,7 @@ module.exports = class AppView extends View
         @activitiesView = @_addView ActivitiesView
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
-        @micropostsView = @_addView MicropostsView
+        @notesView = @_addView NotesView
 
         if userState.authenticated
             if callback?
@@ -104,8 +104,10 @@ module.exports = class AppView extends View
         @isLoaded = true
 
     _addView: (viewClass) =>
-        view= new viewClass()
+        view = new viewClass()
         view.hide()
+        console.log view.el
+
         @home.append view.el
         view
 
@@ -124,17 +126,16 @@ module.exports = class AppView extends View
 
     changeSubView: (subView, callback) =>
         @changeMenuState subView
-        showView = =>
+        if @currentSubView?
+            @currentSubView.fadeOut =>
+                @currentSubView = null
+                @changeSubView subView, callback
+        else
             subView.fadeIn()
             @currentSubView = subView
             if not @currentSubView.isLoaded and @currentSubView.fetch?
                 @currentSubView.fetch()
             callback() if callback?
-
-        if @currentSubView?
-            @currentSubView.fadeOut showView
-        else
-            showView()
 
     # Little function to change current view in a smooth way by using fade in
     # and out effects.
@@ -154,7 +155,5 @@ module.exports = class AppView extends View
             @$("#activities-button").addClass "active"
         else if view is @contactsView
             @$("#contacts-button").addClass "active"
-        else if view is @micropostsView
-            @$("#microposts-button").addClass "active"
         else if view is @profileView
             @$("#profile-button").addClass "active"

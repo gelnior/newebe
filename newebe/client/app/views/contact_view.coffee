@@ -12,17 +12,16 @@ module.exports = class ContactView extends View
     constructor: (@model) ->
         super()
 
-    template: ->
-        require('./templates/contact')
+    template: -> require './templates/contact'
+
+    getRenderData: ->
+        model: @model?.toJSON()
 
     afterRender: ->
         if @model.get('state') isnt 'Error'
             @$('.contact-retry-button').hide()
         if @model.get('state') isnt 'Wait for approval'
             @$('.contact-accept-button').hide()
-
-    getRenderData: ->
-        model: @model?.toJSON()
 
     onDeleteClicked: ->
         @model.destroy
