@@ -2346,6 +2346,9 @@ textarea:hover {
   background: #ad2bad;
   color: #fff;
 }
+.simple-row {
+  border-top: 1px solid #ddd;
+}
 @-moz-keyframes fadein {
   0% {
     opacity: 0;
@@ -2641,6 +2644,30 @@ cursor not-allowed {
   .layout-container {
     width: 1170px;
   }
+}
+.note-buttons {
+  display: none;
+}
+.note button {
+  margin-left: 0;
+  padding: 5px;
+  font-size: 12px;
+}
+.note p {
+  margin: 3px 0;
+}
+.note:hover {
+  background: #f5f0fa;
+}
+.note.selected {
+  background: #ebf5ff;
+}
+.note-content {
+  height: 100%;
+  width: 100%;
+}
+.note-content:hover {
+  border: 1px solid #ad2bad;
 }
 iframe {
   border: 0;

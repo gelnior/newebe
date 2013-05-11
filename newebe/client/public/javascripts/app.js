@@ -162,6 +162,10 @@ window.require.register("collections/notes", function(exports, require, module) 
 
     NotesCollection.prototype.url = 'notes/all/';
 
+    NotesCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
     return NotesCollection;
 
   })(Backbone.Collection);
@@ -1739,17 +1743,24 @@ window.require.register("views/microposts_view", function(exports, require, modu
   
 });
 window.require.register("views/note", function(exports, require, module) {
-  var NoteView, View,
+  var NoteView, Renderer, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('../lib/view');
 
+  Renderer = require('../lib/renderer');
+
   module.exports = NoteView = (function(_super) {
 
     __extends(NoteView, _super);
 
-    NoteView.prototype.className = 'note';
+    NoteView.prototype.className = 'note simple-row line ml1 mr1 pt1 pb1';
+
+    NoteView.prototype.events = {
+      'click': 'onClicked',
+      'click .note-delete-button': 'onDeleteClicked'
+    };
 
     NoteView.prototype.template = function() {
       return require('./templates/note');
@@ -1760,11 +1771,56 @@ window.require.register("views/note", function(exports, require, module) {
       NoteView.__super__.constructor.call(this);
     }
 
+    NoteView.prototype.afterRender = function() {
+      var renderer,
+        _this = this;
+      this.buttons = this.$('.note-buttons');
+      this.buttons.hide();
+      renderer = new Renderer();
+      if (this.model.get('content').length === 0) {
+        this.model.set('content', 'Empty note');
+      }
+      this.model.set('displayDate', renderer.renderDate(this.model.get('lastModified')));
+      this.contentField = this.$("#profile-description");
+      this.converter = new Showdown.converter();
+      if (this.model.get("content").length > 0) {
+        this.descriptionField.html(this.converter.makeHtml(this.model.get('description')));
+      } else {
+        this.descriptionField.html("your description");
+      }
+      this.descriptionField.keyup(function() {
+        return _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+      });
+      return this.model.bind('save', function() {
+        _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+        return _this.model.save;
+      });
+    };
+
     NoteView.prototype.getRenderData = function() {
       var _ref;
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
       };
+    };
+
+    NoteView.prototype.onClicked = function() {
+      $('.note').removeClass('selected');
+      $('.note-buttons').hide();
+      this.$el.addClass('selected');
+      return this.buttons.show();
+    };
+
+    NoteView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
     };
 
     return NoteView;
@@ -1805,6 +1861,15 @@ window.require.register("views/notes", function(exports, require, module) {
 
     NotesView.prototype.template = function() {
       return require('./templates/notes');
+    };
+
+    NotesView.prototype.afterRender = function() {
+      var _this = this;
+      return this.collection.on('add', function(model) {
+        return _this.renderOne(model, {
+          prepend: true
+        });
+      });
     };
 
     NotesView.prototype.fetch = function() {
@@ -2021,8 +2086,8 @@ window.require.register("views/profile_view", function(exports, require, module)
     ProfileView.prototype.editableClick = etch.editableInit;
 
     ProfileView.prototype.reloadPicture = function() {
-      var now;
-      now = new Date().getTime();
+      var nw;
+      nw = new Date().getTime();
       this.profilePicture.attr("src", "user/picture.jpg?date=" + now);
       return true;
     };
@@ -2559,7 +2624,7 @@ window.require.register("views/templates/note", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="note-line">' + escape((interp = model) == null ? '' : interp) + '</div>');
+  buf.push('<div class="mod w50"><div class="line">' + escape((interp = model.title) == null ? '' : interp) + '</div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div class="mod w50 content-note">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
   }
   return buf.join("");
   };

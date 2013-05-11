@@ -15,6 +15,10 @@ module.exports = class NotesView extends CollectionView
     template: ->
         require './templates/notes'
 
+    afterRender: ->
+        @collection.on 'add', (model) =>
+            @renderOne model, prepend: true
+
     fetch: ->
         @collection.fetch()
 

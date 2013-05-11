@@ -1,1 +1,10 @@
-.note-line #{model}
+.mod.w50
+    .line #{model.title}
+    .line
+        span.date.smaller #{model.displayDate}
+        
+    .line
+        .note-buttons
+            button.note-delete-button delete
+
+.mod.w50.content-note #{model.content}

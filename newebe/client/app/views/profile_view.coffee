@@ -123,7 +123,7 @@ module.exports = class ProfileView extends View
     editableClick: etch.editableInit
 
     reloadPicture: ->
-        now = new Date().getTime()
+        nw = new Date().getTime()
         @profilePicture.attr "src", "user/picture.jpg?date=#{now}"
         true
 
