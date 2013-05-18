@@ -1,6 +1,5 @@
 import datetime
 import logging
-import markdown
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
@@ -47,6 +46,35 @@ class ContactUpdateHandler(NewebeHandler):
             else:
                 self.return_failure(
                         "No contact found corresponding to given contact", 404)
+
+        else:
+            self.return_failure("Empty data or missing field.")
+
+
+class ContactPictureUpdateHandler(NewebeHandler):
+
+    def put(self):
+        '''
+        When a put request is received, contact thumbnail is expected.
+        If contact key is one of the trusted contact key, its data are updated
+        with received ones.
+        '''
+
+        picfile = self.request.files['small_picture'][0]
+        contactKey = self.get_argument("key")
+
+        if picfile and contactKey:
+            contact = ContactManager.getTrustedContact(contactKey)
+
+            if contact:
+                contact.save()
+                contact.put_attachment(content=picfile["body"],
+                                       name="small_picture.jpg")
+                contact.save()
+                self.return_success("Contact picture successfully modified.")
+            else:
+                self.return_failure(
+                    "No contact found corresponding to given contact", 404)
 
         else:
             self.return_failure("Empty data or missing field.")
@@ -141,7 +169,8 @@ class ContactHandler(NewebeAuthHandler):
                 except:
                     self.contact.state = STATE_ERROR
                     self.contact.save()
-                    self.return_failure("Error occurs while confirming contact.")
+                    self.return_failure(
+                        "Error occurs while confirming contact.")
 
             elif tags != None:
                 self.contact.tags = tags
@@ -165,6 +194,16 @@ class ContactHandler(NewebeAuthHandler):
             newebeResponse = json_decode(incomingData)
             if not newebeResponse["success"]:
                 raise Exception()
+
+            user = UserManager.getUser()
+            picture = user.fetch_attachment("small_picture.jpg")
+            import pdb
+            pdb.set_trace()
+            self.send_files_to_contact(self.contact,
+                "contact/update-profile/picture/",
+                fields={"key": user.key},
+                files=[("small_picture", "small_picture.jpg", picture)]
+            )
 
             self.return_success("Contact trusted.")
         except:
@@ -395,6 +434,8 @@ class ContactConfirmHandler(NewebeHandler):
                 contact.key = data["key"]
                 contact.name = data["name"]
                 contact.save()
+
+                self.send_picture_to_contact(contact)
                 self.return_success("Contact trusted.")
 
             else:
@@ -403,32 +444,17 @@ class ContactConfirmHandler(NewebeHandler):
         else:
             self.return_failure("Sent data are incorrects.", 400)
 
-
-class ContactRenderTHandler(NewebeAuthHandler):
-    '''
-    * GET: returns an HTML representation of contact corresponding to given
-    ID. If ID is equal to null Newebe owner representation is returned.
-    '''
-
-    def get(self, key):
-        '''
-        Returns an HTML representation of contact corresponding to given
-        ID. If ID is equal to null Newebe owner representation is returned.
-        '''
-
-        if key == "null" or key == UserManager.getUser().key:
-            contact = UserManager.getUser().asContact()
-        else:
-            contact = ContactManager.getTrustedContact(key)
-
-        if contact:
-            if contact.description:
-                contact.description = markdown.markdown(contact.description)
-
-            self.render("templates/contact_render.html",
-                            contact=contact)
-        else:
-            return self.return_failure("Contact not found.", 404)
+    def send_picture_to_contact(self, contact):
+        user = UserManager.getUser()
+        picture = user.fetch_attachment("small_picture.jpg")
+        import pdb
+        pdb.set_trace()
+        self.send_files_to_contact(
+            contact,
+            "contact/update-profile/picture/",
+            fields={"key": user.key},
+            files=[("smallpicture", "smallpicture.jpg", picture)]
+        )
 
 
 class ContactTagsHandler(NewebeAuthHandler):

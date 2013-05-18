@@ -55,7 +55,6 @@ class ProfileUpdater:
                     method="PUT",
                     body=jsonbody,
                     validate_cert=False)
-
                 response = client.fetch(request)
 
                 if response.error:
@@ -161,4 +160,12 @@ class ProfilePictureHandler(NewebeAuthHandler):
         user.picture_content_type = filetype
         user.save()
         self.return_success("File uploaded")
+
+        self.send_files_to_contacts(
+            "contact/update-profile/picture/",
+            fields={"key": user.key},
+            files=[("small_picture", "small_picture.jpg", small_picture)]
+        )
+
+
 

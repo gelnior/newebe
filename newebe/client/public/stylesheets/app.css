@@ -2648,25 +2648,38 @@ cursor not-allowed {
 .note-buttons {
   display: none;
 }
-.note button {
+#notes-view .note button {
   margin-left: 0;
   padding: 5px;
   font-size: 12px;
 }
-.note p {
+#notes-view .note p {
   margin: 3px 0;
 }
-.note:hover {
+#notes-view .note .note-title {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  padding-left: 0;
+  border-bottom: 1px solid transparent;
+}
+#notes-view .note .note-title:hover {
+  border-bottom: 1px solid #d82545;
+}
+#notes-view .note .note-title:active,
+#notes-view .note .note-title:focus {
+  border-bottom: 1px solid #ad2bad;
+}
+#notes-view .note:hover {
   background: #f5f0fa;
 }
-.note.selected {
+#notes-view .note.selected {
   background: #ebf5ff;
 }
-.note-content {
+#notes-view .note-content {
   height: 100%;
   width: 100%;
 }
-.note-content:hover {
+#notes-view .note-content:hover {
   border: 1px solid #ad2bad;
 }
 iframe {

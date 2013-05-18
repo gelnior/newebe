@@ -38,6 +38,8 @@ def encode_multipart_formdata(fields, files,
         CRLF = '\r\n'
         L = []
 
+        import pdb
+        pdb.set_trace()
         if isinstance(fields, dict):
             fields = fields.items()
 

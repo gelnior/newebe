@@ -287,6 +287,22 @@ class NewebeHandler(RequestHandler):
                 self.activity.save()
 
     @asynchronous
+    def send_files_to_contact(self, contact, path, fields, files):
+        '''
+        Sends in a form given file and fields to given contact (at given
+        path).
+        '''
+
+        if not hasattr(self, "activity"):
+            self.activity = None
+        client = ContactClient(self.activity)
+        try:
+            client.post_files(contact, path, fields=fields, files=files)
+        except HTTPError:
+            self.activity.add_error(contact)
+            self.activity.save()
+
+    @asynchronous
     def send_files_to_contacts(self, path, fields, files, tag=None):
         '''
         Sends in a form given file and fields to all trusted contacts (at given

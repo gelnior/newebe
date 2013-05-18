@@ -726,9 +726,11 @@ window.require.register("models/micropost", function(exports, require, module) {
   
 });
 window.require.register("models/note", function(exports, require, module) {
-  var NoteModel,
+  var Model, NoteModel,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Model = require('../lib/model');
 
   module.exports = NoteModel = (function(_super) {
 
@@ -740,9 +742,11 @@ window.require.register("models/note", function(exports, require, module) {
 
     NoteModel.prototype.urlRoot = "notes/all/";
 
+    NoteModel.prototype.idAttribute = '_id';
+
     return NoteModel;
 
-  })(Backbone.Model);
+  })(Model);
   
 });
 window.require.register("models/owner_model", function(exports, require, module) {
@@ -1759,8 +1763,12 @@ window.require.register("views/note", function(exports, require, module) {
 
     NoteView.prototype.events = {
       'click': 'onClicked',
-      'click .note-delete-button': 'onDeleteClicked'
+      'click .note-delete-button': 'onDeleteClicked',
+      'mousedown .editable': 'editableClick',
+      "keyup .note-title": "onNoteChanged"
     };
+
+    NoteView.prototype.editableClick = etch.editableInit;
 
     NoteView.prototype.template = function() {
       return require('./templates/note');
@@ -1776,23 +1784,26 @@ window.require.register("views/note", function(exports, require, module) {
         _this = this;
       this.buttons = this.$('.note-buttons');
       this.buttons.hide();
+      this.contentField = this.$('.content-note');
+      this.contentField.hide();
+      this.model.bindField('title', this.$(".note-title"));
       renderer = new Renderer();
       if (this.model.get('content').length === 0) {
         this.model.set('content', 'Empty note');
       }
       this.model.set('displayDate', renderer.renderDate(this.model.get('lastModified')));
-      this.contentField = this.$("#profile-description");
       this.converter = new Showdown.converter();
       if (this.model.get("content").length > 0) {
-        this.descriptionField.html(this.converter.makeHtml(this.model.get('description')));
+        this.contentField.html(this.converter.makeHtml(this.model.get('content')));
       } else {
-        this.descriptionField.html("your description");
+        this.contentField.html("new note content");
       }
-      this.descriptionField.keyup(function() {
-        return _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+      this.contentField.keyup(function() {
+        _this.model.set("content", toMarkdown(_this.contentField.html()));
+        return _this.onNoteChanged();
       });
       return this.model.bind('save', function() {
-        _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+        _this.model.set("content", toMarkdown(_this.contentField.html()));
         return _this.model.save;
       });
     };
@@ -1804,11 +1815,17 @@ window.require.register("views/note", function(exports, require, module) {
       };
     };
 
+    NoteView.prototype.onNoteChanged = function() {
+      return this.model.save();
+    };
+
     NoteView.prototype.onClicked = function() {
       $('.note').removeClass('selected');
       $('.note-buttons').hide();
+      $('.content-field').hide();
       this.$el.addClass('selected');
-      return this.buttons.show();
+      this.buttons.show();
+      return this.contentField.show();
     };
 
     NoteView.prototype.onDeleteClicked = function() {
@@ -2624,7 +2641,9 @@ window.require.register("views/templates/note", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="mod w50"><div class="line">' + escape((interp = model.title) == null ? '' : interp) + '</div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div class="mod w50 content-note">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
+  buf.push('<div class="mod w33 left"><div class="line"> <input');
+  buf.push(attrs({ 'type':("text"), 'value':("" + (model.title) + ""), "class": ('note-title') }, {"type":true,"value":true}));
+  buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
   }
   return buf.join("");
   };

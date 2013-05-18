@@ -315,9 +315,9 @@ class PictureFileHandler(NewebeAuthHandler):
         Returns file linked to given picture.
         '''
         try:
-            file = picture.fetch_attachment(self.filename)
+            picfile = picture.fetch_attachment(self.filename)
             self.set_header("Content-Type", picture.contentType)
-            self.write(file)
+            self.write(picfile)
             self.finish()
         except ResourceNotFound:
             self.return_failure("Picture not found.", 404)
@@ -498,7 +498,7 @@ class PictureRotateHandler(PictureObjectHandler):
             os.remove(file_path)
 
         self.return_success('Image rotated')
-            
+
 
 class PictureRetryHandler(NewebeAuthHandler):
 
@@ -566,7 +566,7 @@ class PictureRetryHandler(NewebeAuthHandler):
                     date=date_util.get_date_from_db_date(date)
                 )
 
-                info = "Attemp to resend a picture deletion to contact: {}."
+                info = "Attempt to resend a picture deletion to contact: {}."
                 logger.info(info.format(contact.name))
 
                 self.forward_to_contact(picture, contact, activity,
@@ -619,45 +619,3 @@ class PictureRetryHandler(NewebeAuthHandler):
 
         except:
             self.return_failure("Picture resend to a contact failed again.")
-
-
-class PictureRowsTHandler(NewebeAuthHandler):
-    '''
-    This handler handles requests that retrieve last posted pictures.
-
-    * GET: Retrieves all pictures ordered by title.
-    * POST: Create a picture.
-    '''
-
-    def get(self, startKey=None):
-        '''
-        Returns last posted pictures.  If *startKey* is provided, it returns
-        last picture posted until *startKey*.
-        '''
-
-        get_doc = PictureManager.get_last_pictures
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            docs = get_doc(dateString)
-        else:
-            docs = get_doc()
-
-        self.render("templates/picture_rows.html", pictures=docs)
-
-
-# Template handlers
-
-class PicturesTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures.html",
-                    isTheme=self.is_file_theme_exists())
-
-
-class PicturesTestsTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures_tests.html")
-
-
-class PicturesContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures_content.html")

@@ -1,24 +1,37 @@
 .note-buttons 
     display: none
 
-.note button
-    margin-left: 0
-    padding: 5px
-    font-size: 12px
+#notes-view
+    .note
+        button
+            margin-left: 0
+            padding: 5px
+            font-size: 12px
 
-.note p
-    margin: 3px 0
+        p
+            margin: 3px 0
 
-.note:hover
-    background: #F5F0FA
+        .note-title
+            border-radius: 0
+            padding-left: 0
+            border-bottom: 1px solid transparent
 
-.note.selected
-    background: blue + 40%
+        .note-title:hover
+            border-bottom: 1px solid red
 
-.note-content
-    height: 100%
-    width: 100%
+        .note-title:active
+        .note-title:focus
+            border-bottom: 1px solid purple
 
-.note-content:hover
-    border: 1px solid purple
+    .note:hover
+        background: #F5F0FA
 
+    .note.selected
+        background: blue + 40%
+
+    .note-content
+        height: 100%
+        width: 100%
+
+    .note-content:hover
+        border: 1px solid purple

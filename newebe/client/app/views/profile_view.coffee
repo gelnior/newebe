@@ -77,7 +77,6 @@ module.exports = class ProfileView extends View
 
 
     afterRender: ->
-
         @sesameForm = @$ "#sesame-form"
         @profileSesameField = @$ "#profile-sesame-field"
         @profileNameField = @$ "#profile-name-field"
