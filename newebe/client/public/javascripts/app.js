@@ -2145,7 +2145,8 @@ window.require.register("views/profile_view", function(exports, require, module)
         this.descriptionField.html("your description");
       }
       this.descriptionField.keyup(function() {
-        return _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+        _this.model.set("description", toMarkdown(_this.descriptionField.html()));
+        return _this.model.save();
       });
       this.model.bind('save', function() {
         _this.model.set("description", toMarkdown(_this.descriptionField.html()));

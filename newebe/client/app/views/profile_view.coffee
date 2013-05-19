@@ -93,6 +93,7 @@ module.exports = class ProfileView extends View
             @descriptionField.html "your description"
         @descriptionField.keyup =>
             @model.set "description", toMarkdown(@descriptionField.html())
+            @model.save()
         @model.bind 'save', =>
             @model.set "description", toMarkdown(@descriptionField.html())
             @model.save
