@@ -26,10 +26,14 @@ class ViewCollection extends View
         @find((view) -> view.cid is cid) or null
 
     remove: (views, options = {}) ->
-        views = if _.isArray views then views.slice() else [views]
-        for view in views
-            @destroy view
-            @trigger 'remove', view, @ unless options.silent
+        if views?
+            views = if _.isArray views then views.slice() else [views]
+            for view in views
+                @destroy view
+                @trigger 'remove', view, @ unless options.silent
+        else
+            console.log "no view given in parameters of CollectionView.remove()"
+
         @
 
     destroy: (view = @, options = {}) ->
@@ -51,7 +55,6 @@ class ViewCollection extends View
 
     renderOne: (model, options) =>
         view = new @view model
-
         if options?.prepend
             @$el.prepend view.render().el
         else

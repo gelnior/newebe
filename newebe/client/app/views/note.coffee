@@ -46,13 +46,12 @@ module.exports = class NoteView extends View
         model: @model?.toJSON()
 
     onNoteChanged: ->
-
         @model.save()
 
     onClicked: ->
         $('.note').removeClass 'selected'
         $('.note-buttons').hide()
-        $('.content-field').hide()
+        $('.content-note').hide()
         @$el.addClass 'selected'
         @buttons.show()
         @contentField.show()
@@ -61,3 +60,9 @@ module.exports = class NoteView extends View
         @model.destroy
             success: => @remove()
             error: => alert 'server error occured'
+
+    emptyTitle: ->
+        @$(".note-title").val ''
+
+    focusTitle: ->
+        @$(".note-title").focus()
