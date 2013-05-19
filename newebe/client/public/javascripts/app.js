@@ -502,13 +502,17 @@ window.require.register("lib/view_collection", function(exports, require, module
       if (options == null) {
         options = {};
       }
-      views = _.isArray(views) ? views.slice() : [views];
-      for (_i = 0, _len = views.length; _i < _len; _i++) {
-        view = views[_i];
-        this.destroy(view);
-        if (!options.silent) {
-          this.trigger('remove', view, this);
+      if (views != null) {
+        views = _.isArray(views) ? views.slice() : [views];
+        for (_i = 0, _len = views.length; _i < _len; _i++) {
+          view = views[_i];
+          this.destroy(view);
+          if (!options.silent) {
+            this.trigger('remove', view, this);
+          }
         }
+      } else {
+        console.log("no view given in parameters of CollectionView.remove()");
       }
       return this;
     };
@@ -1157,7 +1161,7 @@ window.require.register("views/app_view", function(exports, require, module) {
 
   ContactsView = require('./contacts_view');
 
-  NotesView = require('./notes');
+  NotesView = require('./notes_view');
 
   ProfileView = require('./profile_view');
 
@@ -1822,7 +1826,7 @@ window.require.register("views/note", function(exports, require, module) {
     NoteView.prototype.onClicked = function() {
       $('.note').removeClass('selected');
       $('.note-buttons').hide();
-      $('.content-field').hide();
+      $('.content-note').hide();
       this.$el.addClass('selected');
       this.buttons.show();
       return this.contentField.show();
@@ -1840,21 +1844,27 @@ window.require.register("views/note", function(exports, require, module) {
       });
     };
 
+    NoteView.prototype.emptyTitle = function() {
+      return this.$(".note-title").val('');
+    };
+
+    NoteView.prototype.focusTitle = function() {
+      return this.$(".note-title").focus();
+    };
+
     return NoteView;
 
   })(View);
   
 });
 window.require.register("views/notes", function(exports, require, module) {
-  var CollectionView, Note, NoteView, NotesCollection, NotesView,
+  var CollectionView, NoteView, NotesCollection, NotesView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   CollectionView = require('../lib/view_collection');
 
   NotesCollection = require('../collections/notes');
-
-  Note = require('../models/note');
 
   NoteView = require('./note');
 
@@ -1866,15 +1876,11 @@ window.require.register("views/notes", function(exports, require, module) {
       return NotesView.__super__.constructor.apply(this, arguments);
     }
 
-    NotesView.prototype.id = 'notes-view';
+    NotesView.prototype.el = '#notes';
 
     NotesView.prototype.collection = new NotesCollection();
 
     NotesView.prototype.view = NoteView;
-
-    NotesView.prototype.events = {
-      'click #add-note': 'onAddNoteClicked'
-    };
 
     NotesView.prototype.template = function() {
       return require('./templates/notes');
@@ -1882,9 +1888,11 @@ window.require.register("views/notes", function(exports, require, module) {
 
     NotesView.prototype.afterRender = function() {
       var _this = this;
+      this.$el = $("#notes");
       return this.collection.on('add', function(model) {
+        _this.$el = $("#notes");
         return _this.renderOne(model, {
-          prepend: true
+          prepend: false
         });
       });
     };
@@ -1893,23 +1901,98 @@ window.require.register("views/notes", function(exports, require, module) {
       return this.collection.fetch();
     };
 
-    NotesView.prototype.onAddNoteClicked = function() {
-      var note;
-      note = new Note({
-        title: 'New note',
-        content: ''
-      });
-      return this.collection.create(note, {
-        success: function() {},
+    NotesView.prototype.addNote = function(note) {
+      this.collection.url = "notes/all/";
+      this.collection.create(note, {
+        silent: true,
+        success: function() {
+          this.$el = $("#notes");
+          return this.renderOne(model, {
+            prepend: true
+          });
+        },
         error: function() {
           return alert('Note creation failed');
         }
       });
+      this.last().onClicked();
+      this.last().emptyTitle();
+      return this.last().focusTitle();
+    };
+
+    NotesView.prototype.sortByDate = function() {
+      this.remove(this.views);
+      this.collection.reset();
+      this.collection.url = "notes/all/order-by-date/";
+      return this.collection.fetch();
+    };
+
+    NotesView.prototype.sortByTitle = function() {
+      this.remove(this.views);
+      this.collection.reset();
+      this.collection.url = "notes/all/order-by-title/";
+      return this.collection.fetch();
     };
 
     return NotesView;
 
   })(CollectionView);
+  
+});
+window.require.register("views/notes_view", function(exports, require, module) {
+  var Note, NotesMainView, NotesView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  NotesView = require('./notes');
+
+  Note = require('../models/note');
+
+  module.exports = NotesMainView = (function(_super) {
+
+    __extends(NotesMainView, _super);
+
+    function NotesMainView() {
+      return NotesMainView.__super__.constructor.apply(this, arguments);
+    }
+
+    NotesMainView.prototype.id = 'notes-view';
+
+    NotesMainView.prototype.events = {
+      'click #add-note': 'onAddNoteClicked',
+      'click #sort-date-note': 'onSortDateClicked',
+      'click #sort-title-note': 'onSortTitleClicked'
+    };
+
+    NotesMainView.prototype.template = function() {
+      return require('./templates/notes_view');
+    };
+
+    NotesMainView.prototype.afterRender = function() {
+      this.notesView = new NotesView();
+      return this.notesView.fetch();
+    };
+
+    NotesMainView.prototype.onAddNoteClicked = function() {
+      return this.notesView.addNote(new Note({
+        title: 'New note',
+        content: ''
+      }));
+    };
+
+    NotesMainView.prototype.onSortDateClicked = function() {
+      return this.notesView.sortByDate();
+    };
+
+    NotesMainView.prototype.onSortTitleClicked = function() {
+      return this.notesView.sortByTitle();
+    };
+
+    return NotesMainView;
+
+  })(View);
   
 });
 window.require.register("views/profile_view", function(exports, require, module) {
@@ -2643,7 +2726,7 @@ window.require.register("views/templates/note", function(exports, require, modul
   var interp;
   buf.push('<div class="mod w33 left"><div class="line"> <input');
   buf.push(attrs({ 'type':("text"), 'value':("" + (model.title) + ""), "class": ('note-title') }, {"type":true,"value":true}));
-  buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
+  buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div data-button-class="all" class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
   }
   return buf.join("");
   };
@@ -2654,7 +2737,17 @@ window.require.register("views/templates/notes", function(exports, require, modu
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<button id="add-note">add note</button><button id="sort-date-note">sort by date</button><button id="sort-title-note">sort by title</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/notes_view", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<button id="add-note">add note</button><button id="sort-date-note">sort by date</button><button id="sort-title-note">sort by title</button><div id="notes"></div>');
   }
   return buf.join("");
   };
