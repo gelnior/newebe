@@ -12,11 +12,6 @@ module.exports = class NotesView extends CollectionView
         require './templates/notes'
 
     afterRender: ->
-        @$el = $("#notes")
-
-        @collection.on 'add', (model) =>
-            @$el = $("#notes")
-            @renderOne model, prepend: false
 
     fetch: ->
         @collection.fetch()
@@ -25,8 +20,7 @@ module.exports = class NotesView extends CollectionView
         @collection.url = "notes/all/"
         @collection.create note,
             silent: true
-            success: ->
-                @$el = $("#notes")
+            success: (model) ->
                 @renderOne model, prepend: true
             error: -> alert 'Note creation failed'
         @last().onClicked()

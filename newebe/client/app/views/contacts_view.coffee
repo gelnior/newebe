@@ -22,10 +22,8 @@ module.exports = class ContactsView extends CollectionView
 
     afterRender: ->
         @isLoaded = false
-        @tagsView = new TagsView @
-        @tagsView.$el = @$ "#tag-list"
-        @tagsView.el = @$("#tag-list").el
-        @tagsView.render()
+        @tagsView = new TagsView el: '#tag-list'
+        @tagsView.contactsView = @
 
         @newContactInput = @$ '#new-contact-field'
         @addContactButton = @$ '#add-contact-button'

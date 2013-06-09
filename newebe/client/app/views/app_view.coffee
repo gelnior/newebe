@@ -106,11 +106,8 @@ module.exports = class AppView extends View
     _addView: (viewClass) =>
         view = new viewClass()
         view.hide()
-        console.log view.el
-
         @home.append view.el
         view
-
 
     displayView: (view) =>
         showView = =>

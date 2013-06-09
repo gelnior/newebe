@@ -5,23 +5,23 @@ Tags = require '../collections/tags'
 
 
 module.exports = class TagsView extends CollectionView
-    id: 'tag-list'
+    el: '#tag-list'
 
     collection: new Tags()
     view: TagView
-
-    constructor: (@contactsView) ->
-        super()
 
     events:
         'keyup #new-tag-field': 'onNewTagKeyup'
         'click #new-tag-button': 'onNewTagClicked'
 
     template: ->
-        @$el = $ "##{@id}"
+        @$el = $("#tag-list")
         require './templates/tags'
 
     afterRender: ->
+        @$el = $("#tag-list")
+        @$el.show()
+
         @newTagField = @$ '#new-tag-field'
         @newTagButton = @$ '#new-tag-button'
         @newTagButton.click @onNewTagClicked
@@ -29,7 +29,7 @@ module.exports = class TagsView extends CollectionView
         @newTagField.keypress @onNewTagKeypress
         @newTagField.hide()
         @newTagButton.hide()
-        @tagList = @$ '#tag-list'
+        @collection.on 'add', @renderOne
 
     renderOne: (model) =>
         if model.get('name') isnt 'all'
@@ -37,7 +37,7 @@ module.exports = class TagsView extends CollectionView
         else
             view = new TagAllView model, @
 
-        @tagList.append view.render().el
+        @$el.append view.render().el
         @add view
         @
 
@@ -51,8 +51,6 @@ module.exports = class TagsView extends CollectionView
         @collection.length > 6
 
     fetch: (callbacks) ->
-        @$el = $ "##{@id}"
-        @afterRender()
         @remove(@views) if @views.length > 0
         @collection.fetch callbacks
 

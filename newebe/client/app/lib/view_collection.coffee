@@ -11,8 +11,8 @@ class ViewCollection extends View
 
     constructor: (options) ->
         super(options)
-
         @collection.on 'reset', @renderAll
+        @collection.on 'add', @renderOne
 
     add: (views, options = {}) ->
         views = if _.isArray views then views.slice() else [views]

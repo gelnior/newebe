@@ -471,6 +471,7 @@ window.require.register("lib/view_collection", function(exports, require, module
       this.renderOne = __bind(this.renderOne, this);
       ViewCollection.__super__.constructor.call(this, options);
       this.collection.on('reset', this.renderAll);
+      this.collection.on('add', this.renderOne);
     }
 
     ViewCollection.prototype.add = function(views, options) {
@@ -1321,7 +1322,6 @@ window.require.register("views/app_view", function(exports, require, module) {
       var view;
       view = new viewClass();
       view.hide();
-      console.log(view.el);
       this.home.append(view.el);
       return view;
     };
@@ -1563,10 +1563,10 @@ window.require.register("views/contacts_view", function(exports, require, module
 
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
-      this.tagsView = new TagsView(this);
-      this.tagsView.$el = this.$("#tag-list");
-      this.tagsView.el = this.$("#tag-list").el;
-      this.tagsView.render();
+      this.tagsView = new TagsView({
+        el: '#tag-list'
+      });
+      this.tagsView.contactsView = this;
       this.newContactInput = this.$('#new-contact-field');
       return this.addContactButton = this.$('#add-contact-button');
     };
@@ -1886,16 +1886,7 @@ window.require.register("views/notes", function(exports, require, module) {
       return require('./templates/notes');
     };
 
-    NotesView.prototype.afterRender = function() {
-      var _this = this;
-      this.$el = $("#notes");
-      return this.collection.on('add', function(model) {
-        _this.$el = $("#notes");
-        return _this.renderOne(model, {
-          prepend: false
-        });
-      });
-    };
+    NotesView.prototype.afterRender = function() {};
 
     NotesView.prototype.fetch = function() {
       return this.collection.fetch();
@@ -1905,8 +1896,7 @@ window.require.register("views/notes", function(exports, require, module) {
       this.collection.url = "notes/all/";
       this.collection.create(note, {
         silent: true,
-        success: function() {
-          this.$el = $("#notes");
+        success: function(model) {
           return this.renderOne(model, {
             prepend: true
           });
@@ -1970,10 +1960,7 @@ window.require.register("views/notes_view", function(exports, require, module) {
       return require('./templates/notes_view');
     };
 
-    NotesMainView.prototype.afterRender = function() {
-      this.notesView = new NotesView();
-      return this.notesView.fetch();
-    };
+    NotesMainView.prototype.afterRender = function() {};
 
     NotesMainView.prototype.onAddNoteClicked = function() {
       return this.notesView.addNote(new Note({
@@ -1988,6 +1975,14 @@ window.require.register("views/notes_view", function(exports, require, module) {
 
     NotesMainView.prototype.onSortTitleClicked = function() {
       return this.notesView.sortByTitle();
+    };
+
+    NotesMainView.prototype.fetch = function() {
+      var _ref;
+      if ((_ref = this.notesView) == null) {
+        this.notesView = new NotesView();
+      }
+      return this.notesView.fetch();
     };
 
     return NotesMainView;
@@ -2521,14 +2516,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
 
     __extends(TagsView, _super);
 
-    TagsView.prototype.id = 'tag-list';
-
-    TagsView.prototype.collection = new Tags();
-
-    TagsView.prototype.view = TagView;
-
-    function TagsView(contactsView) {
-      this.contactsView = contactsView;
+    function TagsView() {
       this.onNewTagClicked = __bind(this.onNewTagClicked, this);
 
       this.onNewTagKeyup = __bind(this.onNewTagKeyup, this);
@@ -2536,9 +2524,14 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.onNewTagKeypress = __bind(this.onNewTagKeypress, this);
 
       this.renderOne = __bind(this.renderOne, this);
-
-      TagsView.__super__.constructor.call(this);
+      return TagsView.__super__.constructor.apply(this, arguments);
     }
+
+    TagsView.prototype.el = '#tag-list';
+
+    TagsView.prototype.collection = new Tags();
+
+    TagsView.prototype.view = TagView;
 
     TagsView.prototype.events = {
       'keyup #new-tag-field': 'onNewTagKeyup',
@@ -2546,11 +2539,13 @@ window.require.register("views/tags_view", function(exports, require, module) {
     };
 
     TagsView.prototype.template = function() {
-      this.$el = $("#" + this.id);
+      this.$el = $("#tag-list");
       return require('./templates/tags');
     };
 
     TagsView.prototype.afterRender = function() {
+      this.$el = $("#tag-list");
+      this.$el.show();
       this.newTagField = this.$('#new-tag-field');
       this.newTagButton = this.$('#new-tag-button');
       this.newTagButton.click(this.onNewTagClicked);
@@ -2558,7 +2553,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
       this.newTagField.keypress(this.onNewTagKeypress);
       this.newTagField.hide();
       this.newTagButton.hide();
-      return this.tagList = this.$('#tag-list');
+      return this.collection.on('add', this.renderOne);
     };
 
     TagsView.prototype.renderOne = function(model) {
@@ -2568,7 +2563,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
       } else {
         view = new TagAllView(model, this);
       }
-      this.tagList.append(view.render().el);
+      this.$el.append(view.render().el);
       this.add(view);
       return this;
     };
@@ -2586,8 +2581,6 @@ window.require.register("views/tags_view", function(exports, require, module) {
     };
 
     TagsView.prototype.fetch = function(callbacks) {
-      this.$el = $("#" + this.id);
-      this.afterRender();
       if (this.views.length > 0) {
         this.remove(this.views);
       }
@@ -2809,7 +2802,6 @@ window.require.register("views/templates/tags", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="tag-list"></div><div id="add-tag"><input id="new-tag-field"/><button id="new-tag-button">add tag</button></div>');
   }
   return buf.join("");
   };

@@ -14,8 +14,6 @@ module.exports = class NotesMainView extends View
         require './templates/notes_view'
 
     afterRender: ->
-        @notesView = new NotesView()
-        @notesView.fetch()
 
     onAddNoteClicked: ->
         @notesView.addNote new Note title: 'New note', content: ''
@@ -25,3 +23,7 @@ module.exports = class NotesMainView extends View
 
     onSortTitleClicked: ->
         @notesView.sortByTitle()
+
+    fetch: ->
+        @notesView ?= new NotesView()
+        @notesView.fetch()
