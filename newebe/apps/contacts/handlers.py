@@ -468,7 +468,7 @@ class ContactTagsHandler(NewebeAuthHandler):
         '''
 
         tags = ContactManager.getTags()
-        tags.append(ContactTag(name="all"))
+        tags.insert(0, ContactTag(name="all"))
         self.return_documents(tags)
 
     def post(self):

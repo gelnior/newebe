@@ -27,3 +27,4 @@ module.exports = class NotesMainView extends View
     fetch: ->
         @notesView ?= new NotesView()
         @notesView.fetch()
+        @isLoaded = true

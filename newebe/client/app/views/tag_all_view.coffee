@@ -20,5 +20,5 @@ module.exports = class TagAllView extends TagView
         @selectTagButton.addClass 'selected'
 
     onAddClicked: ->
-        @$('.tag-add-button').fadeOut =>
+        @addTagButton.fadeOut =>
             @tagsView.showNewTagForm()

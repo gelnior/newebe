@@ -2,6 +2,7 @@ CollectionView = require '../lib/view_collection'
 TagView = require './tag_view'
 TagAllView = require './tag_all_view'
 Tags = require '../collections/tags'
+stringUtils = require '../lib/string'
 
 
 module.exports = class TagsView extends CollectionView
@@ -15,21 +16,15 @@ module.exports = class TagsView extends CollectionView
         'click #new-tag-button': 'onNewTagClicked'
 
     template: ->
-        @$el = $("#tag-list")
         require './templates/tags'
 
     afterRender: ->
-        @$el = $("#tag-list")
-        @$el.show()
-
         @newTagField = @$ '#new-tag-field'
         @newTagButton = @$ '#new-tag-button'
-        @newTagButton.click @onNewTagClicked
         @newTagField.keyup @onNewTagKeyup
         @newTagField.keypress @onNewTagKeypress
         @newTagField.hide()
         @newTagButton.hide()
-        @collection.on 'add', @renderOne
 
     renderOne: (model) =>
         if model.get('name') isnt 'all'
@@ -37,15 +32,14 @@ module.exports = class TagsView extends CollectionView
         else
             view = new TagAllView model, @
 
-        @$el.append view.render().el
+        @$el.prepend view.render().el
         @add view
         @
 
     showNewTagForm: ->
-        if @collection.length < 6
-            @newTagField.show()
-            @newTagButton.show()
-            @newTagField.focus()
+        @newTagField.show()
+        @newTagButton.show()
+        @newTagField.focus()
 
     isFull: ->
         @collection.length > 6
@@ -57,13 +51,7 @@ module.exports = class TagsView extends CollectionView
     # prevent special chars in tags
     onNewTagKeypress: (event) =>
         key = event.which
-        keychar = String.fromCharCode(key).toLowerCase()
-        if (key is null) or (key is 0) or (key is 8) or (key is 9) or
-        (key is 13) or (key is 27)
-             return true
-        else if ('abcdefghijklmnopqrstuvwxyz0123456789').indexOf(keychar) is -1
-            event.preventDefault()
-            return false
+        stringUtils.isSpecialChar(key)
 
     onNewTagKeyup: (event) =>
         @onNewTagClicked() if event.which is 13
@@ -72,9 +60,10 @@ module.exports = class TagsView extends CollectionView
         unless @isFull()
             @collection.create name: @newTagField.val(),
                 success: (tag) =>
-                    @renderOne tag
                     @contactsView.onTagAdded tag
                     @newTagField.val ''
+        else
+            alert "You can't add more tags"
 
     onTagDeleted: (name) ->
         @contactsView.onTagDeleted name

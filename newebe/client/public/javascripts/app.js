@@ -226,6 +226,11 @@ window.require.register("initialize", function(exports, require, module) {
         return $(this).removeClass('disabled');
       });
     };
+    $.fn.select = function() {
+      return this.each(function() {
+        return $(this).addClass('selected');
+      });
+    };
     require('../lib/app_helpers');
     AppRouter = require('routers/app_router');
     AppView = require('views/app_view');
@@ -308,11 +313,14 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.markdownConverter = new Showdown.converter();
 
     Renderer.prototype.renderDoc = function(doc) {
+      var content;
       if (doc != null) {
         if (doc.doc_type === 'MicroPost') {
-          return this.markdownConverter.makeHtml(doc.content);
+          content = this.markdownConverter.makeHtml(doc.content);
+          content += this.checkForImages(doc.content);
+          return content;
         } else if (doc.doc_type === 'Picture') {
-          return "<img src= \"/pictures/# doc._id}/th_" + doc.path + "\" />";
+          return "<img src= \"/pictures/# doc._id}/th_" + doc.path + "V5\" />";
         } else if (doc.doc_type === 'Common') {
           return doc.path;
         }
@@ -324,6 +332,32 @@ window.require.register("lib/renderer", function(exports, require, module) {
       var date;
       date = moment(dateString, 'YYYY-MM-DDThh:mm:ssZ');
       return date.format('D MMM  YYYY, HH:mm');
+    };
+
+    Renderer.prototype.checkForImages = function(content) {
+      var regexp, result, url, urls, _i, _len;
+      regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g;
+      console.log(content);
+      urls = content.match(regexp);
+      console.log(urls);
+      result = "";
+      if (urls) {
+        result += "<p>Embedded pictures: </p>";
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          url = this.getUrlFromMarkdown(url);
+          if (url) {
+            result += "<p>\n<img style=\"max-width: 100%;\"\nsrc=\"" + url + "\"\nalt=\"Image " + url + "\" />\n</img>\n</p>";
+          }
+        }
+      }
+      return result;
+    };
+
+    Renderer.prototype.getUrlFromMarkdown = function(markdownLink) {
+      var index;
+      index = markdownLink.indexOf("(");
+      return markdownLink.substring(index + 1, markdownLink.length - 1);
     };
 
     return Renderer;
@@ -369,6 +403,20 @@ window.require.register("lib/request", function(exports, require, module) {
 
   exports.del = function(url, callback) {
     return exports.request("DELETE", url, null, callback);
+  };
+  
+});
+window.require.register("lib/string", function(exports, require, module) {
+  
+  exports.isSpecialKey = function(key) {
+    var keychar;
+    keychar = String.fromCharCode(key).toLowerCase();
+    if ((key === null) || (key === 0) || (key === 8) || (key === 9) || (key === 13) || (key === 27)) {
+      return true;
+    } else if ('abcdefghijklmnopqrstuvwxyz0123456789'.indexOf(keychar) === -1) {
+      event.preventDefault();
+      return false;
+    }
   };
   
 });
@@ -1563,10 +1611,6 @@ window.require.register("views/contacts_view", function(exports, require, module
 
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
-      this.tagsView = new TagsView({
-        el: '#tag-list'
-      });
-      this.tagsView.contactsView = this;
       this.newContactInput = this.$('#new-contact-field');
       return this.addContactButton = this.$('#add-contact-button');
     };
@@ -1631,7 +1675,13 @@ window.require.register("views/contacts_view", function(exports, require, module
     ContactsView.prototype.fetch = function() {
       var _this = this;
       this.$('.contact').remove();
-      return this.tagsView.fetch({
+      if (this.tagsView == null) {
+        this.tagsView = new TagsView({
+          el: '#tag-list'
+        });
+        this.tagsView.contactsView = this;
+      }
+      this.tagsView.fetch({
         success: function() {
           return _this.collection.fetch();
         },
@@ -1639,6 +1689,7 @@ window.require.register("views/contacts_view", function(exports, require, module
           return alert("an error occured");
         }
       });
+      return this.isLoaded = true;
     };
 
     ContactsView.prototype.onTagSelected = function(name) {
@@ -1982,7 +2033,8 @@ window.require.register("views/notes_view", function(exports, require, module) {
       if ((_ref = this.notesView) == null) {
         this.notesView = new NotesView();
       }
-      return this.notesView.fetch();
+      this.notesView.fetch();
+      return this.isLoaded = true;
     };
 
     return NotesMainView;
@@ -2426,7 +2478,7 @@ window.require.register("views/tag_all_view", function(exports, require, module)
 
     TagAllView.prototype.onAddClicked = function() {
       var _this = this;
-      return this.$('.tag-add-button').fadeOut(function() {
+      return this.addTagButton.fadeOut(function() {
         return _this.tagsView.showNewTagForm();
       });
     };
@@ -2477,7 +2529,7 @@ window.require.register("views/tag_view", function(exports, require, module) {
 
     TagView.prototype.onSelectClicked = function() {
       this.publish('tag:selected', this.model.get('name'));
-      return this.selectTagButton.addClass('selected');
+      return this.selectTagButton.select();
     };
 
     TagView.prototype.onDeleteClicked = function() {
@@ -2499,7 +2551,7 @@ window.require.register("views/tag_view", function(exports, require, module) {
   
 });
 window.require.register("views/tags_view", function(exports, require, module) {
-  var CollectionView, TagAllView, TagView, Tags, TagsView,
+  var CollectionView, TagAllView, TagView, Tags, TagsView, stringUtils,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2511,6 +2563,8 @@ window.require.register("views/tags_view", function(exports, require, module) {
   TagAllView = require('./tag_all_view');
 
   Tags = require('../collections/tags');
+
+  stringUtils = require('../lib/string');
 
   module.exports = TagsView = (function(_super) {
 
@@ -2539,21 +2593,16 @@ window.require.register("views/tags_view", function(exports, require, module) {
     };
 
     TagsView.prototype.template = function() {
-      this.$el = $("#tag-list");
       return require('./templates/tags');
     };
 
     TagsView.prototype.afterRender = function() {
-      this.$el = $("#tag-list");
-      this.$el.show();
       this.newTagField = this.$('#new-tag-field');
       this.newTagButton = this.$('#new-tag-button');
-      this.newTagButton.click(this.onNewTagClicked);
       this.newTagField.keyup(this.onNewTagKeyup);
       this.newTagField.keypress(this.onNewTagKeypress);
       this.newTagField.hide();
-      this.newTagButton.hide();
-      return this.collection.on('add', this.renderOne);
+      return this.newTagButton.hide();
     };
 
     TagsView.prototype.renderOne = function(model) {
@@ -2563,17 +2612,15 @@ window.require.register("views/tags_view", function(exports, require, module) {
       } else {
         view = new TagAllView(model, this);
       }
-      this.$el.append(view.render().el);
+      this.$el.prepend(view.render().el);
       this.add(view);
       return this;
     };
 
     TagsView.prototype.showNewTagForm = function() {
-      if (this.collection.length < 6) {
-        this.newTagField.show();
-        this.newTagButton.show();
-        return this.newTagField.focus();
-      }
+      this.newTagField.show();
+      this.newTagButton.show();
+      return this.newTagField.focus();
     };
 
     TagsView.prototype.isFull = function() {
@@ -2588,15 +2635,9 @@ window.require.register("views/tags_view", function(exports, require, module) {
     };
 
     TagsView.prototype.onNewTagKeypress = function(event) {
-      var key, keychar;
+      var key;
       key = event.which;
-      keychar = String.fromCharCode(key).toLowerCase();
-      if ((key === null) || (key === 0) || (key === 8) || (key === 9) || (key === 13) || (key === 27)) {
-        return true;
-      } else if ('abcdefghijklmnopqrstuvwxyz0123456789'.indexOf(keychar) === -1) {
-        event.preventDefault();
-        return false;
-      }
+      return stringUtils.isSpecialChar(key);
     };
 
     TagsView.prototype.onNewTagKeyup = function(event) {
@@ -2612,11 +2653,12 @@ window.require.register("views/tags_view", function(exports, require, module) {
           name: this.newTagField.val()
         }, {
           success: function(tag) {
-            _this.renderOne(tag);
             _this.contactsView.onTagAdded(tag);
             return _this.newTagField.val('');
           }
         });
+      } else {
+        return alert("You can't add more tags");
       }
     };
 
@@ -2802,6 +2844,7 @@ window.require.register("views/templates/tags", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
+  buf.push('<input id="new-tag-field"/><button id="new-tag-button">add tag</button>');
   }
   return buf.join("");
   };

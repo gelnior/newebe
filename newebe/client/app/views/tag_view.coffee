@@ -21,7 +21,7 @@ module.exports = class TagView extends View
 
     onSelectClicked: ->
         @publish 'tag:selected', @model.get 'name'
-        @selectTagButton.addClass 'selected'
+        @selectTagButton.select()
 
     onDeleteClicked: ->
         @model.destroy

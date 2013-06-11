@@ -22,9 +22,6 @@ module.exports = class ContactsView extends CollectionView
 
     afterRender: ->
         @isLoaded = false
-        @tagsView = new TagsView el: '#tag-list'
-        @tagsView.contactsView = @
-
         @newContactInput = @$ '#new-contact-field'
         @addContactButton = @$ '#add-contact-button'
 
@@ -76,11 +73,15 @@ module.exports = class ContactsView extends CollectionView
 
     fetch: ->
         @$('.contact').remove()
+        unless @tagsView?
+            @tagsView = new TagsView el: '#tag-list'
+            @tagsView.contactsView = @
         @tagsView.fetch
             success: =>
                 @collection.fetch()
             error: =>
                 alert "an error occured"
+        @isLoaded = true
 
     onTagSelected: (name) ->
         @tagsView.$(".tag-select-button").removeClass 'selected'

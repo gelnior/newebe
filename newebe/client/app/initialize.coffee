@@ -16,6 +16,9 @@ $ ->
             $(@).prop 'disabled', false
             $(@).removeClass 'disabled'
 
+    $.fn.select = ->
+        @each ->
+            $(@).addClass 'selected'
 
     # Load App Helpers
     require '../lib/app_helpers'
