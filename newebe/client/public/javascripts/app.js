@@ -231,6 +231,11 @@ window.require.register("initialize", function(exports, require, module) {
         return $(this).addClass('selected');
       });
     };
+    $.fn.unselect = function() {
+      return this.each(function() {
+        return $(this).removeClass('selected');
+      });
+    };
     require('../lib/app_helpers');
     AppRouter = require('routers/app_router');
     AppView = require('views/app_view');
@@ -337,7 +342,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.checkForImages = function(content) {
       var regexp, result, url, urls, _i, _len;
       regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g;
-      console.log(content);
       urls = content.match(regexp);
       console.log(urls);
       result = "";
@@ -1014,6 +1018,7 @@ window.require.register("views/activities_view", function(exports, require, modu
       if ((content != null ? content.length : void 0) !== 0) {
         this.micropostField.disable();
         micropost = new MicroPost();
+        content = this.checkLink(content);
         return micropost.save('content', content, {
           success: function() {
             _this.activityList.prependMicropostActivity(micropost);
@@ -1029,6 +1034,27 @@ window.require.register("views/activities_view", function(exports, require, modu
 
     ActivitiesView.prototype.loadMoreActivities = function() {
       return this.activityList.loadMore();
+    };
+
+    ActivitiesView.prototype.checkLink = function(content) {
+      var previousChar, regexp, url, urlIndex, urls, _i, _len;
+      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+      urls = content.match(regexp);
+      if (urls) {
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          urlIndex = content.indexOf(url);
+          if (urlIndex === 0) {
+            content = content.replace(url, "[" + url + "](" + url + ")");
+          } else {
+            previousChar = content.charAt(urlIndex - 1);
+            if (previousChar !== '(' && previousChar !== "[") {
+              content = content.replace(url, "[" + url + "](" + url + ")");
+            }
+          }
+        }
+      }
+      return content;
     };
 
     return ActivitiesView;
@@ -1823,6 +1849,31 @@ window.require.register("views/note", function(exports, require, module) {
       "keyup .note-title": "onNoteChanged"
     };
 
+    NoteView.prototype.onClicked = function() {
+      $('.note').unselect();
+      $('.note-buttons').hide();
+      $('.content-note').hide();
+      this.$el.select();
+      this.buttons.show();
+      return this.contentField.show();
+    };
+
+    NoteView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    NoteView.prototype.onNoteChanged = function() {
+      return this.model.save();
+    };
+
     NoteView.prototype.editableClick = etch.editableInit;
 
     NoteView.prototype.template = function() {
@@ -1835,24 +1886,36 @@ window.require.register("views/note", function(exports, require, module) {
     }
 
     NoteView.prototype.afterRender = function() {
-      var renderer,
-        _this = this;
       this.buttons = this.$('.note-buttons');
       this.buttons.hide();
       this.contentField = this.$('.content-note');
       this.contentField.hide();
-      this.model.bindField('title', this.$(".note-title"));
+      this.renderTitle();
+      this.renderNote();
+      return this.bindFields();
+    };
+
+    NoteView.prototype.renderTitle = function() {
+      var renderer;
       renderer = new Renderer();
       if (this.model.get('content').length === 0) {
         this.model.set('content', 'Empty note');
       }
-      this.model.set('displayDate', renderer.renderDate(this.model.get('lastModified')));
+      return this.model.set('displayDate', renderer.renderDate(this.model.get('lastModified')));
+    };
+
+    NoteView.prototype.renderNote = function() {
       this.converter = new Showdown.converter();
       if (this.model.get("content").length > 0) {
-        this.contentField.html(this.converter.makeHtml(this.model.get('content')));
+        return this.contentField.html(this.converter.makeHtml(this.model.get('content')));
       } else {
-        this.contentField.html("new note content");
+        return this.contentField.html("new note content");
       }
+    };
+
+    NoteView.prototype.bindFields = function() {
+      var _this = this;
+      this.model.bindField('title', this.$(".note-title"));
       this.contentField.keyup(function() {
         _this.model.set("content", toMarkdown(_this.contentField.html()));
         return _this.onNoteChanged();
@@ -1868,31 +1931,6 @@ window.require.register("views/note", function(exports, require, module) {
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
       };
-    };
-
-    NoteView.prototype.onNoteChanged = function() {
-      return this.model.save();
-    };
-
-    NoteView.prototype.onClicked = function() {
-      $('.note').removeClass('selected');
-      $('.note-buttons').hide();
-      $('.content-note').hide();
-      this.$el.addClass('selected');
-      this.buttons.show();
-      return this.contentField.show();
-    };
-
-    NoteView.prototype.onDeleteClicked = function() {
-      var _this = this;
-      return this.model.destroy({
-        success: function() {
-          return _this.remove();
-        },
-        error: function() {
-          return alert('server error occured');
-        }
-      });
     };
 
     NoteView.prototype.emptyTitle = function() {

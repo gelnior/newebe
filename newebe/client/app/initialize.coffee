@@ -20,6 +20,10 @@ $ ->
         @each ->
             $(@).addClass 'selected'
 
+    $.fn.unselect = ->
+        @each ->
+            $(@).removeClass 'selected'
+
     # Load App Helpers
     require '../lib/app_helpers'
     AppRouter = require 'routers/app_router'

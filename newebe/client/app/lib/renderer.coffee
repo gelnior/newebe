@@ -22,8 +22,6 @@ module.exports = class Renderer
 
     checkForImages: (content) ->
         regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g
-        console.log content
-
         urls = content.match regexp
         console.log urls
 

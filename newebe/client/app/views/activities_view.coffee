@@ -42,6 +42,7 @@ module.exports = class ActivitiesView extends View
             @micropostField.disable()
 
             micropost = new MicroPost()
+            content = @checkLink content
             micropost.save 'content', content,
                 success: =>
                     @activityList.prependMicropostActivity micropost
@@ -52,3 +53,17 @@ module.exports = class ActivitiesView extends View
 
     loadMoreActivities: =>
         @activityList.loadMore()
+
+    checkLink: (content) ->
+        regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
+        urls = content.match regexp
+        if urls
+             for url in urls
+                 urlIndex = content.indexOf(url)
+                 if urlIndex is 0
+                     content = content.replace url, "[#{url}](#{url})"
+                 else
+                    previousChar = content.charAt(urlIndex - 1)
+                    if previousChar isnt '(' and previousChar isnt "["
+                        content = content.replace url, "[#{url}](#{url})"
+        content
