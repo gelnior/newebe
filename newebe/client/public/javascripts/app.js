@@ -323,6 +323,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
         if (doc.doc_type === 'MicroPost') {
           content = this.markdownConverter.makeHtml(doc.content);
           content += this.checkForImages(doc.content);
+          content += this.checkForVideos(doc.content);
           return content;
         } else if (doc.doc_type === 'Picture') {
           return "<img src= \"/pictures/# doc._id}/th_" + doc.path + "V5\" />";
@@ -362,6 +363,39 @@ window.require.register("lib/renderer", function(exports, require, module) {
       var index;
       index = markdownLink.indexOf("(");
       return markdownLink.substring(index + 1, markdownLink.length - 1);
+    };
+
+    Renderer.prototype.checkForVideos = function(content) {
+      var key, regexp, res, result, url, urls, _i, _len;
+      regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g;
+      urls = content.match(regexp);
+      result = "";
+      if (urls) {
+        result += "<p>Embedded videos: </p>";
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          url = this.getUrlFromMarkdown(url);
+          res = url.match(/v=\S+&/);
+          if (res != null) {
+            key = res[0];
+          }
+          if (!key) {
+            res = url.match(/v=\S+/);
+            if (res != null) {
+              key = res[0];
+            }
+          }
+          if (key) {
+            if (key.indexOf("&") > 0) {
+              key = key.substring(2, key.length - 1);
+            } else {
+              key = key.substring(2, key.length);
+            }
+            result += "<p>\n<iframe class=\"video\" width=\"50%\" height=\"315\"\nsrc=\"http://www.youtube.com/embed/" + key + "\"\nframeborder=\"0\" allowfullscreen>\n</iframe>\n</p>";
+          }
+        }
+      }
+      return result;
     };
 
     return Renderer;

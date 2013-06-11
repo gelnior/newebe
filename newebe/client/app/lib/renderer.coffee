@@ -9,6 +9,7 @@ module.exports = class Renderer
             if doc.doc_type is 'MicroPost'
                 content = @markdownConverter.makeHtml doc.content
                 content += @checkForImages doc.content
+                content += @checkForVideos doc.content
                 return content
             else if doc.doc_type is 'Picture'
                 return "<img src= \"/pictures/# doc._id}/th_#{doc.path}V5\" />"
@@ -47,3 +48,39 @@ alt="Image #{url}" />
     getUrlFromMarkdown: (markdownLink) ->
         index = markdownLink.indexOf "("
         markdownLink.substring index + 1, markdownLink.length - 1
+
+    checkForVideos: (content) ->
+        # Remember we analyze markdown code, not displayed text.
+        regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g
+        urls = content.match(regexp)
+        result = ""
+
+        if urls
+            result += "<p>Embedded videos: </p>"
+
+            for url in urls
+                url = @getUrlFromMarkdown url
+
+                res = url.match(/v=\S+&/)
+                key = res[0] if res?
+
+                unless key
+                    res = url.match(/v=\S+/)
+                    key = res[0] if res?
+
+                if key
+                    if key.indexOf("&") > 0
+                        key = key.substring 2, (key.length - 1)
+                    else
+                        key = key.substring 2, key.length
+
+                    result += """
+<p>
+<iframe class="video" width="50%" height="315"
+src="http://www.youtube.com/embed/#{key}"
+frameborder="0" allowfullscreen>
+</iframe>
+</p>
+"""
+
+        result
