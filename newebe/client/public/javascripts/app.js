@@ -2061,21 +2061,27 @@ window.require.register("views/notes", function(exports, require, module) {
     };
 
     NotesView.prototype.addNote = function(note) {
+      var _this = this;
       this.collection.url = "notes/all/";
-      this.collection.create(note, {
+      return this.collection.create(note, {
         silent: true,
         success: function(model) {
-          return this.renderOne(model, {
+          var _ref, _ref1, _ref2;
+          _this.renderOne(model, {
             prepend: true
           });
+          if ((_ref = _this.last()) != null) {
+            _ref.onClicked();
+          }
+          if ((_ref1 = _this.last()) != null) {
+            _ref1.emptyTitle();
+          }
+          return (_ref2 = _this.last()) != null ? _ref2.focusTitle() : void 0;
         },
         error: function() {
           return alert('Note creation failed');
         }
       });
-      this.last().onClicked();
-      this.last().emptyTitle();
-      return this.last().focusTitle();
     };
 
     NotesView.prototype.sortByDate = function() {

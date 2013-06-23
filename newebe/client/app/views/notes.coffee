@@ -20,12 +20,12 @@ module.exports = class NotesView extends CollectionView
         @collection.url = "notes/all/"
         @collection.create note,
             silent: true
-            success: (model) ->
+            success: (model) =>
                 @renderOne model, prepend: true
+                @last()?.onClicked()
+                @last()?.emptyTitle()
+                @last()?.focusTitle()
             error: -> alert 'Note creation failed'
-        @last().onClicked()
-        @last().emptyTitle()
-        @last().focusTitle()
 
     sortByDate: ->
         @remove @views
