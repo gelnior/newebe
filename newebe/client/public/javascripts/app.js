@@ -545,8 +545,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     ViewCollection.prototype.view = null;
 
-    ViewCollection.prototype.views = [];
-
     ViewCollection.prototype.length = function() {
       return this.views.length;
     };
@@ -558,6 +556,7 @@ window.require.register("lib/view_collection", function(exports, require, module
       ViewCollection.__super__.constructor.call(this, options);
       this.collection.on('reset', this.renderAll);
       this.collection.on('add', this.renderOne);
+      this.views = [];
     }
 
     ViewCollection.prototype.add = function(views, options) {

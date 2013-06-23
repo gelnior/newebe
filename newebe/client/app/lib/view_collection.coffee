@@ -4,8 +4,6 @@ class ViewCollection extends View
     collection: null
     view: null
 
-    views: []
-
     length: ->
         @views.length
 
@@ -13,6 +11,7 @@ class ViewCollection extends View
         super(options)
         @collection.on 'reset', @renderAll
         @collection.on 'add', @renderOne
+        @views = []
 
     add: (views, options = {}) ->
         views = if _.isArray views then views.slice() else [views]
