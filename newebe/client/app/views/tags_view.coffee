@@ -51,7 +51,7 @@ module.exports = class TagsView extends CollectionView
     # prevent special chars in tags
     onNewTagKeypress: (event) =>
         key = event.which
-        stringUtils.isSpecialChar(key)
+        stringUtils.isSpecialKey key, event
 
     onNewTagKeyup: (event) =>
         @onNewTagClicked() if event.which is 13

@@ -446,7 +446,7 @@ window.require.register("lib/request", function(exports, require, module) {
 });
 window.require.register("lib/string", function(exports, require, module) {
   
-  exports.isSpecialKey = function(key) {
+  exports.isSpecialKey = function(key, event) {
     var keychar;
     keychar = String.fromCharCode(key).toLowerCase();
     if ((key === null) || (key === 0) || (key === 8) || (key === 9) || (key === 13) || (key === 27)) {
@@ -1557,7 +1557,7 @@ window.require.register("views/contact_view", function(exports, require, module)
     ContactView.prototype.onDeleteClicked = function() {
       var _this = this;
       return this.model.destroy({
-        succes: function() {
+        success: function() {
           return _this.remove();
         },
         error: function() {
@@ -2759,7 +2759,7 @@ window.require.register("views/tags_view", function(exports, require, module) {
     TagsView.prototype.onNewTagKeypress = function(event) {
       var key;
       key = event.which;
-      return stringUtils.isSpecialChar(key);
+      return stringUtils.isSpecialKey(key, event);
     };
 
     TagsView.prototype.onNewTagKeyup = function(event) {

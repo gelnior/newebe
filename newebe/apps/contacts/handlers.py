@@ -196,15 +196,13 @@ class ContactHandler(NewebeAuthHandler):
             if not newebeResponse["success"]:
                 raise Exception()
 
-            user = UserManager.getUser()
-            picture = user.fetch_attachment("small_picture.jpg")
-            import pdb
-            pdb.set_trace()
-            self.send_files_to_contact(self.contact,
-                "contact/update-profile/picture/",
-                fields={"key": user.key},
-                files=[("small_picture", "small_picture.jpg", picture)]
-            )
+            #user = UserManager.getUser()
+            #picture = user.fetch_attachment("small_picture.jpg")
+            #self.send_files_to_contact(self.contact,
+            #    "contact/update-profile/picture/",
+            #    fields={"key": user.key},
+            #    files=[("small_picture", "small_picture.jpg", picture)]
+            #)
 
             self.return_success("Contact trusted.")
         except:
@@ -436,7 +434,7 @@ class ContactConfirmHandler(NewebeHandler):
                 contact.name = data["name"]
                 contact.save()
 
-                self.send_picture_to_contact(contact)
+                #self.send_picture_to_contact(contact)
                 self.return_success("Contact trusted.")
 
             else:

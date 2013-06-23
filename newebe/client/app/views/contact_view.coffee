@@ -25,7 +25,7 @@ module.exports = class ContactView extends View
 
     onDeleteClicked: ->
         @model.destroy
-            succes: =>
+            success: =>
                 @remove()
             error: =>
                 alert 'An error occured while deleting contact'
