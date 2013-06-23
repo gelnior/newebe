@@ -312,6 +312,8 @@ class NewebeHandler(RequestHandler):
         '''
 
         contacts = ContactManager.getTrustedContacts(tag=tag)
+        if not hasattr(self, "activity"):
+            self.activity = None
         client = ContactClient(self.activity)
         for contact in contacts:
             try:

@@ -62,6 +62,7 @@ class ContactPictureUpdateHandler(NewebeHandler):
 
         picfile = self.request.files['small_picture'][0]
         contactKey = self.get_argument("key")
+        import pdb; pdb.set_trace()
 
         if picfile and contactKey:
             contact = ContactManager.getTrustedContact(contactKey)
@@ -447,8 +448,6 @@ class ContactConfirmHandler(NewebeHandler):
     def send_picture_to_contact(self, contact):
         user = UserManager.getUser()
         picture = user.fetch_attachment("small_picture.jpg")
-        import pdb
-        pdb.set_trace()
         self.send_files_to_contact(
             contact,
             "contact/update-profile/picture/",

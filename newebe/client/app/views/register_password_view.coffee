@@ -9,9 +9,12 @@ module.exports = class RegisterPasswordView extends QuestionView
         @fieldId = "register-password"
         @type = "password"
         @fieldName = "password"
-        @submitPath = "registerPassword"
+        @submitPath = "register/password/"
         @render()
 
     onServerResponse: (err, data) ->
-        # TODO: Handle error case
-        Newebe.views.appView.displayHome()
+        if err
+            alert "Something went wrong while registering your sesame." + \
+                "Try it again."
+        else
+            Newebe.views.appView.displayHome()

@@ -87,7 +87,7 @@ module.exports = class ProfileView extends View
 
         @descriptionField = @$ "#profile-description"
         @converter = new Showdown.converter()
-        if @model.get("description").length > 0
+        if @model.get("description")?.length > 0
             @descriptionField.html @converter.makeHtml(@model.get('description'))
         else
             @descriptionField.html "your description"
@@ -123,7 +123,7 @@ module.exports = class ProfileView extends View
     editableClick: etch.editableInit
 
     reloadPicture: ->
-        nw = new Date().getTime()
+        now = new Date().getTime()
         @profilePicture.attr "src", "user/picture.jpg?date=#{now}"
         true
 

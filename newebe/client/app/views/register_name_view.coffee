@@ -9,11 +9,12 @@ module.exports = class RegisterNameView extends QuestionView
         @fieldId = "register-name"
         @type = "text"
         @fieldName = "name"
-        @submitPath = "register"
+        @submitPath = "register/"
         @render()
 
     onServerResponse: (err, data) ->
         if err
-            alert "Something went wrong while registering your name."
+            alert "Something went wrong while registering your name." + \
+                "Try it again."
         else
             Newebe.views.appView.displayRegisterPassword()

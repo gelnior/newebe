@@ -1785,6 +1785,51 @@ window.require.register("views/contacts_view", function(exports, require, module
   })(CollectionView);
   
 });
+window.require.register("views/filter_tags_view", function(exports, require, module) {
+  var CollectionView, FilterTagsView, TagAllView, TagView, Tags, stringUtils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  TagView = require('./tag_view');
+
+  TagAllView = require('./tag_all_view');
+
+  Tags = require('../collections/tags');
+
+  stringUtils = require('../lib/string');
+
+  module.exports = FilterTagsView = (function(_super) {
+
+    __extends(FilterTagsView, _super);
+
+    function FilterTagsView() {
+      return FilterTagsView.__super__.constructor.apply(this, arguments);
+    }
+
+    FilterTagsView.prototype.el = '.filter-tag-list';
+
+    FilterTagsView.prototype.collection = new Tags();
+
+    FilterTagsView.prototype.view = TagView;
+
+    FilterTagsView.prototype.template = function() {
+      return require('./templates/filter_tags');
+    };
+
+    FilterTagsView.prototype.fetch = function(callbacks) {
+      if (this.views.length > 0) {
+        this.remove(this.views);
+      }
+      return this.collection.fetch(callbacks);
+    };
+
+    return FilterTagsView;
+
+  })(CollectionView);
+  
+});
 window.require.register("views/login_view", function(exports, require, module) {
   var LoginView, QuestionView,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -2248,7 +2293,8 @@ window.require.register("views/profile_view", function(exports, require, module)
     };
 
     ProfileView.prototype.afterRender = function() {
-      var _this = this;
+      var _ref,
+        _this = this;
       this.sesameForm = this.$("#sesame-form");
       this.profileSesameField = this.$("#profile-sesame-field");
       this.profileNameField = this.$("#profile-name-field");
@@ -2258,7 +2304,7 @@ window.require.register("views/profile_view", function(exports, require, module)
       this.model.bindField("sesame", this.profileSesameField);
       this.descriptionField = this.$("#profile-description");
       this.converter = new Showdown.converter();
-      if (this.model.get("description").length > 0) {
+      if (((_ref = this.model.get("description")) != null ? _ref.length : void 0) > 0) {
         this.descriptionField.html(this.converter.makeHtml(this.model.get('description')));
       } else {
         this.descriptionField.html("your description");
@@ -2306,8 +2352,8 @@ window.require.register("views/profile_view", function(exports, require, module)
     ProfileView.prototype.editableClick = etch.editableInit;
 
     ProfileView.prototype.reloadPicture = function() {
-      var nw;
-      nw = new Date().getTime();
+      var now;
+      now = new Date().getTime();
       this.profilePicture.attr("src", "user/picture.jpg?date=" + now);
       return true;
     };
@@ -2455,13 +2501,13 @@ window.require.register("views/register_name_view", function(exports, require, m
       this.fieldId = "register-name";
       this.type = "text";
       this.fieldName = "name";
-      this.submitPath = "register";
+      this.submitPath = "register/";
       return this.render();
     };
 
     RegisterNameView.prototype.onServerResponse = function(err, data) {
       if (err) {
-        return alert("Something went wrong while registering your name.");
+        return alert("Something went wrong while registering your name." + "Try it again.");
       } else {
         return Newebe.views.appView.displayRegisterPassword();
       }
@@ -2496,12 +2542,16 @@ window.require.register("views/register_password_view", function(exports, requir
       this.fieldId = "register-password";
       this.type = "password";
       this.fieldName = "password";
-      this.submitPath = "registerPassword";
+      this.submitPath = "register/password/";
       return this.render();
     };
 
     RegisterPasswordView.prototype.onServerResponse = function(err, data) {
-      return Newebe.views.appView.displayHome();
+      if (err) {
+        return alert("Something went wrong while registering your sesame." + "Try it again.");
+      } else {
+        return Newebe.views.appView.displayHome();
+      }
     };
 
     return RegisterPasswordView;
