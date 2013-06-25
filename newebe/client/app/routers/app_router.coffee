@@ -2,7 +2,7 @@ module.exports = class AppRouter extends Backbone.Router
 
     routes:
         '': 'start'
-        'activities': 'activities'
+        'microposts': 'microposts'
         'notes': 'notes'
         'contacts': 'contacts'
         'profile': 'profile'
@@ -13,9 +13,9 @@ module.exports = class AppRouter extends Backbone.Router
 
     start: -> @appView.checkUserState()
 
-    activities: ->
+    microposts: ->
         @loadSubView =>
-            @appView.changeSubView @appView.activitiesView
+            @appView.changeSubView @appView.micropostsView
 
     notes: ->
         @loadSubView =>

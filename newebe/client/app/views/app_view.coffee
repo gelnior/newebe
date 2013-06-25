@@ -1,6 +1,6 @@
 View = require '../lib/view'
 AppRouter = require '../routers/app_router'
-ActivitiesView = require './activities_view'
+MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
 NotesView = require './notes_view'
 ProfileView = require './profile_view'
@@ -30,20 +30,16 @@ module.exports = class AppView extends View
                 Newebe.routers.appRouter.navigate ''
                 @displayLogin()
 
-    onActivitiesClicked: -> @changeSubView @activitiesView
-
+    onMicropostsClicked: -> @changeSubView @micropostsView
     onContactsClicked: -> @changeSubView @contactsView
-
     onNotesClicked: -> @changeSubView @notesView
-
     displayProfile: => @changeSubView @profileView
-
-    displayActivities: => @changeSubView @activitiesView
+    displayMicroposts: => @changeSubView @micropostsView
 
     displayHome: =>
         showHome = =>
             @displayMenu()
-            @displayActivities()
+            @displayMicroposts()
 
         if @currentView?
             @currentView.fadeOut showHome
@@ -51,7 +47,6 @@ module.exports = class AppView extends View
             showHome()
 
     displayRegisterPassword: => @changeView @registerPasswordView
-
     displayRegisterName: => @changeView @registerNameView
 
     displayLogin: =>
@@ -83,7 +78,7 @@ module.exports = class AppView extends View
         @loginView = @_addView LoginView
         @registerNameView = @_addView RegisterNameView
         @registerPasswordView = @_addView RegisterPasswordView
-        @activitiesView = @_addView ActivitiesView
+        @micropostsView = @_addView MicropostsView
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
@@ -93,7 +88,7 @@ module.exports = class AppView extends View
                 callback()
             else
                 @displayHome()
-                @activitiesView.fetch()
+                @micropostsView.fetch()
         else if userState.password
             @displayLogin()
         else if userState.registered
@@ -148,8 +143,8 @@ module.exports = class AppView extends View
 
     changeMenuState: (view) =>
         @$("#navigation").find("a").removeClass "active"
-        if view is @activitiesView
-            @$("#activities-button").addClass "active"
+        if view is @micropostsView
+            @$("#microposts-button").addClass "active"
         else if view is @contactsView
             @$("#contacts-button").addClass "active"
         else if view is @profileView

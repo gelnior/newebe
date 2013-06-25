@@ -6,14 +6,14 @@ module.exports = class Renderer
 
     renderDoc: (doc) ->
         if doc?
-            if doc.doc_type is 'MicroPost'
+            if doc.get 'doc_type' is 'MicroPost'
                 content = @markdownConverter.makeHtml doc.content
                 content += @checkForImages doc.content
                 content += @checkForVideos doc.content
                 return content
-            else if doc.doc_type is 'Picture'
+            else if doc.get 'doc_type' is 'Picture'
                 return "<img src= \"/pictures/# doc._id}/th_#{doc.path}V5\" />"
-            else if doc.doc_type is 'Common'
+            else if doc.get 'doc_type' is 'Common'
                 return doc.path
         return ''
 

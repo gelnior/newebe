@@ -2743,10 +2743,10 @@ body,
   background-color: #def;
   color: #00305f;
 }
-#activities-view .activity {
+#microposts-view .micropost {
   border-top: 1px solid #ddd;
 }
-#activities-view .author {
+#microposts-view .author {
   font-weight: bold;
   margin-right: 5px;
 }
@@ -2916,21 +2916,21 @@ body,
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-#activities-view .activity-buttons {
+#microposts-view .micropost-buttons {
   display: none;
 }
-#activities-view .activity button {
+#microposts-view .micropost button {
   margin-left: 0;
   padding: 5px;
   font-size: 12px;
 }
-#activities-view .activity p {
+#microposts-view .micropost p {
   margin: 3px 0;
 }
-#activities-view .activity:hover {
+#microposts-view .micropost:hover {
   background: #f5f0fa;
 }
-#activities-view .activity.selected {
+#microposts-view .micropost.selected {
   background: #ebf5ff;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }

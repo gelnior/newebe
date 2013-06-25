@@ -145,6 +145,40 @@ window.require.register("collections/contacts", function(exports, require, modul
   })(Backbone.Collection);
   
 });
+window.require.register("collections/micropost_collection", function(exports, require, module) {
+  var Micropost, MicropostCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Micropost = require('../models/micropost');
+
+  module.exports = MicropostCollection = (function(_super) {
+
+    __extends(MicropostCollection, _super);
+
+    function MicropostCollection() {
+      return MicropostCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    MicropostCollection.prototype.model = Micropost;
+
+    MicropostCollection.prototype.url = '/microposts/all/';
+
+    MicropostCollection.prototype.baseUrl = '/microposts/all/';
+
+    MicropostCollection.prototype.comparator = function(micropost, micropost2) {
+      return micropost.get('date' < micropost2.get('date'));
+    };
+
+    MicropostCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return MicropostCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("collections/notes", function(exports, require, module) {
   var NotesCollection,
     __hasProp = {}.hasOwnProperty,
@@ -320,14 +354,14 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.renderDoc = function(doc) {
       var content;
       if (doc != null) {
-        if (doc.doc_type === 'MicroPost') {
+        if (doc.get('doc_type' === 'MicroPost')) {
           content = this.markdownConverter.makeHtml(doc.content);
           content += this.checkForImages(doc.content);
           content += this.checkForVideos(doc.content);
           return content;
-        } else if (doc.doc_type === 'Picture') {
+        } else if (doc.get('doc_type' === 'Picture')) {
           return "<img src= \"/pictures/# doc._id}/th_" + doc.path + "V5\" />";
-        } else if (doc.doc_type === 'Common') {
+        } else if (doc.get('doc_type' === 'Common')) {
           return doc.path;
         }
       }
@@ -786,31 +820,29 @@ window.require.register("models/contact", function(exports, require, module) {
   
 });
 window.require.register("models/micropost", function(exports, require, module) {
-  var MicropostModel, Model, request,
+  var Micropost, Model,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('lib/model');
 
-  request = require('lib/request');
+  module.exports = Micropost = (function(_super) {
 
-  module.exports = MicropostModel = (function(_super) {
+    __extends(Micropost, _super);
 
-    __extends(MicropostModel, _super);
-
-    function MicropostModel() {
-      return MicropostModel.__super__.constructor.apply(this, arguments);
+    function Micropost() {
+      return Micropost.__super__.constructor.apply(this, arguments);
     }
 
-    MicropostModel.prototype.urlRoot = 'microposts/all/';
+    Micropost.prototype.urlRoot = '/microposts/all/';
 
-    MicropostModel.prototype.idAttribute = '_id';
+    Micropost.prototype.idAttribute = '_id';
 
-    MicropostModel.prototype.defaults = {
+    Micropost.prototype.defaults = {
       "tags": ["all"]
     };
 
-    return MicropostModel;
+    return Micropost;
 
   })(Model);
   
@@ -908,7 +940,7 @@ window.require.register("routers/app_router", function(exports, require, module)
 
     AppRouter.prototype.routes = {
       '': 'start',
-      'activities': 'activities',
+      'microposts': 'microposts',
       'notes': 'notes',
       'contacts': 'contacts',
       'profile': 'profile'
@@ -923,10 +955,10 @@ window.require.register("routers/app_router", function(exports, require, module)
       return this.appView.checkUserState();
     };
 
-    AppRouter.prototype.activities = function() {
+    AppRouter.prototype.microposts = function() {
       var _this = this;
       return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.activitiesView);
+        return _this.appView.changeSubView(_this.appView.micropostsView);
       });
     };
 
@@ -1256,7 +1288,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1265,7 +1297,7 @@ window.require.register("views/app_view", function(exports, require, module) {
 
   AppRouter = require('../routers/app_router');
 
-  ActivitiesView = require('./activities_view');
+  MicropostsView = require('./microposts_view');
 
   ContactsView = require('./contacts_view');
 
@@ -1306,7 +1338,7 @@ window.require.register("views/app_view", function(exports, require, module) {
 
       this.displayHome = __bind(this.displayHome, this);
 
-      this.displayActivities = __bind(this.displayActivities, this);
+      this.displayMicroposts = __bind(this.displayMicroposts, this);
 
       this.displayProfile = __bind(this.displayProfile, this);
       return AppView.__super__.constructor.apply(this, arguments);
@@ -1334,8 +1366,8 @@ window.require.register("views/app_view", function(exports, require, module) {
       });
     };
 
-    AppView.prototype.onActivitiesClicked = function() {
-      return this.changeSubView(this.activitiesView);
+    AppView.prototype.onMicropostsClicked = function() {
+      return this.changeSubView(this.micropostsView);
     };
 
     AppView.prototype.onContactsClicked = function() {
@@ -1350,8 +1382,8 @@ window.require.register("views/app_view", function(exports, require, module) {
       return this.changeSubView(this.profileView);
     };
 
-    AppView.prototype.displayActivities = function() {
-      return this.changeSubView(this.activitiesView);
+    AppView.prototype.displayMicroposts = function() {
+      return this.changeSubView(this.micropostsView);
     };
 
     AppView.prototype.displayHome = function() {
@@ -1359,7 +1391,7 @@ window.require.register("views/app_view", function(exports, require, module) {
         _this = this;
       showHome = function() {
         _this.displayMenu();
-        return _this.displayActivities();
+        return _this.displayMicroposts();
       };
       if (this.currentView != null) {
         return this.currentView.fadeOut(showHome);
@@ -1404,7 +1436,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       this.loginView = this._addView(LoginView);
       this.registerNameView = this._addView(RegisterNameView);
       this.registerPasswordView = this._addView(RegisterPasswordView);
-      this.activitiesView = this._addView(ActivitiesView);
+      this.micropostsView = this._addView(MicropostsView);
       this.contactsView = this._addView(ContactsView);
       this.profileView = this._addView(ProfileView);
       this.notesView = this._addView(NotesView);
@@ -1413,7 +1445,7 @@ window.require.register("views/app_view", function(exports, require, module) {
           callback();
         } else {
           this.displayHome();
-          this.activitiesView.fetch();
+          this.micropostsView.fetch();
         }
       } else if (userState.password) {
         this.displayLogin();
@@ -1492,8 +1524,8 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.changeMenuState = function(view) {
       this.$("#navigation").find("a").removeClass("active");
-      if (view === this.activitiesView) {
-        return this.$("#activities-button").addClass("active");
+      if (view === this.micropostsView) {
+        return this.$("#microposts-button").addClass("active");
       } else if (view === this.contactsView) {
         return this.$("#contacts-button").addClass("active");
       } else if (view === this.profileView) {
@@ -1875,29 +1907,279 @@ window.require.register("views/login_view", function(exports, require, module) {
   })(QuestionView);
   
 });
-window.require.register("views/microposts_view", function(exports, require, module) {
-  var MicropostsView, View,
+window.require.register("views/micropost_list_view", function(exports, require, module) {
+  var CollectionView, Micropost, MicropostCollection, MicropostListView, MicropostView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  MicropostCollection = require('../collections/micropost_collection');
+
+  MicropostView = require('../views/micropost_view');
+
+  Micropost = require('../models/micropost');
+
+  module.exports = MicropostListView = (function(_super) {
+
+    __extends(MicropostListView, _super);
+
+    function MicropostListView() {
+      this.prependMicropost = __bind(this.prependMicropost, this);
+      return MicropostListView.__super__.constructor.apply(this, arguments);
+    }
+
+    MicropostListView.prototype.collection = new MicropostCollection();
+
+    MicropostListView.prototype.view = MicropostView;
+
+    MicropostListView.prototype.template = function() {
+      return require('./templates/micropost_list');
+    };
+
+    MicropostListView.prototype.afterRender = function() {
+      return this.$el.addClass('micropost-list mod left w100');
+    };
+
+    MicropostListView.prototype.prependMicropost = function(micropost) {
+      return this.renderOne(micropost, {
+        prepend: true
+      });
+    };
+
+    MicropostListView.prototype.loadMore = function() {
+      var _this = this;
+      this.collection.url = this.collection.baseUrl + this.getLastDate();
+      return this.collection.fetch({
+        success: function(microposts) {
+          var micropost, _i, _len, _ref, _results;
+          microposts.models.slice();
+          _ref = microposts.models;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            micropost = _ref[_i];
+            _results.push(_this.renderOne(micropost));
+          }
+          return _results;
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    MicropostListView.prototype.getLastDate = function() {
+      var lastDate, micropost;
+      micropost = this.collection.last();
+      if (micropost != null) {
+        lastDate = moment(micropost.get('date'));
+        return lastDate.format('YYYY-MM-DD') + '-23-59-00/';
+      } else {
+        return '';
+      }
+    };
+
+    return MicropostListView;
+
+  })(CollectionView);
+  
+});
+window.require.register("views/micropost_view", function(exports, require, module) {
+  var MicroPost, MicropostView, Renderer, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('../lib/view');
+
+  Renderer = require('../lib/renderer');
+
+  MicroPost = require('../models/micropost');
+
+  module.exports = MicropostView = (function(_super) {
+
+    __extends(MicropostView, _super);
+
+    MicropostView.prototype.className = 'micropost pt1 pb1 pl0';
+
+    MicropostView.prototype.template = function() {
+      return require('./templates/micropost');
+    };
+
+    MicropostView.prototype.events = {
+      'click': 'onClicked',
+      'click .micropost-delete-button': 'onDeleteClicked'
+    };
+
+    function MicropostView(model) {
+      this.model = model;
+      MicropostView.__super__.constructor.call(this);
+    }
+
+    MicropostView.prototype.afterRender = function() {
+      return this.buttons = this.$('.micropost-buttons');
+    };
+
+    MicropostView.prototype.getRenderData = function() {
+      var content, renderer, _ref;
+      renderer = new Renderer();
+      content = renderer.renderDoc(this.model);
+      this.model.set('content', content);
+      this.model.set('content', renderer.renderDate(this.model.get('date')));
+      this.model.set('displayDate', renderer.renderDate(this.model.get('date')));
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    MicropostView.prototype.onClicked = function() {
+      $('.micropost').removeClass('selected');
+      $('.micropost-buttons').hide();
+      this.$el.addClass('selected');
+      return this.buttons.show();
+    };
+
+    MicropostView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      this.model.url = "microposts/" + this.model.id + "/";
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    return MicropostView;
+
+  })(View);
+  
+});
+window.require.register("views/microposts_view", function(exports, require, module) {
+  var MicroPost, MicropostListView, MicropostsView, SimpleTagList, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  MicroPost = require('../models/micropost');
+
+  MicropostListView = require('../views/micropost_list_view');
+
+  SimpleTagList = require('../views/simple_tag_list');
 
   module.exports = MicropostsView = (function(_super) {
 
     __extends(MicropostsView, _super);
 
     function MicropostsView() {
+      this.loadMoreMicroposts = __bind(this.loadMoreMicroposts, this);
+
+      this.createNewPost = __bind(this.createNewPost, this);
+
+      this.onMicropostFieldKeyup = __bind(this.onMicropostFieldKeyup, this);
+
+      this.onMicropostFieldKeydown = __bind(this.onMicropostFieldKeydown, this);
       return MicropostsView.__super__.constructor.apply(this, arguments);
     }
 
     MicropostsView.prototype.id = 'microposts-view';
 
+    MicropostsView.prototype.className = 'pa1';
+
     MicropostsView.prototype.template = function() {
       return require('./templates/microposts');
     };
 
+    MicropostsView.prototype.events = {
+      "keyup #micropost-field": "onMicropostFieldKeyup",
+      "keydown #micropost-field": "onMicropostFieldKeydown",
+      "click #micropost-post-button": "createNewPost",
+      "click #more-microposts-button": "loadMoreMicroposts"
+    };
+
     MicropostsView.prototype.afterRender = function() {
-      return this.isLoaded = true;
+      this.micropostList = new MicropostListView({
+        el: this.$("#micropost-all")
+      });
+      this.isLoaded = false;
+      this.micropostField = this.$("#micropost-field");
+      return this.tagList = new SimpleTagList('#micropost-tag-list');
+    };
+
+    MicropostsView.prototype.fetch = function() {
+      var _this = this;
+      return this.micropostList.collection.fetch({
+        success: function() {},
+        error: function() {
+          return alert('A server error occured while retrieving news feed');
+        }
+      });
+    };
+
+    MicropostsView.prototype.onMicropostFieldKeydown = function(event) {
+      if (event.keyCode === 17) {
+        return this.isCtrl = true;
+      }
+    };
+
+    MicropostsView.prototype.onMicropostFieldKeyup = function(event) {
+      var keyCode;
+      keyCode = event.which ? event.which : event.keyCode;
+      if (event.keyCode === 17) {
+        return this.isCtrl = false;
+      } else if (keyCode === 13 && this.isCtrl) {
+        return this.createNewPost();
+      }
+    };
+
+    MicropostsView.prototype.createNewPost = function() {
+      var content, micropost,
+        _this = this;
+      content = this.micropostField.val();
+      if ((content != null ? content.length : void 0) !== 0) {
+        this.micropostField.disable();
+        micropost = new MicroPost();
+        content = this.checkLink(content);
+        return micropost.save('content', content, {
+          success: function() {
+            _this.micropostList.prependMicropost(micropost);
+            _this.micropostField.enable();
+            return _this.micropostField.val(null);
+          },
+          error: function() {
+            return _this.micropostField.enable();
+          }
+        });
+      }
+    };
+
+    MicropostsView.prototype.loadMoreMicroposts = function() {
+      return this.micropostList.loadMore();
+    };
+
+    MicropostsView.prototype.checkLink = function(content) {
+      var previousChar, regexp, url, urlIndex, urls, _i, _len;
+      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+      urls = content.match(regexp);
+      if (urls) {
+        for (_i = 0, _len = urls.length; _i < _len; _i++) {
+          url = urls[_i];
+          urlIndex = content.indexOf(url);
+          if (urlIndex === 0) {
+            content = content.replace(url, "[" + url + "](" + url + ")");
+          } else {
+            previousChar = content.charAt(urlIndex - 1);
+            if (previousChar !== '(' && previousChar !== "[") {
+              content = content.replace(url, "[" + url + "](" + url + ")");
+            }
+          }
+        }
+      }
+      return content;
     };
 
     return MicropostsView;
@@ -2564,6 +2846,98 @@ window.require.register("views/register_password_view", function(exports, requir
   })(QuestionView);
   
 });
+window.require.register("views/simple_tag_list", function(exports, require, module) {
+  var CollectionView, SimpleTagListView, TagAllView, TagView, Tags, stringUtils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  TagView = require('./tag_view');
+
+  TagAllView = require('./tag_all_view');
+
+  Tags = require('../collections/tags');
+
+  stringUtils = require('../lib/string');
+
+  module.exports = SimpleTagListView = (function(_super) {
+
+    __extends(SimpleTagListView, _super);
+
+    SimpleTagListView.prototype.collection = new Tags();
+
+    SimpleTagListView.prototype.view = TagView;
+
+    function SimpleTagListView(el) {
+      this.el = el;
+      SimpleTagListView.__super__.constructor.call(this);
+    }
+
+    SimpleTagListView.prototype.template = function() {
+      return require('./templates/simple_tags');
+    };
+
+    SimpleTagListView.prototype.fetch = function(callbacks) {
+      if (this.views.length > 0) {
+        this.remove(this.views);
+      }
+      return this.collection.fetch(callbacks);
+    };
+
+    return SimpleTagListView;
+
+  })(CollectionView);
+  
+});
+window.require.register("views/simple_tag_view", function(exports, require, module) {
+  var TagView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('lib/view');
+
+  module.exports = TagView = (function(_super) {
+
+    __extends(TagView, _super);
+
+    TagView.prototype.className = 'tag-selector';
+
+    TagView.prototype.events = {
+      'click .tag-select-button': 'onSelectClicked'
+    };
+
+    function TagView(model, tagsView) {
+      this.model = model;
+      this.tagsView = tagsView;
+      TagView.__super__.constructor.call(this);
+    }
+
+    TagView.prototype.template = function() {
+      return require('./templates/simple_tag');
+    };
+
+    TagView.prototype.afterRender = function() {
+      return this.selectTagButton = this.$('.tag-select-button');
+    };
+
+    TagView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    TagView.prototype.onSelectClicked = function() {
+      this.publish('tag:selected', this.model.get('name'));
+      return this.selectTagButton.select();
+    };
+
+    return TagView;
+
+  })(View);
+  
+});
 window.require.register("views/tag_all_view", function(exports, require, module) {
   var TagAllView, TagView,
     __hasProp = {}.hasOwnProperty,
@@ -2865,7 +3239,28 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="activities-button" href="#activities" class="active">news feed</a></li><li><a id="activities-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="activities-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/micropost", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="pt05">' + ((interp = model.content) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/micropost_list", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
   }
   return buf.join("");
   };
@@ -2876,7 +3271,7 @@ window.require.register("views/templates/microposts", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="pa1"><textarea id="micropost-field"></textarea></div><div class="pa1"><button id="micropost-post-button">send</button></div><h1>all</h1><div id="microposts-all"></div>');
+  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button></div><div class="line"><div id="micropost-tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
   }
   return buf.join("");
   };
@@ -2939,6 +3334,27 @@ window.require.register("views/templates/question", function(exports, require, m
   buf.push('<div class="middle center question"> <p>' + escape((interp = question) == null ? '' : interp) + '</p><input');
   buf.push(attrs({ 'id':("" + (fieldId) + ""), 'type':("" + (type) + ""), "class": ('center') }, {"id":true,"type":true}));
   buf.push('/></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/simple_tag", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<button class="tag-select-button toggle-button">' + escape((interp = model.name) == null ? '' : interp) + '</button>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/simple_tags", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
   }
   return buf.join("");
   };

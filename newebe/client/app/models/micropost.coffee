@@ -1,9 +1,8 @@
 Model = require 'lib/model'
-request = require 'lib/request'
 
-module.exports = class MicropostModel extends Model
+module.exports = class Micropost extends Model
 
-    urlRoot: 'microposts/all/'
+    urlRoot: '/microposts/all/'
     idAttribute: '_id'
 
     defaults:
