@@ -5,13 +5,12 @@ module.exports = class TagView extends View
 
     events:
         'click .tag-select-button': 'onSelectClicked'
-        'click .tag-delete-button': 'onDeleteClicked'
 
     constructor: (@model, @tagsView) ->
         super()
 
     template: ->
-        require './templates/tag'
+        require './templates/simple_tag'
 
     afterRender: ->
         @selectTagButton = @$('.tag-select-button')
@@ -22,12 +21,7 @@ module.exports = class TagView extends View
 
     onSelectClicked: ->
         @publish 'tag:selected', @model.get 'name'
-        @selectTagButton.select()
+        @select()
 
-    onDeleteClicked: ->
-        @model.destroy
-            success: =>
-                @tagsView.onTagDeleted @model.get 'name'
-                @remove()
-            error: =>
-                alert 'An error occured while deleting tag'
+    select: ->
+        @selectTagButton.select()

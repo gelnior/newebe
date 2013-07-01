@@ -67,3 +67,7 @@ module.exports = class TagsView extends CollectionView
 
     onTagDeleted: (name) ->
         @contactsView.onTagDeleted name
+
+    select: (name) ->
+        @$(".tag-selector button").unselect()
+        @$(".tag-#{name}  button").select()

@@ -20,9 +20,7 @@ module.exports = class MicropostView extends View
 
     getRenderData: ->
         renderer = new Renderer()
-        content = renderer.renderDoc @model
-        @model.set 'content', content
-        @model.set 'content', renderer.renderDate @model.get 'date'
+        @model.set 'displayContent', renderer.renderDoc @model
         @model.set 'displayDate', renderer.renderDate @model.get 'date'
         model: @model?.toJSON()
 

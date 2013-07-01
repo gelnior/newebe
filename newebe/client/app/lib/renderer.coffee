@@ -6,14 +6,15 @@ module.exports = class Renderer
 
     renderDoc: (doc) ->
         if doc?
-            if doc.get 'doc_type' is 'MicroPost'
-                content = @markdownConverter.makeHtml doc.content
-                content += @checkForImages doc.content
-                content += @checkForVideos doc.content
+            if doc.get('doc_type') is 'MicroPost'
+                rawContent = doc.get 'content'
+                content = @markdownConverter.makeHtml rawContent
+                content += @checkForImages rawContent
+                content += @checkForVideos rawContent
                 return content
-            else if doc.get 'doc_type' is 'Picture'
-                return "<img src= \"/pictures/# doc._id}/th_#{doc.path}V5\" />"
-            else if doc.get 'doc_type' is 'Common'
+            else if doc.get('doc_type') is 'Picture'
+                return "<img src= \"/pictures/# doc._id}/th_#{doc.path}\" />"
+            else if doc.get('doc_type') is 'Common'
                 return doc.path
         return ''
 
@@ -24,8 +25,6 @@ module.exports = class Renderer
     checkForImages: (content) ->
         regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g
         urls = content.match regexp
-        console.log urls
-
         result = ""
 
         if urls

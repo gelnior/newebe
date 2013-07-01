@@ -84,7 +84,8 @@ module.exports = class ContactsView extends CollectionView
         @isLoaded = true
 
     onTagSelected: (name) ->
-        @tagsView.$(".tag-select-button").removeClass 'selected'
+        if @tagsView?
+            @tagsView.select name
         if name is 'all' then @$('.contact-line').show()
         else
             @$('.contact-line').hide()

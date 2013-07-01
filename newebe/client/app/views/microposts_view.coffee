@@ -16,11 +16,17 @@ module.exports = class MicropostsView extends View
         "click #micropost-post-button": "createNewPost"
         "click #more-microposts-button": "loadMoreMicroposts"
 
+    subscriptions:
+        'tag:selected': 'onTagSelected'
+
     afterRender: ->
         @micropostList = new MicropostListView el: @$ "#micropost-all"
         @isLoaded = false
         @micropostField = @$ "#micropost-field"
-        @tagList = new SimpleTagList '#micropost-tag-list'
+        setTimeout =>
+            @tagList = new SimpleTagList '#micropost-tag-list'
+            @tagList.fetch success: => @tagList.select 'all'
+        , 200
 
     fetch: ->
         @micropostList.collection.fetch
@@ -45,6 +51,7 @@ module.exports = class MicropostsView extends View
 
             micropost = new MicroPost()
             content = @checkLink content
+            micropost.set 'tags', [@tagList.selectedTag]
             micropost.save 'content', content,
                 success: =>
                     @micropostList.prependMicropost micropost
@@ -69,3 +76,9 @@ module.exports = class MicropostsView extends View
                     if previousChar isnt '(' and previousChar isnt "["
                         content = content.replace url, "[#{url}](#{url})"
         content
+
+    onTagSelected: (name) ->
+        if @tagsView?
+            @tagsView.$(".tag-select-button").removeClass 'selected'
+        @micropostList.loadTag name
+        @tagList.select name

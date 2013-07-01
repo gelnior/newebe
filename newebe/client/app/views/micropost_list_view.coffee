@@ -16,8 +16,27 @@ module.exports = class MicropostListView extends CollectionView
     prependMicropost: (micropost) =>
         @renderOne micropost, prepend: true
 
+    loadTag: (tag) ->
+        @tag = tag
+        lastDate = moment()
+        date = lastDate.format('YYYY-MM-DD') + '-23-59-00/'
+        @remove @views, silent: true
+        @views = []
+        @collection.url = @collection.baseUrl + date
+        @collection.url += "tags/#{@tag}/"
+        @collection.fetch
+            success: (microposts) =>
+                console.log 'success'
+                console.log @views
+
+
+                if @views.length is 0
+                    microposts.models.slice()
+                    @renderOne micropost for micropost in microposts.models
+
     loadMore: ->
         @collection.url = @collection.baseUrl + @getLastDate()
+        @collection.url += "tags/#{@tag}/" if @tag?
         @collection.fetch
             success: (microposts) =>
                 microposts.models.slice()
@@ -31,4 +50,5 @@ module.exports = class MicropostListView extends CollectionView
             lastDate = moment micropost.get 'date'
             return lastDate.format('YYYY-MM-DD') + '-23-59-00/'
         else
-            return ''
+            lastDate = moment()
+        return lastDate.format('YYYY-MM-DD') + '-23-59-00/'

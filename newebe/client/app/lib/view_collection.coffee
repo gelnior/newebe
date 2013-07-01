@@ -16,7 +16,7 @@ class ViewCollection extends View
     add: (views, options = {}) ->
         views = if _.isArray views then views.slice() else [views]
         for view in views
-            unless @get view.cid
+            if view? and not @get view.cid
                 @views.push view
                 @trigger 'add', view, @ unless options.silent
         @
