@@ -141,7 +141,8 @@ class NewsHandler(NewebeAuthHandler):
                 author=user.name,
                 content=data['content'],
                 attachments=converter.convert(data),
-                tags=data["tags"]
+                tags=data["tags"],
+                pictures=data["pictures"]
             )
             micropost.save()
             converter.add_files(micropost)

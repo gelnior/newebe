@@ -9,6 +9,7 @@ module.exports = class Renderer
             if doc.get('doc_type') is 'MicroPost'
                 rawContent = doc.get 'content'
                 content = @markdownConverter.makeHtml rawContent
+                content += @checkForPictures doc.get 'pictures'
                 content += @checkForImages rawContent
                 content += @checkForVideos rawContent
                 return content
@@ -21,6 +22,13 @@ module.exports = class Renderer
     renderDate: (dateString) ->
         date =  moment dateString, 'YYYY-MM-DDThh:mm:ssZ'
         return date.format 'D MMM  YYYY, HH:mm'
+
+    checkForPictures: (pictures) ->
+        result = ""
+        if pictures?.length > 0
+            result += "<p>Attached pictures: </p>"
+            for picture in pictures
+                result += "<img class=\"post-picture\" src=\"pictures/#{picture}/th_#{picture}.jpg\" />"
 
     checkForImages: (content) ->
         regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g

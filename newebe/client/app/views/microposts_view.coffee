@@ -26,7 +26,36 @@ module.exports = class MicropostsView extends View
         setTimeout =>
             @tagList = new SimpleTagList '#micropost-tag-list'
             @tagList.fetch success: => @tagList.select 'all'
+            @configureUpload()
         , 200
+
+
+    configureUpload: ->
+        input = document.getElementById('attach-picture')
+        previewNode = document.getElementById('preview-list')
+
+
+        FileAPI.event.on input, 'change', (evt) =>
+            files = FileAPI.getFiles(evt)
+            callback1 = (file, info) =>
+                true
+            FileAPI.filterFiles files, callback1, (fileList, ignor) =>
+                unless fileList.length
+                    alert '0 file'
+                    return 0
+                imageList = FileAPI.filter fileList, (file) =>
+                     return /image/.test(file.type)
+
+                FileAPI.each imageList, (imageFile) =>
+                    FileAPI.Image(imageFile)
+                        .preview(100, 120)
+                        .get (err, image) =>
+                            if err then alert err
+                            else
+                                previewNode.appendChild(image)
+
+                @attachments = imageList
+
 
     fetch: ->
         @micropostList.collection.fetch
@@ -49,16 +78,36 @@ module.exports = class MicropostsView extends View
         if content?.length isnt 0
             @micropostField.disable()
 
-            micropost = new MicroPost()
-            content = @checkLink content
-            micropost.set 'tags', [@tagList.selectedTag]
-            micropost.save 'content', content,
-                success: =>
-                    @micropostList.prependMicropost micropost
-                    @micropostField.enable()
-                    @micropostField.val null
-                error: =>
-                    @micropostField.enable()
+            postMicropost = (pictureId) =>
+                micropost = new MicroPost()
+                if pictureId?
+                    micropost.set 'pictures', [pictureId]
+                else
+                    micropost.set 'pictures', []
+                content = @checkLink content
+                micropost.set 'tags', [@tagList.selectedTag]
+                micropost.save 'content', content,
+                    success: =>
+                        @micropostList.prependMicropost micropost
+                        @micropostField.enable()
+                        @micropostField.val null
+                    error: =>
+                        @micropostField.enable()
+
+            if @attachments?.length > 0
+                xhr = FileAPI.upload
+                    url: '/pictures/all/'
+                    files:
+                        picture: @attachments[0]
+                    complete: (err, xhr) ->
+                        if err then alert 'upload failed'
+                        else alert 'upload complete'
+                        picture = JSON.parse xhr.response
+                        @attachments = null
+                        postMicropost(picture._id)
+            else
+                postMicropost()
+
 
     loadMoreMicroposts: =>
         @micropostList.loadMore()

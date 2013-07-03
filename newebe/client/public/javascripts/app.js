@@ -357,6 +357,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
         if (doc.get('doc_type') === 'MicroPost') {
           rawContent = doc.get('content');
           content = this.markdownConverter.makeHtml(rawContent);
+          content += this.checkForPictures(doc.get('pictures'));
           content += this.checkForImages(rawContent);
           content += this.checkForVideos(rawContent);
           return content;
@@ -373,6 +374,20 @@ window.require.register("lib/renderer", function(exports, require, module) {
       var date;
       date = moment(dateString, 'YYYY-MM-DDThh:mm:ssZ');
       return date.format('D MMM  YYYY, HH:mm');
+    };
+
+    Renderer.prototype.checkForPictures = function(pictures) {
+      var picture, result, _i, _len, _results;
+      result = "";
+      if ((pictures != null ? pictures.length : void 0) > 0) {
+        result += "<p>Attached pictures: </p>";
+        _results = [];
+        for (_i = 0, _len = pictures.length; _i < _len; _i++) {
+          picture = pictures[_i];
+          _results.push(result += "<img class=\"post-picture\" src=\"pictures/" + picture + "/th_" + picture + ".jpg\" />");
+        }
+        return _results;
+      }
     };
 
     Renderer.prototype.checkForImages = function(content) {
@@ -2149,12 +2164,47 @@ window.require.register("views/microposts_view", function(exports, require, modu
       this.micropostField = this.$("#micropost-field");
       return setTimeout(function() {
         _this.tagList = new SimpleTagList('#micropost-tag-list');
-        return _this.tagList.fetch({
+        _this.tagList.fetch({
           success: function() {
             return _this.tagList.select('all');
           }
         });
+        return _this.configureUpload();
       }, 200);
+    };
+
+    MicropostsView.prototype.configureUpload = function() {
+      var input, previewNode,
+        _this = this;
+      input = document.getElementById('attach-picture');
+      previewNode = document.getElementById('preview-list');
+      return FileAPI.event.on(input, 'change', function(evt) {
+        var callback1, files;
+        files = FileAPI.getFiles(evt);
+        callback1 = function(file, info) {
+          return true;
+        };
+        return FileAPI.filterFiles(files, callback1, function(fileList, ignor) {
+          var imageList;
+          if (!fileList.length) {
+            alert('0 file');
+            return 0;
+          }
+          imageList = FileAPI.filter(fileList, function(file) {
+            return /image/.test(file.type);
+          });
+          FileAPI.each(imageList, function(imageFile) {
+            return FileAPI.Image(imageFile).preview(100, 120).get(function(err, image) {
+              if (err) {
+                return alert(err);
+              } else {
+                return previewNode.appendChild(image);
+              }
+            });
+          });
+          return _this.attachments = imageList;
+        });
+      });
     };
 
     MicropostsView.prototype.fetch = function() {
@@ -2184,24 +2234,53 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.createNewPost = function() {
-      var content, micropost,
+      var content, postMicropost, xhr, _ref,
         _this = this;
       content = this.micropostField.val();
       if ((content != null ? content.length : void 0) !== 0) {
         this.micropostField.disable();
-        micropost = new MicroPost();
-        content = this.checkLink(content);
-        micropost.set('tags', [this.tagList.selectedTag]);
-        return micropost.save('content', content, {
-          success: function() {
-            _this.micropostList.prependMicropost(micropost);
-            _this.micropostField.enable();
-            return _this.micropostField.val(null);
-          },
-          error: function() {
-            return _this.micropostField.enable();
+        postMicropost = function(pictureId) {
+          var micropost;
+          micropost = new MicroPost();
+          if (pictureId != null) {
+            micropost.set('pictures', [pictureId]);
+          } else {
+            micropost.set('pictures', []);
           }
-        });
+          content = _this.checkLink(content);
+          micropost.set('tags', [_this.tagList.selectedTag]);
+          return micropost.save('content', content, {
+            success: function() {
+              _this.micropostList.prependMicropost(micropost);
+              _this.micropostField.enable();
+              return _this.micropostField.val(null);
+            },
+            error: function() {
+              return _this.micropostField.enable();
+            }
+          });
+        };
+        if (((_ref = this.attachments) != null ? _ref.length : void 0) > 0) {
+          return xhr = FileAPI.upload({
+            url: '/pictures/all/',
+            files: {
+              picture: this.attachments[0]
+            },
+            complete: function(err, xhr) {
+              var picture;
+              if (err) {
+                alert('upload failed');
+              } else {
+                alert('upload complete');
+              }
+              picture = JSON.parse(xhr.response);
+              this.attachments = null;
+              return postMicropost(picture._id);
+            }
+          });
+        } else {
+          return postMicropost();
+        }
       }
     };
 
@@ -3343,7 +3422,7 @@ window.require.register("views/templates/microposts", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
+  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button><div class="js-fileapi-wrapper"><input id="attach-picture" type="file"/><div id="preview-list" class="line"></div></div></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
   }
   return buf.join("");
   };

@@ -54,11 +54,9 @@ class PicturesHandler(NewebeAuthHandler):
 
         if file:
             filebody = file["body"]
-            filename = file['filename']
 
             picture = Picture(
                 title="New Picture",
-                path=filename,
                 contentType=file["content_type"],
                 authorKey=UserManager.getUser().key,
                 author=UserManager.getUser().name,
@@ -66,6 +64,9 @@ class PicturesHandler(NewebeAuthHandler):
             )
             picture.save()
 
+
+            filename = '%s.jpg' % picture._id
+            picture.path = filename
             picture.put_attachment(filebody, filename)
             thumbnail = self.get_thumbnail(filebody, filename, (200, 200))
             thbuffer = thumbnail.read()
@@ -217,6 +218,7 @@ class PictureContactHandler(NewebeHandler):
 
                 if not picture:
                     picture = Picture(
+                        _id=data.get("_id", ""),
                         title=data.get("title", ""),
                         path=data.get("path", ""),
                         contentType=data.get("contentType", ""),
