@@ -2052,7 +2052,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     __extends(MicropostView, _super);
 
-    MicropostView.prototype.className = 'micropost pt1 pb1 pl0';
+    MicropostView.prototype.className = 'micropost pt1 pb1 pl1';
 
     MicropostView.prototype.template = function() {
       return require('./templates/micropost');

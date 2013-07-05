@@ -3,7 +3,7 @@ Renderer = require '../lib/renderer'
 MicroPost = require '../models/micropost'
 
 module.exports = class MicropostView extends View
-    className: 'micropost pt1 pb1 pl0'
+    className: 'micropost pt1 pb1 pl1'
 
     template: ->
         require './templates/micropost'
