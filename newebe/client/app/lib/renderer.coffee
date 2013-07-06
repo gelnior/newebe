@@ -8,13 +8,17 @@ module.exports = class Renderer
         if doc?
             if doc.get('doc_type') is 'MicroPost'
                 rawContent = doc.get 'content'
+                content = '<div class="mod left w40">'
                 content = @markdownConverter.makeHtml rawContent
+                if doc.get('pictures')?.length > 0
+                    content += '<img src="static/images/attachment.png" />'
+                content += '</div>'
+                content += '<div class="mod right w40 micropost-attachments">'
                 content += @checkForPictures doc.get 'pictures'
                 content += @checkForImages rawContent
                 content += @checkForVideos rawContent
+                content += '</div>'
                 return content
-            else if doc.get('doc_type') is 'Picture'
-                return "<img src= \"/pictures/# doc._id}/th_#{doc.path}\" />"
             else if doc.get('doc_type') is 'Common'
                 return doc.path
         return ''
@@ -26,9 +30,14 @@ module.exports = class Renderer
     checkForPictures: (pictures) ->
         result = ""
         if pictures?.length > 0
-            result += "<p>Attached pictures: </p>"
             for picture in pictures
-                result += "<img class=\"post-picture\" src=\"pictures/#{picture}/th_#{picture}.jpg\" />"
+                html = """
+<a href="pictures/#{picture}/#{picture}.jpg">
+<img class="post-picture" src="pictures/#{picture}/prev_#{picture}.jpg" />
+</a>
+"""
+                result += html
+        result
 
     checkForImages: (content) ->
         regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g
@@ -36,8 +45,6 @@ module.exports = class Renderer
         result = ""
 
         if urls
-            result += "<p>Embedded pictures: </p>"
-
             for url in urls
                 url = @getUrlFromMarkdown url
 
@@ -63,8 +70,6 @@ alt="Image #{url}" />
         result = ""
 
         if urls
-            result += "<p>Embedded videos: </p>"
-
             for url in urls
                 url = @getUrlFromMarkdown url
 
@@ -83,7 +88,7 @@ alt="Image #{url}" />
 
                     result += """
 <p>
-<iframe class="video" width="50%" height="315"
+<iframe class="video" style="max-width: 100%" width="560" height="315"
 src="http://www.youtube.com/embed/#{key}"
 frameborder="0" allowfullscreen>
 </iframe>

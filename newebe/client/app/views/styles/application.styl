@@ -74,15 +74,6 @@ body
             color: #DEF - 80%
 
 
-#microposts-view
-    .micropost
-        border-top: 1px solid #DDD
-
-    .author
-        font-weight: bold
-        margin-right: 5px 
-
-
 #profile-view
 
     p
@@ -259,6 +250,22 @@ body
     box-shadow: none
 
 #microposts-view
+    .js-fileapi-wrapper
+        display: none
+
+    .micropost
+        border-top: 1px solid #DDD
+
+        div
+            padding: 0
+
+        .micropost-attachments
+            display: none
+
+    .author
+        font-weight: bold
+        margin-right: 5px 
+
     .micropost-buttons 
         display: none
 
@@ -275,6 +282,9 @@ body
 
     .micropost.selected
         background: blue + 40%
+
+        .micropost-attachments
+            display: inline-block
 
     .tag-list
         div

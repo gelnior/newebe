@@ -2743,13 +2743,6 @@ body,
   background-color: #def;
   color: #00305f;
 }
-#microposts-view .micropost {
-  border-top: 1px solid #ddd;
-}
-#microposts-view .author {
-  font-weight: bold;
-  margin-right: 5px;
-}
 #profile-view p {
   margin: 0;
 }
@@ -2916,6 +2909,22 @@ body,
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+#microposts-view .js-fileapi-wrapper {
+  display: none;
+}
+#microposts-view .micropost {
+  border-top: 1px solid #ddd;
+}
+#microposts-view .micropost div {
+  padding: 0;
+}
+#microposts-view .micropost .micropost-attachments {
+  display: none;
+}
+#microposts-view .author {
+  font-weight: bold;
+  margin-right: 5px;
+}
 #microposts-view .micropost-buttons {
   display: none;
 }
@@ -2932,6 +2941,9 @@ body,
 }
 #microposts-view .micropost.selected {
   background: #ebf5ff;
+}
+#microposts-view .micropost.selected .micropost-attachments {
+  display: inline-block;
 }
 #microposts-view .tag-list div {
   float: left;

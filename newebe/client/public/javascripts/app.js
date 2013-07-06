@@ -352,17 +352,22 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.markdownConverter = new Showdown.converter();
 
     Renderer.prototype.renderDoc = function(doc) {
-      var content, rawContent;
+      var content, rawContent, _ref;
       if (doc != null) {
         if (doc.get('doc_type') === 'MicroPost') {
           rawContent = doc.get('content');
+          content = '<div class="mod left w40">';
           content = this.markdownConverter.makeHtml(rawContent);
+          if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0) {
+            content += '<img src="static/images/attachment.png" />';
+          }
+          content += '</div>';
+          content += '<div class="mod right w40 micropost-attachments">';
           content += this.checkForPictures(doc.get('pictures'));
           content += this.checkForImages(rawContent);
           content += this.checkForVideos(rawContent);
+          content += '</div>';
           return content;
-        } else if (doc.get('doc_type') === 'Picture') {
-          return "<img src= \"/pictures/# doc._id}/th_" + doc.path + "\" />";
         } else if (doc.get('doc_type') === 'Common') {
           return doc.path;
         }
@@ -377,17 +382,16 @@ window.require.register("lib/renderer", function(exports, require, module) {
     };
 
     Renderer.prototype.checkForPictures = function(pictures) {
-      var picture, result, _i, _len, _results;
+      var html, picture, result, _i, _len;
       result = "";
       if ((pictures != null ? pictures.length : void 0) > 0) {
-        result += "<p>Attached pictures: </p>";
-        _results = [];
         for (_i = 0, _len = pictures.length; _i < _len; _i++) {
           picture = pictures[_i];
-          _results.push(result += "<img class=\"post-picture\" src=\"pictures/" + picture + "/th_" + picture + ".jpg\" />");
+          html = "<a href=\"pictures/" + picture + "/" + picture + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + picture + "/prev_" + picture + ".jpg\" />\n</a>";
+          result += html;
         }
-        return _results;
       }
+      return result;
     };
 
     Renderer.prototype.checkForImages = function(content) {
@@ -396,7 +400,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
       urls = content.match(regexp);
       result = "";
       if (urls) {
-        result += "<p>Embedded pictures: </p>";
         for (_i = 0, _len = urls.length; _i < _len; _i++) {
           url = urls[_i];
           url = this.getUrlFromMarkdown(url);
@@ -420,7 +423,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
       urls = content.match(regexp);
       result = "";
       if (urls) {
-        result += "<p>Embedded videos: </p>";
         for (_i = 0, _len = urls.length; _i < _len; _i++) {
           url = urls[_i];
           url = this.getUrlFromMarkdown(url);
@@ -440,7 +442,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
             } else {
               key = key.substring(2, key.length);
             }
-            result += "<p>\n<iframe class=\"video\" width=\"50%\" height=\"315\"\nsrc=\"http://www.youtube.com/embed/" + key + "\"\nframeborder=\"0\" allowfullscreen>\n</iframe>\n</p>";
+            result += "<p>\n<iframe class=\"video\" style=\"max-width: 100%\" width=\"560\" height=\"315\"\nsrc=\"http://www.youtube.com/embed/" + key + "\"\nframeborder=\"0\" allowfullscreen>\n</iframe>\n</p>";
           }
         }
       }
@@ -2052,7 +2054,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     __extends(MicropostView, _super);
 
-    MicropostView.prototype.className = 'micropost pt1 pb1 pl1';
+    MicropostView.prototype.className = 'micropost pt1 pb1 pl1 line';
 
     MicropostView.prototype.template = function() {
       return require('./templates/micropost');
@@ -3401,7 +3403,7 @@ window.require.register("views/templates/micropost", function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="pt05">' + ((interp = model.displayContent) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button></div>');
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="line pl0"><div class="pt05 w40 mod left">' + ((interp = model.displayContent) == null ? '' : interp) + '</div></div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button></div>');
   }
   return buf.join("");
   };
@@ -3422,7 +3424,7 @@ window.require.register("views/templates/microposts", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button><div class="js-fileapi-wrapper"><input id="attach-picture" type="file"/><div id="preview-list" class="line"></div></div></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
+  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button><button id="send_attachment"><img src="static/images/attachment_white.png" alt="attachement button"/></button><div class="js-fileapi-wrapper"><input id="attach-picture" type="file"/><div id="preview-list" class="line"></div></div></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
   }
   return buf.join("");
   };
