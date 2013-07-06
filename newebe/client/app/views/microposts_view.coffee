@@ -15,6 +15,7 @@ module.exports = class MicropostsView extends View
         "keydown #micropost-field": "onMicropostFieldKeydown"
         "click #micropost-post-button": "createNewPost"
         "click #more-microposts-button": "loadMoreMicroposts"
+        "click #add-attachment": "onAddAttachmentClicked"
 
     subscriptions:
         'tag:selected': 'onTagSelected'
@@ -29,6 +30,10 @@ module.exports = class MicropostsView extends View
             @configureUpload()
         , 200
 
+    onAddAttachmentClicked: (event) ->
+        $(event.target).fadeOut =>
+            @$(".js-fileapi-wrapper input").show()
+            @$(".js-fileapi-wrapper").fadeIn()
 
     configureUpload: ->
         input = document.getElementById('attach-picture')
@@ -46,6 +51,7 @@ module.exports = class MicropostsView extends View
                 imageList = FileAPI.filter fileList, (file) =>
                      return /image/.test(file.type)
 
+                @$(".js-fileapi-wrapper input").fadeOut()
                 FileAPI.each imageList, (imageFile) =>
                     FileAPI.Image(imageFile)
                         .preview(100, 120)
@@ -91,8 +97,12 @@ module.exports = class MicropostsView extends View
                         @micropostList.prependMicropost micropost
                         @micropostField.enable()
                         @micropostField.val null
+                        @$("#add-attachment").fadeIn()
+                        @$('#preview-list').fadeOut()
                     error: =>
                         @micropostField.enable()
+                        @$("#add-attachment").fadeIn()
+                        @$('#preview-list').fadeOut()
 
             if @attachments?.length > 0
                 xhr = FileAPI.upload
@@ -101,10 +111,9 @@ module.exports = class MicropostsView extends View
                         picture: @attachments[0]
                     complete: (err, xhr) ->
                         if err then alert 'upload failed'
-                        else alert 'upload complete'
                         picture = JSON.parse xhr.response
                         @attachments = null
-                        postMicropost(picture._id)
+                        postMicropost picture._id
             else
                 postMicropost()
 

@@ -6,3 +6,6 @@ module.exports = class TagsCollection extends Backbone.Collection
     # collection.
     parse: (response) ->
         response.rows
+
+    comparator: (tag) ->
+        return tag.get 'name'

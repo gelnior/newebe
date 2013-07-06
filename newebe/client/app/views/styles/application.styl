@@ -58,6 +58,7 @@ body
             font-weight: bold
             color: white
             background-color: black
+            transition: background-color 200ms linear
             cursor: pointer
             text-shadow: 0 0 0 #FFF
 
@@ -67,10 +68,12 @@ body
             text-decoration: none
             text-shadow: 0 0 0 #FFF
             background-color: purple
+            transition: background-color 200ms linear
             color: white
 
         a.active
             background-color: #DEF
+            transition: background-color 200ms linear
             color: #DEF - 80%
 
 
@@ -113,10 +116,12 @@ body
     .main-section
         #change-picture-button:not(:hover)
             background-color: lightgrey
+            transition: background-color 200ms linear
 
         #sesame-stuff
             button:not(:hover)
                 background-color: lightgrey
+                transition: background-color 200ms linear
 
         #change-password-button
             margin-left: 0
@@ -124,10 +129,12 @@ body
     .main-section:hover
         #change-picture-button:not(:hover)
             background-color: red
+            transition: background-color 200ms linear
 
         #sesame-stuff
             button:not(:hover)
                 background-color: red
+                transition: background-color 200ms linear
 
         #change-password-button
             display: inline
@@ -145,6 +152,7 @@ body
         height: 45px
         width: 100%
         max-width: 400px
+        transition: background-color 200ms linear
 
         input
             cursor: pointer
@@ -155,12 +163,12 @@ body
     #change-picture-button:hover
         cursor: pointer
         background-color: purple
+        transition: background-color 200ms linear
 
     #change-picture-button:active
         cursor: pointer
         background-color: purple - 10%
         box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2)
-
 
 #contacts-view
     padding-top: 10px
@@ -253,6 +261,14 @@ body
     .js-fileapi-wrapper
         display: none
 
+        input
+            border: 1px solid black
+            margin-left: 10px
+            font-size: 14px
+
+        canvas
+            margin-left: 10px
+
     .micropost
         border-top: 1px solid #DDD
 
@@ -289,3 +305,5 @@ body
     .tag-list
         div
             float: left
+
+

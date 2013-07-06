@@ -44,6 +44,7 @@ a:visited
 
 button
     background-color: red
+    transition: background-color 200ms linear
     border-radius: 0
     border: 0
     padding: 10px
@@ -53,9 +54,11 @@ button
 
 button:hover
     background-color: purple
+    transition: background-color 200ms linear
 
 button:active
     background-color: purple - 10%
+    transition: background-color 200ms linear
     box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2)
 
 textarea
@@ -108,18 +111,22 @@ textarea:hover
 .toggle-button
     background-color: black
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2)
+    transition: background-color 200ms linear
 
 .toggle-button:hover
     background: purple
+    transition: background-color 200ms linear
 
 .toggle-button.selected
     background-color: blue
     color: blue - 80%
     box-shadow: none
+    transition: background-color 200ms linear
 
 .toggle-button.selected:hover
     background: purple
     color: white
+    transition: background-color 200ms linear
 
 .simple-row
     border-top: 1px solid #DDD

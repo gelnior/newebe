@@ -226,6 +226,10 @@ window.require.register("collections/tags", function(exports, require, module) {
       return response.rows;
     };
 
+    TagsCollection.prototype.comparator = function(tag) {
+      return tag.get('name');
+    };
+
     return TagsCollection;
 
   })(Backbone.Collection);
@@ -1547,6 +1551,8 @@ window.require.register("views/app_view", function(exports, require, module) {
         return this.$("#contacts-button").addClass("active");
       } else if (view === this.profileView) {
         return this.$("#profile-button").addClass("active");
+      } else if (view === this.notesView) {
+        return this.$("#notes-button").addClass("active");
       }
     };
 
@@ -2150,7 +2156,8 @@ window.require.register("views/microposts_view", function(exports, require, modu
       "keyup #micropost-field": "onMicropostFieldKeyup",
       "keydown #micropost-field": "onMicropostFieldKeydown",
       "click #micropost-post-button": "createNewPost",
-      "click #more-microposts-button": "loadMoreMicroposts"
+      "click #more-microposts-button": "loadMoreMicroposts",
+      "click #add-attachment": "onAddAttachmentClicked"
     };
 
     MicropostsView.prototype.subscriptions = {
@@ -2175,6 +2182,14 @@ window.require.register("views/microposts_view", function(exports, require, modu
       }, 200);
     };
 
+    MicropostsView.prototype.onAddAttachmentClicked = function(event) {
+      var _this = this;
+      return $(event.target).fadeOut(function() {
+        _this.$(".js-fileapi-wrapper input").show();
+        return _this.$(".js-fileapi-wrapper").fadeIn();
+      });
+    };
+
     MicropostsView.prototype.configureUpload = function() {
       var input, previewNode,
         _this = this;
@@ -2195,6 +2210,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
           imageList = FileAPI.filter(fileList, function(file) {
             return /image/.test(file.type);
           });
+          _this.$(".js-fileapi-wrapper input").fadeOut();
           FileAPI.each(imageList, function(imageFile) {
             return FileAPI.Image(imageFile).preview(100, 120).get(function(err, image) {
               if (err) {
@@ -2255,10 +2271,14 @@ window.require.register("views/microposts_view", function(exports, require, modu
             success: function() {
               _this.micropostList.prependMicropost(micropost);
               _this.micropostField.enable();
-              return _this.micropostField.val(null);
+              _this.micropostField.val(null);
+              _this.$("#add-attachment").fadeIn();
+              return _this.$('#preview-list').fadeOut();
             },
             error: function() {
-              return _this.micropostField.enable();
+              _this.micropostField.enable();
+              _this.$("#add-attachment").fadeIn();
+              return _this.$('#preview-list').fadeOut();
             }
           });
         };
@@ -2272,8 +2292,6 @@ window.require.register("views/microposts_view", function(exports, require, modu
               var picture;
               if (err) {
                 alert('upload failed');
-              } else {
-                alert('upload complete');
               }
               picture = JSON.parse(xhr.response);
               this.attachments = null;
@@ -3392,7 +3410,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="activities-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
   }
   return buf.join("");
   };
@@ -3424,7 +3442,7 @@ window.require.register("views/templates/microposts", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button><button id="send_attachment"><img src="static/images/attachment_white.png" alt="attachement button"/></button><div class="js-fileapi-wrapper"><input id="attach-picture" type="file"/><div id="preview-list" class="line"></div></div></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
+  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button><button id="add-attachment"><img src="static/images/attachment_white.png" alt="attachement button"/></button><div class="js-fileapi-wrapper"><input id="attach-picture" type="file"/><div id="preview-list" class="line"></div></div></div><div class="line"><div id="micropost-tag-list" class="tag-list"></div></div><div class="line"><div id="micropost-all"></div></div><div class="line"><button id="more-microposts-button">more</button></div>');
   }
   return buf.join("");
   };

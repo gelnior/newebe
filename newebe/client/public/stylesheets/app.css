@@ -2266,6 +2266,11 @@ a:visited:hover {
 }
 button {
   background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
   -webkit-border-radius: 0;
   border-radius: 0;
   border: 0;
@@ -2276,9 +2281,19 @@ button {
 }
 button:hover {
   background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 button:active {
   background-color: #9c279c;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
   -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
   box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
 }
@@ -2332,19 +2347,39 @@ textarea:hover {
   background-color: #000;
   -webkit-box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
   box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 .toggle-button:hover {
   background: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 .toggle-button.selected {
   background-color: #def;
   color: #00305f;
   -webkit-box-shadow: none;
   box-shadow: none;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 .toggle-button.selected:hover {
   background: #ad2bad;
   color: #fff;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 .simple-row {
   border-top: 1px solid #ddd;
@@ -2728,6 +2763,11 @@ body,
   font-weight: bold;
   color: #fff;
   background-color: #000;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
   cursor: pointer;
   text-shadow: 0 0 0 #fff;
 }
@@ -2737,10 +2777,20 @@ body,
   text-decoration: none;
   text-shadow: 0 0 0 #fff;
   background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
   color: #fff;
 }
 #navigation li a.active {
   background-color: #def;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
   color: #00305f;
 }
 #profile-view p {
@@ -2779,18 +2829,38 @@ body,
 }
 #profile-view .main-section #change-picture-button:not(:hover) {
   background-color: #eee;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view .main-section #sesame-stuff button:not(:hover) {
   background-color: #eee;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view .main-section #change-password-button {
   margin-left: 0;
 }
 #profile-view .main-section:hover #change-picture-button:not(:hover) {
   background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view .main-section:hover #sesame-stuff button:not(:hover) {
   background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view .main-section:hover #change-password-button {
   display: inline;
@@ -2807,6 +2877,11 @@ body,
   height: 45px;
   width: 100%;
   max-width: 400px;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view #change-picture-button input {
   cursor: pointer;
@@ -2818,6 +2893,11 @@ body,
 #profile-view #change-picture-button:hover {
   cursor: pointer;
   background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
 }
 #profile-view #change-picture-button:active {
   cursor: pointer;
@@ -2911,6 +2991,14 @@ body,
 }
 #microposts-view .js-fileapi-wrapper {
   display: none;
+}
+#microposts-view .js-fileapi-wrapper input {
+  border: 1px solid #000;
+  margin-left: 10px;
+  font-size: 14px;
+}
+#microposts-view .js-fileapi-wrapper canvas {
+  margin-left: 10px;
 }
 #microposts-view .micropost {
   border-top: 1px solid #ddd;
