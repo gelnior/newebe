@@ -1,0 +1,91 @@
+#profile-view
+    p
+        margin: 0 
+
+    input:hover
+    input:active
+    input:focus
+        border-bottom: 1px solid purple
+
+    input
+        border-radius: 0em
+        padding: 0em
+        border-bottom: 1px solid transparent
+        width: 100%
+
+    button
+        margin-left: 0
+
+    #profile-description
+        border: 1px solid transparent
+        padding: 1em
+        font-size: 1.4em
+
+    #profile-description:hover
+    #profile-description:active
+        border: 1px solid purple
+
+    #profile-name-field 
+        font-size: 40px
+        font-weight: bold
+
+    #profile-url-field
+        font-size: 16px
+
+    // Display action buttons when mouse is over the section
+    .main-section
+        #change-picture-button:not(:hover)
+            background-color: lightgrey
+            transition: background-color 200ms linear
+
+        #sesame-stuff
+            button:not(:hover)
+                background-color: lightgrey
+                transition: background-color 200ms linear
+
+        #change-password-button
+            margin-left: 0
+
+    .main-section:hover
+        #change-picture-button:not(:hover)
+            background-color: red
+            transition: background-color 200ms linear
+
+        #sesame-stuff
+            button:not(:hover)
+                background-color: red
+                transition: background-color 200ms linear
+
+        #change-password-button
+            display: inline
+
+    #sesame-form
+        display: none
+
+    // Ugly stuff required to override fine-uploader styles
+    #change-picture-button
+        cursor: pointer
+        background-color: red
+        padding: 10px
+        color: white
+        font-weight: bold
+        height: 45px
+        width: 100%
+        max-width: 400px
+        transition: background-color 200ms linear
+
+        input
+            cursor: pointer
+            font-size: 0.1em
+            padding: 0em
+            border-radius: 0em
+
+    #change-picture-button:hover
+        cursor: pointer
+        background-color: purple
+        transition: background-color 200ms linear
+
+    #change-picture-button:active
+        cursor: pointer
+        background-color: purple - 10%
+        box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2)
