@@ -251,29 +251,9 @@ window.require.register("initialize", function(exports, require, module) {
   }
 
   $(function() {
-    var AppRouter, AppView;
-    $.fn.disable = function() {
-      return this.each(function() {
-        $(this).prop('disabled', true);
-        return $(this).addClass('disabled');
-      });
-    };
-    $.fn.enable = function() {
-      return this.each(function() {
-        $(this).prop('disabled', false);
-        return $(this).removeClass('disabled');
-      });
-    };
-    $.fn.select = function() {
-      return this.each(function() {
-        return $(this).addClass('selected');
-      });
-    };
-    $.fn.unselect = function() {
-      return this.each(function() {
-        return $(this).removeClass('selected');
-      });
-    };
+    var AppRouter, AppView, addJqueryHelpers;
+    addJqueryHelpers = require('lib/jquery_helpers');
+    addJqueryHelpers();
     require('../lib/app_helpers');
     AppRouter = require('routers/app_router');
     AppView = require('views/app_view');
@@ -307,6 +287,34 @@ window.require.register("lib/app_helpers", function(exports, require, module) {
       return _results;
     })();
   })();
+  
+});
+window.require.register("lib/jquery_helpers", function(exports, require, module) {
+  
+  module.exports = function() {
+    $.fn.disable = function() {
+      return this.each(function() {
+        $(this).prop('disabled', true);
+        return $(this).addClass('disabled');
+      });
+    };
+    $.fn.enable = function() {
+      return this.each(function() {
+        $(this).prop('disabled', false);
+        return $(this).removeClass('disabled');
+      });
+    };
+    $.fn.select = function() {
+      return this.each(function() {
+        return $(this).addClass('selected');
+      });
+    };
+    return $.fn.unselect = function() {
+      return this.each(function() {
+        return $(this).removeClass('selected');
+      });
+    };
+  };
   
 });
 window.require.register("lib/model", function(exports, require, module) {

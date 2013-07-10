@@ -1,28 +1,15 @@
 # App Namespace
 # Change `CozyApp` to your app's name
+
 @Newebe ?= {}
 Newebe.routers ?= {}
 Newebe.views ?= {}
 
+
 $ ->
-
-    $.fn.disable = ->
-        @each ->
-            $(@).prop 'disabled', true
-            $(@).addClass 'disabled'
-
-    $.fn.enable = ->
-        @each ->
-            $(@).prop 'disabled', false
-            $(@).removeClass 'disabled'
-
-    $.fn.select = ->
-        @each ->
-            $(@).addClass 'selected'
-
-    $.fn.unselect = ->
-        @each ->
-            $(@).removeClass 'selected'
+    # Load Jquery helpers
+    addJqueryHelpers = require 'lib/jquery_helpers'
+    addJqueryHelpers()
 
     # Load App Helpers
     require '../lib/app_helpers'
@@ -33,7 +20,7 @@ $ ->
     Newebe.views.appView = new AppView()
     Newebe.routers.appRouter = new AppRouter Newebe.views.appView
 
-    # Configure vendor stuff
+    # Configure wysiwig editor
     etch.config.default = etch.config.all
 
     # Initialize Backbone History
