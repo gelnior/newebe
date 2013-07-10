@@ -371,7 +371,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
           content = '<div class="mod left w40">';
           content = this.markdownConverter.makeHtml(rawContent);
           if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0) {
-            content += '<img src="static/images/attachment.png" />';
+            content += '<imgsrc="static/images/attachment.png" />';
           }
           content += '</div>';
           content += '<div class="mod right w40 micropost-attachments">';
@@ -380,8 +380,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
           content += this.checkForVideos(rawContent);
           content += '</div>';
           return content;
-        } else if (doc.get('doc_type') === 'Common') {
-          return doc.path;
         }
       }
       return '';
@@ -394,13 +392,12 @@ window.require.register("lib/renderer", function(exports, require, module) {
     };
 
     Renderer.prototype.checkForPictures = function(pictures) {
-      var html, picture, result, _i, _len;
+      var picture, result, _i, _len;
       result = "";
       if ((pictures != null ? pictures.length : void 0) > 0) {
         for (_i = 0, _len = pictures.length; _i < _len; _i++) {
           picture = pictures[_i];
-          html = "<a href=\"pictures/" + picture + "/" + picture + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + picture + "/prev_" + picture + ".jpg\" />\n</a>";
-          result += html;
+          result += "<a href=\"pictures/" + picture + "/" + picture + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + picture + "/prev_" + picture + ".jpg\" />\n</a>";
         }
       }
       return result;
@@ -516,6 +513,8 @@ window.require.register("lib/string", function(exports, require, module) {
       return true;
     } else if ('abcdefghijklmnopqrstuvwxyz0123456789'.indexOf(keychar) === -1) {
       event.preventDefault();
+      return false;
+    } else {
       return false;
     }
   };

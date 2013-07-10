@@ -1,9 +1,10 @@
-
 # Utilities to render stuff from newebe document data.
 module.exports = class Renderer
 
     markdownConverter: new Showdown.converter()
 
+    # Check on what could be improved for a proper display of a given document.
+    # Actually only micropost are handled by this function.
     renderDoc: (doc) ->
         if doc?
             if doc.get('doc_type') is 'MicroPost'
@@ -11,7 +12,7 @@ module.exports = class Renderer
                 content = '<div class="mod left w40">'
                 content = @markdownConverter.makeHtml rawContent
                 if doc.get('pictures')?.length > 0
-                    content += '<img src="static/images/attachment.png" />'
+                    content += '<imgsrc="static/images/attachment.png" />'
                 content += '</div>'
                 content += '<div class="mod right w40 micropost-attachments">'
                 content += @checkForPictures doc.get 'pictures'
@@ -19,26 +20,30 @@ module.exports = class Renderer
                 content += @checkForVideos rawContent
                 content += '</div>'
                 return content
-            else if doc.get('doc_type') is 'Common'
-                return doc.path
         return ''
 
+
+    # Transform a CouchDB formatted date to a human readable date.
     renderDate: (dateString) ->
         date =  moment dateString, 'YYYY-MM-DDThh:mm:ssZ'
-        return date.format 'D MMM  YYYY, HH:mm'
+        date.format 'D MMM  YYYY, HH:mm'
 
+
+    # Return embedded picture code for an array of neweve picture IDs.
     checkForPictures: (pictures) ->
         result = ""
         if pictures?.length > 0
             for picture in pictures
-                html = """
+                result += """
 <a href="pictures/#{picture}/#{picture}.jpg">
 <img class="post-picture" src="pictures/#{picture}/prev_#{picture}.jpg" />
 </a>
 """
-                result += html
         result
 
+
+    # Look for image URL and return embedded code corresponding to these
+    # pictures.
     checkForImages: (content) ->
         regexp = /\[.+\]\((http|https):\/\/\S+\.(jpg|png|gif)\)/g
         urls = content.match regexp
@@ -59,12 +64,17 @@ alt="Image #{url}" />
 """
         return result
 
+
+    # Extract url from a markdown link [text](url)
     getUrlFromMarkdown: (markdownLink) ->
         index = markdownLink.indexOf "("
         markdownLink.substring index + 1, markdownLink.length - 1
 
+
+    # Look for youtube videos and return embedded code corresponding to these
+    # videos.
+    # Remember we analyze markdown code, not displayed text.
     checkForVideos: (content) ->
-        # Remember we analyze markdown code, not displayed text.
         regexp = /\[.+\]\((http|https):\/\/\S*youtube.com\/watch\?v=\S+\)/g
         urls = content.match(regexp)
         result = ""
@@ -94,5 +104,4 @@ frameborder="0" allowfullscreen>
 </iframe>
 </p>
 """
-
         result

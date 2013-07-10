@@ -29,11 +29,6 @@ module.exports = class View extends Backbone.View
         Backbone.View::remove.call @
 
     hide: -> @$el.hide()
-
     show: -> @$el.show()
-
-    fadeOut: (callback) ->
-        @$el.fadeOut callback
-
-    fadeIn: (callback) ->
-        @$el.fadeIn callback
+    fadeOut: (callback) -> @$el.fadeOut callback
+    fadeIn: (callback) -> @$el.fadeIn callback
