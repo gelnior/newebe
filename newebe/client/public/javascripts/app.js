@@ -1978,7 +1978,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
         _this = this;
       this.tag = tag;
       lastDate = moment();
-      date = lastDate.format('YYYY-MM-DD') + '-23-59-00/';
+      date = lastDate.format('YYYY-MM-DD-HH-mm-ss/');
       this.remove(this.views, {
         silent: true
       });
@@ -2033,7 +2033,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       micropost = this.collection.last();
       if (micropost != null) {
         lastDate = moment(micropost.get('date'));
-        return lastDate.format('YYYY-MM-DD') + '-23-59-00/';
+        return lastDate.format('YYYY-MM-DD-HH-mm-ss/');
       } else {
         lastDate = moment();
       }

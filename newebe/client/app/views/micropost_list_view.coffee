@@ -19,7 +19,7 @@ module.exports = class MicropostListView extends CollectionView
     loadTag: (tag) ->
         @tag = tag
         lastDate = moment()
-        date = lastDate.format('YYYY-MM-DD') + '-23-59-00/'
+        date = lastDate.format('YYYY-MM-DD-HH-mm-ss/')
         @remove @views, silent: true
         @views = []
         @collection.url = @collection.baseUrl + date
@@ -28,7 +28,6 @@ module.exports = class MicropostListView extends CollectionView
             success: (microposts) =>
                 console.log 'success'
                 console.log @views
-
 
                 if @views.length is 0
                     microposts.models.slice()
@@ -48,7 +47,7 @@ module.exports = class MicropostListView extends CollectionView
         micropost = @collection.last()
         if micropost?
             lastDate = moment micropost.get 'date'
-            return lastDate.format('YYYY-MM-DD') + '-23-59-00/'
+            return lastDate.format('YYYY-MM-DD-HH-mm-ss/')
         else
             lastDate = moment()
         return lastDate.format('YYYY-MM-DD') + '-23-59-00/'
