@@ -2098,7 +2098,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
     MicropostView.prototype.onClicked = function() {
       $('.micropost').removeClass('selected');
       $('.micropost-buttons').hide();
-      this.$el.addClass('selected');
+      this.$el.select();
       return this.buttons.show();
     };
 
@@ -2336,7 +2336,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
 
     MicropostsView.prototype.onTagSelected = function(name) {
       if (this.tagsView != null) {
-        this.tagsView.$(".tag-select-button").removeClass('selected');
+        this.tagsView.$(".tag-select-button").unSelect();
       }
       this.micropostList.loadTag(name);
       return this.tagList.select(name);

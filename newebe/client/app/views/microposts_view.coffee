@@ -39,7 +39,6 @@ module.exports = class MicropostsView extends View
         input = document.getElementById('attach-picture')
         previewNode = document.getElementById('preview-list')
 
-
         FileAPI.event.on input, 'change', (evt) =>
             files = FileAPI.getFiles(evt)
             callback1 = (file, info) =>
@@ -62,13 +61,14 @@ module.exports = class MicropostsView extends View
 
                 @attachments = imageList
 
-
     fetch: ->
         @micropostList.collection.fetch
             success: =>
             error: =>
                 alert 'A server error occured while retrieving news feed'
 
+    # The two followings function are here to support the ctrl+enter combo
+    # that sends the post to the newebe server.
     onMicropostFieldKeydown: (event) =>
         if event.keyCode is 17 then @isCtrl = true
 
@@ -86,10 +86,8 @@ module.exports = class MicropostsView extends View
 
             postMicropost = (pictureId) =>
                 micropost = new MicroPost()
-                if pictureId?
-                    micropost.set 'pictures', [pictureId]
-                else
-                    micropost.set 'pictures', []
+                if pictureId? then micropost.set 'pictures', [pictureId]
+                else micropost.set 'pictures', []
                 content = @checkLink content
                 micropost.set 'tags', [@tagList.selectedTag]
                 micropost.save 'content', content,
@@ -137,6 +135,6 @@ module.exports = class MicropostsView extends View
 
     onTagSelected: (name) ->
         if @tagsView?
-            @tagsView.$(".tag-select-button").removeClass 'selected'
+            @tagsView.$(".tag-select-button").unSelect()
         @micropostList.loadTag name
         @tagList.select name

@@ -27,13 +27,11 @@ module.exports = class MicropostView extends View
     onClicked: ->
         $('.micropost').removeClass 'selected'
         $('.micropost-buttons').hide()
-        @$el.addClass 'selected'
+        @$el.select()
         @buttons.show()
 
     onDeleteClicked: ->
         @model.url = "microposts/#{@model.id}/"
         @model.destroy
-            success: =>
-                @remove()
-            error: =>
-                alert 'server error occured'
+            success: => @remove()
+            error: => alert 'server error occured'
