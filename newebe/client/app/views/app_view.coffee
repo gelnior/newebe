@@ -21,42 +21,6 @@ module.exports = class AppView extends View
     events:
         'click #logout-button': 'onLogoutClicked'
 
-    # Transmit logout user request to backend.
-    onLogoutClicked: (event) ->
-        request.get 'logout/', (err, data) =>
-            if err
-                alert "Something went wrong while logging out"
-            else
-                Newebe.routers.appRouter.navigate ''
-                @displayLogin()
-
-    onMicropostsClicked: -> @changeSubView @micropostsView
-    onContactsClicked: -> @changeSubView @contactsView
-    onNotesClicked: -> @changeSubView @notesView
-    displayProfile: => @changeSubView @profileView
-    displayMicroposts: => @changeSubView @micropostsView
-
-    displayHome: =>
-        showHome = =>
-            @displayMenu()
-            @displayMicroposts()
-
-        if @currentView?
-            @currentView.fadeOut showHome
-        else
-            showHome()
-
-    displayRegisterPassword: => @changeView @registerPasswordView
-    displayRegisterName: => @changeView @registerNameView
-
-    displayLogin: =>
-        @loginView.clearField()
-        @changeView @loginView
-
-    displayMenu: =>
-        @menu.removeClass 'hidden'
-        @menu.fadeIn()
-
     # Depending on user state given by backend, it displays corresponding page.
     # State is described by following parameters :
     # * authenticated : if user is logged in or not.
@@ -68,6 +32,15 @@ module.exports = class AppView extends View
                 alert "Something went wrong, can't load newebe data."
             else
                 @start data, callback
+
+    # Transmit logout user request to backend.
+    onLogoutClicked: (event) ->
+        request.get 'logout/', (err, data) =>
+            if err
+                alert "Something went wrong while logging out"
+            else
+                Newebe.routers.appRouter.navigate ''
+                @displayLogin()
 
     # Display a page corresponding to user state.
     start: (userState, callback) ->
@@ -83,12 +56,10 @@ module.exports = class AppView extends View
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
 
-        if userState.authenticated
-            if callback?
-                callback()
-            else
-                @displayHome()
-                @micropostsView.fetch()
+        if userState.authenticated and callback? then callback()
+        else if userState.authenticated
+            @displayHome()
+            @micropostsView.fetch()
         else if userState.password
             @displayLogin()
         else if userState.registered
@@ -98,11 +69,28 @@ module.exports = class AppView extends View
 
         @isLoaded = true
 
-    _addView: (viewClass) =>
-        view = new viewClass()
-        view.hide()
-        @home.append view.el
-        view
+    onMicropostsClicked: -> @changeSubView @micropostsView
+    onContactsClicked: -> @changeSubView @contactsView
+    onNotesClicked: -> @changeSubView @notesView
+    displayProfile: => @changeSubView @profileView
+    displayMicroposts: => @changeSubView @micropostsView
+    displayHome: =>
+        showHome = =>
+            @displayMenu()
+            @displayMicroposts()
+
+        if @currentView? then @currentView.fadeOut showHome
+        else showHome()
+
+    displayMenu: =>
+        @menu.removeClass 'hidden'
+        @menu.fadeIn()
+
+    displayRegisterPassword: => @changeView @registerPasswordView
+    displayRegisterName: => @changeView @registerNameView
+    displayLogin: =>
+        @loginView.clearField()
+        @changeView @loginView
 
     displayView: (view) =>
         showView = =>
@@ -111,10 +99,8 @@ module.exports = class AppView extends View
                 @menu.removeClass 'hidden'
                 @menu.fadeIn()
 
-        if @isLoaded
-            displayView()
-        else
-            @checkUserState showView
+        if @isLoaded then displayView()
+        else @checkUserState showView
 
     changeSubView: (subView, callback) =>
         @changeMenuState subView
@@ -141,6 +127,13 @@ module.exports = class AppView extends View
                 view.focusField() if view.focusField?
             callback() if callback?
 
+    _addView: (viewClass) =>
+        view = new viewClass()
+        view.hide()
+        @home.append view.el
+        view
+
+    # Display corresponding menu button as selected for a given view.
     changeMenuState: (view) =>
         @$("#navigation").find("a").removeClass "active"
         if view is @micropostsView

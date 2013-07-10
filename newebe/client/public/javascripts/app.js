@@ -1348,21 +1348,21 @@ window.require.register("views/app_view", function(exports, require, module) {
     function AppView() {
       this.changeMenuState = __bind(this.changeMenuState, this);
 
+      this._addView = __bind(this._addView, this);
+
       this.changeView = __bind(this.changeView, this);
 
       this.changeSubView = __bind(this.changeSubView, this);
 
       this.displayView = __bind(this.displayView, this);
 
-      this._addView = __bind(this._addView, this);
-
-      this.displayMenu = __bind(this.displayMenu, this);
-
       this.displayLogin = __bind(this.displayLogin, this);
 
       this.displayRegisterName = __bind(this.displayRegisterName, this);
 
       this.displayRegisterPassword = __bind(this.displayRegisterPassword, this);
+
+      this.displayMenu = __bind(this.displayMenu, this);
 
       this.displayHome = __bind(this.displayHome, this);
 
@@ -1382,6 +1382,17 @@ window.require.register("views/app_view", function(exports, require, module) {
       'click #logout-button': 'onLogoutClicked'
     };
 
+    AppView.prototype.checkUserState = function(callback) {
+      var _this = this;
+      return request.get('user/state/', function(err, data) {
+        if (err) {
+          return alert("Something went wrong, can't load newebe data.");
+        } else {
+          return _this.start(data, callback);
+        }
+      });
+    };
+
     AppView.prototype.onLogoutClicked = function(event) {
       var _this = this;
       return request.get('logout/', function(err, data) {
@@ -1392,6 +1403,32 @@ window.require.register("views/app_view", function(exports, require, module) {
           return _this.displayLogin();
         }
       });
+    };
+
+    AppView.prototype.start = function(userState, callback) {
+      this.home = this.$('#home');
+      this.menu = this.$("#navigation");
+      this.home.html(null);
+      this.loginView = this._addView(LoginView);
+      this.registerNameView = this._addView(RegisterNameView);
+      this.registerPasswordView = this._addView(RegisterPasswordView);
+      this.micropostsView = this._addView(MicropostsView);
+      this.contactsView = this._addView(ContactsView);
+      this.profileView = this._addView(ProfileView);
+      this.notesView = this._addView(NotesView);
+      if (userState.authenticated && (callback != null)) {
+        callback();
+      } else if (userState.authenticated) {
+        this.displayHome();
+        this.micropostsView.fetch();
+      } else if (userState.password) {
+        this.displayLogin();
+      } else if (userState.registered) {
+        this.displayRegisterPassword();
+      } else {
+        this.displayRegisterName();
+      }
+      return this.isLoaded = true;
     };
 
     AppView.prototype.onMicropostsClicked = function() {
@@ -1428,6 +1465,11 @@ window.require.register("views/app_view", function(exports, require, module) {
       }
     };
 
+    AppView.prototype.displayMenu = function() {
+      this.menu.removeClass('hidden');
+      return this.menu.fadeIn();
+    };
+
     AppView.prototype.displayRegisterPassword = function() {
       return this.changeView(this.registerPasswordView);
     };
@@ -1439,58 +1481,6 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.displayLogin = function() {
       this.loginView.clearField();
       return this.changeView(this.loginView);
-    };
-
-    AppView.prototype.displayMenu = function() {
-      this.menu.removeClass('hidden');
-      return this.menu.fadeIn();
-    };
-
-    AppView.prototype.checkUserState = function(callback) {
-      var _this = this;
-      return request.get('user/state/', function(err, data) {
-        if (err) {
-          return alert("Something went wrong, can't load newebe data.");
-        } else {
-          return _this.start(data, callback);
-        }
-      });
-    };
-
-    AppView.prototype.start = function(userState, callback) {
-      this.home = this.$('#home');
-      this.menu = this.$("#navigation");
-      this.home.html(null);
-      this.loginView = this._addView(LoginView);
-      this.registerNameView = this._addView(RegisterNameView);
-      this.registerPasswordView = this._addView(RegisterPasswordView);
-      this.micropostsView = this._addView(MicropostsView);
-      this.contactsView = this._addView(ContactsView);
-      this.profileView = this._addView(ProfileView);
-      this.notesView = this._addView(NotesView);
-      if (userState.authenticated) {
-        if (callback != null) {
-          callback();
-        } else {
-          this.displayHome();
-          this.micropostsView.fetch();
-        }
-      } else if (userState.password) {
-        this.displayLogin();
-      } else if (userState.registered) {
-        this.displayRegisterPassword();
-      } else {
-        this.displayRegisterName();
-      }
-      return this.isLoaded = true;
-    };
-
-    AppView.prototype._addView = function(viewClass) {
-      var view;
-      view = new viewClass();
-      view.hide();
-      this.home.append(view.el);
-      return view;
     };
 
     AppView.prototype.displayView = function(view) {
@@ -1548,6 +1538,14 @@ window.require.register("views/app_view", function(exports, require, module) {
           return callback();
         }
       });
+    };
+
+    AppView.prototype._addView = function(viewClass) {
+      var view;
+      view = new viewClass();
+      view.hide();
+      this.home.append(view.el);
+      return view;
     };
 
     AppView.prototype.changeMenuState = function(view) {
