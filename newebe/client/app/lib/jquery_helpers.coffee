@@ -1,3 +1,4 @@
+# TODO: Check if JQuery selector is required
 module.exports = ->
     $.fn.disable = ->
         @each ->

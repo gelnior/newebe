@@ -205,6 +205,32 @@ window.require.register("collections/notes", function(exports, require, module) 
   })(Backbone.Collection);
   
 });
+window.require.register("collections/pictures", function(exports, require, module) {
+  var PicturesCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = PicturesCollection = (function(_super) {
+
+    __extends(PicturesCollection, _super);
+
+    function PicturesCollection() {
+      return PicturesCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    PicturesCollection.prototype.model = require('../models/picture');
+
+    PicturesCollection.prototype.url = 'pictures/all/';
+
+    PicturesCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return PicturesCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("collections/tags", function(exports, require, module) {
   var TagsCollection,
     __hasProp = {}.hasOwnProperty,
@@ -933,6 +959,30 @@ window.require.register("models/owner_model", function(exports, require, module)
   })(Model);
   
 });
+window.require.register("models/picture", function(exports, require, module) {
+  var Model, PictureModel,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Model = require('../lib/model');
+
+  module.exports = PictureModel = (function(_super) {
+
+    __extends(PictureModel, _super);
+
+    function PictureModel() {
+      return PictureModel.__super__.constructor.apply(this, arguments);
+    }
+
+    PictureModel.prototype.urlRoot = "pictures/all/";
+
+    PictureModel.prototype.idAttribute = '_id';
+
+    return PictureModel;
+
+  })(Model);
+  
+});
 window.require.register("models/tag", function(exports, require, module) {
   var Model, TagModel,
     __hasProp = {}.hasOwnProperty,
@@ -1001,6 +1051,13 @@ window.require.register("routers/app_router", function(exports, require, module)
       var _this = this;
       return this.loadSubView(function() {
         return _this.appView.changeSubView(_this.appView.contactsView);
+      });
+    };
+
+    AppRouter.prototype.pictures = function() {
+      var _this = this;
+      return this.loadSubView(function() {
+        return _this.appView.changeSubView(_this.appView.picturesView);
       });
     };
 
@@ -1558,6 +1615,8 @@ window.require.register("views/app_view", function(exports, require, module) {
         return this.$("#profile-button").addClass("active");
       } else if (view === this.notesView) {
         return this.$("#notes-button").addClass("active");
+      } else if (view === this.picturesView) {
+        return this.$("#pictures-button").addClass("active");
       }
     };
 
@@ -2606,6 +2665,161 @@ window.require.register("views/notes_view", function(exports, require, module) {
   })(View);
   
 });
+window.require.register("views/picture", function(exports, require, module) {
+  var PictureView, Renderer, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  Renderer = require('../lib/renderer');
+
+  module.exports = PictureView = (function(_super) {
+
+    __extends(PictureView, _super);
+
+    PictureView.prototype.className = 'picture pa1';
+
+    PictureView.prototype.template = function() {
+      return require('./templates/picture');
+    };
+
+    PictureView.prototype.events = {
+      'click': 'onClicked',
+      'click .picture-delete-button': 'onDeleteClicked'
+    };
+
+    PictureView.prototype.onClicked = function() {
+      $('.picture').unselect();
+      $('.picture-buttons').hide();
+      this.$el.select();
+      return this.buttons.show();
+    };
+
+    PictureView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    function PictureView(model) {
+      this.model = model;
+      PictureView.__super__.constructor.call(this);
+    }
+
+    PictureView.prototype.afterRender = function() {
+      this.buttons = this.$('.picture-buttons');
+      this.buttons.hide();
+      return this.renderPicture();
+    };
+
+    PictureView.prototype.renderPicture = function() {};
+
+    PictureView.prototype.getRenderData = function() {
+      var _ref;
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    return PictureView;
+
+  })(View);
+  
+});
+window.require.register("views/pictures", function(exports, require, module) {
+  var CollectionView, NoteView, PicturesCollection, PicturesView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  PicturesCollection = require('../collections/pictures');
+
+  NoteView = require('./note');
+
+  module.exports = PicturesView = (function(_super) {
+
+    __extends(PicturesView, _super);
+
+    function PicturesView() {
+      return PicturesView.__super__.constructor.apply(this, arguments);
+    }
+
+    PicturesView.prototype.el = '#pictures';
+
+    PicturesView.prototype.collection = new PicturesCollection();
+
+    PicturesView.prototype.view = PictureView;
+
+    PicturesView.prototype.template = function() {
+      return require('./templates/pictures');
+    };
+
+    PicturesView.prototype.afterRender = function() {};
+
+    PicturesView.prototype.fetch = function() {
+      return this.collection.fetch();
+    };
+
+    return PicturesView;
+
+  })(CollectionView);
+  
+});
+window.require.register("views/pictures_view", function(exports, require, module) {
+  var Picture, PicturesMainView, PicturesView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  PicturesView = require('./pictures');
+
+  Picture = require('../models/picture');
+
+  module.exports = PicturesMainView = (function(_super) {
+
+    __extends(PicturesMainView, _super);
+
+    function PicturesMainView() {
+      return PicturesMainView.__super__.constructor.apply(this, arguments);
+    }
+
+    PicturesMainView.prototype.id = 'pictures-view';
+
+    PicturesMainView.prototype.events = {
+      'click #add-picture': 'onAddNoteClicked',
+      'click #sort-date-picture': 'onSortDateClicked',
+      'click #sort-title-picture': 'onSortTitleClicked'
+    };
+
+    PicturesMainView.prototype.template = function() {
+      return require('./templates/pictures_view');
+    };
+
+    PicturesMainView.prototype.afterRender = function() {};
+
+    PicturesMainView.prototype.fetch = function() {
+      var _ref;
+      if ((_ref = this.picturesView) == null) {
+        this.picturesView = new PicturesView();
+      }
+      this.picturesView.fetch();
+      return this.isLoaded = true;
+    };
+
+    return PicturesMainView;
+
+  })(View);
+  
+});
 window.require.register("views/profile_view", function(exports, require, module) {
   var Owner, ProfileController, ProfileView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -3482,6 +3696,38 @@ window.require.register("views/templates/notes_view", function(exports, require,
   with (locals || {}) {
   var interp;
   buf.push('<button id="add-note">add note</button><button id="sort-date-note">sort by date</button><button id="sort-title-note">sort by title</button><div id="notes"></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/picture", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="mod w33 left"><picture></picture></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/pictures", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/pictures_view", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div id="pictures"></div>');
   }
   return buf.join("");
   };

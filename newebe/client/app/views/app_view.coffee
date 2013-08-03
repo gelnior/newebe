@@ -144,3 +144,5 @@ module.exports = class AppView extends View
             @$("#profile-button").addClass "active"
         else if view is @notesView
             @$("#notes-button").addClass "active"
+        else if view is @picturesView
+            @$("#pictures-button").addClass "active"
