@@ -1034,42 +1034,31 @@ window.require.register("routers/app_router", function(exports, require, module)
     };
 
     AppRouter.prototype.microposts = function() {
-      var _this = this;
-      return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.micropostsView);
-      });
+      return this.loadSubView(this.appView.micropostsView);
     };
 
     AppRouter.prototype.notes = function() {
-      var _this = this;
-      return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.notesView);
-      });
+      return this.loadSubView(this.appView.notesView);
     };
 
     AppRouter.prototype.contacts = function() {
-      var _this = this;
-      return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.contactsView);
-      });
+      return this.loadSubView(this.appView.contactsView);
     };
 
     AppRouter.prototype.pictures = function() {
-      var _this = this;
-      return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.picturesView);
-      });
+      return this.loadSubView(this.appView.picturesView);
     };
 
     AppRouter.prototype.profile = function() {
-      var _this = this;
-      return this.loadSubView(function() {
-        return _this.appView.changeSubView(_this.appView.profileView);
-      });
+      return this.loadSubView(this.appView.profileView);
     };
 
-    AppRouter.prototype.loadSubView = function(callback) {
-      var _this = this;
+    AppRouter.prototype.loadSubView = function(view) {
+      var callback,
+        _this = this;
+      callback = function() {
+        return _this.appView.changeSubView(view);
+      };
       if (this.appView.isLoaded) {
         return callback();
       } else {
