@@ -1,6 +1,7 @@
 View = require '../lib/view'
 Renderer = require '../lib/renderer'
 MicroPost = require '../models/micropost'
+NoteSelector = require './note_selector'
 
 module.exports = class MicropostView extends View
     className: 'micropost pt1 pb1 pl1 line'
@@ -11,6 +12,7 @@ module.exports = class MicropostView extends View
     events:
         'click': 'onClicked'
         'click .micropost-delete-button': 'onDeleteClicked'
+        'click .micropost-save-to-note-button': 'onSaveToNoteClicked'
 
     constructor: (@model) ->
         super()
@@ -35,3 +37,7 @@ module.exports = class MicropostView extends View
         @model.destroy
             success: => @remove()
             error: => alert 'server error occured'
+
+    onSaveToNoteClicked: ->
+        console.log NoteSelector
+        NoteSelector.getDialog().show @model

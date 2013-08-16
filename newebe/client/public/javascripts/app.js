@@ -80,18 +80,18 @@
 })();
 
 window.require.register("collections/activity_collection", function(exports, require, module) {
-  var Activity, ActivityCollection,
+  var Activity, ActivityCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Activity = require('../models/activity');
 
   module.exports = ActivityCollection = (function(_super) {
-
     __extends(ActivityCollection, _super);
 
     function ActivityCollection() {
-      return ActivityCollection.__super__.constructor.apply(this, arguments);
+      _ref = ActivityCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ActivityCollection.prototype.model = Activity;
@@ -114,16 +114,16 @@ window.require.register("collections/activity_collection", function(exports, req
   
 });
 window.require.register("collections/contacts", function(exports, require, module) {
-  var ContactsCollection,
+  var ContactsCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = ContactsCollection = (function(_super) {
-
     __extends(ContactsCollection, _super);
 
     function ContactsCollection() {
-      return ContactsCollection.__super__.constructor.apply(this, arguments);
+      _ref = ContactsCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ContactsCollection.prototype.model = require('../models/contact');
@@ -146,18 +146,18 @@ window.require.register("collections/contacts", function(exports, require, modul
   
 });
 window.require.register("collections/micropost_collection", function(exports, require, module) {
-  var Micropost, MicropostCollection,
+  var Micropost, MicropostCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Micropost = require('../models/micropost');
 
   module.exports = MicropostCollection = (function(_super) {
-
     __extends(MicropostCollection, _super);
 
     function MicropostCollection() {
-      return MicropostCollection.__super__.constructor.apply(this, arguments);
+      _ref = MicropostCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     MicropostCollection.prototype.model = Micropost;
@@ -180,16 +180,16 @@ window.require.register("collections/micropost_collection", function(exports, re
   
 });
 window.require.register("collections/notes", function(exports, require, module) {
-  var NotesCollection,
+  var NotesCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = NotesCollection = (function(_super) {
-
     __extends(NotesCollection, _super);
 
     function NotesCollection() {
-      return NotesCollection.__super__.constructor.apply(this, arguments);
+      _ref = NotesCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     NotesCollection.prototype.model = require('../models/note');
@@ -206,16 +206,16 @@ window.require.register("collections/notes", function(exports, require, module) 
   
 });
 window.require.register("collections/pictures", function(exports, require, module) {
-  var PicturesCollection,
+  var PicturesCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = PicturesCollection = (function(_super) {
-
     __extends(PicturesCollection, _super);
 
     function PicturesCollection() {
-      return PicturesCollection.__super__.constructor.apply(this, arguments);
+      _ref = PicturesCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PicturesCollection.prototype.model = require('../models/picture');
@@ -232,16 +232,16 @@ window.require.register("collections/pictures", function(exports, require, modul
   
 });
 window.require.register("collections/tags", function(exports, require, module) {
-  var TagsCollection,
+  var TagsCollection, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = TagsCollection = (function(_super) {
-
     __extends(TagsCollection, _super);
 
     function TagsCollection() {
-      return TagsCollection.__super__.constructor.apply(this, arguments);
+      _ref = TagsCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TagsCollection.prototype.model = require('../models/tag');
@@ -262,17 +262,15 @@ window.require.register("collections/tags", function(exports, require, module) {
   
 });
 window.require.register("initialize", function(exports, require, module) {
-  var _ref, _ref1, _ref2;
-
-  if ((_ref = this.Newebe) == null) {
+  if (this.Newebe == null) {
     this.Newebe = {};
   }
 
-  if ((_ref1 = Newebe.routers) == null) {
+  if (Newebe.routers == null) {
     Newebe.routers = {};
   }
 
-  if ((_ref2 = Newebe.views) == null) {
+  if (Newebe.views == null) {
     Newebe.views = {};
   }
 
@@ -296,7 +294,6 @@ window.require.register("initialize", function(exports, require, module) {
   
 });
 window.require.register("lib/app_helpers", function(exports, require, module) {
-  
   (function() {
     return (function() {
       var console, dummy, method, methods, _results;
@@ -316,7 +313,6 @@ window.require.register("lib/app_helpers", function(exports, require, module) {
   
 });
 window.require.register("lib/jquery_helpers", function(exports, require, module) {
-  
   module.exports = function() {
     $.fn.disable = function() {
       return this.each(function() {
@@ -344,16 +340,16 @@ window.require.register("lib/jquery_helpers", function(exports, require, module)
   
 });
 window.require.register("lib/model", function(exports, require, module) {
-  var Model,
+  var Model, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = Model = (function(_super) {
-
     __extends(Model, _super);
 
     function Model() {
-      return Model.__super__.constructor.apply(this, arguments);
+      _ref = Model.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     Model.prototype.idAttribute = '_id';
@@ -384,7 +380,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
   var Renderer;
 
   module.exports = Renderer = (function() {
-
     function Renderer() {}
 
     Renderer.prototype.markdownConverter = new Showdown.converter();
@@ -490,7 +485,6 @@ window.require.register("lib/renderer", function(exports, require, module) {
   
 });
 window.require.register("lib/request", function(exports, require, module) {
-  
   exports.request = function(type, url, data, callback) {
     return $.ajax({
       type: type,
@@ -531,7 +525,6 @@ window.require.register("lib/request", function(exports, require, module) {
   
 });
 window.require.register("lib/string", function(exports, require, module) {
-  
   exports.isSpecialKey = function(key, event) {
     var keychar;
     keychar = String.fromCharCode(key).toLowerCase();
@@ -547,16 +540,16 @@ window.require.register("lib/string", function(exports, require, module) {
   
 });
 window.require.register("lib/view", function(exports, require, module) {
-  var View,
+  var View, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = View = (function(_super) {
-
     __extends(View, _super);
 
     function View() {
-      return View.__super__.constructor.apply(this, arguments);
+      _ref = View.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     View.prototype.tagName = 'div';
@@ -568,9 +561,9 @@ window.require.register("lib/view", function(exports, require, module) {
     };
 
     View.prototype.getRenderData = function() {
-      var _ref;
+      var _ref1;
       return {
-        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+        model: (_ref1 = this.model) != null ? _ref1.toJSON() : void 0
       };
     };
 
@@ -626,7 +619,6 @@ window.require.register("lib/view_collection", function(exports, require, module
   View = require('./view');
 
   ViewCollection = (function(_super) {
-
     __extends(ViewCollection, _super);
 
     ViewCollection.prototype.collection = null;
@@ -639,7 +631,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
     function ViewCollection(options) {
       this.renderAll = __bind(this.renderAll, this);
-
       this.renderOne = __bind(this.renderOne, this);
       ViewCollection.__super__.constructor.call(this, options);
       this.collection.on('reset', this.renderAll);
@@ -768,16 +759,16 @@ window.require.register("lib/view_collection", function(exports, require, module
   
 });
 window.require.register("models/activity", function(exports, require, module) {
-  var Activity,
+  var Activity, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = Activity = (function(_super) {
-
     __extends(Activity, _super);
 
     function Activity() {
-      return Activity.__super__.constructor.apply(this, arguments);
+      _ref = Activity.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     Activity.prototype.urlRoot = '/activities/all/';
@@ -805,7 +796,7 @@ window.require.register("models/activity", function(exports, require, module) {
   
 });
 window.require.register("models/contact", function(exports, require, module) {
-  var ContactModel, Model, request,
+  var ContactModel, Model, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -814,11 +805,11 @@ window.require.register("models/contact", function(exports, require, module) {
   request = require('lib/request');
 
   module.exports = ContactModel = (function(_super) {
-
     __extends(ContactModel, _super);
 
     function ContactModel() {
-      return ContactModel.__super__.constructor.apply(this, arguments);
+      _ref = ContactModel.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ContactModel.prototype.urlRoot = 'contacts/';
@@ -874,18 +865,18 @@ window.require.register("models/contact", function(exports, require, module) {
   
 });
 window.require.register("models/micropost", function(exports, require, module) {
-  var Micropost, Model,
+  var Micropost, Model, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('lib/model');
 
   module.exports = Micropost = (function(_super) {
-
     __extends(Micropost, _super);
 
     function Micropost() {
-      return Micropost.__super__.constructor.apply(this, arguments);
+      _ref = Micropost.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     Micropost.prototype.urlRoot = '/microposts/all/';
@@ -902,18 +893,18 @@ window.require.register("models/micropost", function(exports, require, module) {
   
 });
 window.require.register("models/note", function(exports, require, module) {
-  var Model, NoteModel,
+  var Model, NoteModel, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('../lib/model');
 
   module.exports = NoteModel = (function(_super) {
-
     __extends(NoteModel, _super);
 
     function NoteModel() {
-      return NoteModel.__super__.constructor.apply(this, arguments);
+      _ref = NoteModel.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     NoteModel.prototype.urlRoot = "notes/all/";
@@ -926,7 +917,7 @@ window.require.register("models/note", function(exports, require, module) {
   
 });
 window.require.register("models/owner_model", function(exports, require, module) {
-  var Model, Owner, request,
+  var Model, Owner, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -935,11 +926,11 @@ window.require.register("models/owner_model", function(exports, require, module)
   Model = require('lib/model');
 
   module.exports = Owner = (function(_super) {
-
     __extends(Owner, _super);
 
     function Owner() {
-      return Owner.__super__.constructor.apply(this, arguments);
+      _ref = Owner.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     Owner.prototype.url = '/user/';
@@ -960,18 +951,18 @@ window.require.register("models/owner_model", function(exports, require, module)
   
 });
 window.require.register("models/picture", function(exports, require, module) {
-  var Model, PictureModel,
+  var Model, PictureModel, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('../lib/model');
 
   module.exports = PictureModel = (function(_super) {
-
     __extends(PictureModel, _super);
 
     function PictureModel() {
-      return PictureModel.__super__.constructor.apply(this, arguments);
+      _ref = PictureModel.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PictureModel.prototype.urlRoot = "pictures/all/";
@@ -984,18 +975,18 @@ window.require.register("models/picture", function(exports, require, module) {
   
 });
 window.require.register("models/tag", function(exports, require, module) {
-  var Model, TagModel,
+  var Model, TagModel, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('lib/model');
 
   module.exports = TagModel = (function(_super) {
-
     __extends(TagModel, _super);
 
     function TagModel() {
-      return TagModel.__super__.constructor.apply(this, arguments);
+      _ref = TagModel.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TagModel.prototype.urlRoot = 'contacts/tags/';
@@ -1013,7 +1004,6 @@ window.require.register("routers/app_router", function(exports, require, module)
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   module.exports = AppRouter = (function(_super) {
-
     __extends(AppRouter, _super);
 
     AppRouter.prototype.routes = {
@@ -1075,7 +1065,7 @@ window.require.register("routers/app_router", function(exports, require, module)
   
 });
 window.require.register("views/activities_view", function(exports, require, module) {
-  var ActivitiesView, ActivityListView, MicroPost, View,
+  var ActivitiesView, ActivityListView, MicroPost, View, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1087,18 +1077,15 @@ window.require.register("views/activities_view", function(exports, require, modu
   ActivityListView = require('../views/activity_list_view');
 
   module.exports = ActivitiesView = (function(_super) {
-
     __extends(ActivitiesView, _super);
 
     function ActivitiesView() {
       this.loadMoreActivities = __bind(this.loadMoreActivities, this);
-
       this.createNewPost = __bind(this.createNewPost, this);
-
       this.onMicropostFieldKeyup = __bind(this.onMicropostFieldKeyup, this);
-
       this.onMicropostFieldKeydown = __bind(this.onMicropostFieldKeydown, this);
-      return ActivitiesView.__super__.constructor.apply(this, arguments);
+      _ref = ActivitiesView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ActivitiesView.prototype.id = 'activities-view';
@@ -1202,7 +1189,7 @@ window.require.register("views/activities_view", function(exports, require, modu
   
 });
 window.require.register("views/activity_list_view", function(exports, require, module) {
-  var Activity, ActivityCollection, ActivityListView, ActivityView, CollectionView,
+  var Activity, ActivityCollection, ActivityListView, ActivityView, CollectionView, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1216,12 +1203,12 @@ window.require.register("views/activity_list_view", function(exports, require, m
   Activity = require('../models/activity');
 
   module.exports = ActivityListView = (function(_super) {
-
     __extends(ActivityListView, _super);
 
     function ActivityListView() {
       this.prependMicropostActivity = __bind(this.prependMicropostActivity, this);
-      return ActivityListView.__super__.constructor.apply(this, arguments);
+      _ref = ActivityListView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ActivityListView.prototype.collection = new ActivityCollection();
@@ -1250,12 +1237,12 @@ window.require.register("views/activity_list_view", function(exports, require, m
       this.collection.url = this.collection.baseUrl + this.getLastDate();
       return this.collection.fetch({
         success: function(activities) {
-          var activity, _i, _len, _ref, _results;
+          var activity, _i, _len, _ref1, _results;
           activities.models.slice();
-          _ref = activities.models;
+          _ref1 = activities.models;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            activity = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            activity = _ref1[_i];
             _results.push(_this.renderOne(activity));
           }
           return _results;
@@ -1294,7 +1281,6 @@ window.require.register("views/activity_view", function(exports, require, module
   MicroPost = require('../models/micropost');
 
   module.exports = ActivityView = (function(_super) {
-
     __extends(ActivityView, _super);
 
     ActivityView.prototype.className = 'activity pt1 pb1 pl0';
@@ -1362,7 +1348,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1388,34 +1374,23 @@ window.require.register("views/app_view", function(exports, require, module) {
   request = require('lib/request');
 
   module.exports = AppView = (function(_super) {
-
     __extends(AppView, _super);
 
     function AppView() {
       this.changeMenuState = __bind(this.changeMenuState, this);
-
       this._addView = __bind(this._addView, this);
-
       this.changeView = __bind(this.changeView, this);
-
       this.changeSubView = __bind(this.changeSubView, this);
-
       this.displayView = __bind(this.displayView, this);
-
       this.displayLogin = __bind(this.displayLogin, this);
-
       this.displayRegisterName = __bind(this.displayRegisterName, this);
-
       this.displayRegisterPassword = __bind(this.displayRegisterPassword, this);
-
       this.displayMenu = __bind(this.displayMenu, this);
-
       this.displayHome = __bind(this.displayHome, this);
-
       this.displayMicroposts = __bind(this.displayMicroposts, this);
-
       this.displayProfile = __bind(this.displayProfile, this);
-      return AppView.__super__.constructor.apply(this, arguments);
+      _ref = AppView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     AppView.prototype.el = 'body.application';
@@ -1623,7 +1598,6 @@ window.require.register("views/contact_view", function(exports, require, module)
   View = require('lib/view');
 
   module.exports = ContactView = (function(_super) {
-
     __extends(ContactView, _super);
 
     ContactView.prototype.className = 'contact-line clearfix';
@@ -1730,7 +1704,7 @@ window.require.register("views/contact_view", function(exports, require, module)
   
 });
 window.require.register("views/contacts_view", function(exports, require, module) {
-  var CollectionView, ContactView, Contacts, ContactsView, TagsView, request,
+  var CollectionView, ContactView, Contacts, ContactsView, TagsView, request, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1746,16 +1720,14 @@ window.require.register("views/contacts_view", function(exports, require, module
   request = require('lib/request');
 
   module.exports = ContactsView = (function(_super) {
-
     __extends(ContactsView, _super);
 
     function ContactsView() {
       this.onTagAdded = __bind(this.onTagAdded, this);
-
       this.renderOne = __bind(this.renderOne, this);
-
       this.onAddContactClicked = __bind(this.onAddContactClicked, this);
-      return ContactsView.__super__.constructor.apply(this, arguments);
+      _ref = ContactsView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ContactsView.prototype.id = 'contacts-view';
@@ -1825,14 +1797,14 @@ window.require.register("views/contacts_view", function(exports, require, module
     };
 
     ContactsView.prototype.renderOne = function(model) {
-      var tag, view, _i, _len, _ref;
+      var tag, view, _i, _len, _ref1;
       view = new this.view(model);
       this.$el.append(view.render().el);
       this.add(view);
       if (model.get("state") === "Trusted") {
-        _ref = this.tagsView.collection.toArray();
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          tag = _ref[_i];
+        _ref1 = this.tagsView.collection.toArray();
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          tag = _ref1[_i];
           view.addTag(tag);
         }
       }
@@ -1877,11 +1849,11 @@ window.require.register("views/contacts_view", function(exports, require, module
     };
 
     ContactsView.prototype.onTagAdded = function(tag) {
-      var view, _i, _len, _ref, _results;
-      _ref = this.views;
+      var view, _i, _len, _ref1, _results;
+      _ref1 = this.views;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        view = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        view = _ref1[_i];
         if (view.model.get('state') === 'Trusted') {
           _results.push(view.addTag(tag));
         }
@@ -1895,7 +1867,7 @@ window.require.register("views/contacts_view", function(exports, require, module
   
 });
 window.require.register("views/filter_tags_view", function(exports, require, module) {
-  var CollectionView, FilterTagsView, TagAllView, TagView, Tags, stringUtils,
+  var CollectionView, FilterTagsView, TagAllView, TagView, Tags, stringUtils, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1910,11 +1882,11 @@ window.require.register("views/filter_tags_view", function(exports, require, mod
   stringUtils = require('../lib/string');
 
   module.exports = FilterTagsView = (function(_super) {
-
     __extends(FilterTagsView, _super);
 
     function FilterTagsView() {
-      return FilterTagsView.__super__.constructor.apply(this, arguments);
+      _ref = FilterTagsView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     FilterTagsView.prototype.el = '.filter-tag-list';
@@ -1940,7 +1912,7 @@ window.require.register("views/filter_tags_view", function(exports, require, mod
   
 });
 window.require.register("views/login_view", function(exports, require, module) {
-  var LoginView, QuestionView,
+  var LoginView, QuestionView, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1948,12 +1920,12 @@ window.require.register("views/login_view", function(exports, require, module) {
   QuestionView = require('./question_view');
 
   module.exports = LoginView = (function(_super) {
-
     __extends(LoginView, _super);
 
     function LoginView() {
       this.onServerResponse = __bind(this.onServerResponse, this);
-      return LoginView.__super__.constructor.apply(this, arguments);
+      _ref = LoginView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LoginView.prototype.id = 'login-view';
@@ -1986,7 +1958,7 @@ window.require.register("views/login_view", function(exports, require, module) {
   
 });
 window.require.register("views/micropost_list_view", function(exports, require, module) {
-  var CollectionView, Micropost, MicropostCollection, MicropostListView, MicropostView,
+  var CollectionView, Micropost, MicropostCollection, MicropostListView, MicropostView, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2000,12 +1972,12 @@ window.require.register("views/micropost_list_view", function(exports, require, 
   Micropost = require('../models/micropost');
 
   module.exports = MicropostListView = (function(_super) {
-
     __extends(MicropostListView, _super);
 
     function MicropostListView() {
       this.prependMicropost = __bind(this.prependMicropost, this);
-      return MicropostListView.__super__.constructor.apply(this, arguments);
+      _ref = MicropostListView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     MicropostListView.prototype.collection = new MicropostCollection();
@@ -2040,15 +2012,15 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       this.collection.url += "tags/" + this.tag + "/";
       return this.collection.fetch({
         success: function(microposts) {
-          var micropost, _i, _len, _ref, _results;
+          var micropost, _i, _len, _ref1, _results;
           console.log('success');
           console.log(_this.views);
           if (_this.views.length === 0) {
             microposts.models.slice();
-            _ref = microposts.models;
+            _ref1 = microposts.models;
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              micropost = _ref[_i];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              micropost = _ref1[_i];
               _results.push(_this.renderOne(micropost));
             }
             return _results;
@@ -2065,12 +2037,12 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       }
       return this.collection.fetch({
         success: function(microposts) {
-          var micropost, _i, _len, _ref, _results;
+          var micropost, _i, _len, _ref1, _results;
           microposts.models.slice();
-          _ref = microposts.models;
+          _ref1 = microposts.models;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            micropost = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            micropost = _ref1[_i];
             _results.push(_this.renderOne(micropost));
           }
           return _results;
@@ -2099,7 +2071,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
   
 });
 window.require.register("views/micropost_view", function(exports, require, module) {
-  var MicroPost, MicropostView, Renderer, View,
+  var MicroPost, MicropostView, NoteSelector, Renderer, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2109,8 +2081,9 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
   MicroPost = require('../models/micropost');
 
-  module.exports = MicropostView = (function(_super) {
+  NoteSelector = require('./note_selector');
 
+  module.exports = MicropostView = (function(_super) {
     __extends(MicropostView, _super);
 
     MicropostView.prototype.className = 'micropost pt1 pb1 pl1 line';
@@ -2121,7 +2094,8 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     MicropostView.prototype.events = {
       'click': 'onClicked',
-      'click .micropost-delete-button': 'onDeleteClicked'
+      'click .micropost-delete-button': 'onDeleteClicked',
+      'click .micropost-save-to-note-button': 'onSaveToNoteClicked'
     };
 
     function MicropostView(model) {
@@ -2163,13 +2137,18 @@ window.require.register("views/micropost_view", function(exports, require, modul
       });
     };
 
+    MicropostView.prototype.onSaveToNoteClicked = function() {
+      console.log(NoteSelector);
+      return NoteSelector.getDialog().show(this.model);
+    };
+
     return MicropostView;
 
   })(View);
   
 });
 window.require.register("views/microposts_view", function(exports, require, module) {
-  var MicroPost, MicropostListView, MicropostsView, SimpleTagList, View,
+  var MicroPost, MicropostListView, MicropostsView, SimpleTagList, View, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2183,18 +2162,15 @@ window.require.register("views/microposts_view", function(exports, require, modu
   SimpleTagList = require('../views/simple_tag_list');
 
   module.exports = MicropostsView = (function(_super) {
-
     __extends(MicropostsView, _super);
 
     function MicropostsView() {
       this.loadMoreMicroposts = __bind(this.loadMoreMicroposts, this);
-
       this.createNewPost = __bind(this.createNewPost, this);
-
       this.onMicropostFieldKeyup = __bind(this.onMicropostFieldKeyup, this);
-
       this.onMicropostFieldKeydown = __bind(this.onMicropostFieldKeydown, this);
-      return MicropostsView.__super__.constructor.apply(this, arguments);
+      _ref = MicropostsView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     MicropostsView.prototype.id = 'microposts-view';
@@ -2305,7 +2281,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.createNewPost = function() {
-      var content, postMicropost, xhr, _ref,
+      var content, postMicropost, xhr, _ref1,
         _this = this;
       content = this.micropostField.val();
       if ((content != null ? content.length : void 0) !== 0) {
@@ -2335,7 +2311,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
             }
           });
         };
-        if (((_ref = this.attachments) != null ? _ref.length : void 0) > 0) {
+        if (((_ref1 = this.attachments) != null ? _ref1.length : void 0) > 0) {
           return xhr = FileAPI.upload({
             url: '/pictures/all/',
             files: {
@@ -2405,7 +2381,6 @@ window.require.register("views/note", function(exports, require, module) {
   Renderer = require('../lib/renderer');
 
   module.exports = NoteView = (function(_super) {
-
     __extends(NoteView, _super);
 
     NoteView.prototype.className = 'note simple-row line ml1 mr1 pt1 pb1';
@@ -2514,8 +2489,57 @@ window.require.register("views/note", function(exports, require, module) {
   })(View);
   
 });
+window.require.register("views/note_selector", function(exports, require, module) {
+  var NoteSelector, NoteSelectorWidget, View, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  NoteSelectorWidget = (function(_super) {
+    __extends(NoteSelectorWidget, _super);
+
+    function NoteSelectorWidget() {
+      _ref = NoteSelectorWidget.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    NoteSelectorWidget.prototype.id = "note-selector-widget";
+
+    NoteSelectorWidget.prototype.template = function() {
+      return require('./templates/note_selector_widget');
+    };
+
+    NoteSelectorWidget.prototype.afterRender = function() {
+      return this.$el = $("#" + this.id);
+    };
+
+    NoteSelectorWidget.prototype.show = function() {
+      alert('show');
+      return this.$el.show();
+    };
+
+    return NoteSelectorWidget;
+
+  })(View);
+
+  module.exports = NoteSelector = NoteSelector = (function() {
+    function NoteSelector() {}
+
+    return NoteSelector;
+
+  })();
+
+  NoteSelector.getDialog = function() {
+    if (this.dialog == null) {
+      this.dialog = new NoteSelectorWidget();
+    }
+    return this.dialog;
+  };
+  
+});
 window.require.register("views/notes", function(exports, require, module) {
-  var CollectionView, NoteView, NotesCollection, NotesView,
+  var CollectionView, NoteView, NotesCollection, NotesView, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2526,11 +2550,11 @@ window.require.register("views/notes", function(exports, require, module) {
   NoteView = require('./note');
 
   module.exports = NotesView = (function(_super) {
-
     __extends(NotesView, _super);
 
     function NotesView() {
-      return NotesView.__super__.constructor.apply(this, arguments);
+      _ref = NotesView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     NotesView.prototype.el = '#notes';
@@ -2555,17 +2579,17 @@ window.require.register("views/notes", function(exports, require, module) {
       return this.collection.create(note, {
         silent: true,
         success: function(model) {
-          var _ref, _ref1, _ref2;
+          var _ref1, _ref2, _ref3;
           _this.renderOne(model, {
             prepend: true
           });
-          if ((_ref = _this.last()) != null) {
-            _ref.onClicked();
-          }
           if ((_ref1 = _this.last()) != null) {
-            _ref1.emptyTitle();
+            _ref1.onClicked();
           }
-          return (_ref2 = _this.last()) != null ? _ref2.focusTitle() : void 0;
+          if ((_ref2 = _this.last()) != null) {
+            _ref2.emptyTitle();
+          }
+          return (_ref3 = _this.last()) != null ? _ref3.focusTitle() : void 0;
         },
         error: function() {
           return alert('Note creation failed');
@@ -2593,7 +2617,7 @@ window.require.register("views/notes", function(exports, require, module) {
   
 });
 window.require.register("views/notes_view", function(exports, require, module) {
-  var Note, NotesMainView, NotesView, View,
+  var Note, NotesMainView, NotesView, View, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2604,11 +2628,11 @@ window.require.register("views/notes_view", function(exports, require, module) {
   Note = require('../models/note');
 
   module.exports = NotesMainView = (function(_super) {
-
     __extends(NotesMainView, _super);
 
     function NotesMainView() {
-      return NotesMainView.__super__.constructor.apply(this, arguments);
+      _ref = NotesMainView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     NotesMainView.prototype.id = 'notes-view';
@@ -2641,8 +2665,7 @@ window.require.register("views/notes_view", function(exports, require, module) {
     };
 
     NotesMainView.prototype.fetch = function() {
-      var _ref;
-      if ((_ref = this.notesView) == null) {
+      if (this.notesView == null) {
         this.notesView = new NotesView();
       }
       this.notesView.fetch();
@@ -2664,7 +2687,6 @@ window.require.register("views/picture", function(exports, require, module) {
   Renderer = require('../lib/renderer');
 
   module.exports = PictureView = (function(_super) {
-
     __extends(PictureView, _super);
 
     PictureView.prototype.className = 'picture pa1';
@@ -2723,7 +2745,7 @@ window.require.register("views/picture", function(exports, require, module) {
   
 });
 window.require.register("views/pictures", function(exports, require, module) {
-  var CollectionView, NoteView, PicturesCollection, PicturesView,
+  var CollectionView, NoteView, PicturesCollection, PicturesView, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2734,11 +2756,11 @@ window.require.register("views/pictures", function(exports, require, module) {
   NoteView = require('./note');
 
   module.exports = PicturesView = (function(_super) {
-
     __extends(PicturesView, _super);
 
     function PicturesView() {
-      return PicturesView.__super__.constructor.apply(this, arguments);
+      _ref = PicturesView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PicturesView.prototype.el = '#pictures';
@@ -2763,7 +2785,7 @@ window.require.register("views/pictures", function(exports, require, module) {
   
 });
 window.require.register("views/pictures_view", function(exports, require, module) {
-  var Picture, PicturesMainView, PicturesView, View,
+  var Picture, PicturesMainView, PicturesView, View, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2774,11 +2796,11 @@ window.require.register("views/pictures_view", function(exports, require, module
   Picture = require('../models/picture');
 
   module.exports = PicturesMainView = (function(_super) {
-
     __extends(PicturesMainView, _super);
 
     function PicturesMainView() {
-      return PicturesMainView.__super__.constructor.apply(this, arguments);
+      _ref = PicturesMainView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PicturesMainView.prototype.id = 'pictures-view';
@@ -2796,8 +2818,7 @@ window.require.register("views/pictures_view", function(exports, require, module
     PicturesMainView.prototype.afterRender = function() {};
 
     PicturesMainView.prototype.fetch = function() {
-      var _ref;
-      if ((_ref = this.picturesView) == null) {
+      if (this.picturesView == null) {
         this.picturesView = new PicturesView();
       }
       this.picturesView.fetch();
@@ -2810,7 +2831,7 @@ window.require.register("views/pictures_view", function(exports, require, module
   
 });
 window.require.register("views/profile_view", function(exports, require, module) {
-  var Owner, ProfileController, ProfileView, View,
+  var Owner, ProfileController, ProfileView, View, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2820,12 +2841,10 @@ window.require.register("views/profile_view", function(exports, require, module)
   Owner = require('../models/owner_model');
 
   ProfileController = (function() {
-
     function ProfileController(view, model) {
       this.view = view;
       this.model = model;
       this.setOwnerUrl = __bind(this.setOwnerUrl, this);
-
       this.model.isLoaded = false;
     }
 
@@ -2895,18 +2914,15 @@ window.require.register("views/profile_view", function(exports, require, module)
   })();
 
   module.exports = ProfileView = (function(_super) {
-
     __extends(ProfileView, _super);
 
     function ProfileView() {
       this.onConfirmPasswordClicked = __bind(this.onConfirmPasswordClicked, this);
-
       this.onChangePasswordClicked = __bind(this.onChangePasswordClicked, this);
-
       this.onUploadComplete = __bind(this.onUploadComplete, this);
-
       this.onProfileChanged = __bind(this.onProfileChanged, this);
-      return ProfileView.__super__.constructor.apply(this, arguments);
+      _ref = ProfileView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ProfileView.prototype.id = 'profile-view';
@@ -2924,15 +2940,15 @@ window.require.register("views/profile_view", function(exports, require, module)
     };
 
     ProfileView.prototype.getRenderData = function() {
-      var _ref;
+      var _ref1;
       return {
-        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+        model: (_ref1 = this.model) != null ? _ref1.toJSON() : void 0
       };
     };
 
     ProfileView.prototype.render = function() {
-      var _ref;
-      if ((_ref = this.model) != null ? _ref.isLoaded : void 0) {
+      var _ref1;
+      if ((_ref1 = this.model) != null ? _ref1.isLoaded : void 0) {
         this.beforeRender();
         this.$el.html(this.template()(this.getRenderData()));
         return this.afterRender();
@@ -2943,7 +2959,7 @@ window.require.register("views/profile_view", function(exports, require, module)
     };
 
     ProfileView.prototype.afterRender = function() {
-      var _ref,
+      var _ref1,
         _this = this;
       this.sesameForm = this.$("#sesame-form");
       this.profileSesameField = this.$("#profile-sesame-field");
@@ -2954,7 +2970,7 @@ window.require.register("views/profile_view", function(exports, require, module)
       this.model.bindField("sesame", this.profileSesameField);
       this.descriptionField = this.$("#profile-description");
       this.converter = new Showdown.converter();
-      if (((_ref = this.model.get("description")) != null ? _ref.length : void 0) > 0) {
+      if (((_ref1 = this.model.get("description")) != null ? _ref1.length : void 0) > 0) {
         this.descriptionField.html(this.converter.makeHtml(this.model.get('description')));
       } else {
         this.descriptionField.html("your description");
@@ -3061,7 +3077,7 @@ window.require.register("views/profile_view", function(exports, require, module)
   
 });
 window.require.register("views/question_view", function(exports, require, module) {
-  var QuestionView, View, request,
+  var QuestionView, View, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3070,11 +3086,11 @@ window.require.register("views/question_view", function(exports, require, module
   request = require('../lib/request');
 
   module.exports = QuestionView = (function(_super) {
-
     __extends(QuestionView, _super);
 
     function QuestionView() {
-      return QuestionView.__super__.constructor.apply(this, arguments);
+      _ref = QuestionView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     QuestionView.prototype.getRenderData = function() {
@@ -3128,7 +3144,7 @@ window.require.register("views/question_view", function(exports, require, module
   
 });
 window.require.register("views/register_name_view", function(exports, require, module) {
-  var QuestionView, RegisterNameView, request,
+  var QuestionView, RegisterNameView, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3137,11 +3153,11 @@ window.require.register("views/register_name_view", function(exports, require, m
   request = require('../lib/request');
 
   module.exports = RegisterNameView = (function(_super) {
-
     __extends(RegisterNameView, _super);
 
     function RegisterNameView() {
-      return RegisterNameView.__super__.constructor.apply(this, arguments);
+      _ref = RegisterNameView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     RegisterNameView.prototype.id = 'register-name-view';
@@ -3169,7 +3185,7 @@ window.require.register("views/register_name_view", function(exports, require, m
   
 });
 window.require.register("views/register_password_view", function(exports, require, module) {
-  var QuestionView, RegisterPasswordView, request,
+  var QuestionView, RegisterPasswordView, request, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3178,11 +3194,11 @@ window.require.register("views/register_password_view", function(exports, requir
   request = require('../lib/request');
 
   module.exports = RegisterPasswordView = (function(_super) {
-
     __extends(RegisterPasswordView, _super);
 
     function RegisterPasswordView() {
-      return RegisterPasswordView.__super__.constructor.apply(this, arguments);
+      _ref = RegisterPasswordView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     RegisterPasswordView.prototype.id = 'register-password-view';
@@ -3223,7 +3239,6 @@ window.require.register("views/simple_tag_list", function(exports, require, modu
   stringUtils = require('../lib/string');
 
   module.exports = SimpleTagListView = (function(_super) {
-
     __extends(SimpleTagListView, _super);
 
     SimpleTagListView.prototype.collection = new Tags();
@@ -3266,7 +3281,6 @@ window.require.register("views/simple_tag_view", function(exports, require, modu
   View = require('lib/view');
 
   module.exports = TagView = (function(_super) {
-
     __extends(TagView, _super);
 
     TagView.prototype.className = 'tag-selector';
@@ -3312,18 +3326,18 @@ window.require.register("views/simple_tag_view", function(exports, require, modu
   
 });
 window.require.register("views/tag_all_view", function(exports, require, module) {
-  var TagAllView, TagView,
+  var TagAllView, TagView, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   TagView = require('./tag_view');
 
   module.exports = TagAllView = (function(_super) {
-
     __extends(TagAllView, _super);
 
     function TagAllView() {
-      return TagAllView.__super__.constructor.apply(this, arguments);
+      _ref = TagAllView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TagAllView.prototype.className = 'tag-selector tag-all';
@@ -3370,7 +3384,6 @@ window.require.register("views/tag_view", function(exports, require, module) {
   View = require('lib/view');
 
   module.exports = TagView = (function(_super) {
-
     __extends(TagView, _super);
 
     TagView.prototype.className = 'tag-selector';
@@ -3426,7 +3439,7 @@ window.require.register("views/tag_view", function(exports, require, module) {
   
 });
 window.require.register("views/tags_view", function(exports, require, module) {
-  var CollectionView, TagAllView, TagView, Tags, TagsView, stringUtils,
+  var CollectionView, TagAllView, TagView, Tags, TagsView, stringUtils, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -3442,18 +3455,15 @@ window.require.register("views/tags_view", function(exports, require, module) {
   stringUtils = require('../lib/string');
 
   module.exports = TagsView = (function(_super) {
-
     __extends(TagsView, _super);
 
     function TagsView() {
       this.onNewTagClicked = __bind(this.onNewTagClicked, this);
-
       this.onNewTagKeyup = __bind(this.onNewTagKeyup, this);
-
       this.onNewTagKeypress = __bind(this.onNewTagKeypress, this);
-
       this.renderOne = __bind(this.renderOne, this);
-      return TagsView.__super__.constructor.apply(this, arguments);
+      _ref = TagsView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TagsView.prototype.el = '#tag-list';
@@ -3618,7 +3628,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div>');
   }
   return buf.join("");
   };
@@ -3629,7 +3639,7 @@ window.require.register("views/templates/micropost", function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="line pl0"><div class="pt05 w40 mod left">' + ((interp = model.displayContent) == null ? '' : interp) + '</div></div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button></div>');
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="line pl0"><div class="pt05 w40 mod left">' + ((interp = model.displayContent) == null ? '' : interp) + '</div></div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button><button class="micropost-save-to-note-button">save to note</button></div>');
   }
   return buf.join("");
   };
@@ -3664,6 +3674,17 @@ window.require.register("views/templates/note", function(exports, require, modul
   buf.push('<div class="mod w33 left"><div class="line"> <input');
   buf.push(attrs({ 'type':("text"), 'value':("" + (model.title) + ""), "class": ('note-title') }, {"type":true,"value":true}));
   buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div data-button-class="all" class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/note_selector_widget", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<p><toto></toto></p>');
   }
   return buf.join("");
   };
