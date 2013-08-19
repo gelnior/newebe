@@ -4,10 +4,12 @@ class NoteSelectorWidget extends View
 
     id: "note-selector-widget"
     template: -> require './templates/note_selector_widget'
-    afterRender: ->
+
+    constructor: ->
+        super()
         @$el = $("##{@id}")
-    show: ->
-        alert 'show'
+
+    show: (model) ->
         @$el.show()
 
 

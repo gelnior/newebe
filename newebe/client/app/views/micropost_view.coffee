@@ -39,5 +39,4 @@ module.exports = class MicropostView extends View
             error: => alert 'server error occured'
 
     onSaveToNoteClicked: ->
-        console.log NoteSelector
         NoteSelector.getDialog().show @model

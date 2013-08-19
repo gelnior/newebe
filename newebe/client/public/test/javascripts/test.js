@@ -159,6 +159,7 @@ window.require.register("test/auth_test", function(exports, require, module) {
 });
 window.require.register("test/collections/contacts_test", function(exports, require, module) {
   
+
   
 });
 window.require.register("test/models/contact", function(exports, require, module) {
@@ -174,6 +175,7 @@ window.require.register("test/models/contact", function(exports, require, module
   
 });
 window.require.register("test/test-helpers", function(exports, require, module) {
+  
   module.exports = {
     expect: require('chai').expect,
     $: require('jquery')

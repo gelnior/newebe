@@ -14,26 +14,26 @@ module.exports = class AppRouter extends Backbone.Router
     start: -> @appView.checkUserState()
 
     microposts: ->
-        @loadSubView @appView.micropostsView
+        @checkAppViewState =>
+            @appView.changeSubView @appView.micropostsView
 
     notes: ->
-        @loadSubView @appView.notesView
+        @checkAppViewState =>
+            @appView.changeSubView @appView.notesView
 
     contacts: ->
-        @loadSubView @appView.contactsView
+        @checkAppViewState =>
+            @appView.changeSubView @appView.contactsView
 
     pictures: ->
-        @loadSubView @appView.picturesView
+        @checkAppViewState =>
+            @appView.changeSubView @appView.picturesView
 
     profile: ->
-        @loadSubView @appView.profileView
+        @checkAppViewState =>
+            @appView.changeSubView @appView.profileView
 
-    # We do not render the page the same way if it is the first page loading
-    # or if main app has been already rendered.
-    loadSubView: (view) ->
-        callback = =>
-            @appView.changeSubView view
-
+    checkAppViewState: (callback) =>
         if @appView.isLoaded
             callback()
         else
