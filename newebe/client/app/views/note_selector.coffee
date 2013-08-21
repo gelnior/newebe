@@ -18,6 +18,7 @@ class NoteSelectorLine extends View
     constructor: (@model) ->
         super()
 
+
 class NoteSelectorList extends ViewCollection
     id: "note-selector-list"
     collection: new NoteCollection()
@@ -27,6 +28,7 @@ class NoteSelectorList extends ViewCollection
     constructor: ->
         super()
         @$el = $("##{@id}")
+
 
 class NoteSelectorWidget extends View
     id: "note-selector-widget"
@@ -73,6 +75,7 @@ class NoteSelectorWidget extends View
 
 
 module.exports = NoteSelector = class NoteSelector
+
 
 NoteSelector.getDialog = ->
     unless @dialog?
