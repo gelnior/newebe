@@ -2544,11 +2544,70 @@ window.require.register("views/note", function(exports, require, module) {
   
 });
 window.require.register("views/note_selector", function(exports, require, module) {
-  var NoteSelector, NoteSelectorWidget, View,
+  var NoteCollection, NoteSelector, NoteSelectorLine, NoteSelectorList, NoteSelectorWidget, View, ViewCollection, request,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  request = require('../lib/request');
+
   View = require('../lib/view');
+
+  ViewCollection = require('../lib/view_collection');
+
+  NoteCollection = require('../collections/notes');
+
+  NoteSelectorLine = (function(_super) {
+
+    __extends(NoteSelectorLine, _super);
+
+    NoteSelectorLine.prototype.tag = 'div';
+
+    NoteSelectorLine.prototype.className = 'line note-selector-line';
+
+    NoteSelectorLine.prototype.template = function() {
+      return require('./templates/note_selector_line');
+    };
+
+    NoteSelectorLine.prototype.events = {
+      'click': 'onClick'
+    };
+
+    NoteSelectorLine.prototype.onClick = function() {
+      $(".note-selector-line").removeClass('selected');
+      return this.$el.addClass('selected');
+    };
+
+    function NoteSelectorLine(model) {
+      this.model = model;
+      NoteSelectorLine.__super__.constructor.call(this);
+    }
+
+    return NoteSelectorLine;
+
+  })(View);
+
+  NoteSelectorList = (function(_super) {
+
+    __extends(NoteSelectorList, _super);
+
+    NoteSelectorList.prototype.id = "note-selector-list";
+
+    NoteSelectorList.prototype.collection = new NoteCollection();
+
+    NoteSelectorList.prototype.view = NoteSelectorLine;
+
+    NoteSelectorList.prototype.template = function() {
+      return require('./templates/note_selector_list');
+    };
+
+    function NoteSelectorList() {
+      NoteSelectorList.__super__.constructor.call(this);
+      this.$el = $("#" + this.id);
+    }
+
+    return NoteSelectorList;
+
+  })(ViewCollection);
 
   NoteSelectorWidget = (function(_super) {
 
@@ -2560,13 +2619,65 @@ window.require.register("views/note_selector", function(exports, require, module
       return require('./templates/note_selector_widget');
     };
 
+    NoteSelectorWidget.prototype.events = {
+      'click .cancel': 'hide'
+    };
+
     function NoteSelectorWidget() {
       NoteSelectorWidget.__super__.constructor.call(this);
       this.$el = $("#" + this.id);
     }
 
-    NoteSelectorWidget.prototype.show = function(model) {
-      return this.$el.show();
+    NoteSelectorWidget.prototype.afterRender = function() {
+      var noteList,
+        _this = this;
+      noteList = new NoteSelectorList;
+      noteList.render();
+      noteList.collection.fetch();
+      this.$('.cancel').click(this.hide);
+      return this.$('.confirm').click(function() {
+        var view, _i, _len, _ref, _results;
+        _ref = noteList.views;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          view = _ref[_i];
+          if (view.$el.hasClass('selected')) {
+            _results.push(_this.pushToNote(view.model.id));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      });
+    };
+
+    NoteSelectorWidget.prototype.pushToNote = function(noteId) {
+      var _this = this;
+      return request.get("/notes/all/" + noteId, function(err, note) {
+        if (err) {
+          return alert("cannot retrieve note");
+        } else {
+          note.content = "" + note.content + "\n\n" + (_this.micropost.get('content'));
+          return request.put("/notes/all/" + noteId, note, function(err) {
+            if (err) {
+              return alert("note update failed");
+            } else {
+              alert("note successfully updated");
+              return _this.hide();
+            }
+          });
+        }
+      });
+    };
+
+    NoteSelectorWidget.prototype.show = function(micropost) {
+      this.micropost = micropost;
+      return this.$el.fadeIn();
+    };
+
+    NoteSelectorWidget.prototype.hide = function() {
+      this.micropost = null;
+      return this.$el.fadeOut();
     };
 
     return NoteSelectorWidget;
@@ -2584,6 +2695,7 @@ window.require.register("views/note_selector", function(exports, require, module
   NoteSelector.getDialog = function() {
     if (this.dialog == null) {
       this.dialog = new NoteSelectorWidget();
+      this.dialog.render();
     }
     return this.dialog;
   };
@@ -3743,13 +3855,34 @@ window.require.register("views/templates/note", function(exports, require, modul
   return buf.join("");
   };
 });
+window.require.register("views/templates/note_selector_line", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('' + escape((interp = model.title) == null ? '' : interp) + '');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/note_selector_list", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  }
+  return buf.join("");
+  };
+});
 window.require.register("views/templates/note_selector_widget", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<p>toto</p>');
+  buf.push('<div id="note-selector-list"></div><div class="line"><button class="confirm right">save to note</button><button class="cancel right">cancel</button></div>');
   }
   return buf.join("");
   };

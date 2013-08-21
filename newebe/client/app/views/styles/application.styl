@@ -52,12 +52,24 @@ body
     display: none
     width: 320px
     background: black
+    color: white
     margin: auto
     position: absolute
     top: 0
     left: 0
     bottom: 0
     right: 0
+
+    .note-selector-line
+        padding 5px 10px
+
+    .note-selector-line:hover
+        background: purple
+        cursor: pointer
+
+    .note-selector-line.selected
+        background: blue - 60%
+
 
 #alert-widget
     height: 200px

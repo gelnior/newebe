@@ -3041,12 +3041,26 @@ body,
   display: none;
   width: 320px;
   background: #000;
+  color: #fff;
   margin: auto;
   position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+}
+#alert-widget .note-selector-line,
+#note-selector-widget .note-selector-line {
+  padding: 5px 10px;
+}
+#alert-widget .note-selector-line:hover,
+#note-selector-widget .note-selector-line:hover {
+  background: #ad2bad;
+  cursor: pointer;
+}
+#alert-widget .note-selector-line.selected,
+#note-selector-widget .note-selector-line.selected {
+  background: #005fbe;
 }
 #alert-widget {
   height: 200px;
