@@ -29,6 +29,16 @@ module.exports = class MicropostsView extends View
             @tagList.fetch success: => @tagList.select 'all'
             @configureUpload()
         , 200
+        @configurePublisherSubscription()
+
+
+    configurePublisherSubscription: ->
+        @ws = new WebSocket "ws://#{window.location.host}/microposts/publisher/"
+        @ws.onmessage = (evt) =>
+            console.log evt.data
+            micropost = new MicroPost JSON.parse evt.data
+            @micropostList.prependMicropost micropost
+
 
     onAddAttachmentClicked: (event) ->
         $(event.target).fadeOut =>

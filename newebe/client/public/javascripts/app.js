@@ -2253,7 +2253,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
       });
       this.isLoaded = false;
       this.micropostField = this.$("#micropost-field");
-      return setTimeout(function() {
+      setTimeout(function() {
         _this.tagList = new SimpleTagList('#micropost-tag-list');
         _this.tagList.fetch({
           success: function() {
@@ -2262,6 +2262,18 @@ window.require.register("views/microposts_view", function(exports, require, modu
         });
         return _this.configureUpload();
       }, 200);
+      return this.configurePublisherSubscription();
+    };
+
+    MicropostsView.prototype.configurePublisherSubscription = function() {
+      var _this = this;
+      this.ws = new WebSocket("ws://" + window.location.host + "/microposts/publisher/");
+      return this.ws.onmessage = function(evt) {
+        var micropost;
+        console.log(evt.data);
+        micropost = new MicroPost(JSON.parse(evt.data));
+        return _this.micropostList.prependMicropost(micropost);
+      };
     };
 
     MicropostsView.prototype.onAddAttachmentClicked = function(event) {

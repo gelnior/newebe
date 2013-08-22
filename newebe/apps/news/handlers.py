@@ -3,6 +3,7 @@ import markdown
 
 from tornado import gen
 from tornado.web import asynchronous
+from tornado.websocket import WebSocketHandler
 from tornado.escape import json_encode
 from couchdbkit.exceptions import ResourceNotFound
 
@@ -23,33 +24,28 @@ logger = logging.getLogger("newebe.news")
 CONTACT_PATH = 'microposts/contacts/'
 
 # Long polling queue
-connections = []
+websocket_clients = []
 
 
-class NewsSuscribeHandler(NewebeAuthHandler):
+class MicropostPublishingHandler(WebSocketHandler):
     '''
-    Handler that managers long polling connections.
+    Handler that manages websocket connections
+    TODO: Set authentication there.
     '''
 
-    @asynchronous
-    def get(self):
+    def open(self):
         '''
-        Add request to the waiting queue. When a new post will come, this
-        handler callback will be called then a response with new post
-        will be sent to client that made this request.
+        Add a websocket client to the websocket pool.
         '''
+        websocket_clients.append(self)
+        logger.info("New web socket client")
 
-        logger.info("Long polling incoming")
-        connections.append(self.async_callback(self.on_new_post))
-
-    def on_new_post(self, response_data):
+    def on_close(self):
         '''
-        When new post arrives, it sends it to client requesting for new
-        posts.
+        Remove leaving websocket client from the websocket pool.
         '''
-
-        self.write(response_data)
-        self.finish()
+        websocket_clients.remove(self)
+        logger.info("A web socket client left")
 
 
 class MicropostHandler(NewebeAuthHandler):
@@ -199,12 +195,13 @@ class NewsContactHandler(NewebeHandler):
                     micropost.save()
 
                     self.create_creation_activity(contact, micropost,
-                            "writes", "micropost")
+                                                  "writes", "micropost")
                     self._write_create_log(micropost)
 
                     postIndexer = indexer.Indexer()
                     postIndexer.index_micropost(micropost)
-                    self._notify_suscribers(micropost)
+                    for websocket_client in websocket_clients:
+                        websocket_client.write_message(micropost.toJson())
 
                 self.return_json(micropost.toJson(), 201)
 
@@ -213,16 +210,6 @@ class NewsContactHandler(NewebeHandler):
 
         else:
             self.return_failure("No data sent.", 405)
-
-    def _notify_suscribers(self, micropost):
-        '''
-        Notify suscribed client (long polling requests) that a *micropost*
-        has been saved. It sends them the micropost content.
-        '''
-
-        while connections:
-            connection = connections.pop()
-            connection(micropost.toJson())
 
     def _write_create_log(self, micropost):
         '''
