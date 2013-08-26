@@ -19,6 +19,7 @@ module.exports = class MicropostsView extends View
 
     subscriptions:
         'tag:selected': 'onTagSelected'
+        'posts:no-more': 'onNoMorePost'
 
     afterRender: ->
         @micropostList = new MicropostListView el: @$ "#micropost-all"
@@ -145,3 +146,6 @@ module.exports = class MicropostsView extends View
         @tagsView.$(".tag-select-button").unSelect() if @tagsView?
         @micropostList.loadTag name
         @tagList.select name
+
+    onNoMorePost: ->
+        @$("#more-microposts-button").hide()

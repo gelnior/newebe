@@ -2109,7 +2109,11 @@ window.require.register("views/micropost_list_view", function(exports, require, 
         this.collection.url += "tags/" + this.tag + "/";
       }
       return this.collection.fetch({
-        success: function(microposts) {},
+        success: function(microposts) {
+          if (microposts.size() < 11) {
+            return Backbone.Mediator.publish('posts:no-more', true);
+          }
+        },
         error: function() {
           return alert('server error occured');
         }
@@ -2280,7 +2284,8 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.subscriptions = {
-      'tag:selected': 'onTagSelected'
+      'tag:selected': 'onTagSelected',
+      'posts:no-more': 'onNoMorePost'
     };
 
     MicropostsView.prototype.afterRender = function() {
@@ -2466,6 +2471,10 @@ window.require.register("views/microposts_view", function(exports, require, modu
       }
       this.micropostList.loadTag(name);
       return this.tagList.select(name);
+    };
+
+    MicropostsView.prototype.onNoMorePost = function() {
+      return this.$("#more-microposts-button").hide();
     };
 
     return MicropostsView;

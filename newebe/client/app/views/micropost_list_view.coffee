@@ -38,8 +38,8 @@ module.exports = class MicropostListView extends CollectionView
         @collection.url += "tags/#{@tag}/" if @tag?
         @collection.fetch
             success: (microposts) =>
-                #microposts.models.slice()
-                #@renderOne micropost for micropost in microposts.models
+                if microposts.size() < 11
+                    Backbone.Mediator.publish 'posts:no-more', true
             error: =>
                 alert 'server error occured'
 
