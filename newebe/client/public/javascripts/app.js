@@ -389,7 +389,9 @@ window.require.register("lib/model", function(exports, require, module) {
   
 });
 window.require.register("lib/renderer", function(exports, require, module) {
-  var Renderer;
+  var Renderer, request;
+
+  request = require('./request');
 
   module.exports = Renderer = (function() {
 
@@ -398,18 +400,19 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.markdownConverter = new Showdown.converter();
 
     Renderer.prototype.renderDoc = function(doc) {
-      var content, rawContent, _ref;
+      var content, rawContent, _ref, _ref1;
       if (doc != null) {
         if (doc.get('doc_type') === 'MicroPost') {
           rawContent = doc.get('content');
           content = '<div class="mod left w40">';
           content = this.markdownConverter.makeHtml(rawContent);
-          if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0) {
-            content += '<imgsrc="static/images/attachment.png" />';
+          if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0 || ((_ref1 = doc.get('pictures_to_download')) != null ? _ref1.length : void 0) > 0) {
+            content += '<img src="static/images/attachment.png" />';
           }
           content += '</div>';
           content += '<div class="mod right w40 micropost-attachments">';
           content += this.checkForPictures(doc.get('pictures'));
+          content += this.checkForPicturesToDl(doc.get('pictures_to_download'));
           content += this.checkForImages(rawContent);
           content += this.checkForVideos(rawContent);
           content += '</div>';
@@ -432,6 +435,18 @@ window.require.register("lib/renderer", function(exports, require, module) {
         for (_i = 0, _len = pictures.length; _i < _len; _i++) {
           picture = pictures[_i];
           result += "<a href=\"pictures/" + picture + "/" + picture + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + picture + "/prev_" + picture + ".jpg\" />\n</a>";
+        }
+      }
+      return result;
+    };
+
+    Renderer.prototype.checkForPicturesToDl = function(pictures) {
+      var picture, result, _i, _len;
+      result = "";
+      if ((pictures != null ? pictures.length : void 0) > 0) {
+        for (_i = 0, _len = pictures.length; _i < _len; _i++) {
+          picture = pictures[_i];
+          result += "<p>The image is not avalaible yet, you need to download it\nfirst.</p>\n<button class=\"download-picture-btn\">download</button>";
         }
       }
       return result;
@@ -882,17 +897,21 @@ window.require.register("models/contact", function(exports, require, module) {
   
 });
 window.require.register("models/micropost", function(exports, require, module) {
-  var Micropost, Model,
+  var Micropost, Model, request,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Model = require('lib/model');
+
+  request = require('lib/request');
 
   module.exports = Micropost = (function(_super) {
 
     __extends(Micropost, _super);
 
     function Micropost() {
+      this.downloadPicture = __bind(this.downloadPicture, this);
       return Micropost.__super__.constructor.apply(this, arguments);
     }
 
@@ -902,6 +921,10 @@ window.require.register("models/micropost", function(exports, require, module) {
 
     Micropost.prototype.defaults = {
       "tags": ["all"]
+    };
+
+    Micropost.prototype.downloadPicture = function(pictureId, callback) {
+      return request.get("/pictures/" + pictureId + "/download/", callback);
     };
 
     return Micropost;
@@ -2122,6 +2145,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
 });
 window.require.register("views/micropost_view", function(exports, require, module) {
   var MicroPost, MicropostView, NoteSelector, Renderer, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2151,11 +2175,35 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     function MicropostView(model) {
       this.model = model;
+      this.hideDlBtnAndDisplayPicture = __bind(this.hideDlBtnAndDisplayPicture, this);
+
       MicropostView.__super__.constructor.call(this);
     }
 
     MicropostView.prototype.afterRender = function() {
-      return this.buttons = this.$('.micropost-buttons');
+      var pictureId,
+        _this = this;
+      this.buttons = this.$('.micropost-buttons');
+      this.downloadButton = this.$('.download-picture-btn');
+      pictureId = this.model.get('pictures_to_download')[0];
+      console.log(pictureId);
+      return this.downloadButton.click(function() {
+        return _this.model.downloadPicture(pictureId, function(err) {
+          if (err) {
+            return alert('Picture cannot be loaded');
+          } else {
+            return _this.hideDlBtnAndDisplayPicture(pictureId);
+          }
+        });
+      });
+    };
+
+    MicropostView.prototype.hideDlBtnAndDisplayPicture = function(pictureId) {
+      var _this = this;
+      this.downloadButton.prev().fadeOut();
+      return this.downloadButton.fadeOut(function() {
+        return _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+      });
     };
 
     MicropostView.prototype.getRenderData = function() {
@@ -2641,26 +2689,27 @@ window.require.register("views/note_selector", function(exports, require, module
     }
 
     NoteSelectorWidget.prototype.afterRender = function() {
-      var noteList,
-        _this = this;
+      var noteList;
       noteList = new NoteSelectorList;
       noteList.render();
       noteList.collection.fetch();
       this.$('.cancel').click(this.hide);
-      return this.$('.confirm').click(function() {
-        var view, _i, _len, _ref, _results;
-        _ref = noteList.views;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          view = _ref[_i];
-          if (view.$el.hasClass('selected')) {
-            _results.push(_this.pushToNote(view.model.id));
-          } else {
-            _results.push(void 0);
-          }
+      return this.$('.confirm').click(this.pushPostToSelectedNote);
+    };
+
+    NoteSelectorWidget.prototype.pushPostToSelectedNote = function() {
+      var view, _i, _len, _ref, _results;
+      _ref = noteList.views;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        view = _ref[_i];
+        if (view.$el.hasClass('selected')) {
+          _results.push(this.pushToNote(view.model.id));
+        } else {
+          _results.push(void 0);
         }
-        return _results;
-      });
+      }
+      return _results;
     };
 
     NoteSelectorWidget.prototype.pushToNote = function(noteId) {

@@ -1,3 +1,5 @@
+request = require './request'
+
 # Utilities to render stuff from newebe document data.
 module.exports = class Renderer
 
@@ -11,11 +13,14 @@ module.exports = class Renderer
                 rawContent = doc.get 'content'
                 content = '<div class="mod left w40">'
                 content = @markdownConverter.makeHtml rawContent
-                if doc.get('pictures')?.length > 0
-                    content += '<imgsrc="static/images/attachment.png" />'
+                if doc.get('pictures')?.length > 0 or
+                   doc.get('pictures_to_download')?.length > 0
+
+                    content += '<img src="static/images/attachment.png" />'
                 content += '</div>'
                 content += '<div class="mod right w40 micropost-attachments">'
                 content += @checkForPictures doc.get 'pictures'
+                content += @checkForPicturesToDl doc.get 'pictures_to_download'
                 content += @checkForImages rawContent
                 content += @checkForVideos rawContent
                 content += '</div>'
@@ -41,6 +46,16 @@ module.exports = class Renderer
 """
         result
 
+    checkForPicturesToDl: (pictures) ->
+        result = ""
+        if pictures?.length > 0
+            for picture in pictures
+                result += """
+                <p>The image is not avalaible yet, you need to download it
+                first.</p>
+                <button class="download-picture-btn">download</button>
+                """
+        result
 
     # Look for image URL and return embedded code corresponding to these
     # pictures.

@@ -96,7 +96,9 @@ class MicroPost(NewebeDocument):
     content = StringProperty(required=True)
     isMine = BooleanProperty(required=True, default=True)
     pictures = ListProperty(required=False)
+    pictures_to_download = ListProperty(required=False)
     commons = ListProperty(required=False)
+    commons_to_donwload = ListProperty(required=False)
 
     def get_path(self):
         '''

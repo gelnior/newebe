@@ -1,4 +1,5 @@
 Model = require 'lib/model'
+request = require 'lib/request'
 
 module.exports = class Micropost extends Model
 
@@ -7,3 +8,6 @@ module.exports = class Micropost extends Model
 
     defaults:
         "tags": ["all"]
+
+    downloadPicture: (pictureId, callback) =>
+       request.get "/pictures/#{pictureId}/download/", callback

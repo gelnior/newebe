@@ -19,6 +19,24 @@ module.exports = class MicropostView extends View
 
     afterRender: ->
         @buttons = @$ '.micropost-buttons'
+        @downloadButton = @$ '.download-picture-btn'
+        pictureId = @model.get('pictures_to_download')[0]
+        console.log pictureId
+        @downloadButton.click =>
+            @model.downloadPicture pictureId, (err) =>
+                if err
+                    alert 'Picture cannot be loaded'
+                else
+                    @hideDlBtnAndDisplayPicture pictureId
+
+    hideDlBtnAndDisplayPicture: (pictureId) =>
+        @downloadButton.prev().fadeOut()
+        @downloadButton.fadeOut =>
+            @downloadButton.after """
+<a href="pictures/#{pictureId}/#{pictureId}.jpg">
+<img class="post-picture" src="pictures/#{pictureId}/prev_#{pictureId}.jpg" />
+</a>
+"""
 
     getRenderData: ->
         renderer = new Renderer()

@@ -31,14 +31,12 @@ module.exports = class MicropostsView extends View
         , 200
         @configurePublisherSubscription()
 
-
     configurePublisherSubscription: ->
         @ws = new WebSocket "ws://#{window.location.host}/microposts/publisher/"
         @ws.onmessage = (evt) =>
             console.log evt.data
             micropost = new MicroPost JSON.parse evt.data
             @micropostList.prependMicropost micropost
-
 
     onAddAttachmentClicked: (event) ->
         $(event.target).fadeOut =>
@@ -144,7 +142,6 @@ module.exports = class MicropostsView extends View
         content
 
     onTagSelected: (name) ->
-        if @tagsView?
-            @tagsView.$(".tag-select-button").unSelect()
+        @tagsView.$(".tag-select-button").unSelect() if @tagsView?
         @micropostList.loadTag name
         @tagList.select name

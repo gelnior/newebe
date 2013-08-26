@@ -189,6 +189,8 @@ class NewsContactHandler(NewebeHandler):
                         content=data['content'],
                         date=date,
                         attachments=data.get("attachments", []),
+                        pictures_to_download=data.get("pictures", []),
+                        commons_to_download=data.get("commons", []),
                         isMine=False,
                         tags=contact.tags
                     )

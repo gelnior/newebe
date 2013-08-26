@@ -3,6 +3,8 @@ View = require '../lib/view'
 ViewCollection = require '../lib/view_collection'
 NoteCollection = require '../collections/notes'
 
+
+# Line of the selector list.
 class NoteSelectorLine extends View
     tag: 'div'
     className: 'line note-selector-line'
@@ -11,6 +13,8 @@ class NoteSelectorLine extends View
     events:
         'click': 'onClick'
 
+    # Mark note as selected when it is clicked. This is for style purpose and
+    # to make it easy to find which note the user selected.
     onClick: ->
         $(".note-selector-line").removeClass 'selected'
         @$el.addClass 'selected'
@@ -19,6 +23,7 @@ class NoteSelectorLine extends View
         super()
 
 
+# List of notes displayed in the selector widget.
 class NoteSelectorList extends ViewCollection
     id: "note-selector-list"
     collection: new NoteCollection()
@@ -30,6 +35,7 @@ class NoteSelectorList extends ViewCollection
         @$el = $("##{@id}")
 
 
+# A widget to select an existing note and push at its end a micropost content.
 class NoteSelectorWidget extends View
     id: "note-selector-widget"
     template: -> require './templates/note_selector_widget'
@@ -47,14 +53,19 @@ class NoteSelectorWidget extends View
         noteList.collection.fetch()
 
         @$('.cancel').click @hide
-        @$('.confirm').click =>
-            for view in noteList.views
-                if view.$el.hasClass 'selected'
-                    @pushToNote view.model.id
+        @$('.confirm').click @pushPostToSelectedNote
 
+
+    # Find selected note via the selected class, push the micropost attached
+    # to the dialog then save it.
+    pushPostToSelectedNote: ->
+        for view in noteList.views
+            if view.$el.hasClass 'selected'
+                @pushToNote view.model.id
+
+    # Add micropost content to note which has given ID.
     pushToNote: (noteId)  ->
         request.get "/notes/all/#{noteId}", (err, note) =>
-
             if err then alert "cannot retrieve note"
             else
                 note.content = "#{note.content}\n\n#{@micropost.get 'content'}"
@@ -76,7 +87,7 @@ class NoteSelectorWidget extends View
 
 module.exports = NoteSelector = class NoteSelector
 
-
+# Dialog factory, not sure it has sense with JS.
 NoteSelector.getDialog = ->
     unless @dialog?
         @dialog = new NoteSelectorWidget()

@@ -2313,6 +2313,9 @@ textarea:active,
 textarea:hover {
   border: 1px solid #ad2bad;
 }
+input {
+  outline: 0;
+}
 .middle {
   padding-top: 20%;
 }
