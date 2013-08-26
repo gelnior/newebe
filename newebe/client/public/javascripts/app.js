@@ -4007,7 +4007,7 @@ window.require.register("views/templates/profile", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="line full-size"><div class="w400p mod left full-size main-section"><div id="profile-picture-section"><img id="profile-picture" src="user/picture.jpg"/><div id="change-picture-button"></div></div><div id="profile-data-section"><p><input');
+  buf.push('<div class="line full-size"><div class="w400p mod left main-section"><div id="profile-picture-section"><img id="profile-picture" src="user/picture.jpg"/><div id="change-picture-button"></div></div><div id="profile-data-section"><p><input');
   buf.push(attrs({ 'id':('profile-name-field'), 'type':("text"), 'value':("" + (model.name) + "") }, {"type":true,"value":true}));
   buf.push('/></p><p><input');
   buf.push(attrs({ 'id':('profile-url-field'), 'type':("text"), 'value':("" + (model.url) + "") }, {"type":true,"value":true}));
