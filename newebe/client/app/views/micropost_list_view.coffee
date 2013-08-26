@@ -38,8 +38,8 @@ module.exports = class MicropostListView extends CollectionView
         @collection.url += "tags/#{@tag}/" if @tag?
         @collection.fetch
             success: (microposts) =>
-                microposts.models.slice()
-                @renderOne micropost for micropost in microposts.models
+                #microposts.models.slice()
+                #@renderOne micropost for micropost in microposts.models
             error: =>
                 alert 'server error occured'
 

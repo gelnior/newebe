@@ -2109,17 +2109,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
         this.collection.url += "tags/" + this.tag + "/";
       }
       return this.collection.fetch({
-        success: function(microposts) {
-          var micropost, _i, _len, _ref, _results;
-          microposts.models.slice();
-          _ref = microposts.models;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            micropost = _ref[_i];
-            _results.push(_this.renderOne(micropost));
-          }
-          return _results;
-        },
+        success: function(microposts) {},
         error: function() {
           return alert('server error occured');
         }
@@ -2186,7 +2176,6 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.buttons = this.$('.micropost-buttons');
       this.downloadButton = this.$('.download-picture-btn');
       pictureId = this.model.get('pictures_to_download')[0];
-      console.log(pictureId);
       return this.downloadButton.click(function() {
         return _this.model.downloadPicture(pictureId, function(err) {
           if (err) {

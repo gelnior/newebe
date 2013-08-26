@@ -21,7 +21,6 @@ module.exports = class MicropostView extends View
         @buttons = @$ '.micropost-buttons'
         @downloadButton = @$ '.download-picture-btn'
         pictureId = @model.get('pictures_to_download')[0]
-        console.log pictureId
         @downloadButton.click =>
             @model.downloadPicture pictureId, (err) =>
                 if err
