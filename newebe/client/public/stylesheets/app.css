@@ -3066,7 +3066,13 @@ body,
   background: #005fbe;
 }
 #alert-widget {
-  height: 200px;
+  height: 160px;
+  text-align: center;
+  padding: 20px;
+  font-size: 26px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  font-family: robotic, main;
 }
 #note-selector-widget {
   height: 320px;

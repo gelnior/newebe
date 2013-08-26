@@ -1,12 +1,12 @@
 # TODO: Check if JQuery selector is required
 module.exports = ->
-    window.alert = (msg) ->
-        $('#widget-alert').html msg
-        $('#widget-alert').show()
-        setTimeout =>
-            $('#widget-alert').fadeOut()
-        , 1000
 
+    window.alert = (msg) ->
+        $('#alert-widget').html msg
+        $('#alert-widget').show()
+        setTimeout =>
+            $('#alert-widget').fadeOut 2000
+        , 500
 
     $.fn.disable = ->
         @each ->

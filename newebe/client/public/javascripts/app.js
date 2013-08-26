@@ -320,11 +320,11 @@ window.require.register("lib/jquery_helpers", function(exports, require, module)
   module.exports = function() {
     window.alert = function(msg) {
       var _this = this;
-      $('#widget-alert').html(msg);
-      $('#widget-alert').show();
+      $('#alert-widget').html(msg);
+      $('#alert-widget').show();
       return setTimeout(function() {
-        return $('#widget-alert').fadeOut();
-      }, 1000);
+        return $('#alert-widget').fadeOut(2000);
+      }, 500);
     };
     $.fn.disable = function() {
       return this.each(function() {
