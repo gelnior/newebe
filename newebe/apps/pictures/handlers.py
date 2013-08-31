@@ -231,7 +231,7 @@ class PictureContactHandler(NewebeHandler):
                     )
                     picture.save()
                     picture.put_attachment(content=file["body"],
-                                           name="th_" + file['filename'])
+                                           name="th_" + picture._id)
                     picture.save()
 
                     self.create_creation_activity(contact,
@@ -390,7 +390,7 @@ class PictureDownloadHandler(PictureObjectHandler):
         logger.info(self.picture)
 
         if response.code == 200:
-            filename = self.picture.path
+            filename = '%s.jpg' % self.picture._id
             self.picture.put_attachment(response.body, filename)
             thumbnail = self.get_thumbnail(
                 response.body, filename, (1000, 1000))
@@ -401,6 +401,7 @@ class PictureDownloadHandler(PictureObjectHandler):
             self.picture.isFile = True
             self.picture.save()
             self.return_success("Picture successfuly downloaded.")
+
         else:
             self.return_failure("Picture cannot be retrieved.")
 
@@ -451,7 +452,11 @@ class PictureContactDownloadHandler(NewebeHandler):
         When picture is found, a download request is sent to the contact.
         '''
 
-        file = picture.fetch_attachment(picture.path)
+        file = None
+        try:
+            file = picture.fetch_attachment('%s.jpg' % picture._id)
+        except ResourceNotFound:
+            file = picture.fetch_attachment(picture.path)
 
         self.set_status(200)
         self.set_header("Content-Type", picture.contentType)
