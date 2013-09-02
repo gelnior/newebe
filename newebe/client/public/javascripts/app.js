@@ -343,10 +343,68 @@ window.require.register("lib/jquery_helpers", function(exports, require, module)
         return $(this).addClass('selected');
       });
     };
-    return $.fn.unselect = function() {
+    $.fn.unselect = function() {
       return this.each(function() {
         return $(this).removeClass('selected');
       });
+    };
+    return $.fn.spin = function(opts, color) {
+      var presets;
+      presets = {
+        tiny: {
+          lines: 8,
+          length: 2,
+          width: 2,
+          radius: 3
+        },
+        small: {
+          lines: 8,
+          length: 1,
+          width: 2,
+          radius: 5
+        },
+        large: {
+          lines: 10,
+          length: 8,
+          width: 4,
+          radius: 8
+        }
+      };
+      if (Spinner) {
+        return this.each(function() {
+          var $this, spinner;
+          $this = $(this);
+          spinner = $this.data('spinner');
+          if (spinner != null) {
+            spinner.stop();
+            console.log($this.data('color'));
+            $this.css('color', $this.data('color'));
+            $this.data('spinner', null);
+            return $this.data('color', null);
+          } else if (opts !== false) {
+            color = $this.css('color');
+            $this.data('color', color);
+            $this.css('color', 'transparent');
+            if (typeof opts === 'string') {
+              if (opts in presets) {
+                opts = presets[opts];
+              } else {
+                opts = {};
+              }
+              if (color) {
+                opts.color = color;
+              }
+            }
+            spinner = new Spinner($.extend({
+              color: $this.css('color')
+            }, opts));
+            spinner.spin(this);
+            return $this.data('spinner', spinner);
+          }
+        });
+      } else {
+        return console.log('Spinner class is not available');
+      }
     };
   };
   
@@ -400,7 +458,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
     Renderer.prototype.markdownConverter = new Showdown.converter();
 
     Renderer.prototype.renderDoc = function(doc) {
-      var content, rawContent, _ref, _ref1;
+      var content, rawContent, _ref, _ref1, _ref2, _ref3;
       if (doc != null) {
         if (doc.get('doc_type') === 'MicroPost') {
           rawContent = doc.get('content');
@@ -409,10 +467,15 @@ window.require.register("lib/renderer", function(exports, require, module) {
           if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0 || ((_ref1 = doc.get('pictures_to_download')) != null ? _ref1.length : void 0) > 0) {
             content += '<img src="static/images/attachment.png" />';
           }
+          if (((_ref2 = doc.get('commons')) != null ? _ref2.length : void 0) > 0 || ((_ref3 = doc.get('commonq_to_download')) != null ? _ref3.length : void 0) > 0) {
+            content += '<img src="static/images/attachment.png" />';
+          }
           content += '</div>';
           content += '<div class="mod right w40 micropost-attachments">';
           content += this.checkForPictures(doc.get('pictures'));
           content += this.checkForPicturesToDl(doc.get('pictures_to_download'));
+          content += this.checkForCommons(doc.get('commons'));
+          content += this.checkForCommonsToDl(doc.get('commons_to_download'));
           content += this.checkForImages(rawContent);
           content += this.checkForVideos(rawContent);
           content += '</div>';
@@ -447,6 +510,39 @@ window.require.register("lib/renderer", function(exports, require, module) {
         for (_i = 0, _len = pictures.length; _i < _len; _i++) {
           picture = pictures[_i];
           result += "<p>The image is not avalaible yet, you need to download it\nfirst.</p>\n<button class=\"download-picture-btn\">download</button>";
+        }
+      }
+      return result;
+    };
+
+    Renderer.prototype.checkForCommons = function(commons) {
+      var commonId, result, _i, _len;
+      result = "";
+      if ((commons != null ? commons.length : void 0) > 0) {
+        for (_i = 0, _len = commons.length; _i < _len; _i++) {
+          commonId = commons[_i];
+          if (commonId != null) {
+            result += "<a id=\"common-" + commonId + "\"></a>";
+            request.get("/commons/" + commonId + "/", function(err, commonRows) {
+              var common, link;
+              common = commonRows.rows[0];
+              link = "/commons/" + commonId + "/" + common.path;
+              $("#common-" + commonId).attr('href', link);
+              return $("#common-" + commonId).html(common.path);
+            });
+          }
+        }
+      }
+      return result;
+    };
+
+    Renderer.prototype.checkForCommonsToDl = function(commons) {
+      var common, result, _i, _len;
+      result = "";
+      if ((commons != null ? commons.length : void 0) > 0) {
+        for (_i = 0, _len = commons.length; _i < _len; _i++) {
+          common = commons[_i];
+          result += "<p>The common is not avalaible yet, you need to download it\nfirst.</p>\n<button class=\"download-common-btn\">download</button>";
         }
       }
       return result;
@@ -2138,7 +2234,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
   
 });
 window.require.register("views/micropost_view", function(exports, require, module) {
-  var MicroPost, MicropostView, NoteSelector, Renderer, View,
+  var MicroPost, MicropostView, NoteSelector, Renderer, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2150,6 +2246,8 @@ window.require.register("views/micropost_view", function(exports, require, modul
   MicroPost = require('../models/micropost');
 
   NoteSelector = require('./note_selector');
+
+  request = require('../lib/request');
 
   module.exports = MicropostView = (function(_super) {
 
@@ -2210,8 +2308,16 @@ window.require.register("views/micropost_view", function(exports, require, modul
     };
 
     MicropostView.prototype.onClicked = function() {
+      var commonId, commons, _i, _len;
       $('.micropost').removeClass('selected');
       $('.micropost-buttons').hide();
+      commons = this.model.get('commons');
+      if (commons != null) {
+        for (_i = 0, _len = commons.length; _i < _len; _i++) {
+          commonId = commons[_i];
+          console.log('a');
+        }
+      }
       this.$el.select();
       return this.buttons.show();
     };
@@ -2295,6 +2401,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
       });
       this.isLoaded = false;
       this.micropostField = this.$("#micropost-field");
+      this.micropostButton = this.$("#micropost-post-button");
       setTimeout(function() {
         _this.tagList = new SimpleTagList('#micropost-tag-list');
         _this.tagList.fetch({
@@ -2312,7 +2419,6 @@ window.require.register("views/microposts_view", function(exports, require, modu
       this.ws = new WebSocket("ws://" + window.location.host + "/microposts/publisher/");
       return this.ws.onmessage = function(evt) {
         var micropost;
-        console.log(evt.data);
         micropost = new MicroPost(JSON.parse(evt.data));
         return _this.micropostList.prependMicropost(micropost);
       };
@@ -2340,11 +2446,14 @@ window.require.register("views/microposts_view", function(exports, require, modu
         return FileAPI.filterFiles(files, callback1, function(fileList, ignor) {
           var imageList;
           if (!fileList.length) {
-            alert('0 file');
+            alert('No file selected, no upload possible');
             return 0;
           }
           imageList = FileAPI.filter(fileList, function(file) {
             return /image/.test(file.type);
+          });
+          fileList = FileAPI.filter(fileList, function(file) {
+            return !/image/.test(file.type);
           });
           _this.$(".js-fileapi-wrapper input").fadeOut();
           FileAPI.each(imageList, function(imageFile) {
@@ -2356,7 +2465,11 @@ window.require.register("views/microposts_view", function(exports, require, modu
               }
             });
           });
-          return _this.attachments = imageList;
+          FileAPI.each(fileList, function(file) {
+            return $(previewNode).append("<p>" + file.name + "</p>");
+          });
+          _this.attachedImages = imageList;
+          return _this.attachedFiles = fileList;
         });
       });
     };
@@ -2388,12 +2501,15 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.createNewPost = function() {
-      var content, postMicropost, xhr, _ref,
+      var attachmentButton, content, postMicropost, previewList, xhr, _ref, _ref1,
         _this = this;
       content = this.micropostField.val();
+      attachmentButton = this.$("#add-attachment");
+      previewList = this.$('#preview-list');
       if ((content != null ? content.length : void 0) !== 0) {
+        this.micropostButton.spin('small');
         this.micropostField.disable();
-        postMicropost = function(pictureId) {
+        postMicropost = function(pictureId, fileId) {
           var micropost;
           micropost = new MicroPost();
           if (pictureId != null) {
@@ -2401,28 +2517,35 @@ window.require.register("views/microposts_view", function(exports, require, modu
           } else {
             micropost.set('pictures', []);
           }
+          if (fileId != null) {
+            micropost.set('commons', [fileId]);
+          } else {
+            micropost.set('commons', []);
+          }
           content = _this.checkLink(content);
           micropost.set('tags', [_this.tagList.selectedTag]);
           return micropost.save('content', content, {
             success: function() {
+              _this.micropostButton.spin();
               _this.micropostList.prependMicropost(micropost);
               _this.micropostField.enable();
               _this.micropostField.val(null);
-              _this.$("#add-attachment").fadeIn();
-              return _this.$('#preview-list').fadeOut();
+              attachmentButton.fadeIn();
+              return previewList.fadeOut();
             },
             error: function() {
+              _this.micropostButton.spin();
               _this.micropostField.enable();
-              _this.$("#add-attachment").fadeIn();
-              return _this.$('#preview-list').fadeOut();
+              attamchmentButton.fadeIn();
+              return previewList.fadeOut();
             }
           });
         };
-        if (((_ref = this.attachments) != null ? _ref.length : void 0) > 0) {
-          return xhr = FileAPI.upload({
+        if (((_ref = this.attachmedImages) != null ? _ref.length : void 0) > 0) {
+          xhr = FileAPI.upload({
             url: '/pictures/all/',
             files: {
-              picture: this.attachments[0]
+              picture: this.attachedImages[0]
             },
             complete: function(err, xhr) {
               var picture;
@@ -2430,8 +2553,25 @@ window.require.register("views/microposts_view", function(exports, require, modu
                 alert('upload failed');
               }
               picture = JSON.parse(xhr.response);
-              this.attachments = null;
+              this.attachedImages = null;
               return postMicropost(picture._id);
+            }
+          });
+        }
+        if (((_ref1 = this.attachedFiles) != null ? _ref1.length : void 0) > 0) {
+          return xhr = FileAPI.upload({
+            url: '/commons/all/',
+            files: {
+              common: this.attachedFiles[0]
+            },
+            complete: function(err, xhr) {
+              var file;
+              if (err) {
+                alert('upload failed');
+              }
+              file = JSON.parse(xhr.response);
+              this.attachedFiles = null;
+              return postMicropost(null, file._id);
             }
           });
         } else {

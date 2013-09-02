@@ -25,6 +25,7 @@ module.exports = class MicropostsView extends View
         @micropostList = new MicropostListView el: @$ "#micropost-all"
         @isLoaded = false
         @micropostField = @$ "#micropost-field"
+        @micropostButton = @$ "#micropost-post-button"
         setTimeout =>
             @tagList = new SimpleTagList '#micropost-tag-list'
             @tagList.fetch success: => @tagList.select 'all'
@@ -35,7 +36,6 @@ module.exports = class MicropostsView extends View
     configurePublisherSubscription: ->
         @ws = new WebSocket "ws://#{window.location.host}/microposts/publisher/"
         @ws.onmessage = (evt) =>
-            console.log evt.data
             micropost = new MicroPost JSON.parse evt.data
             @micropostList.prependMicropost micropost
 
@@ -45,19 +45,25 @@ module.exports = class MicropostsView extends View
             @$(".js-fileapi-wrapper").fadeIn()
 
     configureUpload: ->
-        input = document.getElementById('attach-picture')
-        previewNode = document.getElementById('preview-list')
+        input = document.getElementById 'attach-picture'
+        previewNode = document.getElementById 'preview-list'
 
         FileAPI.event.on input, 'change', (evt) =>
             files = FileAPI.getFiles(evt)
+
             callback1 = (file, info) =>
                 true
+
             FileAPI.filterFiles files, callback1, (fileList, ignor) =>
                 unless fileList.length
-                    alert '0 file'
+                    alert 'No file selected, no upload possible'
                     return 0
+
                 imageList = FileAPI.filter fileList, (file) =>
                      return /image/.test(file.type)
+
+                fileList = FileAPI.filter fileList, (file) =>
+                     return not /image/.test(file.type)
 
                 @$(".js-fileapi-wrapper input").fadeOut()
                 FileAPI.each imageList, (imageFile) =>
@@ -68,7 +74,12 @@ module.exports = class MicropostsView extends View
                             else
                                 previewNode.appendChild(image)
 
-                @attachments = imageList
+                FileAPI.each fileList, (file) =>
+                    $(previewNode).append "<p>#{file.name}</p>"
+
+
+                @attachedImages = imageList
+                @attachedFiles = fileList
 
     fetch: ->
         @micropostList.collection.fetch
@@ -90,40 +101,59 @@ module.exports = class MicropostsView extends View
     createNewPost: =>
         content = @micropostField.val()
 
+        attachmentButton = @$("#add-attachment")
+        previewList = @$('#preview-list')
+
         if content?.length isnt 0
+            @micropostButton.spin 'small'
             @micropostField.disable()
 
-            postMicropost = (pictureId) =>
+            postMicropost = (pictureId, fileId) =>
                 micropost = new MicroPost()
                 if pictureId? then micropost.set 'pictures', [pictureId]
                 else micropost.set 'pictures', []
+                if fileId? then micropost.set 'commons', [fileId]
+                else micropost.set 'commons', []
                 content = @checkLink content
                 micropost.set 'tags', [@tagList.selectedTag]
                 micropost.save 'content', content,
                     success: =>
+                        @micropostButton.spin()
                         @micropostList.prependMicropost micropost
                         @micropostField.enable()
                         @micropostField.val null
-                        @$("#add-attachment").fadeIn()
-                        @$('#preview-list').fadeOut()
+                        attachmentButton.fadeIn()
+                        previewList.fadeOut()
                     error: =>
+                        @micropostButton.spin()
                         @micropostField.enable()
-                        @$("#add-attachment").fadeIn()
-                        @$('#preview-list').fadeOut()
+                        attamchmentButton.fadeIn()
+                        previewList.fadeOut()
 
-            if @attachments?.length > 0
+            if @attachmedImages?.length > 0
                 xhr = FileAPI.upload
                     url: '/pictures/all/'
                     files:
-                        picture: @attachments[0]
+                        picture: @attachedImages[0]
                     complete: (err, xhr) ->
                         if err then alert 'upload failed'
                         picture = JSON.parse xhr.response
-                        @attachments = null
+                        @attachedImages = null
                         postMicropost picture._id
+
+            if @attachedFiles?.length > 0
+                xhr = FileAPI.upload
+                    url: '/commons/all/'
+                    files:
+                        common: @attachedFiles[0]
+                    complete: (err, xhr) ->
+                        if err then alert 'upload failed'
+                        file = JSON.parse xhr.response
+                        @attachedFiles = null
+                        postMicropost null, file._id
+
             else
                 postMicropost()
-
 
     loadMoreMicroposts: =>
         @micropostList.loadMore()

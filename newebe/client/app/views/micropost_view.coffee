@@ -2,6 +2,7 @@ View = require '../lib/view'
 Renderer = require '../lib/renderer'
 MicroPost = require '../models/micropost'
 NoteSelector = require './note_selector'
+request = require '../lib/request'
 
 module.exports = class MicropostView extends View
     className: 'micropost pt1 pb1 pl1 line'
@@ -46,6 +47,11 @@ module.exports = class MicropostView extends View
     onClicked: ->
         $('.micropost').removeClass 'selected'
         $('.micropost-buttons').hide()
+
+        commons = @model.get 'commons'
+        if commons?
+            for commonId in commons
+                console.log 'a'
         @$el.select()
         @buttons.show()
 

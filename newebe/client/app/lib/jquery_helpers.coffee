@@ -26,3 +26,51 @@ module.exports = ->
         @each ->
             $(@).removeClass 'selected'
 
+    # Add JQuery extensions
+    $.fn.spin = (opts, color) ->
+        presets =
+            tiny:
+                lines: 8
+                length: 2
+                width: 2
+                radius: 3
+
+            small:
+                lines: 8
+                length: 1
+                width: 2
+                radius: 5
+
+            large:
+                lines: 10
+                length: 8
+                width: 4
+                radius: 8
+
+        if Spinner
+            @each ->
+                $this = $(this)
+                spinner = $this.data 'spinner'
+
+                if spinner?
+                    spinner.stop()
+                    console.log $this.data 'color'
+                    $this.css 'color', $this.data 'color'
+                    $this.data 'spinner', null
+                    $this.data 'color', null
+
+                else if opts isnt false
+                    color = $this.css 'color'
+                    $this.data 'color', color
+                    $this.css 'color', 'transparent'
+                    if typeof opts is 'string'
+                        if opts of presets then opts = presets[opts]
+                        else opts = {}
+                        opts.color = color if color
+                    spinner = new Spinner(
+                        $.extend(color: $this.css('color'), opts))
+                    spinner.spin(this)
+                    $this.data 'spinner', spinner
+
+        else
+            console.log 'Spinner class is not available'
