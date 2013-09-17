@@ -1,9 +1,7 @@
 .infos.small
-    span.author #{model.author}
-    span.verb #{model.verb}
-.pt05
-    | !{model.content}
-    
-span.date.smaller #{model.displayDate}
-.activity-buttons
-    button.activity-delete-button delete
+    div.date.smaller.w100p.mr2 #{model.displayDate}&nbsp;
+    span.author #{model.author}&nbsp;
+    span.verb #{model.verb}&nbsp;
+    span something&nbsp;
+    if model.errorAmount !== undefined
+        span.error (#{model.errorAmount})

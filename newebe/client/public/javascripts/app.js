@@ -660,7 +660,7 @@ window.require.register("lib/string", function(exports, require, module) {
       event.preventDefault();
       return false;
     } else {
-      return false;
+      return true;
     }
   };
   
@@ -895,10 +895,6 @@ window.require.register("models/activity", function(exports, require, module) {
 
     __extends(Activity, _super);
 
-    function Activity() {
-      return Activity.__super__.constructor.apply(this, arguments);
-    }
-
     Activity.prototype.urlRoot = '/activities/all/';
 
     Activity.prototype.idAttribute = '_id';
@@ -907,16 +903,12 @@ window.require.register("models/activity", function(exports, require, module) {
       "tags": ["all"]
     };
 
-    Activity.prototype.setMicropost = function(micropost) {
-      this.set('subdoc', micropost.attributes);
-      this.set('docId', micropost.get('_id'));
-      this.set('docType', 'Micropost');
-      this.set('verb', 'writes');
-      this.set('isMine', micropost.get('isMine'));
-      this.set('author', micropost.get('author'));
-      this.set('date', micropost.get('date'));
-      return this.set('method', 'POST');
-    };
+    function Activity(activity) {
+      Activity.__super__.constructor.call(this, activity);
+      if (activity.errors.length) {
+        this.set('errorAmount', activity.errors.length);
+      }
+    }
 
     return Activity;
 
@@ -994,7 +986,6 @@ window.require.register("models/contact", function(exports, require, module) {
 });
 window.require.register("models/micropost", function(exports, require, module) {
   var Micropost, Model, request,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1007,7 +998,6 @@ window.require.register("models/micropost", function(exports, require, module) {
     __extends(Micropost, _super);
 
     function Micropost() {
-      this.downloadPicture = __bind(this.downloadPicture, this);
       return Micropost.__super__.constructor.apply(this, arguments);
     }
 
@@ -1021,6 +1011,10 @@ window.require.register("models/micropost", function(exports, require, module) {
 
     Micropost.prototype.downloadPicture = function(pictureId, callback) {
       return request.get("/pictures/" + pictureId + "/download/", callback);
+    };
+
+    Micropost.prototype.downloadCommon = function(commonId, callback) {
+      return request.get("/commons/" + commonId + "/download/", callback);
     };
 
     return Micropost;
@@ -1149,7 +1143,8 @@ window.require.register("routers/app_router", function(exports, require, module)
       'microposts': 'microposts',
       'notes': 'notes',
       'contacts': 'contacts',
-      'profile': 'profile'
+      'profile': 'profile',
+      'activities': 'activities'
     };
 
     function AppRouter(appView) {
@@ -1198,6 +1193,13 @@ window.require.register("routers/app_router", function(exports, require, module)
       });
     };
 
+    AppRouter.prototype.activities = function() {
+      var _this = this;
+      return this.checkAppViewState(function() {
+        return _this.appView.changeSubView(_this.appView.activitiesView);
+      });
+    };
+
     AppRouter.prototype.checkAppViewState = function(callback) {
       var _this = this;
       if (this.appView.isLoaded) {
@@ -1216,14 +1218,14 @@ window.require.register("routers/app_router", function(exports, require, module)
   
 });
 window.require.register("views/activities_view", function(exports, require, module) {
-  var ActivitiesView, ActivityListView, MicroPost, View,
+  var ActivitiesView, Activity, ActivityListView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('../lib/view');
 
-  MicroPost = require('../models/micropost');
+  Activity = require('../models/activity');
 
   ActivityListView = require('../views/activity_list_view');
 
@@ -1233,12 +1235,6 @@ window.require.register("views/activities_view", function(exports, require, modu
 
     function ActivitiesView() {
       this.loadMoreActivities = __bind(this.loadMoreActivities, this);
-
-      this.createNewPost = __bind(this.createNewPost, this);
-
-      this.onMicropostFieldKeyup = __bind(this.onMicropostFieldKeyup, this);
-
-      this.onMicropostFieldKeydown = __bind(this.onMicropostFieldKeydown, this);
       return ActivitiesView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1251,9 +1247,6 @@ window.require.register("views/activities_view", function(exports, require, modu
     };
 
     ActivitiesView.prototype.events = {
-      "keyup #micropost-field": "onMicropostFieldKeyup",
-      "keydown #micropost-field": "onMicropostFieldKeydown",
-      "click #micropost-post-button": "createNewPost",
       "click #more-activities-button": "loadMoreActivities"
     };
 
@@ -1261,8 +1254,7 @@ window.require.register("views/activities_view", function(exports, require, modu
       this.activityList = new ActivityListView({
         el: this.$("#activity-all")
       });
-      this.isLoaded = false;
-      return this.micropostField = this.$("#micropost-field");
+      return this.isLoaded = false;
     };
 
     ActivitiesView.prototype.fetch = function() {
@@ -1275,66 +1267,8 @@ window.require.register("views/activities_view", function(exports, require, modu
       });
     };
 
-    ActivitiesView.prototype.onMicropostFieldKeydown = function(event) {
-      if (event.keyCode === 17) {
-        return this.isCtrl = true;
-      }
-    };
-
-    ActivitiesView.prototype.onMicropostFieldKeyup = function(event) {
-      var keyCode;
-      keyCode = event.which ? event.which : event.keyCode;
-      if (event.keyCode === 17) {
-        return this.isCtrl = false;
-      } else if (keyCode === 13 && this.isCtrl) {
-        return this.createNewPost();
-      }
-    };
-
-    ActivitiesView.prototype.createNewPost = function() {
-      var content, micropost,
-        _this = this;
-      content = this.micropostField.val();
-      if ((content != null ? content.length : void 0) !== 0) {
-        this.micropostField.disable();
-        micropost = new MicroPost();
-        content = this.checkLink(content);
-        return micropost.save('content', content, {
-          success: function() {
-            _this.activityList.prependMicropostActivity(micropost);
-            _this.micropostField.enable();
-            return _this.micropostField.val(null);
-          },
-          error: function() {
-            return _this.micropostField.enable();
-          }
-        });
-      }
-    };
-
     ActivitiesView.prototype.loadMoreActivities = function() {
       return this.activityList.loadMore();
-    };
-
-    ActivitiesView.prototype.checkLink = function(content) {
-      var previousChar, regexp, url, urlIndex, urls, _i, _len;
-      regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
-      urls = content.match(regexp);
-      if (urls) {
-        for (_i = 0, _len = urls.length; _i < _len; _i++) {
-          url = urls[_i];
-          urlIndex = content.indexOf(url);
-          if (urlIndex === 0) {
-            content = content.replace(url, "[" + url + "](" + url + ")");
-          } else {
-            previousChar = content.charAt(urlIndex - 1);
-            if (previousChar !== '(' && previousChar !== "[") {
-              content = content.replace(url, "[" + url + "](" + url + ")");
-            }
-          }
-        }
-      }
-      return content;
     };
 
     return ActivitiesView;
@@ -1344,7 +1278,6 @@ window.require.register("views/activities_view", function(exports, require, modu
 });
 window.require.register("views/activity_list_view", function(exports, require, module) {
   var Activity, ActivityCollection, ActivityListView, ActivityView, CollectionView,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1361,7 +1294,6 @@ window.require.register("views/activity_list_view", function(exports, require, m
     __extends(ActivityListView, _super);
 
     function ActivityListView() {
-      this.prependMicropostActivity = __bind(this.prependMicropostActivity, this);
       return ActivityListView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1375,15 +1307,6 @@ window.require.register("views/activity_list_view", function(exports, require, m
 
     ActivityListView.prototype.afterRender = function() {
       return this.$el.addClass('activity-list mod left w100');
-    };
-
-    ActivityListView.prototype.prependMicropostActivity = function(micropost) {
-      var activity;
-      activity = new Activity();
-      activity.setMicropost(micropost);
-      return this.renderOne(activity, {
-        prepend: true
-      });
     };
 
     ActivityListView.prototype.loadMore = function() {
@@ -1438,15 +1361,14 @@ window.require.register("views/activity_view", function(exports, require, module
 
     __extends(ActivityView, _super);
 
-    ActivityView.prototype.className = 'activity pt1 pb1 pl0';
+    ActivityView.prototype.className = 'activity pl0';
 
     ActivityView.prototype.template = function() {
       return require('./templates/activity');
     };
 
     ActivityView.prototype.events = {
-      'click': 'onClicked',
-      'click .activity-delete-button': 'onDeleteClicked'
+      'click': 'onClicked'
     };
 
     function ActivityView(model) {
@@ -1454,19 +1376,9 @@ window.require.register("views/activity_view", function(exports, require, module
       ActivityView.__super__.constructor.call(this);
     }
 
-    ActivityView.prototype.afterRender = function() {
-      return this.buttons = this.$('.activity-buttons');
-    };
-
     ActivityView.prototype.getRenderData = function() {
-      var content, renderer, _ref;
+      var renderer, _ref;
       renderer = new Renderer();
-      if (this.model.get('subdoc') != null) {
-        content = renderer.renderDoc(this.model.get('subdoc'));
-      } else {
-        content = '';
-      }
-      this.model.set('content', content);
       this.model.set('displayDate', renderer.renderDate(this.model.get('date')));
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
@@ -1475,26 +1387,7 @@ window.require.register("views/activity_view", function(exports, require, module
 
     ActivityView.prototype.onClicked = function() {
       $('.activity').removeClass('selected');
-      $('.activity-buttons').hide();
-      this.$el.addClass('selected');
-      if (this.model.get('docType') === 'micropost') {
-        return this.buttons.show();
-      }
-    };
-
-    ActivityView.prototype.onDeleteClicked = function() {
-      var micropost,
-        _this = this;
-      micropost = new MicroPost(this.model.get('subdoc'));
-      micropost.url = "/microposts/" + (micropost.get('_id')) + "/";
-      return micropost.destroy({
-        success: function() {
-          return _this.remove();
-        },
-        error: function() {
-          return alert('server error occured');
-        }
-      });
+      return this.$el.addClass('selected');
     };
 
     return ActivityView;
@@ -1503,7 +1396,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1515,6 +1408,8 @@ window.require.register("views/app_view", function(exports, require, module) {
   MicropostsView = require('./microposts_view');
 
   ContactsView = require('./contacts_view');
+
+  ActivitiesView = require('./activities_view');
 
   NotesView = require('./notes_view');
 
@@ -1603,6 +1498,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       this.contactsView = this._addView(ContactsView);
       this.profileView = this._addView(ProfileView);
       this.notesView = this._addView(NotesView);
+      this.activitiesView = this._addView(ActivitiesView);
       if (userState.authenticated && (callback != null)) {
         callback();
       } else if (userState.authenticated) {
@@ -1803,20 +1699,28 @@ window.require.register("views/contact_view", function(exports, require, module)
     };
 
     ContactView.prototype.onDeleteClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
+      button = this.$('.contact-delete-button');
+      button.spin('small');
       return this.model.destroy({
         success: function() {
           return _this.remove();
         },
         error: function() {
+          button.spin();
           return alert('An error occured while deleting contact');
         }
       });
     };
 
     ContactView.prototype.onRetryClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
+      button = this.$('.contact-retry-button');
+      button.spin('small');
       return this.model.retry(function(err) {
+        button.spin();
         if (err) {
           return alert('Contact request failed again.');
         } else {
@@ -1826,8 +1730,12 @@ window.require.register("views/contact_view", function(exports, require, module)
     };
 
     ContactView.prototype.onAcceptClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
+      button = this.$('.contact-accept-button');
+      button.spin('small');
       return this.model.accept(function(err) {
+        button.spin();
         if (err) {
           alert('Contact approval failed.');
           _this.$('.state').html('Error');
@@ -1946,19 +1854,25 @@ window.require.register("views/contacts_view", function(exports, require, module
     };
 
     ContactsView.prototype.onAddContactClicked = function() {
-      var contactUrl, data,
+      var button, contactUrl, data,
         _this = this;
       contactUrl = this.newContactInput.val();
       data = {
         url: contactUrl
       };
+      button = $("#add-contact-button");
       if (this.checkUrl(contactUrl)) {
         this.$('.error').html("");
+        button.spin('small');
         return this.collection.create(data, {
           success: function(model) {
-            return _this.renderOne(model);
+            button.spin();
+            _this.renderOne(model);
+            _this.newContactInput.val(null);
+            return _this.newContactInput.focus();
           },
           error: function() {
+            button.spin();
             return alert('Something went wrong while adding contact');
           }
         });
@@ -1989,9 +1903,19 @@ window.require.register("views/contacts_view", function(exports, require, module
         });
         this.tagsView.contactsView = this;
       }
+      this.tagsView.$el.spin('small');
       this.tagsView.fetch({
         success: function() {
-          return _this.collection.fetch();
+          _this.tagsView.$el.spin();
+          _this.$el.spin('small');
+          return _this.collection.fetch({
+            success: function() {
+              return _this.$el.spin();
+            },
+            error: function() {
+              return _this.$el.spin();
+            }
+          });
         },
         error: function() {
           return alert("an error occured");
@@ -2179,11 +2103,11 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       this.views = [];
       this.collection.url = this.collection.baseUrl + date;
       this.collection.url += "tags/" + this.tag + "/";
+      this.$el.spin('small');
       return this.collection.fetch({
         success: function(microposts) {
           var micropost, _i, _len, _ref, _results;
-          console.log('success');
-          console.log(_this.views);
+          _this.$el.spin();
           if (_this.views.length === 0) {
             microposts.models.slice();
             _ref = microposts.models;
@@ -2198,7 +2122,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       });
     };
 
-    MicropostListView.prototype.loadMore = function() {
+    MicropostListView.prototype.loadMore = function(callback) {
       var _this = this;
       this.collection.url = this.collection.baseUrl + this.getLastDate();
       if (this.tag != null) {
@@ -2207,11 +2131,13 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       return this.collection.fetch({
         success: function(microposts) {
           if (microposts.size() < 11) {
-            return Backbone.Mediator.publish('posts:no-more', true);
+            Backbone.Mediator.publish('posts:no-more', true);
           }
+          return callback();
         },
         error: function() {
-          return alert('server error occured');
+          alert('server error occured');
+          return callback();
         }
       });
     };
@@ -2267,23 +2193,36 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     function MicropostView(model) {
       this.model = model;
+      this.hideDlBtnAndDisplayCommon = __bind(this.hideDlBtnAndDisplayCommon, this);
+
       this.hideDlBtnAndDisplayPicture = __bind(this.hideDlBtnAndDisplayPicture, this);
 
       MicropostView.__super__.constructor.call(this);
     }
 
     MicropostView.prototype.afterRender = function() {
-      var pictureId,
+      var commonId, pictureId, _ref, _ref1,
         _this = this;
       this.buttons = this.$('.micropost-buttons');
       this.downloadButton = this.$('.download-picture-btn');
-      pictureId = this.model.get('pictures_to_download')[0];
-      return this.downloadButton.click(function() {
+      pictureId = (_ref = this.model.get('pictures_to_download')) != null ? _ref[0] : void 0;
+      this.downloadButton.click(function() {
         return _this.model.downloadPicture(pictureId, function(err) {
           if (err) {
             return alert('Picture cannot be loaded');
           } else {
             return _this.hideDlBtnAndDisplayPicture(pictureId);
+          }
+        });
+      });
+      this.downloadButton = this.$('.download-common-btn');
+      commonId = (_ref1 = this.model.get('commons_to_download')) != null ? _ref1[0] : void 0;
+      return this.downloadButton.click(function() {
+        return _this.model.downloadCommon(commonId, function(err) {
+          if (err) {
+            return alert('Common cannot be loaded');
+          } else {
+            return _this.hideDlBtnAndDisplayCommon(commonId);
           }
         });
       });
@@ -2294,6 +2233,18 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
         return _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+      });
+    };
+
+    MicropostView.prototype.hideDlBtnAndDisplayCommon = function(commonId) {
+      var _this = this;
+      this.downloadButton.prev().fadeOut();
+      return this.downloadButton.fadeOut(function() {
+        return request.get("/commons/" + commonId + "/", function(err, commonRows) {
+          var common;
+          common = commonRows.rows[0];
+          return this.downloadButton.after("<a href=\"commons/" + commonId + "/" + common.path + "\">\n" + common.path + "\n</a>");
+        });
       });
     };
 
@@ -2323,14 +2274,18 @@ window.require.register("views/micropost_view", function(exports, require, modul
     };
 
     MicropostView.prototype.onDeleteClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
       this.model.url = "microposts/" + this.model.id + "/";
+      button = this.$(".micropost-delete-button");
+      button.spin('small');
       return this.model.destroy({
         success: function() {
           return _this.remove();
         },
         error: function() {
-          return alert('server error occured');
+          button.spin();
+          return alert('server error occured, the micropost cannot be deleted.');
         }
       });
     };
@@ -2476,9 +2431,13 @@ window.require.register("views/microposts_view", function(exports, require, modu
 
     MicropostsView.prototype.fetch = function() {
       var _this = this;
+      this.micropostList.$el.spin('small');
       return this.micropostList.collection.fetch({
-        success: function() {},
+        success: function() {
+          return _this.micropostList.$el.spin();
+        },
         error: function() {
+          _this.micropostList.$el.spin();
           return alert('A server error occured while retrieving news feed');
         }
       });
@@ -2581,7 +2540,13 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.loadMoreMicroposts = function() {
-      return this.micropostList.loadMore();
+      var button,
+        _this = this;
+      button = $("#more-microposts-button");
+      button.spin('small');
+      return this.micropostList.loadMore(function() {
+        return button.spin();
+      });
     };
 
     MicropostsView.prototype.checkLink = function(content) {
@@ -2654,13 +2619,18 @@ window.require.register("views/note", function(exports, require, module) {
     };
 
     NoteView.prototype.onDeleteClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
+      button = this.$('.note-delete-button');
+      button.spin('small');
       return this.model.destroy({
         success: function() {
+          button.spin();
           return _this.remove();
         },
         error: function() {
-          return alert('server error occured');
+          button.spin();
+          return alert('server error occured, note cannot be deleted');
         }
       });
     };
@@ -2744,7 +2714,8 @@ window.require.register("views/note", function(exports, require, module) {
 window.require.register("views/note_selector", function(exports, require, module) {
   var NoteCollection, NoteSelector, NoteSelectorLine, NoteSelectorList, NoteSelectorWidget, View, ViewCollection, request,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   request = require('../lib/request');
 
@@ -2822,22 +2793,22 @@ window.require.register("views/note_selector", function(exports, require, module
     };
 
     function NoteSelectorWidget() {
+      this.pushPostToSelectedNote = __bind(this.pushPostToSelectedNote, this);
       NoteSelectorWidget.__super__.constructor.call(this);
       this.$el = $("#" + this.id);
     }
 
     NoteSelectorWidget.prototype.afterRender = function() {
-      var noteList;
-      noteList = new NoteSelectorList;
-      noteList.render();
-      noteList.collection.fetch();
+      this.noteList = new NoteSelectorList;
+      this.noteList.render();
+      this.noteList.collection.fetch();
       this.$('.cancel').click(this.hide);
       return this.$('.confirm').click(this.pushPostToSelectedNote);
     };
 
     NoteSelectorWidget.prototype.pushPostToSelectedNote = function() {
       var view, _i, _len, _ref, _results;
-      _ref = noteList.views;
+      _ref = this.noteList.views;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         view = _ref[_i];
@@ -2852,6 +2823,7 @@ window.require.register("views/note_selector", function(exports, require, module
 
     NoteSelectorWidget.prototype.pushToNote = function(noteId) {
       var _this = this;
+      this.$('.confirm').spin('small');
       return request.get("/notes/all/" + noteId, function(err, note) {
         if (err) {
           return alert("cannot retrieve note");
@@ -2862,6 +2834,7 @@ window.require.register("views/note_selector", function(exports, require, module
               return alert("note update failed");
             } else {
               alert("note successfully updated");
+              _this.$('.confirm').spin();
               return _this.hide();
             }
           });
@@ -2932,7 +2905,16 @@ window.require.register("views/notes", function(exports, require, module) {
     NotesView.prototype.afterRender = function() {};
 
     NotesView.prototype.fetch = function() {
-      return this.collection.fetch();
+      var _this = this;
+      this.$el.spin('small');
+      return this.collection.fetch({
+        success: function() {
+          return _this.$el.spin();
+        },
+        error: function() {
+          return _this.$el.spin();
+        }
+      });
     };
 
     NotesView.prototype.addNote = function(note) {
@@ -2963,14 +2945,14 @@ window.require.register("views/notes", function(exports, require, module) {
       this.remove(this.views);
       this.collection.reset();
       this.collection.url = "notes/all/order-by-date/";
-      return this.collection.fetch();
+      return this.fetch();
     };
 
     NotesView.prototype.sortByTitle = function() {
       this.remove(this.views);
       this.collection.reset();
       this.collection.url = "notes/all/order-by-title/";
-      return this.collection.fetch();
+      return this.fetch();
     };
 
     return NotesView;
@@ -3794,13 +3776,17 @@ window.require.register("views/tag_view", function(exports, require, module) {
     };
 
     TagView.prototype.onDeleteClicked = function() {
-      var _this = this;
+      var button,
+        _this = this;
+      button = $(".tag-delete-button");
+      button.spin('tiny');
       return this.model.destroy({
         success: function() {
           _this.tagsView.onTagDeleted(_this.model.get('name'));
           return _this.remove();
         },
         error: function() {
+          button.spin();
           return alert('An error occured while deleting tag');
         }
       });
@@ -3908,14 +3894,21 @@ window.require.register("views/tags_view", function(exports, require, module) {
     };
 
     TagsView.prototype.onNewTagClicked = function() {
-      var _this = this;
+      var button, _ref,
+        _this = this;
+      button = $("#new-tag-button");
+      if (((_ref = this.newTagField.val()) != null ? _ref.length : void 0) === 0) {
+        return true;
+      }
       if (!this.isFull()) {
+        button.spin('small');
         return this.collection.create({
           name: this.newTagField.val()
         }, {
           success: function(tag) {
-            _this.contactsView.onTagAdded(tag);
-            return _this.newTagField.val('');
+            button.spin();
+            _this.newTagField.val('');
+            return _this.newTagField.focus();
           }
         });
       } else {
@@ -3943,7 +3936,7 @@ window.require.register("views/templates/activities", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div><textarea id="micropost-field"></textarea></div><div><button id="micropost-post-button">send</button></div><div class="line"><div id="activity-all"></div></div><div class="line"><button id="more-activities-button">more</button></div>');
+  buf.push('<div class="line"><div id="activity-all"></div></div><div class="line"><button id="more-activities-button">more</button></div>');
   }
   return buf.join("");
   };
@@ -3954,7 +3947,12 @@ window.require.register("views/templates/activity", function(exports, require, m
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="pt05">' + ((interp = model.content) == null ? '' : interp) + '</div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="activity-buttons"><button class="activity-delete-button">delete</button></div>');
+  buf.push('<div class="infos small"><div class="date smaller w100p mr2">' + escape((interp = model.displayDate) == null ? '' : interp) + '&nbsp;</div><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '&nbsp;</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '&nbsp;</span><span>something&nbsp;</span>');
+  if ( model.errorAmount !== undefined)
+  {
+  buf.push('<span class="error">(' + escape((interp = model.errorAmount) == null ? '' : interp) + ')</span>');
+  }
+  buf.push('</div>');
   }
   return buf.join("");
   };
@@ -4004,7 +4002,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
   }
   return buf.join("");
   };

@@ -13,11 +13,6 @@ module.exports = class ActivityListView extends CollectionView
     afterRender: ->
         @$el.addClass 'activity-list mod left w100'
 
-    prependMicropostActivity: (micropost) =>
-        activity = new Activity()
-        activity.setMicropost micropost
-        @renderOne activity, prepend: true
-
     loadMore: ->
         @collection.url = @collection.baseUrl + @getLastDate()
         @collection.fetch

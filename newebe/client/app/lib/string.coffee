@@ -9,4 +9,4 @@ exports.isSpecialKey = (key, event) ->
         event.preventDefault()
         false
     else
-        false
+        true

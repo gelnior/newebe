@@ -48,9 +48,9 @@ class NoteSelectorWidget extends View
         @$el = $("##{@id}")
 
     afterRender: ->
-        noteList = new NoteSelectorList
-        noteList.render()
-        noteList.collection.fetch()
+        @noteList = new NoteSelectorList
+        @noteList.render()
+        @noteList.collection.fetch()
 
         @$('.cancel').click @hide
         @$('.confirm').click @pushPostToSelectedNote
@@ -58,13 +58,14 @@ class NoteSelectorWidget extends View
 
     # Find selected note via the selected class, push the micropost attached
     # to the dialog then save it.
-    pushPostToSelectedNote: ->
-        for view in noteList.views
+    pushPostToSelectedNote: =>
+        for view in @noteList.views
             if view.$el.hasClass 'selected'
                 @pushToNote view.model.id
 
     # Add micropost content to note which has given ID.
     pushToNote: (noteId)  ->
+        @$('.confirm').spin 'small'
         request.get "/notes/all/#{noteId}", (err, note) =>
             if err then alert "cannot retrieve note"
             else
@@ -74,6 +75,7 @@ class NoteSelectorWidget extends View
                     if err then alert "note update failed"
                     else
                         alert "note successfully updated"
+                        @$('.confirm').spin()
                         @hide()
 
     show: (micropost) ->

@@ -51,14 +51,20 @@ module.exports = class ContactsView extends CollectionView
     onAddContactClicked: =>
         contactUrl = @newContactInput.val()
         data = url: contactUrl
+        button = $("#add-contact-button")
 
         if @checkUrl contactUrl
             @$('.error').html ""
 
+            button.spin 'small'
             @collection.create data,
                 success: (model) =>
+                    button.spin()
                     @renderOne model
+                    @newContactInput.val null
+                    @newContactInput.focus()
                 error: =>
+                    button.spin()
                     alert 'Something went wrong while adding contact'
 
     renderOne: (model) =>
@@ -76,9 +82,17 @@ module.exports = class ContactsView extends CollectionView
         unless @tagsView?
             @tagsView = new TagsView el: '#tag-list'
             @tagsView.contactsView = @
+        @tagsView.$el.spin 'small'
         @tagsView.fetch
             success: =>
-                @collection.fetch()
+                @tagsView.$el.spin()
+                @$el.spin 'small'
+                @collection.fetch
+                    success: =>
+                        @$el.spin()
+                    error: =>
+                        @$el.spin()
+
             error: =>
                 alert "an error occured"
         @isLoaded = true

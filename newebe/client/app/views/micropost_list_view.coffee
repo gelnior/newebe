@@ -24,24 +24,25 @@ module.exports = class MicropostListView extends CollectionView
         @views = []
         @collection.url = @collection.baseUrl + date
         @collection.url += "tags/#{@tag}/"
+        @$el.spin 'small'
         @collection.fetch
             success: (microposts) =>
-                console.log 'success'
-                console.log @views
-
+                @$el.spin()
                 if @views.length is 0
                     microposts.models.slice()
                     @renderOne micropost for micropost in microposts.models
 
-    loadMore: ->
+    loadMore: (callback) ->
         @collection.url = @collection.baseUrl + @getLastDate()
         @collection.url += "tags/#{@tag}/" if @tag?
         @collection.fetch
             success: (microposts) =>
                 if microposts.size() < 11
                     Backbone.Mediator.publish 'posts:no-more', true
+                callback()
             error: =>
                 alert 'server error occured'
+                callback()
 
     getLastDate: ->
         micropost = @collection.last()

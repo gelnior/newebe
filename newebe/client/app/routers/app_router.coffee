@@ -6,6 +6,7 @@ module.exports = class AppRouter extends Backbone.Router
         'notes': 'notes'
         'contacts': 'contacts'
         'profile': 'profile'
+        'activities': 'activities'
 
 
     constructor: (@appView) ->
@@ -32,6 +33,10 @@ module.exports = class AppRouter extends Backbone.Router
     profile: ->
         @checkAppViewState =>
             @appView.changeSubView @appView.profileView
+
+    activities: ->
+        @checkAppViewState =>
+            @appView.changeSubView @appView.activitiesView
 
     checkAppViewState: (callback) =>
         if @appView.isLoaded

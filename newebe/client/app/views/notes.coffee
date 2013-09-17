@@ -14,7 +14,12 @@ module.exports = class NotesView extends CollectionView
     afterRender: ->
 
     fetch: ->
-        @collection.fetch()
+        @$el.spin 'small'
+        @collection.fetch
+            success: =>
+                @$el.spin()
+            error: =>
+                @$el.spin()
 
     addNote: (note) ->
         @collection.url = "notes/all/"
@@ -31,10 +36,10 @@ module.exports = class NotesView extends CollectionView
         @remove @views
         @collection.reset()
         @collection.url = "notes/all/order-by-date/"
-        @collection.fetch()
+        @fetch()
 
     sortByTitle: ->
         @remove @views
         @collection.reset()
         @collection.url = "notes/all/order-by-title/"
-        @collection.fetch()
+        @fetch()

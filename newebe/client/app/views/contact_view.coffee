@@ -24,21 +24,30 @@ module.exports = class ContactView extends View
             @$('.contact-accept-button').hide()
 
     onDeleteClicked: ->
+        button = @$('.contact-delete-button')
+        button.spin 'small'
         @model.destroy
             success: =>
                 @remove()
             error: =>
+                button.spin()
                 alert 'An error occured while deleting contact'
 
     onRetryClicked: ->
+        button = @$('.contact-retry-button')
+        button.spin 'small'
         @model.retry (err) =>
+            button.spin()
             if err
                 alert 'Contact request failed again.'
             else
                 @$('.state').html 'Pending'
 
     onAcceptClicked: ->
+        button = @$('.contact-accept-button')
+        button.spin 'small'
         @model.accept (err) =>
+            button.spin()
             if err
                 alert 'Contact approval failed.'
                 @$('.state').html 'Error'

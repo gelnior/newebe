@@ -57,11 +57,17 @@ module.exports = class TagsView extends CollectionView
         @onNewTagClicked() if event.which is 13
 
     onNewTagClicked: =>
+        button = $("#new-tag-button")
+        if @newTagField.val()?.length is 0
+            return true
+
         unless @isFull()
+            button.spin 'small'
             @collection.create name: @newTagField.val(),
                 success: (tag) =>
-                    @contactsView.onTagAdded tag
+                    button.spin()
                     @newTagField.val ''
+                    @newTagField.focus()
         else
             alert "You can't add more tags"
 

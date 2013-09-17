@@ -2316,6 +2316,9 @@ textarea:hover {
 input {
   outline: 0;
 }
+.date {
+  display: inline-block;
+}
 .middle {
   padding-top: 20%;
 }
@@ -2337,9 +2340,6 @@ input {
 }
 .full-height {
   height: 100%;
-}
-.w400p {
-  width: 400px;
 }
 .field {
   -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);

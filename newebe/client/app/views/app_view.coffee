@@ -2,6 +2,7 @@ View = require '../lib/view'
 AppRouter = require '../routers/app_router'
 MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
+ActivitiesView = require './activities_view'
 NotesView = require './notes_view'
 ProfileView = require './profile_view'
 LoginView = require './login_view'
@@ -55,6 +56,7 @@ module.exports = class AppView extends View
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
+        @activitiesView = @_addView ActivitiesView
 
         if userState.authenticated and callback? then callback()
         else if userState.authenticated

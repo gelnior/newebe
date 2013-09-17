@@ -180,6 +180,7 @@ class CommonContactHandler(NewebeHandler):
 
                 if not common:
                     common = Common(
+                        _id=data.get("_id", ""),
                         title=data.get("title", ""),
                         path=data.get("path", ""),
                         contentType=data.get("contentType", ""),

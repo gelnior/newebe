@@ -7,12 +7,7 @@ module.exports = class Activity extends Backbone.Model
     defaults:
         "tags": ["all"]
 
-    setMicropost: (micropost) ->
-        @set 'subdoc', micropost.attributes
-        @set 'docId', micropost.get '_id'
-        @set 'docType', 'Micropost'
-        @set 'verb', 'writes'
-        @set 'isMine', micropost.get 'isMine'
-        @set 'author', micropost.get 'author'
-        @set 'date', micropost.get 'date'
-        @set 'method', 'POST'
+    constructor: (activity) ->
+        super activity
+
+        @set 'errorAmount', activity.errors.length if activity.errors.length

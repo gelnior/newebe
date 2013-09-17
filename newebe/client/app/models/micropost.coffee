@@ -9,5 +9,8 @@ module.exports = class Micropost extends Model
     defaults:
         "tags": ["all"]
 
-    downloadPicture: (pictureId, callback) =>
+    downloadPicture: (pictureId, callback) ->
        request.get "/pictures/#{pictureId}/download/", callback
+
+    downloadCommon: (commonId, callback) ->
+       request.get "/commons/#{commonId}/download/", callback

@@ -25,9 +25,12 @@ module.exports = class TagView extends View
         @selectTagButton.select()
 
     onDeleteClicked: ->
+        button = $(".tag-delete-button")
+        button.spin 'tiny'
         @model.destroy
             success: =>
                 @tagsView.onTagDeleted @model.get 'name'
                 @remove()
             error: =>
+                button.spin()
                 alert 'An error occured while deleting tag'

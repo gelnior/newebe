@@ -82,9 +82,12 @@ module.exports = class MicropostsView extends View
                 @attachedFiles = fileList
 
     fetch: ->
+        @micropostList.$el.spin 'small'
         @micropostList.collection.fetch
             success: =>
+                @micropostList.$el.spin()
             error: =>
+                @micropostList.$el.spin()
                 alert 'A server error occured while retrieving news feed'
 
     # The two followings function are here to support the ctrl+enter combo
@@ -156,7 +159,10 @@ module.exports = class MicropostsView extends View
                 postMicropost()
 
     loadMoreMicroposts: =>
-        @micropostList.loadMore()
+        button = $("#more-microposts-button")
+        button.spin 'small'
+        @micropostList.loadMore =>
+            button.spin()
 
     checkLink: (content) ->
         regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g

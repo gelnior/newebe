@@ -19,9 +19,15 @@ module.exports = class NoteView extends View
         @contentField.show()
 
     onDeleteClicked: ->
+        button = @$('.note-delete-button')
+        button.spin 'small'
         @model.destroy
-            success: => @remove()
-            error: => alert 'server error occured'
+            success: =>
+                button.spin()
+                @remove()
+            error: =>
+                button.spin()
+                alert 'server error occured, note cannot be deleted'
 
     onNoteChanged: ->
         @model.save()
