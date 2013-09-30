@@ -14,18 +14,32 @@ module.exports = class ActivityListView extends CollectionView
         @$el.addClass 'activity-list mod left w100'
 
     loadMore: ->
-        @collection.url = @collection.baseUrl + @getLastDate()
-        @collection.fetch
+        $("#more-activities-button").spin 'small'
+        collection = new ActivityCollection()
+        collection.url = @collection.baseUrl + @getLastDate()
+        collection.fetch
             success: (activities) =>
                 activities.models.slice()
                 @renderOne activity for activity in activities.models
+                @setLastDate collection
+                $("#more-activities-button").spin()
+                if activities.length < 30
+                    $("#more-activities-button").hide()
+
             error: =>
                 alert 'server error occured'
 
-    getLastDate: ->
-        activity = @collection.last()
+    setLastDate: (collection) ->
+        activity = collection.last()
         if activity?
             lastDate = moment activity.get 'date'
-            return lastDate.format('YYYY-MM-DD') + '-23-59-00/'
+            @lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/'
         else
-            return ''
+            @lastDate = ''
+
+    getLastDate: ->
+        if @lastDate?
+            @lastDate
+        else
+            @setLastDate @collection
+            @getLastDate()

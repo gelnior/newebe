@@ -1218,7 +1218,7 @@ window.require.register("routers/app_router", function(exports, require, module)
   
 });
 window.require.register("views/activities_view", function(exports, require, module) {
-  var ActivitiesView, Activity, ActivityListView, View,
+  var ActivitiesView, Activity, ActivityListView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1228,6 +1228,8 @@ window.require.register("views/activities_view", function(exports, require, modu
   Activity = require('../models/activity');
 
   ActivityListView = require('../views/activity_list_view');
+
+  request = require('../lib/request');
 
   module.exports = ActivitiesView = (function(_super) {
 
@@ -1247,6 +1249,7 @@ window.require.register("views/activities_view", function(exports, require, modu
     };
 
     ActivitiesView.prototype.events = {
+      "click #sync-activities-button": "onSyncClicked",
       "click #more-activities-button": "loadMoreActivities"
     };
 
@@ -1269,6 +1272,18 @@ window.require.register("views/activities_view", function(exports, require, modu
 
     ActivitiesView.prototype.loadMoreActivities = function() {
       return this.activityList.loadMore();
+    };
+
+    ActivitiesView.prototype.onSyncClicked = function(event) {
+      $("#sync-activities-button").spin();
+      return request.get("/synchronize/", function(err) {
+        $("#sync-activities-button").spin();
+        if (err) {
+          return alert("Synchronize process failed.");
+        } else {
+          return alert("Synchronization process started, check back your data in a few minutes.");
+        }
+      });
     };
 
     return ActivitiesView;
@@ -1310,19 +1325,25 @@ window.require.register("views/activity_list_view", function(exports, require, m
     };
 
     ActivityListView.prototype.loadMore = function() {
-      var _this = this;
-      this.collection.url = this.collection.baseUrl + this.getLastDate();
-      return this.collection.fetch({
+      var collection,
+        _this = this;
+      $("#more-activities-button").spin('small');
+      collection = new ActivityCollection();
+      collection.url = this.collection.baseUrl + this.getLastDate();
+      return collection.fetch({
         success: function(activities) {
-          var activity, _i, _len, _ref, _results;
+          var activity, _i, _len, _ref;
           activities.models.slice();
           _ref = activities.models;
-          _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             activity = _ref[_i];
-            _results.push(_this.renderOne(activity));
+            _this.renderOne(activity);
           }
-          return _results;
+          _this.setLastDate(collection);
+          $("#more-activities-button").spin();
+          if (activities.length < 30) {
+            return $("#more-activities-button").hide();
+          }
         },
         error: function() {
           return alert('server error occured');
@@ -1330,14 +1351,23 @@ window.require.register("views/activity_list_view", function(exports, require, m
       });
     };
 
-    ActivityListView.prototype.getLastDate = function() {
+    ActivityListView.prototype.setLastDate = function(collection) {
       var activity, lastDate;
-      activity = this.collection.last();
+      activity = collection.last();
       if (activity != null) {
         lastDate = moment(activity.get('date'));
-        return lastDate.format('YYYY-MM-DD') + '-23-59-00/';
+        return this.lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/';
       } else {
-        return '';
+        return this.lastDate = '';
+      }
+    };
+
+    ActivityListView.prototype.getLastDate = function() {
+      if (this.lastDate != null) {
+        return this.lastDate;
+      } else {
+        this.setLastDate(this.collection);
+        return this.getLastDate();
       }
     };
 
@@ -1368,7 +1398,9 @@ window.require.register("views/activity_view", function(exports, require, module
     };
 
     ActivityView.prototype.events = {
-      'click': 'onClicked'
+      'click': 'onClicked',
+      "click .activity-error-number": "onErrorNumberClicked",
+      "click .activity-error-resend": "onErrorResendClicked"
     };
 
     function ActivityView(model) {
@@ -1388,6 +1420,46 @@ window.require.register("views/activity_view", function(exports, require, module
     ActivityView.prototype.onClicked = function() {
       $('.activity').removeClass('selected');
       return this.$el.addClass('selected');
+    };
+
+    ActivityView.prototype.onErrorNumberClicked = function(event) {
+      return this.$(".activity-errors").show();
+    };
+
+    ActivityView.prototype.onErrorResendClicked = function(event) {
+      var error, extra, _i, _len, _ref;
+      extra = "";
+      _ref = this.model.get('errors');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        error = _ref[_i];
+        if (error.contactKey && error.contactKey === event.target.id) {
+          extra = error.extra;
+        }
+      }
+      switch (this.model.get('method')) {
+        case "POST":
+          return this.sendRetryRequest("POST", "/microposts/" + this.model.get('docId') + "/retry/", event);
+        case "DELETE":
+          return this.sendRetryRequest("PUT", "/microposts/" + this.model.get('docId') + "/retry/", event, extra);
+      }
+    };
+
+    ActivityView.prototype.sendRetryRequest = function(type, path, event, extra) {
+      var _this = this;
+      $(event.target).html("resending...");
+      return $.ajax({
+        type: type,
+        url: path,
+        data: '{"contactId": "' + event.target.id + '", "activityId":"' + this.model.id + '", "extra":"' + extra + '"}',
+        dataType: "json",
+        success: function(data) {
+          return $(event.target).html("resending succeeded.");
+        },
+        error: function(data) {
+          alert("Sending data failed again.");
+          return $(event.target).html("resend");
+        }
+      });
     };
 
     return ActivityView;
@@ -3936,7 +4008,7 @@ window.require.register("views/templates/activities", function(exports, require,
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="line"><div id="activity-all"></div></div><div class="line"><button id="more-activities-button">more</button></div>');
+  buf.push('<div class="line"><button id="sync-activities-button">sync</button></div><div class="line"><div id="activity-all"></div></div><div class="line"><button id="more-activities-button">more</button></div>');
   }
   return buf.join("");
   };
@@ -3950,9 +4022,35 @@ window.require.register("views/templates/activity", function(exports, require, m
   buf.push('<div class="infos small"><div class="date smaller w100p mr2">' + escape((interp = model.displayDate) == null ? '' : interp) + '&nbsp;</div><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '&nbsp;</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '&nbsp;</span><span>something&nbsp;</span>');
   if ( model.errorAmount !== undefined)
   {
-  buf.push('<span class="error">(' + escape((interp = model.errorAmount) == null ? '' : interp) + ')</span>');
+  buf.push('<span class="activity-error-number error">(' + escape((interp = model.errorAmount) == null ? '' : interp) + ')</span>');
   }
-  buf.push('</div>');
+  buf.push('<div class="activity-errors"><div>Errors</div>');
+  // iterate model.errors
+  ;(function(){
+    if ('number' == typeof model.errors.length) {
+
+      for (var $index = 0, $$l = model.errors.length; $index < $$l; $index++) {
+        var error = model.errors[$index];
+
+  buf.push('<div class="activity-error"> <span>' + escape((interp = error.contactName) == null ? '' : interp) + '</span><span class="activity-contactUrl hidden">' + escape((interp = error.contactUrl) == null ? '' : interp) + '</span><button');
+  buf.push(attrs({ 'id':("" + (error.contactKey) + ""), "class": ('smaller') + ' ' + ('ml1') + ' ' + ('activity-error-resend') }, {"id":true}));
+  buf.push('>resend</button></div>');
+      }
+
+    } else {
+      var $$l = 0;
+      for (var $index in model.errors) {
+        $$l++;      var error = model.errors[$index];
+
+  buf.push('<div class="activity-error"> <span>' + escape((interp = error.contactName) == null ? '' : interp) + '</span><span class="activity-contactUrl hidden">' + escape((interp = error.contactUrl) == null ? '' : interp) + '</span><button');
+  buf.push(attrs({ 'id':("" + (error.contactKey) + ""), "class": ('smaller') + ' ' + ('ml1') + ' ' + ('activity-error-resend') }, {"id":true}));
+  buf.push('>resend</button></div>');
+      }
+
+    }
+  }).call(this);
+
+  buf.push('</div></div>');
   }
   return buf.join("");
   };

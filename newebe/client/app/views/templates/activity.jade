@@ -4,4 +4,12 @@
     span.verb #{model.verb}&nbsp;
     span something&nbsp;
     if model.errorAmount !== undefined
-        span.error (#{model.errorAmount})
+        span.activity-error-number.error (#{model.errorAmount})
+    .activity-errors
+        div Errors
+        for error in model.errors
+            .activity-error 
+                span #{error.contactName}
+                span.activity-contactUrl.hidden #{error.contactUrl}
+                button.smaller.ml1.activity-error-resend(id="#{error.contactKey}")
+                    | resend
