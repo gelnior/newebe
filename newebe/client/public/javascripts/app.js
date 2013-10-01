@@ -2195,16 +2195,25 @@ window.require.register("views/micropost_list_view", function(exports, require, 
     };
 
     MicropostListView.prototype.loadMore = function(callback) {
-      var _this = this;
-      this.collection.url = this.collection.baseUrl + this.getLastDate();
+      var collection,
+        _this = this;
+      collection = new MicropostCollection();
+      collection.url = this.collection.baseUrl + this.getLastDate();
       if (this.tag != null) {
-        this.collection.url += "tags/" + this.tag + "/";
+        collection.url += "tags/" + this.tag + "/";
       }
-      return this.collection.fetch({
+      return collection.fetch({
         success: function(microposts) {
+          var micropost, _i, _len, _ref;
           if (microposts.size() < 11) {
             Backbone.Mediator.publish('posts:no-more', true);
           }
+          _ref = microposts.models;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            micropost = _ref[_i];
+            _this.renderOne(micropost);
+          }
+          _this.setLastDate(collection);
           return callback();
         },
         error: function() {
@@ -2214,16 +2223,24 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       });
     };
 
-    MicropostListView.prototype.getLastDate = function() {
-      var lastDate, micropost;
-      micropost = this.collection.last();
-      if (micropost != null) {
-        lastDate = moment(micropost.get('date'));
-        return lastDate.format('YYYY-MM-DD-HH-mm-ss/');
+    MicropostListView.prototype.setLastDate = function(collection) {
+      var activity, lastDate;
+      activity = collection.last();
+      if (activity != null) {
+        lastDate = moment(activity.get('date'));
+        return this.lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/';
       } else {
-        lastDate = moment();
+        return this.lastDate = '';
       }
-      return lastDate.format('YYYY-MM-DD') + '-23-59-00/';
+    };
+
+    MicropostListView.prototype.getLastDate = function() {
+      if (this.lastDate != null) {
+        return this.lastDate;
+      } else {
+        this.setLastDate(this.collection);
+        return this.getLastDate();
+      }
     };
 
     return MicropostListView;

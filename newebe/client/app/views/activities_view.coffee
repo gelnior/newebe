@@ -39,4 +39,5 @@ module.exports = class ActivitiesView extends View
             else
                 alert """
 Synchronization process started, check back your data in a few minutes.
-"""
+    """
+

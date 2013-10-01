@@ -33,22 +33,32 @@ module.exports = class MicropostListView extends CollectionView
                     @renderOne micropost for micropost in microposts.models
 
     loadMore: (callback) ->
-        @collection.url = @collection.baseUrl + @getLastDate()
-        @collection.url += "tags/#{@tag}/" if @tag?
-        @collection.fetch
+        collection = new MicropostCollection()
+        collection.url = @collection.baseUrl + @getLastDate()
+        collection.url += "tags/#{@tag}/" if @tag?
+        collection.fetch
             success: (microposts) =>
                 if microposts.size() < 11
                     Backbone.Mediator.publish 'posts:no-more', true
+                for micropost in microposts.models
+                    @renderOne micropost
+                @setLastDate collection
                 callback()
             error: =>
                 alert 'server error occured'
                 callback()
 
-    getLastDate: ->
-        micropost = @collection.last()
-        if micropost?
-            lastDate = moment micropost.get 'date'
-            return lastDate.format('YYYY-MM-DD-HH-mm-ss/')
+    setLastDate: (collection) ->
+        activity = collection.last()
+        if activity?
+            lastDate = moment activity.get 'date'
+            @lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/'
         else
-            lastDate = moment()
-        return lastDate.format('YYYY-MM-DD') + '-23-59-00/'
+            @lastDate = ''
+
+    getLastDate: ->
+        if @lastDate?
+            @lastDate
+        else
+            @setLastDate @collection
+            @getLastDate()
