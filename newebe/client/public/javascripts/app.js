@@ -2459,7 +2459,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
 
     MicropostsView.prototype.configurePublisherSubscription = function() {
       var _this = this;
-      this.ws = new WebSocket("ws://" + window.location.host + "/microposts/publisher/");
+      this.ws = new WebSocket("wss://" + window.location.host + "/microposts/publisher/");
       return this.ws.onmessage = function(evt) {
         var micropost;
         micropost = new MicroPost(JSON.parse(evt.data));

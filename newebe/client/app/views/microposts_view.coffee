@@ -34,7 +34,7 @@ module.exports = class MicropostsView extends View
         @configurePublisherSubscription()
 
     configurePublisherSubscription: ->
-        @ws = new WebSocket "ws://#{window.location.host}/microposts/publisher/"
+        @ws = new WebSocket "wss://#{window.location.host}/microposts/publisher/"
         @ws.onmessage = (evt) =>
             micropost = new MicroPost JSON.parse evt.data
             @micropostList.prependMicropost micropost
