@@ -54,7 +54,6 @@ module.exports = ->
 
                 if spinner?
                     spinner.stop()
-                    console.log $this.data 'color'
                     $this.css 'color', $this.data 'color'
                     $this.data 'spinner', null
                     $this.data 'color', null

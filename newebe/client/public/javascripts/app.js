@@ -377,7 +377,6 @@ window.require.register("lib/jquery_helpers", function(exports, require, module)
           spinner = $this.data('spinner');
           if (spinner != null) {
             spinner.stop();
-            console.log($this.data('color'));
             $this.css('color', $this.data('color'));
             $this.data('spinner', null);
             return $this.data('color', null);
@@ -2468,14 +2467,6 @@ window.require.register("views/microposts_view", function(exports, require, modu
       };
     };
 
-    MicropostsView.prototype.onAddAttachmentClicked = function(event) {
-      var _this = this;
-      return $(event.target).fadeOut(function() {
-        _this.$(".js-fileapi-wrapper input").show();
-        return _this.$(".js-fileapi-wrapper").fadeIn();
-      });
-    };
-
     MicropostsView.prototype.configureUpload = function() {
       var input, previewNode,
         _this = this;
@@ -2532,6 +2523,14 @@ window.require.register("views/microposts_view", function(exports, require, modu
       });
     };
 
+    MicropostsView.prototype.onAddAttachmentClicked = function(event) {
+      var _this = this;
+      return $(event.target).fadeOut(function() {
+        _this.$(".js-fileapi-wrapper input").show();
+        return _this.$(".js-fileapi-wrapper").fadeIn();
+      });
+    };
+
     MicropostsView.prototype.onMicropostFieldKeydown = function(event) {
       if (event.keyCode === 17) {
         return this.isCtrl = true;
@@ -2576,21 +2575,23 @@ window.require.register("views/microposts_view", function(exports, require, modu
             success: function() {
               _this.micropostButton.spin();
               _this.micropostList.prependMicropost(micropost);
-              _this.micropostField.enable();
-              _this.micropostField.val(null);
-              attachmentButton.fadeIn();
-              return previewList.fadeOut();
+              return _this.micropostField.val(null);
             },
             error: function() {
-              _this.micropostButton.spin();
+              return _this.micropostButton.spin();
+            },
+            complete: function() {
               _this.micropostField.enable();
-              attamchmentButton.fadeIn();
-              return previewList.fadeOut();
+              attachmentButton.fadeIn();
+              previewList.fadeOut();
+              previewList.html(null);
+              previewList.fadeIn();
+              return $('#attach-picture').val(null);
             }
           });
         };
-        if (((_ref = this.attachmedImages) != null ? _ref.length : void 0) > 0) {
-          xhr = FileAPI.upload({
+        if (((_ref = this.attachedImages) != null ? _ref.length : void 0) > 0) {
+          return xhr = FileAPI.upload({
             url: '/pictures/all/',
             files: {
               picture: this.attachedImages[0]
@@ -2605,8 +2606,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
               return postMicropost(picture._id);
             }
           });
-        }
-        if (((_ref1 = this.attachedFiles) != null ? _ref1.length : void 0) > 0) {
+        } else if (((_ref1 = this.attachedFiles) != null ? _ref1.length : void 0) > 0) {
           return xhr = FileAPI.upload({
             url: '/commons/all/',
             files: {
@@ -2626,16 +2626,6 @@ window.require.register("views/microposts_view", function(exports, require, modu
           return postMicropost();
         }
       }
-    };
-
-    MicropostsView.prototype.loadMoreMicroposts = function() {
-      var button,
-        _this = this;
-      button = $("#more-microposts-button");
-      button.spin('small');
-      return this.micropostList.loadMore(function() {
-        return button.spin();
-      });
     };
 
     MicropostsView.prototype.checkLink = function(content) {
@@ -2665,6 +2655,16 @@ window.require.register("views/microposts_view", function(exports, require, modu
       }
       this.micropostList.loadTag(name);
       return this.tagList.select(name);
+    };
+
+    MicropostsView.prototype.loadMoreMicroposts = function() {
+      var button,
+        _this = this;
+      button = $("#more-microposts-button");
+      button.spin('small');
+      return this.micropostList.loadMore(function() {
+        return button.spin();
+      });
     };
 
     MicropostsView.prototype.onNoMorePost = function() {

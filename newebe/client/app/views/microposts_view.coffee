@@ -39,11 +39,6 @@ module.exports = class MicropostsView extends View
             micropost = new MicroPost JSON.parse evt.data
             @micropostList.prependMicropost micropost
 
-    onAddAttachmentClicked: (event) ->
-        $(event.target).fadeOut =>
-            @$(".js-fileapi-wrapper input").show()
-            @$(".js-fileapi-wrapper").fadeIn()
-
     configureUpload: ->
         input = document.getElementById 'attach-picture'
         previewNode = document.getElementById 'preview-list'
@@ -77,7 +72,6 @@ module.exports = class MicropostsView extends View
                 FileAPI.each fileList, (file) =>
                     $(previewNode).append "<p>#{file.name}</p>"
 
-
                 @attachedImages = imageList
                 @attachedFiles = fileList
 
@@ -89,6 +83,11 @@ module.exports = class MicropostsView extends View
             error: =>
                 @micropostList.$el.spin()
                 alert 'A server error occured while retrieving news feed'
+
+    onAddAttachmentClicked: (event) ->
+        $(event.target).fadeOut =>
+            @$(".js-fileapi-wrapper input").show()
+            @$(".js-fileapi-wrapper").fadeIn()
 
     # The two followings function are here to support the ctrl+enter combo
     # that sends the post to the newebe server.
@@ -123,17 +122,18 @@ module.exports = class MicropostsView extends View
                     success: =>
                         @micropostButton.spin()
                         @micropostList.prependMicropost micropost
-                        @micropostField.enable()
                         @micropostField.val null
-                        attachmentButton.fadeIn()
-                        previewList.fadeOut()
                     error: =>
                         @micropostButton.spin()
+                    complete: =>
                         @micropostField.enable()
-                        attamchmentButton.fadeIn()
+                        attachmentButton.fadeIn()
                         previewList.fadeOut()
+                        previewList.html null
+                        previewList.fadeIn()
+                        $('#attach-picture').val null
 
-            if @attachmedImages?.length > 0
+            if @attachedImages?.length > 0
                 xhr = FileAPI.upload
                     url: '/pictures/all/'
                     files:
@@ -144,7 +144,7 @@ module.exports = class MicropostsView extends View
                         @attachedImages = null
                         postMicropost picture._id
 
-            if @attachedFiles?.length > 0
+            else if @attachedFiles?.length > 0
                 xhr = FileAPI.upload
                     url: '/commons/all/'
                     files:
@@ -157,12 +157,6 @@ module.exports = class MicropostsView extends View
 
             else
                 postMicropost()
-
-    loadMoreMicroposts: =>
-        button = $("#more-microposts-button")
-        button.spin 'small'
-        @micropostList.loadMore =>
-            button.spin()
 
     checkLink: (content) ->
         regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
@@ -182,6 +176,12 @@ module.exports = class MicropostsView extends View
         @tagsView.$(".tag-select-button").unSelect() if @tagsView?
         @micropostList.loadTag name
         @tagList.select name
+
+    loadMoreMicroposts: =>
+        button = $ "#more-microposts-button"
+        button.spin 'small'
+        @micropostList.loadMore =>
+            button.spin()
 
     onNoMorePost: ->
         @$("#more-microposts-button").hide()
