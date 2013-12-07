@@ -1,4 +1,4 @@
-from couchdbkit.schema import StringProperty, BooleanProperty
+from couchdbkit.schema import StringProperty, BooleanProperty, ListProperty
 
 from newebe.apps.core.models import NewebeDocument, DocumentManager
 from newebe.apps.news import news_settings
@@ -10,7 +10,7 @@ class MicroPostManager():
     '''
 
     @staticmethod
-    def get_mine(startKey=None, endKey=None, skip=0, 
+    def get_mine(startKey=None, endKey=None, skip=0,
                  limit=news_settings.NEWS_LIMIT, tag=None):
 
         '''
@@ -27,7 +27,7 @@ class MicroPostManager():
                 "news/mine", "news/mine-tags", startKey, endKey, tag, limit, skip)
 
     @staticmethod
-    def get_list(startKey=None, endKey=None, skip=0, 
+    def get_list(startKey=None, endKey=None, skip=0,
                 limit=news_settings.NEWS_LIMIT, tag=None):
         '''
         Return last 10 (=NEWS_LIMIT in news_settings.py) micro posts
@@ -95,6 +95,10 @@ class MicroPost(NewebeDocument):
     author = StringProperty()
     content = StringProperty(required=True)
     isMine = BooleanProperty(required=True, default=True)
+    pictures = ListProperty(required=False)
+    pictures_to_download = ListProperty(required=False)
+    commons = ListProperty(required=False)
+    commons_to_donwload = ListProperty(required=False)
 
     def get_path(self):
         '''

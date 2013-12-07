@@ -1,0 +1,10 @@
+.contact-tags.mod.left
+.name.mod.left 
+    a(href=model.url) #{model.name}
+if model.state != "Trusted"
+    .state.mod.left #{model.state}
+
+.contact-buttons.mod.left
+    button.contact-accept-button accept
+    button.contact-retry-button retry
+    button.contact-delete-button X

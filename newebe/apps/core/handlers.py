@@ -134,6 +134,14 @@ class NewebeHandler(RequestHandler):
         else:
             self.return_failure("Not found", 404)
 
+    def get_qq_file_infos(self):
+        filebody = self.request.body
+        filename = self.get_argument("qqfile")
+        filetype = mimetypes.guess_type(filename)[0] or \
+                'application/octet-stream'
+
+        return (filebody, filename, filetype)
+
     def get_body_as_dict(self, expectedFields=[]):
         '''
         Return request body as a dict if body is written in JSON. Else None
@@ -279,6 +287,22 @@ class NewebeHandler(RequestHandler):
                 self.activity.save()
 
     @asynchronous
+    def send_files_to_contact(self, contact, path, fields, files):
+        '''
+        Sends in a form given file and fields to given contact (at given
+        path).
+        '''
+
+        if not hasattr(self, "activity"):
+            self.activity = None
+        client = ContactClient(self.activity)
+        try:
+            client.post_files(contact, path, fields=fields, files=files)
+        except HTTPError:
+            self.activity.add_error(contact)
+            self.activity.save()
+
+    @asynchronous
     def send_files_to_contacts(self, path, fields, files, tag=None):
         '''
         Sends in a form given file and fields to all trusted contacts (at given
@@ -288,6 +312,8 @@ class NewebeHandler(RequestHandler):
         '''
 
         contacts = ContactManager.getTrustedContacts(tag=tag)
+        if not hasattr(self, "activity"):
+            self.activity = None
         client = ContactClient(self.activity)
         for contact in contacts:
             try:
@@ -358,19 +384,23 @@ class NewebeAuthHandler(NewebeHandler):
 
             if user.password is None:
                 logger.error("User has no password registered")
-                self.redirect("/register/password/")
+                self.redirect("/#register/password/")
 
             else:
-                password = self.get_secure_cookie("password")
+                #password = self.get_secure_cookie("password")
 
-                if not password or  \
-                   user.password != hashlib.sha224(password).hexdigest():
-                    logger.error("User is not authenticated")
-                    self.redirect("/login/")
+                # if not password or  \
+                #   user.password != hashlib.sha224(password).hexdigest():
+                #     logger.error("User is not authenticated")
+                #     self.redirect("/#login/")
 
-                else:
-                    return user
+                #else:
+                return user
 
         else:
-            logger.error("User is not authenticated")
-            self.redirect("/register/")
+            logger.error("User is not registered")
+            self.redirect("/#register")
+
+class IndexTHandler(NewebeHandler):
+    def get(self):
+        self.render("templates/base.html")

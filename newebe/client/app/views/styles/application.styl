@@ -1,0 +1,89 @@
+// nib is a powerful lib for stylus that provides cross-browser css3 mixins.
+@import 'nib'
+
+@import '_base'
+@import '_font'
+@import '_ui'
+
+// Import your styles here
+
+@import '_states'
+@import '_layout'
+@import '_responsive'
+
+@import '_navigation'
+@import '_micropost'
+@import '_note'
+@import '_profile'
+@import '_contact'
+
+iframe
+    border 0
+
+html
+body
+#content
+    height: 100%
+    box-sizing: border-box
+    font-family: main
+
+#content
+    text-align: center
+
+#home
+    .question
+        font-family: robotic, main
+        font-size: 3em
+
+    input
+        border: none
+        font-size: 2em
+        padding: 0.4em
+        border-radius: 2em
+
+    input:active
+        border: 0
+
+    input:focus
+        border: 0
+
+#alert-widget
+#note-selector-widget
+    display: none
+    width: 320px
+    background: black
+    color: white
+    margin: auto
+    position: absolute
+    top: 0
+    left: 0
+    bottom: 0
+    right: 0
+
+    .note-selector-line
+        padding 5px 10px
+
+    .note-selector-line:hover
+        background: purple
+        cursor: pointer
+
+    .note-selector-line.selected
+        background: blue - 60%
+
+
+#alert-widget
+    height: 160px
+    text-align: center
+    padding: 20px
+    font-size: 26px
+    border-radius: 10px
+    font-family: robotic, main
+
+#note-selector-widget
+    height: 320px
+
+.activity-errors
+    display: none
+
+.error
+    cursor: pointer

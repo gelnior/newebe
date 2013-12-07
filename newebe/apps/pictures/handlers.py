@@ -54,11 +54,9 @@ class PicturesHandler(NewebeAuthHandler):
 
         if file:
             filebody = file["body"]
-            filename = file['filename']
 
             picture = Picture(
                 title="New Picture",
-                path=filename,
                 contentType=file["content_type"],
                 authorKey=UserManager.getUser().key,
                 author=UserManager.getUser().name,
@@ -66,6 +64,9 @@ class PicturesHandler(NewebeAuthHandler):
             )
             picture.save()
 
+
+            filename = '%s.jpg' % picture._id
+            picture.path = filename
             picture.put_attachment(filebody, filename)
             thumbnail = self.get_thumbnail(filebody, filename, (200, 200))
             thbuffer = thumbnail.read()
@@ -217,6 +218,7 @@ class PictureContactHandler(NewebeHandler):
 
                 if not picture:
                     picture = Picture(
+                        _id=data.get("_id", ""),
                         title=data.get("title", ""),
                         path=data.get("path", ""),
                         contentType=data.get("contentType", ""),
@@ -229,7 +231,7 @@ class PictureContactHandler(NewebeHandler):
                     )
                     picture.save()
                     picture.put_attachment(content=file["body"],
-                                           name="th_" + file['filename'])
+                                           name="th_" + picture._id)
                     picture.save()
 
                     self.create_creation_activity(contact,
@@ -315,9 +317,9 @@ class PictureFileHandler(NewebeAuthHandler):
         Returns file linked to given picture.
         '''
         try:
-            file = picture.fetch_attachment(self.filename)
+            picfile = picture.fetch_attachment(self.filename)
             self.set_header("Content-Type", picture.contentType)
-            self.write(file)
+            self.write(picfile)
             self.finish()
         except ResourceNotFound:
             self.return_failure("Picture not found.", 404)
@@ -388,7 +390,7 @@ class PictureDownloadHandler(PictureObjectHandler):
         logger.info(self.picture)
 
         if response.code == 200:
-            filename = self.picture.path
+            filename = '%s.jpg' % self.picture._id
             self.picture.put_attachment(response.body, filename)
             thumbnail = self.get_thumbnail(
                 response.body, filename, (1000, 1000))
@@ -399,6 +401,7 @@ class PictureDownloadHandler(PictureObjectHandler):
             self.picture.isFile = True
             self.picture.save()
             self.return_success("Picture successfuly downloaded.")
+
         else:
             self.return_failure("Picture cannot be retrieved.")
 
@@ -449,7 +452,11 @@ class PictureContactDownloadHandler(NewebeHandler):
         When picture is found, a download request is sent to the contact.
         '''
 
-        file = picture.fetch_attachment(picture.path)
+        file = None
+        try:
+            file = picture.fetch_attachment('%s.jpg' % picture._id)
+        except ResourceNotFound:
+            file = picture.fetch_attachment(picture.path)
 
         self.set_status(200)
         self.set_header("Content-Type", picture.contentType)
@@ -498,7 +505,7 @@ class PictureRotateHandler(PictureObjectHandler):
             os.remove(file_path)
 
         self.return_success('Image rotated')
-            
+
 
 class PictureRetryHandler(NewebeAuthHandler):
 
@@ -566,7 +573,7 @@ class PictureRetryHandler(NewebeAuthHandler):
                     date=date_util.get_date_from_db_date(date)
                 )
 
-                info = "Attemp to resend a picture deletion to contact: {}."
+                info = "Attempt to resend a picture deletion to contact: {}."
                 logger.info(info.format(contact.name))
 
                 self.forward_to_contact(picture, contact, activity,
@@ -619,45 +626,3 @@ class PictureRetryHandler(NewebeAuthHandler):
 
         except:
             self.return_failure("Picture resend to a contact failed again.")
-
-
-class PictureRowsTHandler(NewebeAuthHandler):
-    '''
-    This handler handles requests that retrieve last posted pictures.
-
-    * GET: Retrieves all pictures ordered by title.
-    * POST: Create a picture.
-    '''
-
-    def get(self, startKey=None):
-        '''
-        Returns last posted pictures.  If *startKey* is provided, it returns
-        last picture posted until *startKey*.
-        '''
-
-        get_doc = PictureManager.get_last_pictures
-        if startKey:
-            dateString = date_util.get_db_utc_date_from_url_date(startKey)
-            docs = get_doc(dateString)
-        else:
-            docs = get_doc()
-
-        self.render("templates/picture_rows.html", pictures=docs)
-
-
-# Template handlers
-
-class PicturesTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures.html",
-                    isTheme=self.is_file_theme_exists())
-
-
-class PicturesTestsTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures_tests.html")
-
-
-class PicturesContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/pictures_content.html")

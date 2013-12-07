@@ -57,7 +57,7 @@ class ContactManager():
         '''
 
         if tag:
-            contacts = Contact.view("core/contacttags", key=tag)
+            contacts = Contact.view("core/contacttagged", key=tag)
         else:
             contacts = Contact.view("core/trusted")
 
@@ -97,9 +97,23 @@ class ContactManager():
         Return the list of all tags that has been set on contacts.
         '''
 
-        return [result["key"] for result in Contact.view("core/tags",
-                                                         group=True)]
+        return [result for result in Contact.view("core/contacttags")]
 
+    @staticmethod
+    def getTag(id):
+        tags = Contact.view("core/contacttags", key=id)
+
+        tag = None
+        if tags:
+            tag = tags.first()
+
+        return tag
+
+class ContactTag(NewebeDocument):
+    name = StringProperty()
+
+    def toDict(self, localized=True):
+        return { "name": self.name, "_id": self._id }
 
 class Contact(NewebeDocument):
     '''

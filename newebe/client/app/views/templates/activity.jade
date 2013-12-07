@@ -1,0 +1,15 @@
+.infos.small
+    div.date.smaller.w100p.mr2 #{model.displayDate}&nbsp;
+    span.author #{model.author}&nbsp;
+    span.verb #{model.verb}&nbsp;
+    span something&nbsp;
+    if model.errorAmount !== undefined
+        span.activity-error-number.error (#{model.errorAmount})
+    .activity-errors
+        div Errors
+        for error in model.errors
+            .activity-error 
+                span #{error.contactName}
+                span.activity-contactUrl.hidden #{error.contactUrl}
+                button.smaller.ml1.activity-error-resend(id="#{error.contactKey}")
+                    | resend

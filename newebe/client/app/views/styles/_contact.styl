@@ -1,0 +1,87 @@
+#contacts-view
+    padding-top: 10px
+    padding-left: 10px
+
+    #new-contact-field
+        margin: 2px 0 0 10px
+        border-radius: 0em
+        width: 600px
+        padding: 0 0 0 10px
+        border: 1px solid #DDD
+
+    #new-contact-field:focus
+    #new-contact-field:active
+        border-bottom: 1px solid purple
+
+    .contact-line:not(:hover)
+        .contact-buttons
+            button
+                background: lightgrey
+
+    .contact-line
+        display: block
+        width: 100%
+        padding: 0
+
+        .name
+            padding-top: 15px
+
+        .url
+            font-style: italic
+            margin-left: 20px
+            padding-top: 15px
+
+        .state
+            padding-top: 15px
+            width: 100px
+             
+        .contact-buttons
+            padding: 0
+
+            button
+                padding: 5px 10px
+
+        .contact-tag
+            font-size: 10px
+            padding: 5px
+
+    .contact-line:hover
+        .contact-buttons
+            display: table
+
+    p.error
+        margin: 0 0 0 20px
+
+    .tag-delete-button
+        margin-left: 0
+        padding: 2px 4px
+
+    .tag-selector
+        display: inline
+
+    .tag-selector:not(:hover)
+        .tag-delete-button
+            background: lightgrey
+
+    #tag-list
+        margin-bottom: 20px
+
+    #tag-list
+    #add-tag
+    .contact-tags
+        display: inline-block
+
+    .tag-all:not(:hover)
+        .tag-add-button
+            background: lightgrey
+
+    .contact-tags
+        padding: 0
+        margin-top: 4px
+
+.tag-select-button
+    display: inline-block
+    
+.toggle-button:active
+    box-shadow: none
+

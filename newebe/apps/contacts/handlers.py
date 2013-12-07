@@ -1,6 +1,5 @@
 import datetime
 import logging
-import markdown
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
@@ -9,7 +8,7 @@ from newebe.lib.slugify import slugify
 from newebe.lib.http_util import ContactClient
 
 from newebe.apps.profile.models import UserManager
-from newebe.apps.contacts.models import Contact, ContactManager, \
+from newebe.apps.contacts.models import Contact, ContactManager, ContactTag, \
                                STATE_WAIT_APPROVAL, STATE_ERROR, \
                                STATE_TRUSTED, STATE_PENDING
 from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
@@ -38,6 +37,7 @@ class ContactUpdateHandler(NewebeHandler):
                 contact.url = data["url"]
                 contact.description = data["description"]
                 contact.name = data["name"]
+                contact.tags = data["tags"]
                 contact.save()
 
                 self.create_modify_activity(contact, "modifies", "profile")
@@ -46,6 +46,36 @@ class ContactUpdateHandler(NewebeHandler):
             else:
                 self.return_failure(
                         "No contact found corresponding to given contact", 404)
+
+        else:
+            self.return_failure("Empty data or missing field.")
+
+
+class ContactPictureUpdateHandler(NewebeHandler):
+
+    def put(self):
+        '''
+        When a put request is received, contact thumbnail is expected.
+        If contact key is one of the trusted contact key, its data are updated
+        with received ones.
+        '''
+
+        picfile = self.request.files['small_picture'][0]
+        contactKey = self.get_argument("key")
+        import pdb; pdb.set_trace()
+
+        if picfile and contactKey:
+            contact = ContactManager.getTrustedContact(contactKey)
+
+            if contact:
+                contact.save()
+                contact.put_attachment(content=picfile["body"],
+                                       name="small_picture.jpg")
+                contact.save()
+                self.return_success("Contact picture successfully modified.")
+            else:
+                self.return_failure(
+                    "No contact found corresponding to given contact", 404)
 
         else:
             self.return_failure("Empty data or missing field.")
@@ -117,25 +147,40 @@ class ContactHandler(NewebeAuthHandler):
     @asynchronous
     def put(self, slug):
         '''
-        Confirm contact request.
+        Confirm contact request or update tag data.
         '''
 
+        data = self.get_body_as_dict(["tags", "state"])
+        state = data["state"]
+        tags = data.get("tags", None)
         self.contact = ContactManager.getContact(slug)
+
         if self.contact:
-            self.contact.state = STATE_TRUSTED
-            self.contact.save()
-
-            user = UserManager.getUser()
-            data = user.asContact().toJson(localized=False)
-
-            try:
-                client = ContactClient()
-                client.post(self.contact, "contacts/confirm/", data,
-                            self.on_contact_response)
-            except:
-                self.contact.state = STATE_ERROR
+            if self.contact.state != STATE_TRUSTED and state == STATE_TRUSTED:
+                self.contact.state = STATE_TRUSTED
                 self.contact.save()
-                self.return_failure("Error occurs while confirming contact.")
+
+                user = UserManager.getUser()
+                data = user.asContact().toJson(localized=False)
+
+                try:
+                    client = ContactClient()
+                    client.post(self.contact, "contacts/confirm/", data,
+                                self.on_contact_response)
+                except:
+                    self.contact.state = STATE_ERROR
+                    self.contact.save()
+                    self.return_failure(
+                        "Error occurs while confirming contact.")
+
+            elif tags != None:
+                self.contact.tags = tags
+                self.contact.save()
+                self.return_success("Contact tags updated.")
+
+            else:
+                self.return_success("Nothing to change.")
+
         else:
             self.return_failure("Contact to confirm does not exist.")
 
@@ -150,6 +195,14 @@ class ContactHandler(NewebeAuthHandler):
             newebeResponse = json_decode(incomingData)
             if not newebeResponse["success"]:
                 raise Exception()
+
+            #user = UserManager.getUser()
+            #picture = user.fetch_attachment("small_picture.jpg")
+            #self.send_files_to_contact(self.contact,
+            #    "contact/update-profile/picture/",
+            #    fields={"key": user.key},
+            #    files=[("small_picture", "small_picture.jpg", picture)]
+            #)
 
             self.return_success("Contact trusted.")
         except:
@@ -182,7 +235,6 @@ class ContactsHandler(NewebeAuthHandler):
         Retrieves whole contact list at JSON format.
         '''
         contacts = ContactManager.getContacts()
-
         self.return_documents(contacts)
 
     @asynchronous
@@ -225,8 +277,6 @@ class ContactsHandler(NewebeAuthHandler):
                     self.contact.state = STATE_ERROR
                     self.contact.save()
 
-                return self.return_one_document(self.contact, 201)
-
             else:
                 return self.return_failure(
                         "Wrong data. Url is same as owner URL.", 400)
@@ -242,7 +292,6 @@ class ContactsHandler(NewebeAuthHandler):
 
         try:
             newebeResponse = json_decode(response.body)
-            print newebeResponse
             if not "success" in newebeResponse or \
                not newebeResponse["success"]:
                 self.contact.state = STATE_ERROR
@@ -255,6 +304,9 @@ class ContactsHandler(NewebeAuthHandler):
 
             self.contact.state = STATE_ERROR
             self.contact.save()
+
+        finally:
+            return self.return_one_document(self.contact, 201)
 
 
 class ContactRetryHandler(NewebeAuthHandler):
@@ -294,7 +346,6 @@ class ContactRetryHandler(NewebeAuthHandler):
                 self.contact.state = STATE_ERROR
                 self.contact.save()
 
-            self.return_one_document(self.contact)
         else:
             self.return_failure("Contact does not exist", 404)
 
@@ -307,6 +358,8 @@ class ContactRetryHandler(NewebeAuthHandler):
         else:
             self.contact.state = STATE_PENDING
             self.contact.save()
+
+        self.return_one_document(self.contact)
 
 
 class ContactPushHandler(NewebeHandler):
@@ -380,6 +433,8 @@ class ContactConfirmHandler(NewebeHandler):
                 contact.key = data["key"]
                 contact.name = data["name"]
                 contact.save()
+
+                #self.send_picture_to_contact(contact)
                 self.return_success("Contact trusted.")
 
             else:
@@ -388,58 +443,65 @@ class ContactConfirmHandler(NewebeHandler):
         else:
             self.return_failure("Sent data are incorrects.", 400)
 
-
-class ContactRenderTHandler(NewebeAuthHandler):
-    '''
-    * GET: returns an HTML representation of contact corresponding to given
-    ID. If ID is equal to null Newebe owner representation is returned.
-    '''
-
-    def get(self, key):
-        '''
-        Returns an HTML representation of contact corresponding to given
-        ID. If ID is equal to null Newebe owner representation is returned.
-        '''
-
-        if key == "null" or key == UserManager.getUser().key:
-            contact = UserManager.getUser().asContact()
-        else:
-            contact = ContactManager.getTrustedContact(key)
-
-        if contact:
-            if contact.description:
-                contact.description = markdown.markdown(contact.description)
-
-            self.render("templates/contact_render.html",
-                            contact=contact)
-        else:
-            return self.return_failure("Contact not found.", 404)
+    def send_picture_to_contact(self, contact):
+        user = UserManager.getUser()
+        picture = user.fetch_attachment("small_picture.jpg")
+        self.send_files_to_contact(
+            contact,
+            "contact/update-profile/picture/",
+            fields={"key": user.key},
+            files=[("smallpicture", "smallpicture.jpg", picture)]
+        )
 
 
 class ContactTagsHandler(NewebeAuthHandler):
     '''
-    Return the list of tags set on owner contacts.
+    Tag operations: create, get, delete.
     '''
 
     def get(self):
         '''
-        Return the list of tags set on owner contacts.
+        Returns the list of available tags.
         '''
 
         tags = ContactManager.getTags()
-        if "all" not in tags:
-            tags.append("all")
-        self.return_list(tags)
+        tags.insert(0, ContactTag(name="all"))
+        self.return_documents(tags)
+
+    def post(self):
+        '''
+        Creates a new tag.
+        '''
+
+        data = self.get_body_as_dict(["name"])
+        tag = ContactTag(name=data["name"])
+        tag.save()
+        self.return_one_document(tag, 201)
+
+    def delete(self, id):
+        '''
+        Deletes given tag.
+        '''
+
+        tag = ContactManager.getTag(id)
+        name = tag.name
+        tag.delete()
+
+        for contact in ContactManager.getTrustedContacts():
+            if name in contact.tags:
+                contact.tags.remove(name)
+                contact.save()
+
+        self.return_success("Tag successfully deleted.", 204)
 
 
 class ContactTagHandler(NewebeAuthHandler):
     '''
-    Return the list of tags set on owner contacts.
     '''
 
     def put(self, slug):
         '''
-        Grab tags sent inside request to set is on contact matching slug.
+        Grab tags sent inside request to set is on given contact.
         '''
 
         contact = ContactManager.getContact(slug)
@@ -453,25 +515,3 @@ class ContactTagHandler(NewebeAuthHandler):
                 self.return_failure("No tags were sent")
         else:
             self.return_failure("Contact to modify does not exist.", 404)
-
-
-# Template handlers.
-class ContactContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/contact_content.html")
-
-
-class ContactTutorial1THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_1.html")
-
-
-class ContactTutorial2THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_2.html")
-
-
-class ContactTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/contact.html",
-                    isTheme=self.is_file_theme_exists())

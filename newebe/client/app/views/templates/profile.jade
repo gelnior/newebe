@@ -1,0 +1,21 @@
+.line.full-size
+    .w400p.mod.left.main-section
+        #profile-picture-section
+            img#profile-picture(src="user/picture.jpg")
+            #change-picture-button
+        #profile-data-section
+            p
+                input#profile-name-field(type="text", value="#{model.name}")
+            p
+                input#profile-url-field(type="text", value="#{model.url}")
+            #sesame-stuff
+                p
+                    button#change-password-button change sesame
+                #sesame-form
+                    input#profile-sesame-field(type="text", value="")
+                    button#confirm-password-button confirm new sesame
+                    .success Sesame changed successfully
+                    .error An error occured
+
+    .mod.full-height
+        #profile-description.editable(data-button-class="all")

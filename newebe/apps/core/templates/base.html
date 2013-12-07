@@ -1,45 +1,34 @@
 <!doctype html>
-  <head>
-    <meta charset="utf-8">
-    <!--link href="/static/platform/styles/common.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/news/styles/news.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/contacts/styles/contacts.css" rel="stylesheet"     
-          type="text/css" media="screen" />
-    <link href="/static/notes/styles/notes.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/activities/styles/activities.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/profile/styles/profile.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link href="/static/pictures/styles/pictures.css" rel="stylesheet" 
-          type="text/css" media="screen" />
-    <link type="text/css" href="/static/css/jquery-ui-black-tie.css" 
-          rel="Stylesheet" />          
-    <link type="text/css" href="/static/css/fileuploader.css" 
-          rel="Stylesheet" /-->          
-    <link type="text/css" href="/static/css/style.css" 
-          rel="Stylesheet" />          
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Newebe, freedom to share</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
 
-    {% if isTheme %}
-    <link type="text/css" href="/static/css/theme.css" 
-          rel="Stylesheet" />   
-    {% end %}
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
-    <script type="text/javascript" src="/static/js/libs.js"></script>
+        <!--script>
+            // Enable Brunch HTML/CSS Auto Reload
+            window.brunch = window.brunch || {};
+            window.brunch['auto-reload'] = { enabled: true };
+        </script-->
+        <script src="static/javascripts/modernizr-2.6.1.js"></script>
+        <link rel="stylesheet" href="static/stylesheets/app.css">
+    </head>
 
-    <!--script type="text/javascript" src="/static/js/jasmine.js"></script>
-    <script type="text/javascript" src="/static/js/jasmine-html.js"></script> 
-    <link rel="stylesheet" href="/static/css/jasmine.css"-->
+    <body class="application">
+        <!--[if lt IE 8]>
+<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
 
-    <title>Newebe | {% block title %}{% end %}</title>
-  </head>
+        <!-- Your Markup -->
 
-  <body>    
-    {% block body %}{% end %}
-  </body>
-  <script type="text/javascript" src="/static/platform/app/platform.dev.js">
-  </script>
+        <script src="static/javascripts/vendor.js"></script>
+        <script src="static/javascripts/app.js" onload="require('initialize');"></script>
+</body>
 </html>
-

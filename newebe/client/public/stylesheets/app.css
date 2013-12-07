@@ -1,0 +1,3113 @@
+/*! normalize.css v2.0.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/*
+ * Corrects `block` display not defined in IE 8/9.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/*
+ * Corrects `inline-block` display not defined in IE 8/9.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+}
+
+/*
+ * Prevents modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/*
+ * Addresses styling for `hidden` attribute not present in IE 8/9.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/*
+ * 1. Sets default font family to sans-serif.
+ * 2. Prevents iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    font-family: sans-serif; /* 1 */
+    -webkit-text-size-adjust: 100%; /* 2 */
+    -ms-text-size-adjust: 100%; /* 2 */
+}
+
+/*
+ * Removes default margin.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/*
+ * Addresses `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/*
+ * Improves readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/*
+ * Addresses `h1` font sizes within `section` and `article` in Firefox 4+,
+ * Safari 5, and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+}
+
+/*
+ * Addresses styling not present in IE 8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/*
+ * Addresses style set to `bolder` in Firefox 4+, Safari 5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+/*
+ * Addresses styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/*
+ * Addresses styling not present in IE 8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+
+/*
+ * Corrects font family set oddly in Safari 5 and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    font-size: 1em;
+}
+
+/*
+ * Improves readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/*
+ * Sets consistent quote types.
+ */
+
+q {
+    quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+/*
+ * Addresses inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/*
+ * Prevents `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/*
+ * Removes border when inside `a` element in IE 8/9.
+ */
+
+img {
+    border: 0;
+}
+
+/*
+ * Corrects overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/*
+ * Addresses margin not present in IE 8/9 and Safari 5.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/*
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/*
+ * 1. Corrects color not being inherited in IE 8/9.
+ * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0; /* 2 */
+}
+
+/*
+ * 1. Corrects font family not being inherited in all browsers.
+ * 2. Corrects font size not being inherited in all browsers.
+ * 3. Addresses margins set differently in Firefox 4+, Safari 5, and Chrome
+ */
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit; /* 1 */
+    font-size: 100%; /* 2 */
+    margin: 0; /* 3 */
+}
+
+/*
+ * Addresses Firefox 4+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/*
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Corrects inability to style clickable `input` types in iOS.
+ * 3. Improves usability and consistency of cursor style between image-type
+ *    `input` and others.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+}
+
+/*
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+input[disabled] {
+    cursor: default;
+}
+
+/*
+ * 1. Addresses box sizing set to `content-box` in IE 8/9.
+ * 2. Removes excess padding in IE 8/9.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+}
+
+/*
+ * 1. Addresses `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Addresses `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/*
+ * Removes inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/*
+ * Removes inner padding and border in Firefox 4+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/*
+ * 1. Removes default vertical scrollbar in IE 8/9.
+ * 2. Improves readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/*
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+/* === Editor === */
+.etch-editor-panel { display: none; padding: 5px; position: absolute; z-index: 10000;
+    background: #dadada; border: 1px solid #bdbdbd; color: #535353; text-shadow: 0 1px 0 #fff;
+    background-image: -moz-linear-gradient(center bottom, #ccc 0%, #ddd 100%);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#ccc));
+    -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;
+    -webkit-box-shadow: inset 1px 0 0 #dfdfdf, inset 0 1px 0 #dfdfdf, inset -1px 0 0 #dfdfdf, inset 0 -1px 0 #dfdfdf, 0 0 5px rgba(0,0,0,.3);
+ }
+.etch-editor-button { display: block; float: left; margin-right: 3px; position: relative; text-decoration: none;
+    display: block; width: 27px; height: 27px; background: #dadada; border: 1px solid #aaa; color: #535353; text-shadow: 0 1px 0 #fff;
+    background: -moz-linear-gradient(center bottom, #e1e1e1 0%, #efefef 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fFfFfF), to(#f1f1f1));
+    -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;
+     }
+
+.etch-editor-button:last-child { margin-right: 0; }
+.etch-editor-button:hover { background: #fff; border-color: #999; }
+.etch-editor-button span:active { box-shadow: inset 0 0 15px rgba(0,0,0,.5); border-color: #999; }
+
+.etch-editor-button span,
+.etch-editor-button span { background: url('../images/editor_icons.png') no-repeat;
+    display: block; height: 100%; width: 100%;
+}
+
+.etch-editor-panel .etch-bold span { background-position: 0 0; }
+.etch-editor-panel .etch-italic span { background-position: -30px 0; }
+.etch-editor-panel .etch-underline span { background-position: -60px 0; }
+.etch-editor-panel .etch-unordered-list span { background-position: -90px 0; }
+.etch-editor-panel .etch-ordered-list span { background-position: -120px 0; }
+.etch-editor-panel .etch-image span { background-position: -150px 0; }
+.etch-editor-panel .etch-link span { background-position: -180px 0; }
+.etch-editor-panel .etch-save span { background-position: -210px 0; }
+.etch-editor-panel .etch-justify-left span { background-position: -240px 0; }
+.etch-editor-panel .etch-justify-center span { background-position: -270px 0; }
+.etch-editor-panel .etch-justify-right span { background-position: -300px 0; }
+.etch-editor-panel .etch-cite span { background-position: -330px 0; }
+.etch-editor-panel .etch-heading span { background-position: -360px 0; }
+.etch-editor-panel .etch-clear-formatting span { background-position: -390px 0; }
+
+  
+
+
+<!DOCTYPE html>
+<html>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# githubog: http://ogp.me/ns/fb/githubog#">
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>newebe/newebe/static/css/fileuploader.css at master · gelnior/newebe · GitHub</title>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub" />
+    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub" />
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144.png" />
+    <meta name="msapplication-TileImage" content="/windows-tile.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+
+    
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <meta content="authenticity_token" name="csrf-param" />
+<meta content="3yn/FFXzOX3qrGMG8tBfnp7H5Nyw33/+uJ/nRT5VdVM=" name="csrf-token" />
+
+    <link href="https://a248.e.akamai.net/assets.github.com/assets/github-7ef703df15129d3b898830277d50fc760ca91cbc.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="https://a248.e.akamai.net/assets.github.com/assets/github2-204e28c07493b8ba6089c49791ed7ab61ecb6581.css" media="screen" rel="stylesheet" type="text/css" />
+    
+
+
+      <script src="https://a248.e.akamai.net/assets.github.com/assets/frameworks-cc4895cbb610429d2ce48e7c2392822c33db2dfe.js" type="text/javascript"></script>
+      <script src="https://a248.e.akamai.net/assets.github.com/assets/github-e539dcf1e3c93f4acda64d064d3f30a39afabae0.js" type="text/javascript"></script>
+      
+
+        <link rel='permalink' href='/gelnior/newebe/blob/11fd757c67c45ddc614166c5f2fde60adedcafbc/newebe/static/css/fileuploader.css'>
+    <meta property="og:title" content="newebe"/>
+    <meta property="og:type" content="githubog:gitrepository"/>
+    <meta property="og:url" content="https://github.com/gelnior/newebe"/>
+    <meta property="og:image" content="https://secure.gravatar.com/avatar/527f0c448263892090a2695efeb9ac5d?s=420&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png"/>
+    <meta property="og:site_name" content="GitHub"/>
+    <meta property="og:description" content="Distributed social network. Contribute to newebe development by creating an account on GitHub."/>
+
+    <meta name="description" content="Distributed social network. Contribute to newebe development by creating an account on GitHub." />
+
+  <link href="https://github.com/gelnior/newebe/commits/master.atom" rel="alternate" title="Recent Commits to newebe:master" type="application/atom+xml" />
+
+  </head>
+
+
+  <body class="logged_out page-blob  vis-public env-production ">
+    <div id="wrapper">
+
+      
+
+      
+
+      
+
+
+        <div class="header header-logged-out">
+          <div class="container clearfix">
+
+            <a class="header-logo-wordmark" href="https://github.com/">
+              <img alt="GitHub" class="github-logo-4x" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x.png?1340659561" />
+              <img alt="GitHub" class="github-logo-4x-hover" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x-hover.png?1340659561" />
+            </a>
+
+              
+<ul class="top-nav">
+    <li class="explore"><a href="https://github.com/explore">Explore GitHub</a></li>
+  <li class="search"><a href="https://github.com/search">Search</a></li>
+  <li class="features"><a href="https://github.com/features">Features</a></li>
+    <li class="blog"><a href="https://github.com/blog">Blog</a></li>
+</ul>
+
+
+            <div class="header-actions">
+                <a class="button primary" href="https://github.com/signup">Sign up for free</a>
+              <a class="button" href="https://github.com/login?return_to=%2Fgelnior%2Fnewebe%2Fblob%2Fmaster%2Fnewebe%2Fstatic%2Fcss%2Ffileuploader.css">Sign in</a>
+            </div>
+
+          </div>
+        </div>
+
+
+      
+
+      
+
+
+            <div class="site hfeed" itemscope itemtype="http://schema.org/WebPage">
+      <div class="hentry">
+        
+        <div class="pagehead repohead instapaper_ignore readability-menu">
+          <div class="container">
+            <div class="title-actions-bar">
+              
+
+
+                  <ul class="pagehead-actions">
+
+
+          <li>
+            <span class="star-button"><a href="/login?return_to=%2Fgelnior%2Fnewebe" class="minibutton js-toggler-target entice tooltipped leftwards" title="You must be signed in to use this feature" rel="nofollow"><span class="mini-icon mini-icon-star"></span>Star</a><a class="social-count js-social-count" href="/gelnior/newebe/stargazers">51</a></span>
+          </li>
+          <li>
+            <a href="/login?return_to=%2Fgelnior%2Fnewebe" class="minibutton js-toggler-target fork-button entice tooltipped leftwards"  title="You must be signed in to fork a repository" rel="nofollow"><span class="mini-icon mini-icon-fork"></span>Fork</a><a href="/gelnior/newebe/network" class="social-count">8</a>
+          </li>
+    </ul>
+
+              <h1 itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="entry-title public">
+                <span class="repo-label"><span>public</span></span>
+                <span class="mega-icon mega-icon-public-repo"></span>
+                <span class="author vcard">
+                  <a href="/gelnior" class="url fn" itemprop="url" rel="author">
+                  <span itemprop="title">gelnior</span>
+                  </a></span> /
+                <strong><a href="/gelnior/newebe" class="js-current-repository">newebe</a></strong>
+              </h1>
+            </div>
+
+            
+
+  <ul class="tabs">
+    <li><a href="/gelnior/newebe" class="selected" highlight="repo_sourcerepo_downloadsrepo_commitsrepo_tagsrepo_branches">Code</a></li>
+    <li><a href="/gelnior/newebe/network" highlight="repo_network">Network</a></li>
+    <li><a href="/gelnior/newebe/pulls" highlight="repo_pulls">Pull Requests <span class='counter'>0</span></a></li>
+
+      <li><a href="/gelnior/newebe/issues" highlight="repo_issues">Issues <span class='counter'>6</span></a></li>
+
+      <li><a href="/gelnior/newebe/wiki" highlight="repo_wiki">Wiki</a></li>
+
+
+    <li><a href="/gelnior/newebe/graphs" highlight="repo_graphsrepo_contributors">Graphs</a></li>
+
+
+  </ul>
+  
+<div class="tabnav">
+
+  <span class="tabnav-right">
+    <ul class="tabnav-tabs">
+          <li><a href="/gelnior/newebe/tags" class="tabnav-tab" highlight="repo_tags">Tags <span class="counter ">5</span></a></li>
+    </ul>
+    
+  </span>
+
+  <div class="tabnav-widget scope">
+
+
+    <div class="select-menu js-menu-container js-select-menu js-branch-menu">
+      <a class="minibutton select-menu-button js-menu-target" data-hotkey="w" data-ref="master">
+        <span class="mini-icon mini-icon-branch"></span>
+        <i>branch:</i>
+        <span class="js-select-button">master</span>
+      </a>
+
+      <div class="select-menu-modal-holder js-menu-content js-navigation-container js-select-menu-pane">
+
+        <div class="select-menu-modal js-select-menu-pane">
+          <div class="select-menu-header">
+            <span class="select-menu-title">Switch branches/tags</span>
+            <span class="mini-icon mini-icon-remove-close js-menu-close"></span>
+          </div> <!-- /.select-menu-header -->
+
+          <div class="select-menu-filters">
+            <div class="select-menu-text-filter">
+              <input type="text" id="commitish-filter-field" class="js-select-menu-text-filter js-filterable-field js-navigation-enable" placeholder="Filter branches/tags">
+            </div> <!-- /.select-menu-text-filter -->
+            <div class="select-menu-tabs">
+              <ul>
+                <li class="select-menu-tab">
+                  <a href="#" data-filter="branches" class="js-select-menu-tab selected">Branches</a>
+                </li>
+                <li class="select-menu-tab">
+                  <a href="#" data-filter="tags" class="js-select-menu-tab">Tags</a>
+                </li>
+              </ul>
+            </div><!-- /.select-menu-tabs -->
+          </div><!-- /.select-menu-filters -->
+
+          <div class="select-menu-list js-filter-tab js-filter-branches" data-filterable-for="commitish-filter-field" data-filterable-type="substring">
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/development/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="development" rel="nofollow">development</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/feature/package-debian/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="feature/package-debian" rel="nofollow">feature/package-debian</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/gh-pages/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="gh-pages" rel="nofollow">gh-pages</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target selected">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/master/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="master" rel="nofollow">master</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/mike-perdide/packaging/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="mike-perdide/packaging" rel="nofollow">mike-perdide/packaging</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+
+                    <a href="/gelnior/newebe/blob/refactoring/ui/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="refactoring/ui" rel="nofollow">refactoring/ui</a>
+
+              </div> <!-- /.select-menu-item -->
+
+
+              <div class="select-menu-no-results js-not-filterable">Nothing to show</div>
+          </div> <!-- /.select-menu-list -->
+
+
+          <div class="select-menu-list js-filter-tab js-filter-tags" data-filterable-for="commitish-filter-field" data-filterable-type="substring" style="display:none;">
+
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+                    <a href="/gelnior/newebe/blob/0.5.0/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="0.5.0" rel="nofollow">0.5.0</a>
+
+              </div> <!-- /.select-menu-item -->
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+                    <a href="/gelnior/newebe/blob/0.4.0/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="0.4.0" rel="nofollow">0.4.0</a>
+
+              </div> <!-- /.select-menu-item -->
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+                    <a href="/gelnior/newebe/blob/0.3.2/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="0.3.2" rel="nofollow">0.3.2</a>
+
+              </div> <!-- /.select-menu-item -->
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+                    <a href="/gelnior/newebe/blob/0.3.1/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="0.3.1" rel="nofollow">0.3.1</a>
+
+              </div> <!-- /.select-menu-item -->
+              <div class="select-menu-item js-navigation-item js-navigation-target ">
+                <span class="select-menu-checkmark mini-icon mini-icon-confirm"></span>
+                    <a href="/gelnior/newebe/blob/0.3.0/newebe/static/css/fileuploader.css" class="js-navigation-open select-menu-item-text js-select-button-text" data-name="0.3.0" rel="nofollow">0.3.0</a>
+
+              </div> <!-- /.select-menu-item -->
+
+            <div class="select-menu-no-results js-not-filterable">Nothing to show</div>
+
+          </div> <!-- /.select-menu-list -->
+
+        </div> <!-- /.select-menu-modal -->
+      </div> <!-- /.select-menu-modal-holder -->
+    </div> <!-- /.select-menu -->
+
+  </div> <!-- /.scope -->
+
+  <ul class="tabnav-tabs">
+    <li><a href="/gelnior/newebe" class="selected tabnav-tab" highlight="repo_source">Files</a></li>
+    <li><a href="/gelnior/newebe/commits/master" class="tabnav-tab" highlight="repo_commits">Commits</a></li>
+    <li><a href="/gelnior/newebe/branches" class="tabnav-tab" highlight="repo_branches" rel="nofollow">Branches <span class="counter ">6</span></a></li>
+  </ul>
+
+</div>
+
+  
+  
+  
+
+
+            
+          </div>
+        </div><!-- /.repohead -->
+
+        <div id="js-repo-pjax-container" class="container context-loader-container" data-pjax-container>
+          
+
+
+<!-- blob contrib key: blob_contributors:v21:c5bd58f246a616a12d7a27a0fd475af2 -->
+<!-- blob contrib frag key: views10/v8/blob_contributors:v21:c5bd58f246a616a12d7a27a0fd475af2 -->
+
+<div id="slider">
+
+
+    <div class="frame-meta">
+
+      <p title="This is a placeholder element" class="js-history-link-replace hidden"></p>
+      <div class="breadcrumb">
+        <span class='bold'><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/gelnior/newebe" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">newebe</span></a></span></span> / <span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/gelnior/newebe/tree/master/newebe" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">newebe</span></a></span> / <span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/gelnior/newebe/tree/master/newebe/static" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">static</span></a></span> / <span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/gelnior/newebe/tree/master/newebe/static/css" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">css</span></a></span> / <strong class="final-path">fileuploader.css</strong> <span class="js-zeroclipboard zeroclipboard-button" data-clipboard-text="newebe/static/css/fileuploader.css" data-copied-hint="copied!" title="copy to clipboard"><span class="mini-icon mini-icon-clipboard"></span></span>
+      </div>
+
+      <a href="/gelnior/newebe/find/master" class="js-slide-to" data-hotkey="t" style="display:none">Show File Finder</a>
+
+        
+  <div class="commit file-history-tease">
+    <img class="main-avatar" height="24" src="https://secure.gravatar.com/avatar/3316441228e9b75cac9c5389e59d6e41?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="24" />
+    <span class="author"><a href="/mike-perdide" rel="author">mike-perdide</a></span>
+    <time class="js-relative-date" datetime="2012-09-14T05:13:50-07:00" title="2012-09-14 05:13:50">September 14, 2012</time>
+    <div class="commit-title">
+        <a href="/gelnior/newebe/commit/7e63948d5360f7802f5a5ba4fc7a6a75da21c177" class="message">[BIG] Reordering the file tree.</a>
+    </div>
+
+    <div class="participation">
+      <p class="quickstat"><a href="#blob_contributors_box" rel="facebox"><strong>1</strong> contributor</a></p>
+      
+    </div>
+    <div id="blob_contributors_box" style="display:none">
+      <h2>Users on GitHub who have contributed to this file</h2>
+      <ul class="facebox-user-list">
+        <li>
+          <img height="24" src="https://secure.gravatar.com/avatar/3316441228e9b75cac9c5389e59d6e41?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="24" />
+          <a href="/mike-perdide">mike-perdide</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+
+    </div><!-- ./.frame-meta -->
+
+    <div class="frames">
+      <div class="frame" data-permalink-url="/gelnior/newebe/blob/11fd757c67c45ddc614166c5f2fde60adedcafbc/newebe/static/css/fileuploader.css" data-title="newebe/newebe/static/css/fileuploader.css at master · gelnior/newebe · GitHub" data-type="blob">
+
+        <div id="files" class="bubble">
+          <div class="file">
+            <div class="meta">
+              <div class="info">
+                <span class="icon"><b class="mini-icon mini-icon-text-file"></b></span>
+                <span class="mode" title="File Mode">file</span>
+                  <span>36 lines (30 sloc)</span>
+                <span>1.372 kb</span>
+              </div>
+              <ul class="button-group actions">
+                  <li>
+                      <a class="grouped-button minibutton bigger lighter js-entice" href=""
+                         data-entice="You must be signed in and on a branch to make or propose changes">Edit</a>
+                  </li>
+                <li><a href="/gelnior/newebe/raw/master/newebe/static/css/fileuploader.css" class="button minibutton grouped-button bigger lighter" id="raw-url">Raw</a></li>
+                  <li><a href="/gelnior/newebe/blame/master/newebe/static/css/fileuploader.css" class="button minibutton grouped-button bigger lighter">Blame</a></li>
+                <li><a href="/gelnior/newebe/commits/master/newebe/static/css/fileuploader.css" class="button minibutton grouped-button bigger lighter" rel="nofollow">History</a></li>
+              </ul>
+
+            </div>
+                <div class="data type-css js-blob-data">
+      <table cellpadding="0" cellspacing="0" class="lines">
+        <tr>
+          <td>
+            <pre class="line_numbers"><span id="L1" rel="#L1">1</span>
+<span id="L2" rel="#L2">2</span>
+<span id="L3" rel="#L3">3</span>
+<span id="L4" rel="#L4">4</span>
+<span id="L5" rel="#L5">5</span>
+<span id="L6" rel="#L6">6</span>
+<span id="L7" rel="#L7">7</span>
+<span id="L8" rel="#L8">8</span>
+<span id="L9" rel="#L9">9</span>
+<span id="L10" rel="#L10">10</span>
+<span id="L11" rel="#L11">11</span>
+<span id="L12" rel="#L12">12</span>
+<span id="L13" rel="#L13">13</span>
+<span id="L14" rel="#L14">14</span>
+<span id="L15" rel="#L15">15</span>
+<span id="L16" rel="#L16">16</span>
+<span id="L17" rel="#L17">17</span>
+<span id="L18" rel="#L18">18</span>
+<span id="L19" rel="#L19">19</span>
+<span id="L20" rel="#L20">20</span>
+<span id="L21" rel="#L21">21</span>
+<span id="L22" rel="#L22">22</span>
+<span id="L23" rel="#L23">23</span>
+<span id="L24" rel="#L24">24</span>
+<span id="L25" rel="#L25">25</span>
+<span id="L26" rel="#L26">26</span>
+<span id="L27" rel="#L27">27</span>
+<span id="L28" rel="#L28">28</span>
+<span id="L29" rel="#L29">29</span>
+<span id="L30" rel="#L30">30</span>
+<span id="L31" rel="#L31">31</span>
+<span id="L32" rel="#L32">32</span>
+<span id="L33" rel="#L33">33</span>
+<span id="L34" rel="#L34">34</span>
+<span id="L35" rel="#L35">35</span>
+</pre>
+          </td>
+          <td width="100%">
+                  <div class="highlight"><pre><div class='line' id='LC1'><span class="nc">.qq-uploader</span> <span class="p">{</span> <span class="k">position</span><span class="o">:</span><span class="k">relative</span><span class="p">;</span> <span class="k">width</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;}</span></div><div class='line' id='LC2'><br/></div><div class='line' id='LC3'><span class="nc">.qq-upload-button</span> <span class="p">{</span></div><div class='line' id='LC4'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">display</span><span class="o">:</span><span class="k">block</span><span class="p">;</span> <span class="c">/* or inline-block */</span></div><div class='line' id='LC5'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">width</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span> <span class="m">7px</span> <span class="m">0</span><span class="p">;</span> <span class="k">text-align</span><span class="o">:</span><span class="k">center</span><span class="p">;</span>    </div><div class='line' id='LC6'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">background</span><span class="o">:</span> <span class="nb">black</span><span class="p">;</span> <span class="k">border-bottom</span><span class="o">:</span><span class="m">1px</span> <span class="k">solid</span> <span class="m">#ddd</span><span class="p">;</span><span class="k">color</span><span class="o">:</span><span class="m">#fff</span><span class="p">;</span></div><div class='line' id='LC7'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span></div><div class='line' id='LC8'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span></div><div class='line' id='LC9'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">font-size</span><span class="o">:</span> <span class="m">26px</span><span class="p">;</span></div><div class='line' id='LC10'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">margin-bottom</span><span class="o">:</span> <span class="m">20px</span><span class="p">;</span></div><div class='line' id='LC11'><span class="p">}</span></div><div class='line' id='LC12'><span class="nc">.qq-upload-button-hover</span> <span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="m">#DDEEFF</span><span class="p">;</span> <span class="k">color</span><span class="o">:</span> <span class="nb">black</span><span class="p">;</span> <span class="p">}</span></div><div class='line' id='LC13'><span class="nc">.qq-upload-button-focus</span> <span class="p">{</span><span class="k">outline</span><span class="o">:</span><span class="m">1px</span> <span class="k">dotted</span> <span class="nb">black</span><span class="p">;}</span></div><div class='line' id='LC14'><br/></div><div class='line' id='LC15'><span class="nc">.qq-upload-drop-area</span> <span class="p">{</span></div><div class='line' id='LC16'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">position</span><span class="o">:</span><span class="k">absolute</span><span class="p">;</span> <span class="k">top</span><span class="o">:</span><span class="m">0</span><span class="p">;</span> <span class="k">left</span><span class="o">:</span><span class="m">0</span><span class="p">;</span> <span class="k">width</span><span class="o">:</span><span class="m">100</span><span class="o">%</span><span class="p">;</span> <span class="k">height</span><span class="o">:</span><span class="m">100</span><span class="o">%</span><span class="p">;</span> <span class="k">min-height</span><span class="o">:</span> <span class="m">70px</span><span class="p">;</span> <span class="k">z-index</span><span class="o">:</span><span class="m">2</span><span class="p">;</span></div><div class='line' id='LC17'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">background</span><span class="o">:</span><span class="m">#FF9797</span><span class="p">;</span> <span class="k">text-align</span><span class="o">:</span><span class="k">center</span><span class="p">;</span> </div><div class='line' id='LC18'><span class="p">}</span></div><div class='line' id='LC19'><span class="nc">.qq-upload-drop-area</span> <span class="nt">span</span> <span class="p">{</span></div><div class='line' id='LC20'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">display</span><span class="o">:</span><span class="k">block</span><span class="p">;</span> <span class="k">position</span><span class="o">:</span><span class="k">absolute</span><span class="p">;</span> <span class="k">top</span><span class="o">:</span> <span class="m">50</span><span class="o">%</span><span class="p">;</span> <span class="k">width</span><span class="o">:</span><span class="m">100</span><span class="o">%</span><span class="p">;</span> <span class="k">margin-top</span><span class="o">:-</span><span class="m">8px</span><span class="p">;</span> <span class="k">font-size</span><span class="o">:</span><span class="m">16px</span><span class="p">;</span></div><div class='line' id='LC21'><span class="p">}</span></div><div class='line' id='LC22'><span class="nc">.qq-upload-drop-area-active</span> <span class="p">{</span><span class="k">background</span><span class="o">:</span><span class="m">#FF7171</span><span class="p">;}</span></div><div class='line' id='LC23'><br/></div><div class='line' id='LC24'><span class="nc">.qq-upload-list</span> <span class="p">{</span> <span class="k">display</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span> <span class="k">margin</span><span class="o">:</span><span class="m">15px</span> <span class="m">35px</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span><span class="m">0</span><span class="p">;</span> <span class="k">list-style</span><span class="o">:</span><span class="k">disc</span><span class="p">;}</span></div><div class='line' id='LC25'><span class="nc">.qq-upload-list</span> <span class="nt">li</span> <span class="p">{</span> <span class="k">margin</span><span class="o">:</span><span class="m">0</span><span class="p">;</span> <span class="k">padding</span><span class="o">:</span><span class="m">0</span><span class="p">;</span> <span class="k">line-height</span><span class="o">:</span><span class="m">15px</span><span class="p">;</span> <span class="k">font-size</span><span class="o">:</span><span class="m">12px</span><span class="p">;}</span></div><div class='line' id='LC26'><span class="nc">.qq-upload-file</span><span class="o">,</span> <span class="nc">.qq-upload-spinner</span><span class="o">,</span> <span class="nc">.qq-upload-size</span><span class="o">,</span> <span class="nc">.qq-upload-cancel</span><span class="o">,</span> <span class="nc">.qq-upload-failed-text</span> <span class="p">{</span></div><div class='line' id='LC27'>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">margin-right</span><span class="o">:</span> <span class="m">7px</span><span class="p">;</span></div><div class='line' id='LC28'><span class="p">}</span></div><div class='line' id='LC29'><br/></div><div class='line' id='LC30'><span class="nc">.qq-upload-file</span> <span class="p">{}</span></div><div class='line' id='LC31'><span class="nc">.qq-upload-spinner</span> <span class="p">{</span><span class="k">display</span><span class="o">:</span><span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span> <span class="k">background</span><span class="o">:</span> <span class="sx">url(&quot;/static/images/loading.gif&quot;)</span><span class="p">;</span> <span class="k">width</span><span class="o">:</span><span class="m">15px</span><span class="p">;</span> <span class="k">height</span><span class="o">:</span><span class="m">15px</span><span class="p">;</span> <span class="k">vertical-align</span><span class="o">:</span><span class="k">text</span><span class="o">-</span><span class="k">bottom</span><span class="p">;}</span></div><div class='line' id='LC32'><span class="nc">.qq-upload-size</span><span class="o">,</span><span class="nc">.qq-upload-cancel</span> <span class="p">{</span><span class="k">font-size</span><span class="o">:</span><span class="m">11px</span><span class="p">;}</span></div><div class='line' id='LC33'><br/></div><div class='line' id='LC34'><span class="nc">.qq-upload-failed-text</span> <span class="p">{</span><span class="k">display</span><span class="o">:</span><span class="k">none</span><span class="p">;}</span></div><div class='line' id='LC35'><span class="nc">.qq-upload-fail</span> <span class="nc">.qq-upload-failed-text</span> <span class="p">{</span><span class="k">display</span><span class="o">:</span><span class="k">inline</span><span class="p">;}</span></div></pre></div>
+          </td>
+        </tr>
+      </table>
+  </div>
+
+          </div>
+        </div>
+
+        <a href="#jump-to-line" rel="facebox" data-hotkey="l" class="js-jump-to-line" style="display:none">Jump to Line</a>
+        <div id="jump-to-line" style="display:none">
+          <h2>Jump to Line</h2>
+          <form accept-charset="UTF-8" class="js-jump-to-line-form">
+            <input class="textfield js-jump-to-line-field" type="text">
+            <div class="full-button">
+              <button type="submit" class="button">Go</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<div id="js-frame-loading-template" class="frame frame-loading large-loading-area" style="display:none;">
+  <img class="js-frame-loading-spinner" src="https://a248.e.akamai.net/assets.github.com/images/spinners/octocat-spinner-128.gif?1347543527" height="64" width="64">
+</div>
+
+
+        </div>
+      </div>
+      <div class="context-overlay"></div>
+    </div>
+
+      <div id="footer-push"></div><!-- hack for sticky footer -->
+    </div><!-- end of wrapper - hack for sticky footer -->
+
+      <!-- footer -->
+      <div id="footer">
+  <div class="container clearfix">
+
+      <dl class="footer_nav">
+        <dt>GitHub</dt>
+        <dd><a href="https://github.com/about">About us</a></dd>
+        <dd><a href="https://github.com/blog">Blog</a></dd>
+        <dd><a href="https://github.com/contact">Contact &amp; support</a></dd>
+        <dd><a href="http://enterprise.github.com/">GitHub Enterprise</a></dd>
+        <dd><a href="http://status.github.com/">Site status</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Applications</dt>
+        <dd><a href="http://mac.github.com/">GitHub for Mac</a></dd>
+        <dd><a href="http://windows.github.com/">GitHub for Windows</a></dd>
+        <dd><a href="http://eclipse.github.com/">GitHub for Eclipse</a></dd>
+        <dd><a href="http://mobile.github.com/">GitHub mobile apps</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Services</dt>
+        <dd><a href="http://get.gaug.es/">Gauges: Web analytics</a></dd>
+        <dd><a href="http://speakerdeck.com">Speaker Deck: Presentations</a></dd>
+        <dd><a href="https://gist.github.com">Gist: Code snippets</a></dd>
+        <dd><a href="http://jobs.github.com/">Job board</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>Documentation</dt>
+        <dd><a href="http://help.github.com/">GitHub Help</a></dd>
+        <dd><a href="http://developer.github.com/">Developer API</a></dd>
+        <dd><a href="http://github.github.com/github-flavored-markdown/">GitHub Flavored Markdown</a></dd>
+        <dd><a href="http://pages.github.com/">GitHub Pages</a></dd>
+      </dl>
+
+      <dl class="footer_nav">
+        <dt>More</dt>
+        <dd><a href="http://training.github.com/">Training</a></dd>
+        <dd><a href="https://github.com/edu">Students &amp; teachers</a></dd>
+        <dd><a href="http://shop.github.com">The Shop</a></dd>
+        <dd><a href="/plans">Plans &amp; pricing</a></dd>
+        <dd><a href="http://octodex.github.com/">The Octodex</a></dd>
+      </dl>
+
+      <hr class="footer-divider">
+
+
+    <p class="right">&copy; 2013 <span title="0.05398s from fe18.rs.github.com">GitHub</span> Inc. All rights reserved.</p>
+    <a class="left" href="https://github.com/">
+      <span class="mega-icon mega-icon-invertocat"></span>
+    </a>
+    <ul id="legal">
+        <li><a href="https://github.com/site/terms">Terms of Service</a></li>
+        <li><a href="https://github.com/site/privacy">Privacy</a></li>
+        <li><a href="https://github.com/security">Security</a></li>
+    </ul>
+
+  </div><!-- /.container -->
+
+</div><!-- /.#footer -->
+
+
+    
+
+    
+
+<div id="keyboard_shortcuts_pane" class="instapaper_ignore readability-extra" style="display:none">
+  <h2>Keyboard Shortcuts <small><a href="#" class="js-see-all-keyboard-shortcuts">(see all)</a></small></h2>
+
+  <div class="columns threecols">
+    <div class="column first">
+      <h3>Site wide shortcuts</h3>
+      <dl class="keyboard-mappings">
+        <dt>s</dt>
+        <dd>Focus command bar</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>?</dt>
+        <dd>Bring up this help dialog</dd>
+      </dl>
+    </div><!-- /.column.first -->
+
+    <div class="column middle" style='display:none'>
+      <h3>Commit list</h3>
+      <dl class="keyboard-mappings">
+        <dt>j</dt>
+        <dd>Move selection down</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>k</dt>
+        <dd>Move selection up</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>c <em>or</em> o <em>or</em> enter</dt>
+        <dd>Open commit</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>y</dt>
+        <dd>Expand URL to its canonical form</dd>
+      </dl>
+    </div><!-- /.column.first -->
+
+    <div class="column last js-hidden-pane" style='display:none'>
+      <h3>Pull request list</h3>
+      <dl class="keyboard-mappings">
+        <dt>j</dt>
+        <dd>Move selection down</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>k</dt>
+        <dd>Move selection up</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt>o <em>or</em> enter</dt>
+        <dd>Open issue</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt><span class="platform-mac">⌘</span><span class="platform-other">ctrl</span> <em>+</em> enter</dt>
+        <dd>Submit comment</dd>
+      </dl>
+      <dl class="keyboard-mappings">
+        <dt><span class="platform-mac">⌘</span><span class="platform-other">ctrl</span> <em>+</em> shift p</dt>
+        <dd>Preview comment</dd>
+      </dl>
+    </div><!-- /.columns.last -->
+
+  </div><!-- /.columns.equacols -->
+
+  <div class="js-hidden-pane" style='display:none'>
+    <div class="rule"></div>
+
+    <h3>Issues</h3>
+
+    <div class="columns threecols">
+      <div class="column first">
+        <dl class="keyboard-mappings">
+          <dt>j</dt>
+          <dd>Move selection down</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>k</dt>
+          <dd>Move selection up</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>x</dt>
+          <dd>Toggle selection</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>o <em>or</em> enter</dt>
+          <dd>Open issue</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt><span class="platform-mac">⌘</span><span class="platform-other">ctrl</span> <em>+</em> enter</dt>
+          <dd>Submit comment</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt><span class="platform-mac">⌘</span><span class="platform-other">ctrl</span> <em>+</em> shift p</dt>
+          <dd>Preview comment</dd>
+        </dl>
+      </div><!-- /.column.first -->
+      <div class="column last">
+        <dl class="keyboard-mappings">
+          <dt>c</dt>
+          <dd>Create issue</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>l</dt>
+          <dd>Create label</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>i</dt>
+          <dd>Back to inbox</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>u</dt>
+          <dd>Back to issues</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>/</dt>
+          <dd>Focus issues search</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="js-hidden-pane" style='display:none'>
+    <div class="rule"></div>
+
+    <h3>Issues Dashboard</h3>
+
+    <div class="columns threecols">
+      <div class="column first">
+        <dl class="keyboard-mappings">
+          <dt>j</dt>
+          <dd>Move selection down</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>k</dt>
+          <dd>Move selection up</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>o <em>or</em> enter</dt>
+          <dd>Open issue</dd>
+        </dl>
+      </div><!-- /.column.first -->
+    </div>
+  </div>
+
+  <div class="js-hidden-pane" style='display:none'>
+    <div class="rule"></div>
+
+    <h3>Network Graph</h3>
+    <div class="columns equacols">
+      <div class="column first">
+        <dl class="keyboard-mappings">
+          <dt><span class="badmono">←</span> <em>or</em> h</dt>
+          <dd>Scroll left</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt><span class="badmono">→</span> <em>or</em> l</dt>
+          <dd>Scroll right</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt><span class="badmono">↑</span> <em>or</em> k</dt>
+          <dd>Scroll up</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt><span class="badmono">↓</span> <em>or</em> j</dt>
+          <dd>Scroll down</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>t</dt>
+          <dd>Toggle visibility of head labels</dd>
+        </dl>
+      </div><!-- /.column.first -->
+      <div class="column last">
+        <dl class="keyboard-mappings">
+          <dt>shift <span class="badmono">←</span> <em>or</em> shift h</dt>
+          <dd>Scroll all the way left</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>shift <span class="badmono">→</span> <em>or</em> shift l</dt>
+          <dd>Scroll all the way right</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>shift <span class="badmono">↑</span> <em>or</em> shift k</dt>
+          <dd>Scroll all the way up</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>shift <span class="badmono">↓</span> <em>or</em> shift j</dt>
+          <dd>Scroll all the way down</dd>
+        </dl>
+      </div><!-- /.column.last -->
+    </div>
+  </div>
+
+  <div class="js-hidden-pane" >
+    <div class="rule"></div>
+    <div class="columns threecols">
+      <div class="column first js-hidden-pane" >
+        <h3>Source Code Browsing</h3>
+        <dl class="keyboard-mappings">
+          <dt>t</dt>
+          <dd>Activates the file finder</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>l</dt>
+          <dd>Jump to line</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>w</dt>
+          <dd>Switch branch/tag</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>y</dt>
+          <dd>Expand URL to its canonical form</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="js-hidden-pane" style='display:none'>
+    <div class="rule"></div>
+    <div class="columns threecols">
+      <div class="column first">
+        <h3>Browsing Commits</h3>
+        <dl class="keyboard-mappings">
+          <dt><span class="platform-mac">⌘</span><span class="platform-other">ctrl</span> <em>+</em> enter</dt>
+          <dd>Submit comment</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>escape</dt>
+          <dd>Close form</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>p</dt>
+          <dd>Parent commit</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>o</dt>
+          <dd>Other parent commit</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="js-hidden-pane" style='display:none'>
+    <div class="rule"></div>
+    <h3>Notifications</h3>
+
+    <div class="columns threecols">
+      <div class="column first">
+        <dl class="keyboard-mappings">
+          <dt>j</dt>
+          <dd>Move selection down</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>k</dt>
+          <dd>Move selection up</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>o <em>or</em> enter</dt>
+          <dd>Open notification</dd>
+        </dl>
+      </div><!-- /.column.first -->
+
+      <div class="column second">
+        <dl class="keyboard-mappings">
+          <dt>e <em>or</em> shift i <em>or</em> y</dt>
+          <dd>Mark as read</dd>
+        </dl>
+        <dl class="keyboard-mappings">
+          <dt>shift m</dt>
+          <dd>Mute thread</dd>
+        </dl>
+      </div><!-- /.column.first -->
+    </div>
+  </div>
+
+</div>
+
+    <div id="markdown-help" class="instapaper_ignore readability-extra">
+  <h2>Markdown Cheat Sheet</h2>
+
+  <div class="cheatsheet-content">
+
+  <div class="mod">
+    <div class="col">
+      <h3>Format Text</h3>
+      <p>Headers</p>
+      <pre>
+# This is an &lt;h1&gt; tag
+## This is an &lt;h2&gt; tag
+###### This is an &lt;h6&gt; tag</pre>
+     <p>Text styles</p>
+     <pre>
+*This text will be italic*
+_This will also be italic_
+**This text will be bold**
+__This will also be bold__
+
+*You **can** combine them*
+</pre>
+    </div>
+    <div class="col">
+      <h3>Lists</h3>
+      <p>Unordered</p>
+      <pre>
+* Item 1
+* Item 2
+  * Item 2a
+  * Item 2b</pre>
+     <p>Ordered</p>
+     <pre>
+1. Item 1
+2. Item 2
+3. Item 3
+   * Item 3a
+   * Item 3b</pre>
+    </div>
+    <div class="col">
+      <h3>Miscellaneous</h3>
+      <p>Images</p>
+      <pre>
+![GitHub Logo](/images/logo.png)
+Format: ![Alt Text](url)
+</pre>
+     <p>Links</p>
+     <pre>
+http://github.com - automatic!
+[GitHub](http://github.com)</pre>
+<p>Blockquotes</p>
+     <pre>
+As Kanye West said:
+
+> We're living the future so
+> the present is our past.
+</pre>
+    </div>
+  </div>
+  <div class="rule"></div>
+
+  <h3>Code Examples in Markdown</h3>
+  <div class="col">
+      <p>Syntax highlighting with <a href="http://github.github.com/github-flavored-markdown/" title="GitHub Flavored Markdown" target="_blank">GFM</a></p>
+      <pre>
+```javascript
+function fancyAlert(arg) {
+  if(arg) {
+    $.facebox({div:'#foo'})
+  }
+}
+```</pre>
+    </div>
+    <div class="col">
+      <p>Or, indent your code 4 spaces</p>
+      <pre>
+Here is a Python code example
+without syntax highlighting:
+
+    def foo:
+      if not bar:
+        return true</pre>
+    </div>
+    <div class="col">
+      <p>Inline code for comments</p>
+      <pre>
+I think you should use an
+`&lt;addr&gt;` element here instead.</pre>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+
+    <div id="ajax-error-message" class="flash flash-error">
+      <span class="mini-icon mini-icon-exclamation"></span>
+      Something went wrong with that request. Please try again.
+      <a href="#" class="mini-icon mini-icon-remove-close ajax-error-dismiss"></a>
+    </div>
+
+    
+    
+    <span id='server_response_time' data-time='0.05522' data-host='fe18'></span>
+    
+  </body>
+</html>
+
+/*  Font Awesome
+    the iconic font designed for use with Twitter Bootstrap
+    -------------------------------------------------------
+    The full suite of pictographic icons, examples, and documentation
+    can be found at: http://fortawesome.github.com/Font-Awesome/
+
+    License
+    -------------------------------------------------------
+    The Font Awesome webfont, CSS, and LESS files are licensed under CC BY 3.0:
+    http://creativecommons.org/licenses/by/3.0/ A mention of
+    'Font Awesome - http://fortawesome.github.com/Font-Awesome' in human-readable
+    source code is considered acceptable attribution (most common on the web).
+    If human readable source code is not available to the end user, a mention in
+    an 'About' or 'Credits' screen is considered acceptable (most common in desktop
+    or mobile software).
+
+    Contact
+    -------------------------------------------------------
+    Email: dave@davegandy.com
+    Twitter: http://twitter.com/fortaweso_me
+    Work: http://lemonwi.se co-founder
+
+    */
+@font-face {
+  font-family: "FontAwesome";
+  src: url('../fonts/fontawesome/fontawesome-webfont.eot');
+  src: url('../fonts/fontawesome/fontawesome-webfont.eot?#iefix') format('eot'), url('../fonts/fontawesome/fontawesome-webfont.woff') format('woff'), url('../fonts/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('../fonts/fontawesome/fontawesome-webfont.svg#FontAwesome') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*  Font Awesome styles
+    ------------------------------------------------------- */
+[class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit;
+}
+a [class^="icon-"], a [class*=" icon-"] {
+  display: inline-block;
+  text-decoration: inherit;
+}
+/* makes the font 33% larger relative to the icon container */
+.icon-large:before {
+  vertical-align: top;
+  font-size: 1.3333333333333333em;
+}
+.btn [class^="icon-"], .btn [class*=" icon-"] {
+  /* keeps button heights with and without icons the same */
+
+  line-height: .9em;
+}
+li [class^="icon-"], li [class*=" icon-"] {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+li .icon-large[class^="icon-"], li .icon-large[class*=" icon-"] {
+  /* 1.5 increased font size for icon-large * 1.25 width */
+
+  width: 1.875em;
+}
+li[class^="icon-"], li[class*=" icon-"] {
+  margin-left: 0;
+  list-style-type: none;
+}
+li[class^="icon-"]:before, li[class*=" icon-"]:before {
+  text-indent: -2em;
+  text-align: center;
+}
+li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
+  text-indent: -1.3333333333333333em;
+}
+/*  Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
+    readers do not read off random characters that represent icons */
+.icon-glass:before                { content: "\f000"; }
+.icon-music:before                { content: "\f001"; }
+.icon-search:before               { content: "\f002"; }
+.icon-envelope:before             { content: "\f003"; }
+.icon-heart:before                { content: "\f004"; }
+.icon-star:before                 { content: "\f005"; }
+.icon-star-empty:before           { content: "\f006"; }
+.icon-user:before                 { content: "\f007"; }
+.icon-film:before                 { content: "\f008"; }
+.icon-th-large:before             { content: "\f009"; }
+.icon-th:before                   { content: "\f00a"; }
+.icon-th-list:before              { content: "\f00b"; }
+.icon-ok:before                   { content: "\f00c"; }
+.icon-remove:before               { content: "\f00d"; }
+.icon-zoom-in:before              { content: "\f00e"; }
+
+.icon-zoom-out:before             { content: "\f010"; }
+.icon-off:before                  { content: "\f011"; }
+.icon-signal:before               { content: "\f012"; }
+.icon-cog:before                  { content: "\f013"; }
+.icon-trash:before                { content: "\f014"; }
+.icon-home:before                 { content: "\f015"; }
+.icon-file:before                 { content: "\f016"; }
+.icon-time:before                 { content: "\f017"; }
+.icon-road:before                 { content: "\f018"; }
+.icon-download-alt:before         { content: "\f019"; }
+.icon-download:before             { content: "\f01a"; }
+.icon-upload:before               { content: "\f01b"; }
+.icon-inbox:before                { content: "\f01c"; }
+.icon-play-circle:before          { content: "\f01d"; }
+.icon-repeat:before               { content: "\f01e"; }
+
+/* \f020 doesn't work in Safari. all shifted one down */
+.icon-refresh:before              { content: "\f021"; }
+.icon-list-alt:before             { content: "\f022"; }
+.icon-lock:before                 { content: "\f023"; }
+.icon-flag:before                 { content: "\f024"; }
+.icon-headphones:before           { content: "\f025"; }
+.icon-volume-off:before           { content: "\f026"; }
+.icon-volume-down:before          { content: "\f027"; }
+.icon-volume-up:before            { content: "\f028"; }
+.icon-qrcode:before               { content: "\f029"; }
+.icon-barcode:before              { content: "\f02a"; }
+.icon-tag:before                  { content: "\f02b"; }
+.icon-tags:before                 { content: "\f02c"; }
+.icon-book:before                 { content: "\f02d"; }
+.icon-bookmark:before             { content: "\f02e"; }
+.icon-print:before                { content: "\f02f"; }
+
+.icon-camera:before               { content: "\f030"; }
+.icon-font:before                 { content: "\f031"; }
+.icon-bold:before                 { content: "\f032"; }
+.icon-italic:before               { content: "\f033"; }
+.icon-text-height:before          { content: "\f034"; }
+.icon-text-width:before           { content: "\f035"; }
+.icon-align-left:before           { content: "\f036"; }
+.icon-align-center:before         { content: "\f037"; }
+.icon-align-right:before          { content: "\f038"; }
+.icon-align-justify:before        { content: "\f039"; }
+.icon-list:before                 { content: "\f03a"; }
+.icon-indent-left:before          { content: "\f03b"; }
+.icon-indent-right:before         { content: "\f03c"; }
+.icon-facetime-video:before       { content: "\f03d"; }
+.icon-picture:before              { content: "\f03e"; }
+
+.icon-pencil:before               { content: "\f040"; }
+.icon-map-marker:before           { content: "\f041"; }
+.icon-adjust:before               { content: "\f042"; }
+.icon-tint:before                 { content: "\f043"; }
+.icon-edit:before                 { content: "\f044"; }
+.icon-share:before                { content: "\f045"; }
+.icon-check:before                { content: "\f046"; }
+.icon-move:before                 { content: "\f047"; }
+.icon-step-backward:before        { content: "\f048"; }
+.icon-fast-backward:before        { content: "\f049"; }
+.icon-backward:before             { content: "\f04a"; }
+.icon-play:before                 { content: "\f04b"; }
+.icon-pause:before                { content: "\f04c"; }
+.icon-stop:before                 { content: "\f04d"; }
+.icon-forward:before              { content: "\f04e"; }
+
+.icon-fast-forward:before         { content: "\f050"; }
+.icon-step-forward:before         { content: "\f051"; }
+.icon-eject:before                { content: "\f052"; }
+.icon-chevron-left:before         { content: "\f053"; }
+.icon-chevron-right:before        { content: "\f054"; }
+.icon-plus-sign:before            { content: "\f055"; }
+.icon-minus-sign:before           { content: "\f056"; }
+.icon-remove-sign:before          { content: "\f057"; }
+.icon-ok-sign:before              { content: "\f058"; }
+.icon-question-sign:before        { content: "\f059"; }
+.icon-info-sign:before            { content: "\f05a"; }
+.icon-screenshot:before           { content: "\f05b"; }
+.icon-remove-circle:before        { content: "\f05c"; }
+.icon-ok-circle:before            { content: "\f05d"; }
+.icon-ban-circle:before           { content: "\f05e"; }
+
+.icon-arrow-left:before           { content: "\f060"; }
+.icon-arrow-right:before          { content: "\f061"; }
+.icon-arrow-up:before             { content: "\f062"; }
+.icon-arrow-down:before           { content: "\f063"; }
+.icon-share-alt:before            { content: "\f064"; }
+.icon-resize-full:before          { content: "\f065"; }
+.icon-resize-small:before         { content: "\f066"; }
+.icon-plus:before                 { content: "\f067"; }
+.icon-minus:before                { content: "\f068"; }
+.icon-asterisk:before             { content: "\f069"; }
+.icon-exclamation-sign:before     { content: "\f06a"; }
+.icon-gift:before                 { content: "\f06b"; }
+.icon-leaf:before                 { content: "\f06c"; }
+.icon-fire:before                 { content: "\f06d"; }
+.icon-eye-open:before             { content: "\f06e"; }
+
+.icon-eye-close:before            { content: "\f070"; }
+.icon-warning-sign:before         { content: "\f071"; }
+.icon-plane:before                { content: "\f072"; }
+.icon-calendar:before             { content: "\f073"; }
+.icon-random:before               { content: "\f074"; }
+.icon-comment:before              { content: "\f075"; }
+.icon-magnet:before               { content: "\f076"; }
+.icon-chevron-up:before           { content: "\f077"; }
+.icon-chevron-down:before         { content: "\f078"; }
+.icon-retweet:before              { content: "\f079"; }
+.icon-shopping-cart:before        { content: "\f07a"; }
+.icon-folder-close:before         { content: "\f07b"; }
+.icon-folder-open:before          { content: "\f07c"; }
+.icon-resize-vertical:before      { content: "\f07d"; }
+.icon-resize-horizontal:before    { content: "\f07e"; }
+
+.icon-bar-chart:before            { content: "\f080"; }
+.icon-twitter-sign:before         { content: "\f081"; }
+.icon-facebook-sign:before        { content: "\f082"; }
+.icon-camera-retro:before         { content: "\f083"; }
+.icon-key:before                  { content: "\f084"; }
+.icon-cogs:before                 { content: "\f085"; }
+.icon-comments:before             { content: "\f086"; }
+.icon-thumbs-up:before            { content: "\f087"; }
+.icon-thumbs-down:before          { content: "\f088"; }
+.icon-star-half:before            { content: "\f089"; }
+.icon-heart-empty:before          { content: "\f08a"; }
+.icon-signout:before              { content: "\f08b"; }
+.icon-linkedin-sign:before        { content: "\f08c"; }
+.icon-pushpin:before              { content: "\f08d"; }
+.icon-external-link:before        { content: "\f08e"; }
+
+.icon-signin:before               { content: "\f090"; }
+.icon-trophy:before               { content: "\f091"; }
+.icon-github-sign:before          { content: "\f092"; }
+.icon-upload-alt:before           { content: "\f093"; }
+.icon-lemon:before                { content: "\f094"; }
+.icon-phone:before                { content: "\f095"; }
+.icon-check-empty:before          { content: "\f096"; }
+.icon-bookmark-empty:before       { content: "\f097"; }
+.icon-phone-sign:before           { content: "\f098"; }
+.icon-twitter:before              { content: "\f099"; }
+.icon-facebook:before             { content: "\f09a"; }
+.icon-github:before               { content: "\f09b"; }
+.icon-unlock:before               { content: "\f09c"; }
+.icon-credit-card:before          { content: "\f09d"; }
+.icon-rss:before                  { content: "\f09e"; }
+
+.icon-hdd:before                  { content: "\f0a0"; }
+.icon-bullhorn:before             { content: "\f0a1"; }
+.icon-bell:before                 { content: "\f0a2"; }
+.icon-certificate:before          { content: "\f0a3"; }
+.icon-hand-right:before           { content: "\f0a4"; }
+.icon-hand-left:before            { content: "\f0a5"; }
+.icon-hand-up:before              { content: "\f0a6"; }
+.icon-hand-down:before            { content: "\f0a7"; }
+.icon-circle-arrow-left:before    { content: "\f0a8"; }
+.icon-circle-arrow-right:before   { content: "\f0a9"; }
+.icon-circle-arrow-up:before      { content: "\f0aa"; }
+.icon-circle-arrow-down:before    { content: "\f0ab"; }
+.icon-globe:before                { content: "\f0ac"; }
+.icon-wrench:before               { content: "\f0ad"; }
+.icon-tasks:before                { content: "\f0ae"; }
+
+.icon-filter:before               { content: "\f0b0"; }
+.icon-briefcase:before            { content: "\f0b1"; }
+.icon-fullscreen:before           { content: "\f0b2"; }
+
+.icon-group:before                { content: "\f0c0"; }
+.icon-link:before                 { content: "\f0c1"; }
+.icon-cloud:before                { content: "\f0c2"; }
+.icon-beaker:before               { content: "\f0c3"; }
+.icon-cut:before                  { content: "\f0c4"; }
+.icon-copy:before                 { content: "\f0c5"; }
+.icon-paper-clip:before           { content: "\f0c6"; }
+.icon-save:before                 { content: "\f0c7"; }
+.icon-sign-blank:before           { content: "\f0c8"; }
+.icon-reorder:before              { content: "\f0c9"; }
+.icon-list-ul:before              { content: "\f0ca"; }
+.icon-list-ol:before              { content: "\f0cb"; }
+.icon-strikethrough:before        { content: "\f0cc"; }
+.icon-underline:before            { content: "\f0cd"; }
+.icon-table:before                { content: "\f0ce"; }
+
+.icon-magic:before                { content: "\f0d0"; }
+.icon-truck:before                { content: "\f0d1"; }
+.icon-pinterest:before            { content: "\f0d2"; }
+.icon-pinterest-sign:before       { content: "\f0d3"; }
+.icon-google-plus-sign:before     { content: "\f0d4"; }
+.icon-google-plus:before          { content: "\f0d5"; }
+.icon-money:before                { content: "\f0d6"; }
+.icon-caret-down:before           { content: "\f0d7"; }
+.icon-caret-up:before             { content: "\f0d8"; }
+.icon-caret-left:before           { content: "\f0d9"; }
+.icon-caret-right:before          { content: "\f0da"; }
+.icon-columns:before              { content: "\f0db"; }
+.icon-sort:before                 { content: "\f0dc"; }
+.icon-sort-down:before            { content: "\f0dd"; }
+.icon-sort-up:before              { content: "\f0de"; }
+
+.icon-envelope-alt:before         { content: "\f0e0"; }
+.icon-linkedin:before             { content: "\f0e1"; }
+.icon-undo:before                 { content: "\f0e2"; }
+.icon-legal:before                { content: "\f0e3"; }
+.icon-dashboard:before            { content: "\f0e4"; }
+.icon-comment-alt:before          { content: "\f0e5"; }
+.icon-comments-alt:before         { content: "\f0e6"; }
+.icon-bolt:before                 { content: "\f0e7"; }
+.icon-sitemap:before              { content: "\f0e8"; }
+.icon-umbrella:before             { content: "\f0e9"; }
+.icon-paste:before                { content: "\f0ea"; }
+
+.icon-user-md:before              { content: "\f200"; }
+/*
+ * www.KNACSS.com V2.3 @author: Raphael Goetter, Alsacreations
+ * Licence CC-BY http://creativecommons.org/licenses/by/3.0/fr/
+ */
+
+
+/* ----------------------------- */
+/* summary */
+/* ----------------------------- */
+/*
+1- colors
+2- reset
+3- layout and modules
+4- header
+5- sidebar
+6- footer
+7- forms
+8- main
+9- iefix
+10- print
+11- desktop medias
+12- mobile
+*/
+
+/* ----------------------------- */
+/* ==colors */
+/* ----------------------------- */
+
+
+/* ----------------------------- */
+/* ==reset */
+/* ----------------------------- */
+
+/* base font-size corresponds to 10px and is adapted to rem unit */
+html {
+	font-size: 62.5%;
+}
+body {
+	background-color: #fff;
+	color: #000;
+	font-family: "Century Gothic", helvetica, arial, sans-serif;
+	font-size: 1.4em; /* equiv 14px */
+	line-height: 1.5; /* adapt to your design */
+}
+
+/* font-sizing for content */
+/* preserve vertical-rythm, thanks to http://soqr.fr/vertical-rhythm/ */
+p,
+ul,
+ol,
+dl,
+blockquote,
+pre,
+td,
+th,
+label,
+textarea {
+	font-size: 1em; /* equiv 14px */
+	line-height: 1.5;
+	margin: 21px 0;
+}
+h1, .h1-like {
+	font-size: 1.8571em; /* equiv 26px */
+	font-weight: normal;
+	line-height: 1.6154;
+	margin: 42px 0 21px 0;
+}
+h2, .h2-like {
+	font-size: 1.7143em; /* equiv 24px */
+	font-weight: normal;
+	line-height: 1.75;
+	margin: 42px 0 21px 0;
+}
+h3, .h3-like {
+	font-size: 1.5714em; /* equiv 22px */
+	font-weight: normal;
+	line-height: 1.909;
+	margin: 42px 0 21px 0;
+}
+h4, .h4-like {
+	font-size: 1.4286em; /* equiv 20px */
+	font-weight: normal;
+	line-height: 1.05;
+	margin: 42px 0 21px 0;
+}
+h5, .h5-like {
+	font-size: 1.2857em; /* equiv 18px */
+	font-weight: normal;
+	line-height: 1.1667;
+	margin: 42px 0 21px 0;
+}
+h6, .h6-like {
+	font-size: 1.1429em; /* equiv 16px */
+	font-weight: normal;
+	line-height: 1.3125;
+	margin: 42px 0 21px 0;
+}
+
+/* alternate font-sizing */
+.smaller {
+	font-size: .7143em; /* equiv 10px */
+	line-height: 2.1;
+}
+.small {
+	font-size: .8571em; /* equiv 12px */
+	line-height: 1.75;
+}
+.big {
+	font-size: 1.1429em; /* equiv 16px */
+	line-height: 1.3125;
+}
+.bigger {
+	font-size: 1.2857em; /* equiv 18px */
+	line-height: 1.1667;
+}
+.biggest {
+	font-size: 1.4286em; /* equiv 20px */
+	line-height: 1.05;
+}
+
+/* soft reset */
+html,
+body,
+label {
+	margin: 0;
+	padding: 0;
+}
+ul,
+ol {
+	padding-left: 2em;
+}
+code,
+pre,
+samp {
+	white-space: pre-wrap;
+	font-family: consolas, 'DejaVu Sans Mono', courier, monospace;
+}
+code { line-height: 1em; }
+table { margin-bottom: 1.5em; }
+.m-reset { margin: 0 !important; }
+.p-reset { padding: 0 !important; }
+
+/* avoid collapsing margins on headings */
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+	margin-top: 0;
+}
+
+/* avoid margins on nested elements */
+li p,
+li ul,
+li ol {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+/* HTML5 tags */
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section {
+	display: block;
+}
+
+/* max values */
+img, table, td, blockquote, code, pre, textarea, input, video {
+	max-width: 100%;
+	height: auto;
+}
+
+/* you shall not pass */
+textarea, table, td, th, code, pre, samp, p {
+	word-wrap: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	-o-hyphens: auto;
+	hyphens: auto;
+}
+
+/* pictures */
+img {
+	width: auto;
+	vertical-align: middle;
+}
+a img { border: 0; }
+
+
+/* ----------------------------- */
+/* ==layout and modules */
+/* ----------------------------- */
+
+/* switching box model for all elements */
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+/* float layout */
+/* ----------- */
+
+/* tutorial : http://knacss.com/demos/tutoriel.html; */
+
+/* module, contains floats */
+.mod { 
+	padding: 1em;
+	overflow: hidden;
+}
+
+/* same as .mod, no paddings */
+.item { overflow: hidden; }
+
+/* table layout */
+/* ------------------ */
+.row {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+}
+.row > *,
+.col {
+	display: table-cell;
+	vertical-align: top;
+	padding: 1em;
+}
+
+/* blocks that needs to be placed under floats */
+.clear,
+.line,
+.row {
+	clear: both;
+}
+
+/* blocks that must contain floats */
+.clearfix:before, .clearfix:after,
+.line:before, .line:after,
+.mod:before, .mod:after {
+	content: "";
+	display: table;
+}
+.clearfix:after,
+.line:after,
+.mod:after {
+	clear: both;
+}
+
+/* alignments (blocks and inline) */
+/* ------------------------------ */
+
+/* left elements */
+.left {
+	float: left;
+	margin-right: 1em;
+}
+.mod.left,
+.col.left {
+	margin-right: 0;
+}
+
+/* right elements */
+.right {
+	float: right;
+	margin-left: 1em;
+}
+.mod.right,
+.col.right {
+	margin-left: 0;
+}
+
+img.left, img.right {
+	margin-bottom: 5px;
+}
+
+.center    { margin: auto; }
+.txtleft   { text-align: left; }
+.txtright  { text-align: right; }
+.txtcenter { text-align: center; }
+
+/* gutters (for row and lines)    */
+/* ------------------------------ */
+
+/* 1em gutter between elements if parent is .gut */
+.row.gut > * + * {
+	border-left: 1em solid #fff; /* must be color of parent background */
+}
+.line.gut > .left  { margin-right: 1em; }
+.line.gut > .right { margin-left: 1em; }
+
+/* "multicolumns" with % gutter */
+.line.gut2 > *     { width: 49%; }
+.line.gut2 > * + * { margin-left: 2%; }
+.line.gut3 > *     { width: 32.333%; }
+.line.gut3 > * + * { margin-left: 1.5%; }
+.line.gut4 > *     { width: 24%; }
+.line.gut4 > * + * { margin-left: 1.333%; }
+
+/* just inline-block */
+.inbl {
+	display: inline-block;
+	vertical-align: top;
+	margin-right: -.25em;
+}
+
+/* blocks widths (percentage and pixels) */
+.w10    { width: 10%; }
+.w20    { width: 20%; }
+.w25    { width: 25%; }
+.w30    { width: 30%; }
+.w33    { width: 33.333%; }
+.w40    { width: 40%; }
+.w50    { width: 50%; }
+.w60    { width: 60%; }
+.w66    { width: 66.666%; }
+.w70    { width: 70%; }
+.w75    { width: 75%; }
+.w80    { width: 80%; }
+.w90    { width: 90%; }
+.w100   { width: 100%; }
+
+.w50p   { width: 50px; }
+.w100p  { width: 100px; }
+.w150p  { width: 150px; }
+.w200p  { width: 200px; }
+.w300p  { width: 300px; }
+.w400p  { width: 400px; }
+.w500p  { width: 500px; }
+.w600p  { width: 600px; }
+.w700p  { width: 700px; }
+.w800p  { width: 800px; }
+.w960p  { width: 960px; }
+.mw960p { max-width: 960px; }
+
+/* spacing helpers
+p,m = padding,margin
+a,t,r,b,l = all,top,right,bottom,left
+s,m,l,n = small(10px),medium(20px),large(30px),none(0)
+source https://github.com/stubbornella/oocss/blob/master/core/spacing/space.css
+*/
+.mt0, .mtn { margin-top: 0; }
+.mt1, .mts { margin-top: 10px; }
+.mt2, .mtm { margin-top: 20px; }
+.mt3, .mtl { margin-top: 30px; }
+.mr0, .mrn { margin-right: 0; }
+.mr1, .mrs { margin-right: 10px; }
+.mr2, .mrm { margin-right: 20px; }
+.mr3, .mrl { margin-right: 30px; }
+.mb0, .mbn { margin-bottom: 0; }
+.mb1, .mbs { margin-bottom: 10px; }
+.mb2, .mbm { margin-bottom: 20px; }
+.mb3, .mbl { margin-bottom: 30px; }
+.ml0, .mln { margin-left: 0; }
+.ml1, .mls { margin-left: 10px; }
+.ml2, .mlm { margin-left: 20px; }
+.ml3, .mll { margin-left: 30px; }
+
+.pt0, .ptn { padding-top: 0; }
+.pt1, .pts { padding-top: 10px; }
+.pt2, .ptm { padding-top: 20px; }
+.pt3, .ptl { padding-top: 30px; }
+.pr0, .prn { padding-right: 0; }
+.pr1, .prs { padding-right: 10px; }
+.pr2, .prm { padding-right: 20px; }
+.pr3, .prl { padding-right: 30px; }
+.pb0, .pbn { padding-bottom: 0; }
+.pb1, .pbs { padding-bottom: 10px; }
+.pb2, .pbm { padding-bottom: 20px; }
+.pb3, .pbl { padding-bottom: 30px; }
+.pl0, .pln { padding-left: 0; }
+.pl1, .pls { padding-left: 10px; }
+.pl2, .plm { padding-left: 20px; }
+.pl3, .pll { padding-left: 30px; }
+
+/* hiding content */
+.visually-hidden {
+	position: absolute;
+	left: -7000px;
+	overflow: hidden;
+}
+[dir=rtl] .visually-hidden {
+	left: auto;
+	right: -7000px;
+}
+
+.desktop-hidden { display: none; } /* hidden on desktop */
+.mobile-hidden {} /* hidden on mobile */
+.tablet-hidden {} /* hidden on tablets */
+.phone-hidden {} /* hidden on smartphones */
+
+/* ----------------------------- */
+/* ==header */
+/* ----------------------------- */
+
+/* ----------------------------- */
+/* ==sidebar */
+/* ----------------------------- */
+
+/* ----------------------------- */
+/* ==footer */
+/* ----------------------------- */
+
+/* ----------------------------- */
+/* ==forms */
+/* ----------------------------- */
+
+form,
+fieldset {
+	border: none;
+}
+input,
+button,
+select,
+label {
+	vertical-align: middle; /* @bugfix alignment */
+}
+
+/* ----------------------------- */
+/* ==main */
+/* ----------------------------- */
+
+/* ----------------------------- */
+/* ==iefix */
+/* ----------------------------- */
+
+/* haslayout for IE6/IE7 */
+.ie67 .clearfix,
+.ie67 .line,
+.ie67 .mod,
+.ie67 .row,
+.ie67 .col {
+	zoom: 1;
+}
+
+/* inline-block and table-cell for IE6/IE7 */
+/* warning: .col needs width on IE6/IE7 */
+.ie67 .btn,
+.ie67 .col,
+.ie67 .inbl {
+	display: inline;
+	zoom: 1;
+}
+.ie8 img {
+	width: auto; /* @bugfix for IE8 */
+}
+
+/* box-sizing for IE6/IE7 */
+/* @source https://github.com/Schepp/box-sizing-polyfill */
+/*
+.ie67 * {
+	behavior: url(/js/boxsizing.htc);
+}
+*/
+
+/* ----------------------------- */
+/* ==print */
+/* ----------------------------- */
+
+/* quick print reset */
+@media print {
+	p,
+	blockquote {
+		orphans: 2;
+		widows: 2;
+	}
+	blockquote,
+	ul,
+	ol {
+		page-break-inside: avoid;
+	}
+	h1,
+	h2,
+	h3,
+	caption {
+		page-break-after: avoid;
+	}
+}
+
+/* ----------------------------- */
+/* ==desktop medias */
+/* ----------------------------- */
+
+@media (min-width: 641px) {
+	/* here go rules for big resources and big screens like: background-images, font-faces, etc. */
+}
+
+/* ----------------------------- */
+/* ==mobile */
+/* ----------------------------- */
+
+/* quick tablet reset */
+@media (max-width: 768px) {
+	.tablet-hidden { display: none; }
+	.w60,
+	.w66,
+	.w70,
+	.w75,
+	.w80,
+	.w90,
+	.w100,
+	.w600p,
+	.w700p,
+	.w800p,
+	.w960p,
+	.mw960p {
+		width: auto;
+	}
+}
+
+/* quick smartphone reset */
+@media (max-width: 640px) {
+	.phone-hidden { display: none; }
+	.mod,
+	.col,
+	label,
+	fieldset {
+		display: block !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		border: 0;
+		float: none !important;
+		width: auto !important;
+	}
+	.w30,
+	.w33, 
+	.w40,
+	.w50,
+	.w300p,
+	.w400p,
+	.w500p {
+		width: auto;
+	}
+	.row { 
+		display: block !important;
+		width: 100% !important;
+	}
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+/* Style adjustments for high resolution devices */
+}
+
+/* orientation iOS font-size fix */
+@media (orientation: landscape) and (max-device-width: 768px) {
+	html,
+	body {
+		-webkit-text-size-adjust: 100%;
+	}
+}/* nav.css : styles de base pour une navigation responsive.
+Attention : ne fonctionne pas toujours très bien sur les anciens navigateurs ou OS mobiles (par exemple Android 2.1) */
+
+label[for^="toggle"],
+[type="checkbox"] {
+	cursor: pointer;
+}
+label[for^="toggle"] + [type="checkbox"] { display: none; }
+
+#navigation ul {
+	margin: 0;
+	padding: 0;
+}
+#navigation li { display: inline; }
+#navigation li a {
+	display: inline-block;
+	padding: .6em 1em;
+	color: #111;
+	border: 1px solid #aaa;
+	text-decoration: none;
+	text-shadow: 1px 1px 0 #fff;
+	background: #eee;
+}
+#navigation li a:hover,
+#navigation li a:active {
+	background: #ddd;
+	text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+	/* unicode character for button */
+	[data-icon]:before { content: attr(data-icon); }
+
+	/* styling menu button */
+	label[for^="toggle"] {
+		position: absolute;
+			top: 7px; right: 4px;
+		z-index: 1337;
+		padding: .1em .25em;
+		font-size: 3.8em;
+		font-weight: bold;
+		line-height: .7em;
+		background-color: #444;
+		text-shadow: 1px 1px 0 rgba(255, 255, 255, .3);
+		border-radius: 4px;
+		color: #fff;
+	}
+
+	/* handling click/tap with CSS3 target */
+	#toggle-menu:checked + ul {
+		max-height: 30em !important; /* number of menu items * 6em */
+	}
+
+	/* styling navigation items */
+	#navigation ul {
+		max-height: 0;
+		overflow: hidden;
+		-webkit-transition: max-height .4s;
+		-moz-transition: max-height .4s;
+		-o-transition: max-height .4s;
+		-ms-transition: max-height .4s;
+		transition: max-height .4s;
+	}
+	#navigation li a {
+		display: block;
+		padding: .9em .6em;
+		border: 0; border-top: 1px solid #aaa;
+		font-size: 1.1em;
+	}
+	#navigation li a:before {
+		content: "›";
+		font-size: 1.2em;
+		margin-right: .6em;
+		line-height: 1;
+	}
+	#navigation li:last-child a {
+		border-bottom: 1px solid #aaa;
+	}
+	#navigation li a:hover,
+	#navigation li a:active {
+		text-decoration: none;
+	}
+}
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+body {
+  text-rendering: optimizeLegibility;
+}
+a,
+a:visited {
+  color: #0086cc;
+  text-decoration: none;
+}
+a:hover,
+a:visited:hover {
+  text-decoration: underline;
+}
+button {
+  background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border: 0;
+  padding: 10px;
+  margin: 10px;
+  color: #fff;
+  font-weight: bold;
+}
+button.smaller {
+  padding: 3px;
+}
+button:hover {
+  background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+button:active {
+  background-color: #9c279c;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+}
+textarea {
+  border: 1px solid #808080;
+  margin: 10px;
+  -webkit-border-radius: 0em;
+  border-radius: 0em;
+  padding: 5px;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.1);
+  width: 600px;
+}
+textarea:focus,
+textarea:active,
+textarea:hover {
+  border: 1px solid #ad2bad;
+}
+input {
+  outline: 0;
+}
+.date {
+  display: inline-block;
+}
+.middle {
+  padding-top: 20%;
+}
+.pa1 {
+  padding: 10px;
+}
+.pt05 {
+  padding-top: 5px;
+}
+.success {
+  color: #a0b046;
+}
+.error {
+  color: #f71568;
+}
+.full-size {
+  width: 100%;
+  height: 100%;
+}
+.full-height {
+  height: 100%;
+}
+.field {
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  padding-left: 10px;
+}
+.toggle-button {
+  background-color: #000;
+  -webkit-box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: 3px 3px 3px rgba(0,0,0,0.2);
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+.toggle-button:hover {
+  background: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+.toggle-button.selected {
+  background-color: #def;
+  color: #00305f;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+.toggle-button.selected:hover {
+  background: #ad2bad;
+  color: #fff;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+.simple-row {
+  border-top: 1px solid #ddd;
+}
+.full-size {
+  width: 100%;
+  height: 100%;
+}
+@-moz-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-webkit-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-o-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-ms-keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@keyframes fadein {
+  0% {
+    opacity: 0;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+    filter: alpha(opacity=0);
+  }
+
+  100% {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none;
+  }
+}
+@-moz-keyframes pullin {
+  0% {
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+  }
+
+  100% {
+    -webkit-box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+    box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+  }
+}
+@-webkit-keyframes pullin {
+  0% {
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+  }
+
+  100% {
+    -webkit-box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+    box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+  }
+}
+@-o-keyframes pullin {
+  0% {
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+  }
+
+  100% {
+    -webkit-box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+    box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+  }
+}
+@-ms-keyframes pullin {
+  0% {
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+  }
+
+  100% {
+    -webkit-box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+    box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+  }
+}
+@keyframes pullin {
+  0% {
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+  }
+
+  100% {
+    -webkit-box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+    box-shadow: inset 4px 4px 10px #888 0px 0px 5px #fff;
+  }
+}
+@font-face {
+  font-family: main;
+  src: url("../fonts/open-sans-regular.ttf");
+}
+@font-face {
+  font-family: robotic;
+  src: url("../fonts/andale-mono.ttf");
+}
+.ui-button,
+a.ui-button,
+button.ui-button {
+  background-color: #eee;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafafa), color-stop(1, #eaeaea));
+  background-image: -webkit-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
+  background-image: -moz-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
+  background-image: -o-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
+  background-image: -ms-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
+  background-image: linear-gradient(top, #fafafa 0%, #eaeaea 100%);
+  background-repeat: repeat-x;
+  border: 1px solid #c9c9c9;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.1);
+  color: #777;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: -1px -1px 0 #fff;
+  -webkit-transition: all 0.1s linear;
+  -moz-transition: all 0.1s linear;
+  -o-transition: all 0.1s linear;
+  -ms-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+  padding: 5px 10px;
+  vertical-align: middle;
+}
+.ui-button:hover,
+a.ui-button:hover,
+button.ui-button:hover {
+  color: #777;
+  text-decoration: none;
+}
+.ui-button:active,
+a.ui-button:active,
+button.ui-button:active,
+.ui-button[data-state="selected"],
+a.ui-button[data-state="selected"],
+button.ui-button[data-state="selected"] {
+  -webkit-box-shadow: inset 0 1px 10px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 10px rgba(0,0,0,0.2);
+}
+.ui-list,
+.ui-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-grid li {
+  display: inline-block;
+  margin-right: -1px;
+}
+.ui-grid li:last-child {
+  margin-right: 0;
+}
+[data-state~="default"],
+[data-state~="enabled"] {
+  cursor: inherit;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-transition: opacity 0.2s linear;
+  -moz-transition: opacity 0.2s linear;
+  -o-transition: opacity 0.2s linear;
+  -ms-transition: opacity 0.2s linear;
+  transition: opacity 0.2s linear;
+}
+[data-state~="disabled"],
+cursor not-allowed {
+  opacity: 0.5;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  filter: alpha(opacity=50);
+  -webkit-transition: opacity 0.2s linear;
+  -moz-transition: opacity 0.2s linear;
+  -o-transition: opacity 0.2s linear;
+  -ms-transition: opacity 0.2s linear;
+  transition: opacity 0.2s linear;
+}
+[data-state~="hidden"] {
+  display: none;
+}
+[data-state~="visible"] {
+  visibility: visible;
+}
+[data-state~="invisible"] {
+  visibility: hidden;
+}
+[data-state~="waiting"],
+[data-state~="loading"] {
+  cursor: wait;
+}
+[data-state~="success"],
+[data-state~="valid"] {
+  border-color: #82cf82;
+  color: #82cf82;
+  -webkit-transition: color 0.2s linear, border-color 0.2s linear;
+  -moz-transition: color 0.2s linear, border-color 0.2s linear;
+  -o-transition: color 0.2s linear, border-color 0.2s linear;
+  -ms-transition: color 0.2s linear, border-color 0.2s linear;
+  transition: color 0.2s linear, border-color 0.2s linear;
+}
+[data-state~="error"],
+[data-state~="invalid"] {
+  border-color: #f0dddd;
+  color: #f0dddd;
+  -webkit-transition: color 0.2s linear, border-color 0.2s linear;
+  -moz-transition: color 0.2s linear, border-color 0.2s linear;
+  -o-transition: color 0.2s linear, border-color 0.2s linear;
+  -ms-transition: color 0.2s linear, border-color 0.2s linear;
+  transition: color 0.2s linear, border-color 0.2s linear;
+}
+.layout-container {
+  width: 940px;
+}
+.layout-centered {
+  margin: 0 auto;
+}
+.layout-left {
+  float: left;
+}
+.layout-right {
+  float: right;
+}
+.layout-to-left {
+  left: auto;
+  right: 0;
+}
+.layout-to-right {
+  right: auto;
+  left: 0;
+}
+.center {
+  text-align: center;
+}
+@media (max-width: 480px) {
+  body {
+    padding: 0 20px;
+    text-rendering: optimizeSpeed;
+  }
+  .layout-container {
+    width: auto;
+  }
+}
+@media (max-width: 767px) {
+  body {
+    padding: 0 20px;
+    text-rendering: optimizeSpeed;
+  }
+  .layout-container {
+    width: auto;
+  }
+}
+@media (min-width: 768px) and (max-width: 979px) {
+  .layout-container {
+    width: 724px;
+  }
+}
+@media (min-width: 1200px) {
+  .layout-container {
+    width: 1170px;
+  }
+}
+#navigation {
+  background: #000;
+  -webkit-box-shadow: -1px 3px 4px #333;
+  box-shadow: -1px 3px 4px #333;
+}
+#navigation li a {
+  border: 0;
+  font-weight: bold;
+  color: #fff;
+  background-color: #000;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+  cursor: pointer;
+  text-shadow: 0 0 0 #fff;
+}
+#navigation li a:hover {
+  color: #444;
+  font-weight: bold;
+  text-decoration: none;
+  text-shadow: 0 0 0 #fff;
+  background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+  color: #fff;
+}
+#navigation li a.active {
+  background-color: #def;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+  color: #00305f;
+}
+#microposts-view .js-fileapi-wrapper {
+  display: none;
+}
+#microposts-view .js-fileapi-wrapper input {
+  border: 1px solid #000;
+  margin-left: 10px;
+  font-size: 14px;
+}
+#microposts-view .js-fileapi-wrapper canvas {
+  margin-left: 10px;
+}
+#microposts-view .micropost {
+  border-top: 1px solid #ddd;
+}
+#microposts-view .micropost div {
+  padding: 0;
+}
+#microposts-view .micropost .micropost-attachments {
+  display: none;
+}
+#microposts-view .author {
+  font-weight: bold;
+  margin-right: 5px;
+}
+#microposts-view .micropost-buttons {
+  display: none;
+}
+#microposts-view .micropost button {
+  margin-left: 0;
+  padding: 5px;
+  font-size: 12px;
+}
+#microposts-view .micropost p {
+  margin: 3px 0;
+}
+#microposts-view .micropost:hover {
+  background: #f5f0fa;
+}
+#microposts-view .micropost.selected {
+  background: #ebf5ff;
+}
+#microposts-view .micropost.selected .micropost-attachments {
+  display: inline-block;
+}
+#microposts-view .tag-list div {
+  float: left;
+}
+.note-buttons {
+  display: none;
+}
+#notes-view .note button {
+  margin-left: 0;
+  padding: 5px;
+  font-size: 12px;
+}
+#notes-view .note p {
+  margin: 3px 0;
+}
+#notes-view .note .note-title {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  padding-left: 0;
+  border-bottom: 1px solid transparent;
+}
+#notes-view .note .note-title:hover {
+  border-bottom: 1px solid #d82545;
+}
+#notes-view .note .note-title:active,
+#notes-view .note .note-title:focus {
+  border-bottom: 1px solid #ad2bad;
+}
+#notes-view .note:hover {
+  background: #f5f0fa;
+}
+#notes-view .note.selected {
+  background: #ebf5ff;
+}
+#notes-view .note-content {
+  height: 100%;
+  width: 100%;
+}
+#notes-view .note-content:hover {
+  border: 1px solid #ad2bad;
+}
+#profile-view p {
+  margin: 0;
+}
+#profile-view input:hover,
+#profile-view input:active,
+#profile-view input:focus {
+  border-bottom: 1px solid #ad2bad;
+}
+#profile-view input {
+  -webkit-border-radius: 0em;
+  border-radius: 0em;
+  padding: 0em;
+  border-bottom: 1px solid transparent;
+  width: 100%;
+}
+#profile-view button {
+  margin-left: 0;
+}
+#profile-view #profile-description {
+  border: 1px solid transparent;
+  padding: 1em;
+  font-size: 1.4em;
+}
+#profile-view #profile-description:hover,
+#profile-view #profile-description:active {
+  border: 1px solid #ad2bad;
+}
+#profile-view #profile-name-field {
+  font-size: 40px;
+  font-weight: bold;
+}
+#profile-view #profile-url-field {
+  font-size: 16px;
+}
+#profile-view .main-section #change-picture-button:not(:hover) {
+  background-color: #eee;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view .main-section #sesame-stuff button:not(:hover) {
+  background-color: #eee;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view .main-section #change-password-button {
+  margin-left: 0;
+}
+#profile-view .main-section:hover #change-picture-button:not(:hover) {
+  background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view .main-section:hover #sesame-stuff button:not(:hover) {
+  background-color: #d82545;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view .main-section:hover #change-password-button {
+  display: inline;
+}
+#profile-view #sesame-form {
+  display: none;
+}
+#profile-view #change-picture-button {
+  cursor: pointer;
+  background-color: #d82545;
+  padding: 10px;
+  color: #fff;
+  font-weight: bold;
+  height: 45px;
+  width: 100%;
+  max-width: 400px;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view #change-picture-button input {
+  cursor: pointer;
+  font-size: 0.1em;
+  padding: 0em;
+  -webkit-border-radius: 0em;
+  border-radius: 0em;
+}
+#profile-view #change-picture-button:hover {
+  cursor: pointer;
+  background-color: #ad2bad;
+  -webkit-transition: background-color 200ms linear;
+  -moz-transition: background-color 200ms linear;
+  -o-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+#profile-view #change-picture-button:active {
+  cursor: pointer;
+  background-color: #9c279c;
+  -webkit-box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 3px 3px 3px rgba(0,0,0,0.2);
+}
+#contacts-view {
+  padding-top: 10px;
+  padding-left: 10px;
+}
+#contacts-view #new-contact-field {
+  margin: 2px 0 0 10px;
+  -webkit-border-radius: 0em;
+  border-radius: 0em;
+  width: 600px;
+  padding: 0 0 0 10px;
+  border: 1px solid #ddd;
+}
+#contacts-view #new-contact-field:focus,
+#contacts-view #new-contact-field:active {
+  border-bottom: 1px solid #ad2bad;
+}
+#contacts-view .contact-line:not(:hover) .contact-buttons button {
+  background: #eee;
+}
+#contacts-view .contact-line {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+#contacts-view .contact-line .name {
+  padding-top: 15px;
+}
+#contacts-view .contact-line .url {
+  font-style: italic;
+  margin-left: 20px;
+  padding-top: 15px;
+}
+#contacts-view .contact-line .state {
+  padding-top: 15px;
+  width: 100px;
+}
+#contacts-view .contact-line .contact-buttons {
+  padding: 0;
+}
+#contacts-view .contact-line .contact-buttons button {
+  padding: 5px 10px;
+}
+#contacts-view .contact-line .contact-tag {
+  font-size: 10px;
+  padding: 5px;
+}
+#contacts-view .contact-line:hover .contact-buttons {
+  display: table;
+}
+#contacts-view p.error {
+  margin: 0 0 0 20px;
+}
+#contacts-view .tag-delete-button {
+  margin-left: 0;
+  padding: 2px 4px;
+}
+#contacts-view .tag-selector {
+  display: inline;
+}
+#contacts-view .tag-selector:not(:hover) .tag-delete-button {
+  background: #eee;
+}
+#contacts-view #tag-list {
+  margin-bottom: 20px;
+}
+#contacts-view #tag-list,
+#contacts-view #add-tag,
+#contacts-view .contact-tags {
+  display: inline-block;
+}
+#contacts-view .tag-all:not(:hover) .tag-add-button {
+  background: #eee;
+}
+#contacts-view .contact-tags {
+  padding: 0;
+  margin-top: 4px;
+}
+.tag-select-button {
+  display: inline-block;
+}
+.toggle-button:active {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+iframe {
+  border: 0;
+}
+html,
+body,
+#content {
+  height: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-family: main;
+}
+#content {
+  text-align: center;
+}
+#home .question {
+  font-family: robotic, main;
+  font-size: 3em;
+}
+#home input {
+  border: none;
+  font-size: 2em;
+  padding: 0.4em;
+  -webkit-border-radius: 2em;
+  border-radius: 2em;
+}
+#home input:active {
+  border: 0;
+}
+#home input:focus {
+  border: 0;
+}
+#alert-widget,
+#note-selector-widget {
+  display: none;
+  width: 320px;
+  background: #000;
+  color: #fff;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+#alert-widget .note-selector-line,
+#note-selector-widget .note-selector-line {
+  padding: 5px 10px;
+}
+#alert-widget .note-selector-line:hover,
+#note-selector-widget .note-selector-line:hover {
+  background: #ad2bad;
+  cursor: pointer;
+}
+#alert-widget .note-selector-line.selected,
+#note-selector-widget .note-selector-line.selected {
+  background: #005fbe;
+}
+#alert-widget {
+  height: 160px;
+  text-align: center;
+  padding: 20px;
+  font-size: 26px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  font-family: robotic, main;
+}
+#note-selector-widget {
+  height: 320px;
+}
+.activity-errors {
+  display: none;
+}
+.error {
+  cursor: pointer;
+}
+.chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
+.ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }
+.ir br { display: none; }
+.hidden { display: none !important; visibility: hidden; }
+.visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus { clip: auto; height: auto; margin: 0; overflow: visible; position: static; width: auto; }
+.invisible { visibility: hidden; }
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { *zoom: 1; }
+
+@media print {
+  * { background: transparent !important; color: black !important; box-shadow:none !important; text-shadow: none !important; filter:none !important; -ms-filter: none !important; }
+  a, a:visited { text-decoration: underline; }
+  a[href]:after { content: " (" attr(href) ")"; }
+  abbr[title]:after { content: " (" attr(title) ")"; }
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after { content: ""; }
+  pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  tr, img { page-break-inside: avoid; }
+  img { max-width: 100% !important; }
+  @page { margin: 0.5cm; }
+  p, h2, h3 { orphans: 3; widows: 3; }
+  h2, h3 { page-break-after: avoid; }
+}

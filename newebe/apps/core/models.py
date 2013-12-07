@@ -107,7 +107,7 @@ class DocumentManager():
 
     @staticmethod
     def get_documents(docType, view, startKey=None, endKey=None,
-                      skip=0, limit=10, group=False):
+                      skip=0, limit=10, group=False, descending=True):
 
         '''
         Returns documents of which type is *docType* from given *view*.
@@ -123,7 +123,7 @@ class DocumentManager():
         if startKey:
             documents = docType.view(view,
                                      startkey=startKey,
-                                     descending=True,
+                                     descending=descending,
                                      limit=limit + 1,
                                      endKey=endKey,
                                      skip=0)

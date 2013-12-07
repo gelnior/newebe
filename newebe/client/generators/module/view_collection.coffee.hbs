@@ -1,0 +1,15 @@
+CollectionView = require '../lib/view_collection'
+{{#camelize}}{{name}}{{/camelize}}sCollection = require '../collections/{{name}}s'
+{{#camelize}}{{name}}{{/camelize}}View = require './{{name}}'
+
+module.exports = class {{#camelize}}{{name}}{{/camelize}}VsView extends CollectionView
+    el: '#{{name}}s'
+
+    collection: new {{#camelize}}{{name}}{{/camelize}}sCollection()
+    view: {{#camelize}}{{name}}{{/camelize}}View
+
+    initialize: ->
+        @collection.on 'reset', =>
+            @renderAll()
+        @collection.on 'add', (model) =>
+            @renderOne model

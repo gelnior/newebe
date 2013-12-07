@@ -1,12 +1,12 @@
 import logging
-import markdown
 
 from threading import Timer
 
 from tornado.httpclient import HTTPClient, HTTPRequest
+from couchdbkit.exceptions import ResourceNotFound
 
-
-from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
+from newebe.lib.picture import Resizer
+from newebe.apps.core.handlers import NewebeAuthHandler
 from newebe.apps.profile.models import UserManager
 from newebe.apps.contacts.models import ContactManager
 
@@ -55,7 +55,6 @@ class ProfileUpdater:
                     method="PUT",
                     body=jsonbody,
                     validate_cert=False)
-
                 response = client.fetch(request)
 
                 if response.error:
@@ -104,7 +103,7 @@ class UserHandler(NewebeAuthHandler):
         Retrieves current user (newebe owner) data at JSON format.
         '''
         user = UserManager.getUser()
-        self.return_document(user)
+        self.return_json(user.toDict())
 
     def put(self):
         '''
@@ -129,38 +128,44 @@ class UserHandler(NewebeAuthHandler):
             self.return_failure("Wrong data were sent.")
 
 
-# Template handlers.
+class ProfilePictureHandler(NewebeAuthHandler):
+    '''
+    Handler use to change and retrieve profile picture.
+    '''
 
-class ProfileContentTHandler(NewebeAuthHandler):
     def get(self):
-        self.render("templates/profile_content.html")
+        '''
+        Returns current profile picture as a jpeg file.
+        '''
+        try:
+            user = UserManager.getUser()
+            file = user.fetch_attachment("picture.jpg")
+            self.return_file("picture.jpg", file)
+        except ResourceNotFound:
+            self.return_failure("Picture not found.", 404)
 
 
-class ProfilePublicTHandler(NewebeHandler):
-    def get(self):
+    def post(self):
+        '''
+        Change current profile picture, resize it before that.
+        '''
+        (filebody, filename, filetype) = self.get_qq_file_infos()
+        resizer = Resizer()
+        picture = resizer.resize_and_get_file(filebody, 400, 400)
+        small_picture = resizer.resize_and_get_file(filebody, 100, 100)
+
         user = UserManager.getUser()
-        user.description = markdown.markdown(user.description)
-        self.render("templates/profile_public.html",
-                    profile=user,
-                    isTheme=self.is_file_theme_exists())
+        user.put_attachment(content=picture, name="picture.jpg")
+        user.put_attachment(content=small_picture, name="small_picture.jpg")
+        user.picture_content_type = filetype
+        user.save()
+        self.return_success("File uploaded")
+
+        self.send_files_to_contacts(
+            "contact/update-profile/picture/",
+            fields={"key": user.key},
+            files=[("small_picture", "small_picture.jpg", small_picture)]
+        )
 
 
-class ProfileMenuContentTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/profile_menu_content.html")
 
-
-class ProfileTHandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/profile.html",
-                    isTheme=self.is_file_theme_exists())
-
-
-class ProfileTutorial1THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_1.html")
-
-
-class ProfileTutorial2THandler(NewebeAuthHandler):
-    def get(self):
-        self.render("templates/tutorial_2.html")

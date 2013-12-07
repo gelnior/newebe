@@ -100,8 +100,9 @@ class ContactClient(object):
         if response.error:
             logger.error(""" Request to a contact failed, error infos
                              are stored inside activity.""")
-            self.activity.add_error(contact, extra=self.extra)
-            self.activity.save()
+            if self.activity is not None:
+                self.activity.add_error(contact, extra=self.extra)
+                self.activity.save()
 
         elif contact and contact.name:
             logger.info("Request successfully sent to %s." % contact.name)
