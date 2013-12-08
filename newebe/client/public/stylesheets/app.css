@@ -2780,6 +2780,9 @@ cursor not-allowed {
 .note-buttons {
   display: none;
 }
+#notes-view .note {
+  padding-top: 0;
+}
 #notes-view .note button {
   margin-left: 0;
   padding: 5px;
@@ -2787,6 +2790,9 @@ cursor not-allowed {
 }
 #notes-view .note p {
   margin: 3px 0;
+}
+#notes-view .note input {
+  padding: 0;
 }
 #notes-view .note .note-title {
   -webkit-border-radius: 0;
@@ -2800,6 +2806,9 @@ cursor not-allowed {
 #notes-view .note .note-title:active,
 #notes-view .note .note-title:focus {
   border-bottom: 1px solid #ad2bad;
+}
+#notes-view .note .mod {
+  padding: 0 10px;
 }
 #notes-view .note:hover {
   background: #f5f0fa;
@@ -2841,11 +2850,25 @@ cursor not-allowed {
 #profile-view #profile-description:active {
   border: 1px solid #ad2bad;
 }
+#profile-view #profile-name-field:hover,
+#profile-view #profile-name-field:active,
+#profile-view #profile-url-field:hover,
+#profile-view #profile-url-field:active {
+  border-bottom: 1px solid #ad2bad;
+}
 #profile-view #profile-name-field {
+  padding-left: 0;
+  padding-bottom: 3px;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border-bottom: 1px solid transparent;
   font-size: 40px;
   font-weight: bold;
 }
 #profile-view #profile-url-field {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  border-bottom: 1px solid transparent;
   font-size: 16px;
 }
 #profile-view .main-section #change-picture-button:not(:hover) {
