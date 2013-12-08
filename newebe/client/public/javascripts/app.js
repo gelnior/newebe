@@ -2347,16 +2347,10 @@ window.require.register("views/micropost_view", function(exports, require, modul
     };
 
     MicropostView.prototype.onClicked = function() {
-      var commonId, commons, _i, _len;
+      var commons;
       $('.micropost').removeClass('selected');
       $('.micropost-buttons').hide();
       commons = this.model.get('commons');
-      if (commons != null) {
-        for (_i = 0, _len = commons.length; _i < _len; _i++) {
-          commonId = commons[_i];
-          console.log('a');
-        }
-      }
       this.$el.select();
       return this.buttons.show();
     };
@@ -3935,7 +3929,6 @@ window.require.register("views/tags_view", function(exports, require, module) {
     TagsView.prototype.afterRender = function() {
       this.newTagField = this.$('#new-tag-field');
       this.newTagButton = this.$('#new-tag-button');
-      this.newTagField.keyup(this.onNewTagKeyup);
       this.newTagField.keypress(this.onNewTagKeypress);
       this.newTagField.hide();
       return this.newTagButton.hide();

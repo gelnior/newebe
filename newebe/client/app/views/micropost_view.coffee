@@ -71,9 +71,6 @@ module.exports = class MicropostView extends View
         $('.micropost-buttons').hide()
 
         commons = @model.get 'commons'
-        if commons?
-            for commonId in commons
-                console.log 'a'
         @$el.select()
         @buttons.show()
 

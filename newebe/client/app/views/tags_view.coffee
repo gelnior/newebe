@@ -21,7 +21,6 @@ module.exports = class TagsView extends CollectionView
     afterRender: ->
         @newTagField = @$ '#new-tag-field'
         @newTagButton = @$ '#new-tag-button'
-        @newTagField.keyup @onNewTagKeyup
         @newTagField.keypress @onNewTagKeypress
         @newTagField.hide()
         @newTagButton.hide()
@@ -58,8 +57,7 @@ module.exports = class TagsView extends CollectionView
 
     onNewTagClicked: =>
         button = $("#new-tag-button")
-        if @newTagField.val()?.length is 0
-            return true
+        return true if @newTagField.val()?.length is 0
 
         unless @isFull()
             button.spin 'small'
