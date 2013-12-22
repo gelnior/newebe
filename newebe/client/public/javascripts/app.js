@@ -461,6 +461,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
       if (doc != null) {
         if (doc.get('doc_type') === 'MicroPost') {
           rawContent = doc.get('content');
+          rawContent = sanitize(rawContent).escape();
           content = '<div class="mod left w40">';
           content = this.markdownConverter.makeHtml(rawContent);
           if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0 || ((_ref1 = doc.get('pictures_to_download')) != null ? _ref1.length : void 0) > 0) {
@@ -2452,8 +2453,17 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.configurePublisherSubscription = function() {
-      var _this = this;
-      this.ws = new WebSocket("wss://" + window.location.host + "/microposts/publisher/");
+      var host, path, protocol,
+        _this = this;
+      protocol = "";
+      if (window.location.protocol === 'http:') {
+        protocol = 'ws';
+      } else if (window.location.protocol === 'https:') {
+        protocol = 'wss';
+      }
+      host = window.location.host;
+      path = "" + protocol + "://" + host + "/microposts/publisher/";
+      this.ws = new WebSocket(path);
       return this.ws.onmessage = function(evt) {
         var micropost;
         micropost = new MicroPost(JSON.parse(evt.data));

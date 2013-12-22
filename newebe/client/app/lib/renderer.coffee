@@ -11,6 +11,7 @@ module.exports = class Renderer
         if doc?
             if doc.get('doc_type') is 'MicroPost'
                 rawContent = doc.get 'content'
+                rawContent = sanitize(rawContent).escape()
                 content = '<div class="mod left w40">'
                 content = @markdownConverter.makeHtml rawContent
 
