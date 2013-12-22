@@ -82,7 +82,7 @@ class NoteSelectorWidget extends View
         @micropost = micropost
         @$el.fadeIn()
 
-    hide: ->
+    hide: =>
         @micropost = null
         @$el.fadeOut()
 

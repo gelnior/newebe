@@ -2898,6 +2898,8 @@ window.require.register("views/note_selector", function(exports, require, module
     };
 
     function NoteSelectorWidget() {
+      this.hide = __bind(this.hide, this);
+
       this.pushPostToSelectedNote = __bind(this.pushPostToSelectedNote, this);
       NoteSelectorWidget.__super__.constructor.call(this);
       this.$el = $("#" + this.id);
