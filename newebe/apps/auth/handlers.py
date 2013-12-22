@@ -231,6 +231,7 @@ class UserPasswordHandler(NewebeAuthHandler):
                         hashlib.sha224(postedPassword).hexdigest()
                     user.save()
                     self.set_secure_cookie("password", user.password)
+                    self.return_success('Password changed successfully')
 
                 else:
                     self.return_failure(

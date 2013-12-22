@@ -3301,6 +3301,8 @@ window.require.register("views/profile_view", function(exports, require, module)
       this.model = model;
       this.setOwnerUrl = __bind(this.setOwnerUrl, this);
 
+      this.getSesameFieldVal = __bind(this.getSesameFieldVal, this);
+
       this.model.isLoaded = false;
     }
 
@@ -3330,8 +3332,8 @@ window.require.register("views/profile_view", function(exports, require, module)
       if (sesame.length > 4) {
         return sesame;
       } else {
-        this.sesameForm.find('.error').html("New sesame is too short");
-        this.sesameForm.find('.error').fadeIn();
+        this.view.sesameForm.find('.error').html("New sesame is too short");
+        this.view.sesameForm.find('.error').fadeIn();
         return null;
       }
     };
@@ -3339,13 +3341,14 @@ window.require.register("views/profile_view", function(exports, require, module)
     ProfileController.prototype.saveSesame = function(sesame) {
       var _this = this;
       return this.model.newSesame(sesame, function(err) {
+        console.log(err);
         if (err) {
           return _this.view.displaySesameError("A server error occured.");
         } else {
           _this.view.displaySesameSuccess();
           return setTimeout(function() {
             return _this.view.displayChangePasswordButton();
-          }, 5000);
+          }, 2000);
         }
       });
     };
@@ -3374,6 +3377,8 @@ window.require.register("views/profile_view", function(exports, require, module)
     __extends(ProfileView, _super);
 
     function ProfileView() {
+      this.onNewSesameKeyUp = __bind(this.onNewSesameKeyUp, this);
+
       this.onConfirmPasswordClicked = __bind(this.onConfirmPasswordClicked, this);
 
       this.onChangePasswordClicked = __bind(this.onChangePasswordClicked, this);
@@ -3391,6 +3396,7 @@ window.require.register("views/profile_view", function(exports, require, module)
       "click #confirm-password-button": "onConfirmPasswordClicked",
       "keyup #profile-name-field": "onProfileChanged",
       "keyup #profile-url-field": "onProfileChanged",
+      "keyup #profile-sesame-field": "onNewSesameKeyUp",
       'mousedown .editable': 'editableClick'
     };
 
@@ -3474,6 +3480,17 @@ window.require.register("views/profile_view", function(exports, require, module)
       return this.controller.onConfirmPasswordClicked();
     };
 
+    ProfileView.prototype.onNewSesameKeyUp = function(event) {
+      var keyCode;
+      keyCode = event.keyCode;
+      if (keyCode == null) {
+        keyCode = event.which;
+      }
+      if (keyCode === 13) {
+        return this.controller.onConfirmPasswordClicked();
+      }
+    };
+
     ProfileView.prototype.editableClick = etch.editableInit;
 
     ProfileView.prototype.reloadPicture = function() {
@@ -3496,6 +3513,7 @@ window.require.register("views/profile_view", function(exports, require, module)
 
     ProfileView.prototype.displayChangePasswordButton = function() {
       var _this = this;
+      this.profileSesameField.val(null);
       return this.sesameForm.fadeOut(function() {
         return _this.passwordButton.fadeIn();
       });

@@ -2920,6 +2920,14 @@ cursor not-allowed {
 #profile-view #sesame-form {
   display: none;
 }
+#profile-view #profile-sesame-field {
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+#profile-view #profile-sesame-field:focus,
+#profile-view #profile-sesame-field:hover {
+  border-bottom: 1px solid #ad2bad;
+}
 #profile-view #change-picture-button {
   cursor: pointer;
   background-color: #d82545;

@@ -19,24 +19,25 @@ class ProfileController
         sesame = @getSesameFieldVal()
         @saveSesame(sesame) if sesame?
 
-    getSesameFieldVal: ->
+    getSesameFieldVal: =>
         sesame = @model.get "sesame"
         if sesame.length > 4
             sesame
         else
-            @sesameForm.find('.error').html "New sesame is too short"
-            @sesameForm.find('.error').fadeIn()
+            @view.sesameForm.find('.error').html "New sesame is too short"
+            @view.sesameForm.find('.error').fadeIn()
             null
 
     saveSesame: (sesame) ->
         @model.newSesame sesame, (err) =>
+            console.log err
             if err
                 @view.displaySesameError "A server error occured."
             else
                 @view.displaySesameSuccess()
                 setTimeout(=>
                     @view.displayChangePasswordButton()
-                , 5000)
+                , 2000)
 
     onDataLoaded: ->
         @setOwnerUrl() unless @model.get("url")?
@@ -58,6 +59,7 @@ module.exports = class ProfileView extends View
         "click #confirm-password-button": "onConfirmPasswordClicked"
         "keyup #profile-name-field": "onProfileChanged"
         "keyup #profile-url-field": "onProfileChanged"
+        "keyup #profile-sesame-field": "onNewSesameKeyUp"
         'mousedown .editable': 'editableClick'
 
     template: ->
@@ -74,7 +76,6 @@ module.exports = class ProfileView extends View
         else
             @model = new Owner()
             @controller = new ProfileController @, @model
-
 
     afterRender: ->
         @sesameForm = @$ "#sesame-form"
@@ -120,6 +121,12 @@ module.exports = class ProfileView extends View
 
     onConfirmPasswordClicked: => @controller.onConfirmPasswordClicked()
 
+    onNewSesameKeyUp: (event) =>
+        keyCode = event.keyCode
+        keyCode ?= event.which
+        if keyCode is 13
+            @controller.onConfirmPasswordClicked()
+
     editableClick: etch.editableInit
 
     reloadPicture: ->
@@ -135,6 +142,7 @@ module.exports = class ProfileView extends View
                 @profileSesameField.focus()
 
     displayChangePasswordButton: ->
+        @profileSesameField.val null
         @sesameForm.fadeOut =>
             @passwordButton.fadeIn()
 
@@ -155,5 +163,6 @@ module.exports = class ProfileView extends View
                 success: =>
                     @controller.onDataLoaded()
                     @
+
                 error: =>
                     alert "something went wrong while retrieving profile."
