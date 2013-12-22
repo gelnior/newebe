@@ -2246,6 +2246,11 @@ label[for^="toggle"] + [type="checkbox"] { display: none; }
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  outline: none;
+}
+a:focus,
+a:active {
+  outline: none;
 }
 html,
 body {
@@ -2692,8 +2697,8 @@ cursor not-allowed {
 }
 #navigation {
   background: #000;
-  -webkit-box-shadow: -1px 3px 4px #333;
-  box-shadow: -1px 3px 4px #333;
+  -webkit-box-shadow: -3px 2px 3px #bbb;
+  box-shadow: -3px 2px 3px #bbb;
 }
 #navigation li a {
   border: 0;
