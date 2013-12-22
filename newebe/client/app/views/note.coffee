@@ -7,16 +7,19 @@ module.exports = class NoteView extends View
     events:
         'click': 'onClicked'
         'click .note-delete-button': 'onDeleteClicked'
+        'click .note-unselect-button': 'onUnselectClicked'
+        #'click .note-edit-button': 'editableClick'
         'mousedown .editable': 'editableClick'
         "keyup .note-title": "onNoteChanged"
 
-    onClicked: ->
-        $('.note').unselect()
-        $('.note-buttons').hide()
-        $('.content-note').hide()
-        @$el.select()
-        @buttons.show()
-        @contentField.show()
+    onClicked: (event) ->
+        unless $(event.target).hasClass 'note-unselect-button'
+            $('.note').unselect()
+            $('.note-buttons').hide()
+            $('.content-note').hide()
+            @$el.select()
+            @buttons.show()
+            @contentField.show()
 
     onDeleteClicked: ->
         button = @$('.note-delete-button')
@@ -79,3 +82,9 @@ module.exports = class NoteView extends View
 
     focusTitle: ->
         @$(".note-title").focus()
+
+    onUnselectClicked: =>
+        @$el.unselect()
+        @$('.note-buttons').hide()
+        @$('.content-note').hide()
+

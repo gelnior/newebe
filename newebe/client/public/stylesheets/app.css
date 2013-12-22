@@ -2781,7 +2781,7 @@ cursor not-allowed {
   display: none;
 }
 #notes-view .note {
-  padding-top: 2px;
+  padding-top: 10px;
 }
 #notes-view .note button {
   margin-left: 0;

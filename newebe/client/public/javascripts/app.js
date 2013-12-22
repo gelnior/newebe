@@ -2672,6 +2672,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
 });
 window.require.register("views/note", function(exports, require, module) {
   var NoteView, Renderer, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2688,17 +2689,20 @@ window.require.register("views/note", function(exports, require, module) {
     NoteView.prototype.events = {
       'click': 'onClicked',
       'click .note-delete-button': 'onDeleteClicked',
+      'click .note-unselect-button': 'onUnselectClicked',
       'mousedown .editable': 'editableClick',
       "keyup .note-title": "onNoteChanged"
     };
 
-    NoteView.prototype.onClicked = function() {
-      $('.note').unselect();
-      $('.note-buttons').hide();
-      $('.content-note').hide();
-      this.$el.select();
-      this.buttons.show();
-      return this.contentField.show();
+    NoteView.prototype.onClicked = function(event) {
+      if (!$(event.target).hasClass('note-unselect-button')) {
+        $('.note').unselect();
+        $('.note-buttons').hide();
+        $('.content-note').hide();
+        this.$el.select();
+        this.buttons.show();
+        return this.contentField.show();
+      }
     };
 
     NoteView.prototype.onDeleteClicked = function() {
@@ -2730,6 +2734,8 @@ window.require.register("views/note", function(exports, require, module) {
 
     function NoteView(model) {
       this.model = model;
+      this.onUnselectClicked = __bind(this.onUnselectClicked, this);
+
       NoteView.__super__.constructor.call(this);
     }
 
@@ -2787,6 +2793,12 @@ window.require.register("views/note", function(exports, require, module) {
 
     NoteView.prototype.focusTitle = function() {
       return this.$(".note-title").focus();
+    };
+
+    NoteView.prototype.onUnselectClicked = function() {
+      this.$el.unselect();
+      this.$('.note-buttons').hide();
+      return this.$('.content-note').hide();
     };
 
     return NoteView;
@@ -4155,7 +4167,7 @@ window.require.register("views/templates/note", function(exports, require, modul
   var interp;
   buf.push('<div class="mod w33 left"><div class="line"> <input');
   buf.push(attrs({ 'type':("text"), 'value':("" + (model.title) + ""), "class": ('note-title') }, {"type":true,"value":true}));
-  buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button></div></div></div><div data-button-class="all" class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
+  buf.push('/></div><div class="line"><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span></div><div class="line"><div class="note-buttons"><button class="note-delete-button">delete</button><button class="note-unselect-button">unselect</button></div></div></div><div data-button-class="all" class="mod w66 left content-note editable">' + escape((interp = model.content) == null ? '' : interp) + '</div>');
   }
   return buf.join("");
   };
