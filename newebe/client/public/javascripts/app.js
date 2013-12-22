@@ -4134,7 +4134,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news feed</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
   }
   return buf.join("");
   };
