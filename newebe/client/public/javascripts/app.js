@@ -2174,7 +2174,11 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       });
       this.views = [];
       this.collection.url = this.collection.baseUrl + date;
-      this.collection.url += "tags/" + this.tag + "/";
+      console.log(tag);
+      console.log(this.tag !== 'all');
+      if (this.tag !== 'all') {
+        this.collection.url += "tags/" + this.tag + "/";
+      }
       this.$el.spin('small');
       return this.collection.fetch({
         success: function(microposts) {
@@ -4163,7 +4167,7 @@ window.require.register("views/templates/micropost", function(exports, require, 
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span></div><div class="line pl0"><div class="pt05 w40 mod left">' + ((interp = model.displayContent) == null ? '' : interp) + '</div></div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button><button class="micropost-save-to-note-button">save to note</button></div>');
+  buf.push('<div class="infos small"><span class="author">' + escape((interp = model.author) == null ? '' : interp) + '</span><span class="verb">' + escape((interp = model.verb) == null ? '' : interp) + '</span><span class="tags smaller">' + escape((interp = model.tags) == null ? '' : interp) + '</span></div><div class="line pl0"><div class="pt05 w40 mod left">' + ((interp = model.displayContent) == null ? '' : interp) + '</div></div><span class="date smaller">' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><div class="micropost-buttons"><button class="micropost-delete-button">delete</button><button class="micropost-save-to-note-button">save to note</button></div>');
   }
   return buf.join("");
   };

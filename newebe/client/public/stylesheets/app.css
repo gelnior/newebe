@@ -2749,11 +2749,18 @@ cursor not-allowed {
 #microposts-view .micropost {
   border-top: 1px solid #ddd;
 }
+#microposts-view .micropost .left img {
+  width: 20px;
+}
 #microposts-view .micropost div {
   padding: 0;
 }
 #microposts-view .micropost .micropost-attachments {
   display: none;
+}
+#microposts-view .micropost .infos .tags {
+  color: #888;
+  font-weight: bold;
 }
 #microposts-view .author {
   font-weight: bold;

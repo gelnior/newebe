@@ -23,7 +23,10 @@ module.exports = class MicropostListView extends CollectionView
         @remove @views, silent: true
         @views = []
         @collection.url = @collection.baseUrl + date
-        @collection.url += "tags/#{@tag}/"
+
+        if tag isnt 'all'
+            @collection.url += "tags/#{@tag}/"
+
         @$el.spin 'small'
         @collection.fetch
             success: (microposts) =>
