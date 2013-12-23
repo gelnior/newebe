@@ -22,10 +22,12 @@ module.exports = class MicropostListView extends CollectionView
         date = lastDate.format('YYYY-MM-DD-HH-mm-ss/')
         @remove @views, silent: true
         @views = []
-        @collection.url = @collection.baseUrl + date
 
         if tag isnt 'all'
+            @collection.url = @collection.baseUrl + date
             @collection.url += "tags/#{@tag}/"
+        else
+            @collection.url = @collection.baseUrl
 
         @$el.spin 'small'
         @collection.fetch

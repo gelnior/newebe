@@ -2173,11 +2173,11 @@ window.require.register("views/micropost_list_view", function(exports, require, 
         silent: true
       });
       this.views = [];
-      this.collection.url = this.collection.baseUrl + date;
-      console.log(tag);
-      console.log(this.tag !== 'all');
-      if (this.tag !== 'all') {
+      if (tag !== 'all') {
+        this.collection.url = this.collection.baseUrl + date;
         this.collection.url += "tags/" + this.tag + "/";
+      } else {
+        this.collection.url = this.collection.baseUrl;
       }
       this.$el.spin('small');
       return this.collection.fetch({
