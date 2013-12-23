@@ -2661,8 +2661,8 @@ window.require.register("views/microposts_view", function(exports, require, modu
       if (this.tagsView != null) {
         this.tagsView.$(".tag-select-button").unSelect();
       }
-      this.micropostList.loadTag(name);
-      return this.tagList.select(name);
+      this.tagList.select(name);
+      return this.micropostList.loadTag(name);
     };
 
     MicropostsView.prototype.loadMoreMicroposts = function() {

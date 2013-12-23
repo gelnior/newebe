@@ -183,8 +183,8 @@ module.exports = class MicropostsView extends View
 
     onTagSelected: (name) ->
         @tagsView.$(".tag-select-button").unSelect() if @tagsView?
-        @micropostList.loadTag name
         @tagList.select name
+        @micropostList.loadTag name
 
     loadMoreMicroposts: =>
         button = $ "#more-microposts-button"
