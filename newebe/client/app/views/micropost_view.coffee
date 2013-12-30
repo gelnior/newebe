@@ -23,6 +23,7 @@ module.exports = class MicropostView extends View
 
         @downloadButton = @$ '.download-picture-btn'
         pictureId = @model.get('pictures_to_download')?[0]
+
         @downloadButton.click =>
             @model.downloadPicture pictureId, (err) =>
                 if err
@@ -41,6 +42,8 @@ module.exports = class MicropostView extends View
 
 
     hideDlBtnAndDisplayPicture: (pictureId) =>
+        @downloadButton = @$ '.download-picture-btn'
+
         @downloadButton.prev().fadeOut()
         @downloadButton.fadeOut =>
             @downloadButton.after """

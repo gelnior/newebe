@@ -2323,6 +2323,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
 
     MicropostView.prototype.hideDlBtnAndDisplayPicture = function(pictureId) {
       var _this = this;
+      this.downloadButton = this.$('.download-picture-btn');
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
         return _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
