@@ -402,8 +402,6 @@ class PictureDownloadHandler(PictureObjectHandler):
             self.picture.isFile = True
             self.picture.save()
 
-            import pdb
-            pdb.set_trace()
             micropost = MicroPostManager.get_picture_micropost(self.picture._id)
             if micropost is not None:
                 micropost.pictures.append(self.picture._id)
