@@ -55,7 +55,7 @@ module.exports = class MicropostView extends View
     hideDlBtnAndDisplayCommon: (commonId) =>
         @downloadButton.prev().fadeOut()
         @downloadButton.fadeOut =>
-            request.get "/commons/#{commonId}/", (err, commonRows) ->
+            request.get "/commons/#{commonId}/", (err, commonRows) =>
                 common = commonRows.rows[0]
                 @downloadButton.after """
     <a href="commons/#{commonId}/#{common.path}">

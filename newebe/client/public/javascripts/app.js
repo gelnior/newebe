@@ -467,7 +467,7 @@ window.require.register("lib/renderer", function(exports, require, module) {
           if (((_ref = doc.get('pictures')) != null ? _ref.length : void 0) > 0 || ((_ref1 = doc.get('pictures_to_download')) != null ? _ref1.length : void 0) > 0) {
             content += '<img src="static/images/attachment.png" />';
           }
-          if (((_ref2 = doc.get('commons')) != null ? _ref2.length : void 0) > 0 || ((_ref3 = doc.get('commonq_to_download')) != null ? _ref3.length : void 0) > 0) {
+          if (((_ref2 = doc.get('commons')) != null ? _ref2.length : void 0) > 0 || ((_ref3 = doc.get('commons_to_download')) != null ? _ref3.length : void 0) > 0) {
             content += '<img src="static/images/attachment.png" />';
           }
           content += '</div>';
@@ -2337,7 +2337,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
         return request.get("/commons/" + commonId + "/", function(err, commonRows) {
           var common;
           common = commonRows.rows[0];
-          return this.downloadButton.after("<a href=\"commons/" + commonId + "/" + common.path + "\">\n" + common.path + "\n</a>");
+          return _this.downloadButton.after("<a href=\"commons/" + commonId + "/" + common.path + "\">\n" + common.path + "\n</a>");
         });
       });
     };

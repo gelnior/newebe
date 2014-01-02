@@ -14,6 +14,7 @@ from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.activities.models import ActivityManager
+from newebe.apps.news.models import MicroPostManager
 from newebe.apps.pictures.models import PictureManager, Picture
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
@@ -400,6 +401,15 @@ class PictureDownloadHandler(PictureObjectHandler):
             os.remove(thpath)
             self.picture.isFile = True
             self.picture.save()
+
+            import pdb
+            pdb.set_trace()
+            micropost = MicroPostManager.get_picture_micropost(self.picture._id)
+            if micropost is not None:
+                micropost.pictures.append(self.picture._id)
+                micropost.pictures_to_download.remove(self.picture._id)
+                micropost.save()
+
             self.return_success("Picture successfuly downloaded.")
 
         else:

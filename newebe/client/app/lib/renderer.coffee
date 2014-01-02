@@ -21,9 +21,10 @@ module.exports = class Renderer
                     content += '<img src="static/images/attachment.png" />'
 
                 if doc.get('commons')?.length > 0 or
-                   doc.get('commonq_to_download')?.length > 0
+                   doc.get('commons_to_download')?.length > 0
 
                     content += '<img src="static/images/attachment.png" />'
+
                 content += '</div>'
                 content += '<div class="mod right w40 micropost-attachments">'
                 content += @checkForPictures doc.get 'pictures'

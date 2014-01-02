@@ -86,6 +86,10 @@ class MicroPostManager():
         return DocumentManager.get_document(
                              MicroPost, "news/contact", key=[contactKey, date])
 
+    @staticmethod
+    def get_picture_micropost(pictureId):
+        return DocumentManager.get_document(
+             MicroPost, "news/picture", key=pictureId)
 
 class MicroPost(NewebeDocument):
     '''
