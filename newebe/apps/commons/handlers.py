@@ -13,6 +13,7 @@ from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 from newebe.apps.contacts.models import ContactManager
 from newebe.apps.activities.models import ActivityManager
 from newebe.apps.commons.models import CommonManager, Common
+from newebe.apps.news.models import MicroPostManager
 from newebe.lib import date_util
 from newebe.lib.http_util import ContactClient
 
@@ -352,6 +353,13 @@ class CommonDownloadHandler(CommonObjectHandler):
             self.common.put_attachment(response.body, self.common.path)
             self.common.isFile = True
             self.common.save()
+
+            micropost = MicroPostManager.get_common_micropost(self.common._id)
+            if micropost is not None:
+                micropost.commons.append(self.common._id)
+                micropost.commons_to_download.remove(self.common._id)
+                micropost.save()
+
             self.return_success("Common successfuly downloaded.")
         else:
             self.return_failure("Common cannot be retrieved.")

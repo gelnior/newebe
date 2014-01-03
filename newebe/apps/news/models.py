@@ -88,8 +88,19 @@ class MicroPostManager():
 
     @staticmethod
     def get_picture_micropost(pictureId):
+        '''
+        Get picture by picture to download key.
+        '''
         return DocumentManager.get_document(
              MicroPost, "news/picture", key=pictureId)
+
+    @staticmethod
+    def get_common_micropost(commonId):
+        '''
+        Get micropost by common to download key.
+        '''
+        return DocumentManager.get_document(
+             MicroPost, "news/common", key=commonId)
 
 class MicroPost(NewebeDocument):
     '''
