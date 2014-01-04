@@ -3,6 +3,8 @@ module.exports = class AppRouter extends Backbone.Router
     routes:
         '': 'start'
         'microposts': 'microposts'
+        'pictures': 'pictures'
+        'commons': 'commons'
         'notes': 'notes'
         'contacts': 'contacts'
         'profile': 'profile'
@@ -29,6 +31,10 @@ module.exports = class AppRouter extends Backbone.Router
     pictures: ->
         @checkAppViewState =>
             @appView.changeSubView @appView.picturesView
+
+    commons: ->
+        @checkAppViewState =>
+            @appView.changeSubView @appView.commons
 
     profile: ->
         @checkAppViewState =>

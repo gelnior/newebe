@@ -2,7 +2,7 @@ View = require '../lib/view'
 Renderer = require '../lib/renderer'
 
 module.exports = class PictureView extends View
-    className: 'picture pa1'
+    className: 'picture pa1 mod w33 left'
     template: -> require './templates/picture'
 
     events:
@@ -16,6 +16,7 @@ module.exports = class PictureView extends View
         @buttons.show()
 
     onDeleteClicked: ->
+        @model.urlRoot = 'pictures/'
         @model.destroy
             success: => @remove()
             error: => alert 'server error occured'
@@ -26,10 +27,7 @@ module.exports = class PictureView extends View
         @buttons = @$ '.picture-buttons'
         @buttons.hide()
 
-        @renderPicture()
-
-    renderPicture: ->
-        #TODO
-
     getRenderData: ->
+        renderer = new Renderer()
+        @model.set 'displayDate', renderer.renderDate @model.get 'date'
         model: @model?.toJSON()

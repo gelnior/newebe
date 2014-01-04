@@ -1,2 +1,7 @@
-.mod.w33.left
-    picture
+.line
+    a(href="#{model.url}", target="_blank")
+        img(src="#{model.prevUrl}")
+.line
+    | #{model.author} - #{model.displayDate}
+    span.picture-buttons
+        button.picture-delete-button delete

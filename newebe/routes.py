@@ -93,7 +93,7 @@ routes = [
     ('/pictures/fileuploader/$', pictures.PicturesQQHandler),
     ('/pictures/contact/$', pictures.PictureContactHandler),
     ('/pictures/contact/download/$', pictures.PictureContactDownloadHandler),
-    ('/pictures/([0-9a-z]+)/$', pictures.PictureHandler),
+    ('/pictures/([0-9a-z]+)$', pictures.PictureHandler),
     ('/pictures/([0-9a-z]+)/retry/$', pictures.PictureRetryHandler),
     ('/pictures/([0-9a-z]+)/download/$', pictures.PictureDownloadHandler),
     ('/pictures/([0-9a-z]+)/rotate/$', pictures.PictureRotateHandler),

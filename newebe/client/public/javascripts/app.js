@@ -1091,13 +1091,21 @@ window.require.register("models/picture", function(exports, require, module) {
 
     __extends(PictureModel, _super);
 
-    function PictureModel() {
-      return PictureModel.__super__.constructor.apply(this, arguments);
-    }
-
     PictureModel.prototype.urlRoot = "pictures/all/";
 
     PictureModel.prototype.idAttribute = '_id';
+
+    function PictureModel(picture) {
+      var path;
+      PictureModel.__super__.constructor.call(this, picture);
+      if (this.get('path') != null) {
+        path = this.get('path');
+      } else {
+        path = this.get('_id') + '.jpg';
+      }
+      this.set('url', "/pictures/" + picture._id + "/" + path);
+      this.set('prevUrl', "/pictures/" + picture._id + "/prev_" + path);
+    }
 
     return PictureModel;
 
@@ -1141,6 +1149,8 @@ window.require.register("routers/app_router", function(exports, require, module)
     AppRouter.prototype.routes = {
       '': 'start',
       'microposts': 'microposts',
+      'pictures': 'pictures',
+      'commons': 'commons',
       'notes': 'notes',
       'contacts': 'contacts',
       'profile': 'profile',
@@ -1183,6 +1193,13 @@ window.require.register("routers/app_router", function(exports, require, module)
       var _this = this;
       return this.checkAppViewState(function() {
         return _this.appView.changeSubView(_this.appView.picturesView);
+      });
+    };
+
+    AppRouter.prototype.commons = function() {
+      var _this = this;
+      return this.checkAppViewState(function() {
+        return _this.appView.changeSubView(_this.appView.commons);
       });
     };
 
@@ -1468,7 +1485,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, PicturesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1481,11 +1498,13 @@ window.require.register("views/app_view", function(exports, require, module) {
 
   ContactsView = require('./contacts_view');
 
-  ActivitiesView = require('./activities_view');
-
   NotesView = require('./notes_view');
 
+  PicturesView = require('./pictures_view');
+
   ProfileView = require('./profile_view');
+
+  ActivitiesView = require('./activities_view');
 
   LoginView = require('./login_view');
 
@@ -1567,6 +1586,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       this.registerNameView = this._addView(RegisterNameView);
       this.registerPasswordView = this._addView(RegisterPasswordView);
       this.micropostsView = this._addView(MicropostsView);
+      this.picturesView = this._addView(PicturesView);
       this.contactsView = this._addView(ContactsView);
       this.profileView = this._addView(ProfileView);
       this.notesView = this._addView(NotesView);
@@ -1592,6 +1612,10 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.onContactsClicked = function() {
       return this.changeSubView(this.contactsView);
+    };
+
+    AppView.prototype.onPicturesClicked = function() {
+      return this.changeSubView(this.picturesView);
     };
 
     AppView.prototype.onNotesClicked = function() {
@@ -3147,7 +3171,7 @@ window.require.register("views/picture", function(exports, require, module) {
 
     __extends(PictureView, _super);
 
-    PictureView.prototype.className = 'picture pa1';
+    PictureView.prototype.className = 'picture pa1 mod w33 left';
 
     PictureView.prototype.template = function() {
       return require('./templates/picture');
@@ -3167,6 +3191,7 @@ window.require.register("views/picture", function(exports, require, module) {
 
     PictureView.prototype.onDeleteClicked = function() {
       var _this = this;
+      this.model.urlRoot = 'pictures/';
       return this.model.destroy({
         success: function() {
           return _this.remove();
@@ -3184,14 +3209,13 @@ window.require.register("views/picture", function(exports, require, module) {
 
     PictureView.prototype.afterRender = function() {
       this.buttons = this.$('.picture-buttons');
-      this.buttons.hide();
-      return this.renderPicture();
+      return this.buttons.hide();
     };
 
-    PictureView.prototype.renderPicture = function() {};
-
     PictureView.prototype.getRenderData = function() {
-      var _ref;
+      var renderer, _ref;
+      renderer = new Renderer();
+      this.model.set('displayDate', renderer.renderDate(this.model.get('date')));
       return {
         model: (_ref = this.model) != null ? _ref.toJSON() : void 0
       };
@@ -3203,11 +3227,14 @@ window.require.register("views/picture", function(exports, require, module) {
   
 });
 window.require.register("views/pictures", function(exports, require, module) {
-  var CollectionView, NoteView, PicturesCollection, PicturesView,
+  var CollectionView, NoteView, PictureView, PicturesCollection, PicturesView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   CollectionView = require('../lib/view_collection');
+
+  PictureView = require('./picture');
 
   PicturesCollection = require('../collections/pictures');
 
@@ -3216,10 +3243,6 @@ window.require.register("views/pictures", function(exports, require, module) {
   module.exports = PicturesView = (function(_super) {
 
     __extends(PicturesView, _super);
-
-    function PicturesView() {
-      return PicturesView.__super__.constructor.apply(this, arguments);
-    }
 
     PicturesView.prototype.el = '#pictures';
 
@@ -3231,10 +3254,24 @@ window.require.register("views/pictures", function(exports, require, module) {
       return require('./templates/pictures');
     };
 
+    function PicturesView(collection) {
+      this.renderOne = __bind(this.renderOne, this);
+      PicturesView.__super__.constructor.apply(this, arguments);
+      this.rendered = 0;
+    }
+
     PicturesView.prototype.afterRender = function() {};
 
     PicturesView.prototype.fetch = function() {
       return this.collection.fetch();
+    };
+
+    PicturesView.prototype.renderOne = function(model, options) {
+      PicturesView.__super__.renderOne.call(this, model, options);
+      this.rendered++;
+      if (this.rendered % 3 === 0) {
+        return this.$el.append('<div class="line clearfix"></div>');
+      }
     };
 
     return PicturesView;
@@ -4157,7 +4194,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
+  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="pictures-button" href="#pictures" class="active">pictures</a></li><!--li--><!--    a#notes-button.active(href="#commons") commons--><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
   }
   return buf.join("");
   };
@@ -4266,7 +4303,11 @@ window.require.register("views/templates/picture", function(exports, require, mo
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div class="mod w33 left"><picture></picture></div>');
+  buf.push('<div class="line"><a');
+  buf.push(attrs({ 'href':("" + (model.url) + ""), 'target':("_blank") }, {"href":true,"target":true}));
+  buf.push('><img');
+  buf.push(attrs({ 'src':("" + (model.prevUrl) + "") }, {"src":true}));
+  buf.push('/></a></div><div class="line">' + escape((interp = model.author) == null ? '' : interp) + ' - ' + escape((interp = model.displayDate) == null ? '' : interp) + '<span class="picture-buttons"><button class="picture-delete-button">delete</button></span></div>');
   }
   return buf.join("");
   };

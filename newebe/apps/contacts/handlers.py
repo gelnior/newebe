@@ -196,6 +196,8 @@ class ContactHandler(NewebeAuthHandler):
             if not newebeResponse["success"]:
                 raise Exception()
 
+            # idea: try to save picture to disk then call file.read()
+            # to add file data.
             #user = UserManager.getUser()
             #picture = user.fetch_attachment("small_picture.jpg")
             #self.send_files_to_contact(self.contact,

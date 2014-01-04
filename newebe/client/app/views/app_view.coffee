@@ -2,9 +2,10 @@ View = require '../lib/view'
 AppRouter = require '../routers/app_router'
 MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
-ActivitiesView = require './activities_view'
 NotesView = require './notes_view'
+PicturesView = require './pictures_view'
 ProfileView = require './profile_view'
+ActivitiesView = require './activities_view'
 LoginView = require './login_view'
 RegisterNameView = require './register_name_view'
 RegisterPasswordView = require './register_password_view'
@@ -53,6 +54,7 @@ module.exports = class AppView extends View
         @registerNameView = @_addView RegisterNameView
         @registerPasswordView = @_addView RegisterPasswordView
         @micropostsView = @_addView MicropostsView
+        @picturesView = @_addView PicturesView
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
@@ -73,6 +75,7 @@ module.exports = class AppView extends View
 
     onMicropostsClicked: -> @changeSubView @micropostsView
     onContactsClicked: -> @changeSubView @contactsView
+    onPicturesClicked: -> @changeSubView @picturesView
     onNotesClicked: -> @changeSubView @notesView
     displayProfile: => @changeSubView @profileView
     displayMicroposts: => @changeSubView @micropostsView

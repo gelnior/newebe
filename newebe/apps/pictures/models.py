@@ -2,7 +2,7 @@ from couchdbkit.schema import StringProperty, BooleanProperty
 
 from newebe.apps.core.models import NewebeDocument, DocumentManager
 
-PICTURE_LIMIT = 10
+PICTURE_LIMIT = 12
 
 
 class PictureManager():
