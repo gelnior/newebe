@@ -3268,9 +3268,8 @@ window.require.register("views/pictures", function(exports, require, module) {
       var _this = this;
       this.collection.off('add');
       return this.collection.fetch({
-        success: function(models) {
-          console.log(models);
-          return _this.renderAll(models);
+        success: function(pictures) {
+          return _this.renderAll(pictures.models);
         }
       });
     };
@@ -3288,20 +3287,61 @@ window.require.register("views/pictures", function(exports, require, module) {
     };
 
     PicturesView.prototype.renderAll = function(models) {
-      var rendered,
-        _this = this;
+      var model, rendered, _i, _len;
       rendered = 0;
       this.currentRow = $('<div class="row"></div>');
-      console.log(this.currentRow);
-      this.collection.each(function(model) {
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
         if (rendered % 3 === 0) {
-          _this.currentRow = $('<div class="row"></div>');
-          _this.$el.append(_this.currentRow);
+          this.currentRow = $('<div class="row"></div>');
+          this.$el.append(this.currentRow);
         }
-        _this.renderOne(model);
-        return rendered++;
-      });
+        this.renderOne(model);
+        rendered++;
+      }
       return this;
+    };
+
+    PicturesView.prototype.loadMore = function() {
+      var collection,
+        _this = this;
+      $("#more-pictures").spin('small');
+      collection = new PicturesCollection();
+      console.log(this.collection.url);
+      collection.url = this.collection.url + this.getLastDate();
+      return collection.fetch({
+        success: function(pictures) {
+          _this.renderAll(pictures.models);
+          _this.setLastDate(collection);
+          $("#more-pictures").spin();
+          if (pictures.length < 12) {
+            return $("#more-pictures").hide();
+          }
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    PicturesView.prototype.setLastDate = function(collection) {
+      var lastDate, picture;
+      picture = collection.last();
+      if (picture != null) {
+        lastDate = moment(picture.get('date'));
+        return this.lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/';
+      } else {
+        return this.lastDate = '';
+      }
+    };
+
+    PicturesView.prototype.getLastDate = function() {
+      if (this.lastDate != null) {
+        return this.lastDate;
+      } else {
+        this.setLastDate(this.collection);
+        return this.getLastDate();
+      }
     };
 
     return PicturesView;
@@ -3311,6 +3351,7 @@ window.require.register("views/pictures", function(exports, require, module) {
 });
 window.require.register("views/pictures_view", function(exports, require, module) {
   var Picture, PicturesMainView, PicturesView, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3325,15 +3366,14 @@ window.require.register("views/pictures_view", function(exports, require, module
     __extends(PicturesMainView, _super);
 
     function PicturesMainView() {
+      this.loadMorePictures = __bind(this.loadMorePictures, this);
       return PicturesMainView.__super__.constructor.apply(this, arguments);
     }
 
     PicturesMainView.prototype.id = 'pictures-view';
 
     PicturesMainView.prototype.events = {
-      'click #add-picture': 'onAddNoteClicked',
-      'click #sort-date-picture': 'onSortDateClicked',
-      'click #sort-title-picture': 'onSortTitleClicked'
+      "click #more-pictures": "loadMorePictures"
     };
 
     PicturesMainView.prototype.template = function() {
@@ -3349,6 +3389,10 @@ window.require.register("views/pictures_view", function(exports, require, module
       }
       this.picturesView.fetch();
       return this.isLoaded = true;
+    };
+
+    PicturesMainView.prototype.loadMorePictures = function() {
+      return this.picturesView.loadMore();
     };
 
     return PicturesMainView;
@@ -4358,7 +4402,7 @@ window.require.register("views/templates/pictures_view", function(exports, requi
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<div id="pictures"></div>');
+  buf.push('<div id="pictures"></div><div class="line"><button id="more-pictures">more</button></div>');
   }
   return buf.join("");
   };

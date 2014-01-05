@@ -6,9 +6,7 @@ module.exports = class PicturesMainView extends View
     id: 'pictures-view'
 
     events:
-        'click #add-picture': 'onAddNoteClicked'
-        'click #sort-date-picture': 'onSortDateClicked'
-        'click #sort-title-picture': 'onSortTitleClicked'
+        "click #more-pictures": "loadMorePictures"
 
     template: ->
         require './templates/pictures_view'
@@ -19,3 +17,6 @@ module.exports = class PicturesMainView extends View
         @picturesView ?= new PicturesView()
         @picturesView.fetch()
         @isLoaded = true
+
+    loadMorePictures: =>
+        @picturesView.loadMore()

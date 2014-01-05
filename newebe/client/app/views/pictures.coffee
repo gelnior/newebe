@@ -21,10 +21,8 @@ module.exports = class PicturesView extends CollectionView
     fetch: ->
         @collection.off 'add'
         @collection.fetch
-            success: (models) =>
-                console.log models
-                @renderAll models
-
+            success: (pictures) =>
+                @renderAll pictures.models
 
     renderOne: (model, options) =>
         view = new @view model
@@ -38,9 +36,8 @@ module.exports = class PicturesView extends CollectionView
     renderAll: (models) =>
         rendered = 0
         @currentRow = $ '<div class="row"></div>'
-        console.log @currentRow
 
-        @collection.each (model) =>
+        for model in models
             if rendered % 3 is 0
                 @currentRow = $ '<div class="row"></div>'
                 @$el.append @currentRow
@@ -48,3 +45,34 @@ module.exports = class PicturesView extends CollectionView
             rendered++
         @
 
+    loadMore: ->
+        $("#more-pictures").spin 'small'
+        collection = new PicturesCollection()
+        console.log @collection.url
+
+        collection.url = @collection.url + @getLastDate()
+        collection.fetch
+            success: (pictures) =>
+                @renderAll pictures.models
+                @setLastDate collection
+                $("#more-pictures").spin()
+                if pictures.length < 12
+                    $("#more-pictures").hide()
+
+            error: =>
+                alert 'server error occured'
+
+    setLastDate: (collection) ->
+        picture = collection.last()
+        if picture?
+            lastDate = moment picture.get 'date'
+            @lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/'
+        else
+            @lastDate = ''
+
+    getLastDate: ->
+        if @lastDate?
+            @lastDate
+        else
+            @setLastDate @collection
+            @getLastDate()
