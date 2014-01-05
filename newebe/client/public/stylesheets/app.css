@@ -3132,8 +3132,17 @@ body,
 .error {
   cursor: pointer;
 }
+#pictures .row {
+  vertical-align: middle;
+}
 .picture {
+  top: 0;
+  bottom: 0;
   cursor: pointer;
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  height: 100%;
 }
 .picture.selected {
   background: #ebf5ff;

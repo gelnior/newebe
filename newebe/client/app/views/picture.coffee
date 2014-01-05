@@ -2,7 +2,7 @@ View = require '../lib/view'
 Renderer = require '../lib/renderer'
 
 module.exports = class PictureView extends View
-    className: 'picture pa1 mod w33 left'
+    className: 'picture pa1 w33 col'
     template: -> require './templates/picture'
 
     events:
@@ -14,6 +14,7 @@ module.exports = class PictureView extends View
         $('.picture-buttons').hide()
         @$el.select()
         @buttons.show()
+
 
     onDeleteClicked: ->
         @model.urlRoot = 'pictures/'

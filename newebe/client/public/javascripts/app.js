@@ -3171,7 +3171,7 @@ window.require.register("views/picture", function(exports, require, module) {
 
     __extends(PictureView, _super);
 
-    PictureView.prototype.className = 'picture pa1 mod w33 left';
+    PictureView.prototype.className = 'picture pa1 w33 col';
 
     PictureView.prototype.template = function() {
       return require('./templates/picture');
@@ -3255,6 +3255,8 @@ window.require.register("views/pictures", function(exports, require, module) {
     };
 
     function PicturesView(collection) {
+      this.renderAll = __bind(this.renderAll, this);
+
       this.renderOne = __bind(this.renderOne, this);
       PicturesView.__super__.constructor.apply(this, arguments);
       this.rendered = 0;
@@ -3263,15 +3265,43 @@ window.require.register("views/pictures", function(exports, require, module) {
     PicturesView.prototype.afterRender = function() {};
 
     PicturesView.prototype.fetch = function() {
-      return this.collection.fetch();
+      var _this = this;
+      this.collection.off('add');
+      return this.collection.fetch({
+        success: function(models) {
+          console.log(models);
+          return _this.renderAll(models);
+        }
+      });
     };
 
     PicturesView.prototype.renderOne = function(model, options) {
-      PicturesView.__super__.renderOne.call(this, model, options);
-      this.rendered++;
-      if (this.rendered % 3 === 0) {
-        return this.$el.append('<div class="line clearfix"></div>');
+      var view;
+      view = new this.view(model);
+      if (options != null ? options.prepend : void 0) {
+        this.currentRow.prepend(view.render().el);
+      } else {
+        this.currentRow.append(view.render().el);
       }
+      this.add(view);
+      return this;
+    };
+
+    PicturesView.prototype.renderAll = function(models) {
+      var rendered,
+        _this = this;
+      rendered = 0;
+      this.currentRow = $('<div class="row"></div>');
+      console.log(this.currentRow);
+      this.collection.each(function(model) {
+        if (rendered % 3 === 0) {
+          _this.currentRow = $('<div class="row"></div>');
+          _this.$el.append(_this.currentRow);
+        }
+        _this.renderOne(model);
+        return rendered++;
+      });
+      return this;
     };
 
     return PicturesView;

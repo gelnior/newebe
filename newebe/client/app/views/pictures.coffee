@@ -19,10 +19,32 @@ module.exports = class PicturesView extends CollectionView
     afterRender: ->
 
     fetch: ->
-        @collection.fetch()
+        @collection.off 'add'
+        @collection.fetch
+            success: (models) =>
+                console.log models
+                @renderAll models
+
 
     renderOne: (model, options) =>
-        super model, options
-        @rendered++
-        if @rendered % 3 is 0
-            @$el.append '<div class="line clearfix"></div>'
+        view = new @view model
+        if options?.prepend
+            @currentRow.prepend view.render().el
+        else
+            @currentRow.append view.render().el
+        @add view
+        @
+
+    renderAll: (models) =>
+        rendered = 0
+        @currentRow = $ '<div class="row"></div>'
+        console.log @currentRow
+
+        @collection.each (model) =>
+            if rendered % 3 is 0
+                @currentRow = $ '<div class="row"></div>'
+                @$el.append @currentRow
+            @renderOne model
+            rendered++
+        @
+
