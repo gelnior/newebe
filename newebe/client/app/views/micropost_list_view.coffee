@@ -37,7 +37,8 @@ module.exports = class MicropostListView extends CollectionView
                 @$el.css 'height', 'auto'
                 if @views.length is 0
                     microposts.models.slice()
-                    @renderOne micropost for micropost in microposts.models
+                    @collection.add micropost for micropost in microposts.models
+
 
     loadMore: (callback) ->
         collection = new MicropostCollection()

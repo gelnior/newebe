@@ -2215,7 +2215,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               micropost = _ref[_i];
-              _results.push(_this.renderOne(micropost));
+              _results.push(_this.collection.add(micropost));
             }
             return _results;
           }
