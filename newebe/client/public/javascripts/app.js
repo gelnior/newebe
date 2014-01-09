@@ -2204,10 +2204,12 @@ window.require.register("views/micropost_list_view", function(exports, require, 
         this.collection.url = this.collection.baseUrl;
       }
       this.$el.spin('small');
+      this.$el.css('height', '50px');
       return this.collection.fetch({
         success: function(microposts) {
           var micropost, _i, _len, _ref, _results;
           _this.$el.spin();
+          _this.$el.css('height', 'auto');
           if (_this.views.length === 0) {
             microposts.models.slice();
             _ref = microposts.models;
@@ -3307,7 +3309,6 @@ window.require.register("views/pictures", function(exports, require, module) {
         _this = this;
       $("#more-pictures").spin('small');
       collection = new PicturesCollection();
-      console.log(this.collection.url);
       collection.url = this.collection.url + this.getLastDate();
       return collection.fetch({
         success: function(pictures) {

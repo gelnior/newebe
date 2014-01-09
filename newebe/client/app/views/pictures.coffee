@@ -48,8 +48,6 @@ module.exports = class PicturesView extends CollectionView
     loadMore: ->
         $("#more-pictures").spin 'small'
         collection = new PicturesCollection()
-        console.log @collection.url
-
         collection.url = @collection.url + @getLastDate()
         collection.fetch
             success: (pictures) =>

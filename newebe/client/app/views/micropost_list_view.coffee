@@ -8,7 +8,7 @@ module.exports = class MicropostListView extends CollectionView
     view: MicropostView
 
     template: ->
-        require('./templates/micropost_list')
+        require './templates/micropost_list'
 
     afterRender: ->
         @$el.addClass 'micropost-list mod left w100'
@@ -19,7 +19,7 @@ module.exports = class MicropostListView extends CollectionView
     loadTag: (tag) ->
         @tag = tag
         lastDate = moment()
-        date = lastDate.format('YYYY-MM-DD-HH-mm-ss/')
+        date = lastDate.format 'YYYY-MM-DD-HH-mm-ss/'
         @remove @views, silent: true
         @views = []
 
@@ -30,9 +30,11 @@ module.exports = class MicropostListView extends CollectionView
             @collection.url = @collection.baseUrl
 
         @$el.spin 'small'
+        @$el.css 'height', '50px'
         @collection.fetch
             success: (microposts) =>
                 @$el.spin()
+                @$el.css 'height', 'auto'
                 if @views.length is 0
                     microposts.models.slice()
                     @renderOne micropost for micropost in microposts.models
