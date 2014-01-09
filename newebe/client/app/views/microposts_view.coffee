@@ -85,13 +85,7 @@ module.exports = class MicropostsView extends View
                 @attachedFiles = fileList
 
     fetch: ->
-        @micropostList.$el.spin 'small'
-        @micropostList.collection.fetch
-            success: =>
-                @micropostList.$el.spin()
-            error: =>
-                @micropostList.$el.spin()
-                alert 'A server error occured while retrieving news feed'
+        @micropostList.loadTag 'all'
 
     onAddAttachmentClicked: (event) ->
         $(event.target).fadeOut =>

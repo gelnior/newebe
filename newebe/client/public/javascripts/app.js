@@ -2215,10 +2215,14 @@ window.require.register("views/micropost_list_view", function(exports, require, 
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               micropost = _ref[_i];
-              _results.push(_this.collection.add(micropost));
+              _results.push(_this.renderOne(micropost));
             }
             return _results;
           }
+        },
+        error: function() {
+          _this.$el.$el.spin();
+          return alert('A server error occured while retrieving news feed');
         }
       });
     };
@@ -2544,17 +2548,7 @@ window.require.register("views/microposts_view", function(exports, require, modu
     };
 
     MicropostsView.prototype.fetch = function() {
-      var _this = this;
-      this.micropostList.$el.spin('small');
-      return this.micropostList.collection.fetch({
-        success: function() {
-          return _this.micropostList.$el.spin();
-        },
-        error: function() {
-          _this.micropostList.$el.spin();
-          return alert('A server error occured while retrieving news feed');
-        }
-      });
+      return this.micropostList.loadTag('all');
     };
 
     MicropostsView.prototype.onAddAttachmentClicked = function(event) {
