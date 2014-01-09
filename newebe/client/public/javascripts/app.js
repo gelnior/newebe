@@ -761,7 +761,6 @@ window.require.register("lib/view_collection", function(exports, require, module
 
       this.renderOne = __bind(this.renderOne, this);
       ViewCollection.__super__.constructor.call(this, options);
-      this.collection.on('reset', this.renderAll);
       this.collection.on('add', this.renderOne);
       this.views = [];
     }
