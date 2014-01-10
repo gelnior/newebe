@@ -1,0 +1,6 @@
+main:
+    path: "/usr/lcocal/newebe/"
+    logpath: "/usr/local/var/log/newebe/"
+security:
+    certificate: "/usr/local/etc/newebe/certs/server.crt"
+    private_key: "/usr/local/etc/newebe/certs/server.key"
