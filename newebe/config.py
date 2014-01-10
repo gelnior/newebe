@@ -95,9 +95,11 @@ class Config(KeyDict):
 CONFIG = Config()
 CONFIG['main']['port'] = 8000
 CONFIG['main']['debug'] = False
+CONFIG['main']['ssl'] = True
 CONFIG['main']['timezone'] = "Europe/Paris"
 CONFIG['main']['configfile'] = "./config.yaml"
 CONFIG['main']['path'] = "/home/newebe/newebe/"
+CONFIG['main']['logpath'] = None
 
 chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
 CONFIG['security']['cookie_key'] = \
@@ -124,13 +126,16 @@ define('dbname', default=CONFIG.db.name,
 define('port', default=CONFIG.main.port,
                help="Port newebe may be run on : --port=8000 (default)")
 define('debug', default=CONFIG.main.debug,
-               help="Debug mode                : --debug=True")
+               help="Debug mode                : --debug=False")
+define('ssl', default=CONFIG.main.ssl,
+               help="Https enabled             : --ssl=True")
 
 parse_command_line()
 CONFIG.db.uri = options.dburi
 CONFIG.db.name = options.dbname
 CONFIG.main.port = options.port
 CONFIG.main.debug = options.debug
+CONFIG.main.ssl = options.ssl
 
 config_file = "./config.yaml"
 if options.configfile is not None:
