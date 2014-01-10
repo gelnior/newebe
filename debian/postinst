@@ -30,17 +30,9 @@ case "$1" in
             mkdir /usr/local/etc/newebe
         fi
         chown -R newebe:newebe /usr/local/etc/newebe
-        echo "
-main:
-    path: "/usr/lcocal/newebe/"
-    path: "/usr/local/var/log/newebe/"
-security:
-    certificate: "/usr/local/etc/newebe/certs/server.crt"
-    private_key: "/usr/local/etc/newebe/certs/server.key"
-        " > /usr/local/etc/newebe/config.yaml
+
 
         cd /usr/local/etc/newebe
-
         if [ ! -d "certs" ]; then
             mkdir certs 
         fi
