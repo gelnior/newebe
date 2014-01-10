@@ -8,34 +8,38 @@ case "$1" in
     configure)
 	# add newebe system user (requires adduser >= 3.34)
 	echo "Creating/updating newebe user account..."
-        if ! grep -i "^newebe" /etc/group
-        then
-            groupadd newebe
-        fi
-
+        
         if ! id newebe > /dev/null 2>&1
         then
-            adduser --system --ingroup newebe --home /var/lib/newebe \
+            adduser --system --ingroup newebe --home /usr/local/newebe \
                     --gecos "Newebe system user" --shell /bin/false \
-                    --quiet --disabled-password newebe
+                    --quiet --disabled-password  --group newebe
         fi
 
-        if [ ! -d "/var/lib/newebe" ]; then
-            mkdir /var/lib/newebe
+        if [ ! -d "/usr/local/newebe" ]; then
+            mkdir /usr/local/newebe
         fi
-        chown -R newebe:newebe /var/lib/newebe
+        chown -R newebe:newebe /usr/local/newebe
+        
+        if [ ! -d "/usr/local/var/log/newebe" ]; then
+            mkdir /usr/local/var/log/newebe
+        fi
+        chown -R newebe:newebe /usr/local/var/log/newebe
+        
         if [ ! -d "/etc/newebe" ]; then
-            mkdir /etc/newebe
+            mkdir /usr/local/etc/newebe
         fi
+        chown -R newebe:newebe /usr/local/etc/newebe
         echo "
 main:
-    path: "/var/lib/newebe/"
+    path: "/usr/lcocal/newebe/"
+    path: "/usr/local/var/log/newebe/"
 security:
-    certificate: "/etc/newebe/certs/server.crt"
-    private_key: "/etc/newebe/certs/server.key"
-        " > /etc/newebe/config.yaml
+    certificate: "/usr/local/etc/newebe/certs/server.crt"
+    private_key: "/usr/local/etc/newebe/certs/server.key"
+        " > /usr/local/etc/newebe/config.yaml
 
-        cd /etc/newebe
+        cd /usr/local/etc/newebe
 
         if [ ! -d "certs" ]; then
             mkdir certs 
@@ -46,11 +50,11 @@ security:
                 -out ./server.crt -batch
         
         cd ..
-        chown -R newebe:newebe /etc/newebe/certs
+        chown -R newebe:newebe /usr/local/etc/newebe/certs
 
-        sudo touch /usr/share/pyshared/newebe/apps/__init__.py
-        sudo touch /usr/share/pyshared/newebe/tools/__init__.py
-        sudo touch /usr/share/pyshared/newebe/lib/__init__.py
+        touch /usr/share/pyshared/newebe/apps/__init__.py
+        touch /usr/share/pyshared/newebe/tools/__init__.py
+        touch /usr/share/pyshared/newebe/lib/__init__.py
 
         echo "
 [program:newebe]
