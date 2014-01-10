@@ -1,0 +1,8 @@
+#!/bin/bash
+	
+rm -rf /usr/local/newebe
+rm -rf /usr/local/var/log/newebe
+rm -rf /usr/local/var/etc/newebe
+
+userdel newebe
+groupdel newebe
