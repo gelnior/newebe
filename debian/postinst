@@ -36,13 +36,18 @@ case "$1" in
         if [ ! -d "certs" ]; then
             mkdir certs 
         fi
-        cd certs
-        openssl genrsa -out ./server.key 1024
-        openssl req -new -x509 -days 3650 -key ./server.key \
-                -out ./server.crt -batch
         
-        cd ..
+        
+        if [ ! -d "certs/server.key" ]; then
+            cd certs
+            openssl genrsa -out ./server.key 1024
+            openssl req -new -x509 -days 3650 -key ./server.key \
+                    -out ./server.crt -batch
+        
+            cd ..
+        fi
         chown -R newebe:newebe /usr/local/etc/newebe/certs
+        chmod -R 700 /usr/local/etc/newebe/certs
 
         touch /usr/share/pyshared/newebe/apps/__init__.py
         touch /usr/share/pyshared/newebe/tools/__init__.py
