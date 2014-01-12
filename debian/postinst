@@ -16,23 +16,23 @@ case "$1" in
  
         if ! id newebe > /dev/null 2>&1
         then
-            adduser --system --ingroup newebe --home /usr/local/newebe \
+            adduser --system --ingroup newebe --home /usr/local/var/newebe \
                     --gecos "Newebe system user" --shell /bin/false \
                     --quiet --disabled-password newebe
         fi
 
         if [ ! -d "/usr/local/var/newebe" ]; then
-            mkdir /usr/local/var/newebe
+            mkdir -p /usr/local/var/newebe
         fi
         chown -R newebe:newebe /usr/local/var/newebe
         
         if [ ! -d "/usr/local/var/log/newebe" ]; then
-            mkdir /usr/local/var/log/newebe
+            mkdir -p /usr/local/var/log/newebe
         fi
         chown -R newebe:newebe /usr/local/var/log/newebe
         
         if [ ! -d "/etc/newebe" ]; then
-            mkdir /usr/local/etc/newebe
+            mkdir -p /usr/local/etc/newebe
         fi
         chown -R newebe:newebe /usr/local/etc/newebe
 

@@ -4,6 +4,8 @@ newebe (0.7.0-1) unstable; urgency=low
   * add two new options to the configuration file
   * change the way picture are linked to micropost
 
+ -- Frank Rousseau <gelnior@free.fr>  Sun, 12 Jan 2014 15:37:51 +0100
+
 newebe (0.6.0-1) unstable; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
