@@ -1,4 +1,10 @@
-newebe (0.6.0-1) UNRELEASED; urgency=low
+newebe (0.7.0-1) unstable; urgency=low
+
+  * Full rewrite of the browser client
+  * add two new options to the configuration file
+  * change the way picture are linked to micropost
+
+newebe (0.6.0-1) unstable; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
 

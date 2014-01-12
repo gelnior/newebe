@@ -1,5 +1,5 @@
 main:
-    path: "/usr/lcocal/newebe/"
+    path: "/usr/local/var/newebe/"
     logpath: "/usr/local/var/log/newebe/"
 security:
     certificate: "/usr/local/etc/newebe/certs/server.crt"
