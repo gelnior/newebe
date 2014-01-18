@@ -4,40 +4,36 @@
 
 set -e
 
+HOME_DIR=/var/lib/newebe
+LOG_DIR=/var/log/newebe
+CONFIG_DIR=/etc/newebe
+GROUP=newebe
+USER=newebe
+
 case "$1" in
     configure)
         # add newebe system user (requires adduser >= 3.34)
-        echo "Creating/updating newebe user account..."
+        echo "Creating/updating $USER user account..."
        
-        if ! grep -i "^newebe:" /etc/group
+        if ! id $USER > /dev/null 2>&1
         then
-            groupadd newebe
-        fi
- 
-        if ! id newebe > /dev/null 2>&1
-        then
-            adduser --system --ingroup newebe --home /usr/local/var/newebe \
+            addgroup $GROUP
+            adduser --system --ingroup $GROUP --home $HOME_DIR \
                     --gecos "Newebe system user" --shell /bin/false \
-                    --quiet --disabled-password newebe
+                    --quiet --disabled-password $USER
         fi
 
-        if [ ! -d "/usr/local/var/newebe" ]; then
-            mkdir -p /usr/local/var/newebe
+        if [ ! -d $LOG_DIR ]; then
+            mkdir -p $LOG_DIR
         fi
-        chown -R newebe:newebe /usr/local/var/newebe
+        chown -R newebe:newebe $LOG_DIR
         
-        if [ ! -d "/usr/local/var/log/newebe" ]; then
-            mkdir -p /usr/local/var/log/newebe
+        if [ ! -d $CONFIG_DIR ]; then
+            mkdir -p $CONFIG_DIR 
         fi
-        chown -R newebe:newebe /usr/local/var/log/newebe
-        
-        if [ ! -d "/etc/newebe" ]; then
-            mkdir -p /usr/local/etc/newebe
-        fi
-        chown -R newebe:newebe /usr/local/etc/newebe
 
 
-        cd /usr/local/etc/newebe
+        cd $CONFIG_DIR
         if [ ! -d "certs" ]; then
             mkdir certs 
         fi
@@ -51,8 +47,8 @@ case "$1" in
         
             cd ..
         fi
-        chown -R newebe:newebe /usr/local/etc/newebe/certs
-        chmod -R 700 /usr/local/etc/newebe/certs
+        chown -R newebe:newebe $CONFIG_DIR/*
+        chmod -R 700 $CONFIG_DIR/certs
 
         touch /usr/share/pyshared/newebe/apps/__init__.py
         touch /usr/share/pyshared/newebe/tools/__init__.py
@@ -61,11 +57,12 @@ case "$1" in
         echo "
 [program:newebe]
 autorestart=false
-command=newebe_server.py --configfile=/etc/newebe/config.yaml
+command=newebe_server --configfile=/etc/newebe/config.yaml
 redirect_stderr=true
 user=newebe
 " > /etc/supervisor/conf.d/newebe.conf
         supervisorctl update
+        supervisorctl start newebe
         ;;
     *)
         echo "postinst called with unknown argument \`$1'" >&2

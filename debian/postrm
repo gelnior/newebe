@@ -1,8 +1,20 @@
 #!/bin/bash
-	
-rm -rf /usr/local/var/newebe
-rm -rf /usr/local/var/log/newebe
-rm -rf /usr/local/var/etc/newebe
 
-userdel newebe
-groupdel newebe
+
+if [ -d "/var/lib/newebe" ]; then
+    rm -rf /var/lib/newebe
+fi
+if [ -d "/var/log/newebe" ]; then
+    rm -rf /var/log/newebe
+fi
+if [ -d "/var/etc/newebe" ]; then
+    rm -rf /var/etc/newebe
+fi
+
+if id newebe > /dev/null 2>&1
+then
+    userdel newebe
+    groupdel newebe
+fi
+
+supervisorctl stop newebe

@@ -1,1 +1,1 @@
-debian/config.yaml /usr/local/etc/newebe/ 
+debian/config.yaml /etc/newebe/ 

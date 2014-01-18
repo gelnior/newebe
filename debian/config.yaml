@@ -1,6 +1,6 @@
 main:
-    path: "/usr/local/var/newebe/"
-    logpath: "/usr/local/var/log/newebe/"
+    path: "/var/lib/newebe/"
+    logpath: "/var/log/newebe/"
 security:
-    certificate: "/usr/local/etc/newebe/certs/server.crt"
-    private_key: "/usr/local/etc/newebe/certs/server.key"
+    certificate: "/etc/newebe/certs/server.crt"
+    private_key: "/etc/newebe/certs/server.key"
