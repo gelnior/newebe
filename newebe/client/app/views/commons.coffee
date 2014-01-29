@@ -22,9 +22,12 @@ module.exports = class CommonsView extends CollectionView
         @collection.off 'add'
         @collection.fetch
             success: (commons) =>
-                console.log commons
-
                 @renderAll commons.models
+
+    renderAll: (models) ->
+        @renderOne model for model in models
+        @
+
 
     loadMore: ->
         $("#more-commons").spin 'small'
@@ -32,6 +35,8 @@ module.exports = class CommonsView extends CollectionView
         collection.url = @collection.url + @getLastDate()
         collection.fetch
             success: (commons) =>
+                console.log commons
+
                 @renderAll commons.models
                 @setLastDate collection
                 $("#more-commons").spin()

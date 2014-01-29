@@ -1920,10 +1920,18 @@ window.require.register("views/commons", function(exports, require, module) {
       this.collection.off('add');
       return this.collection.fetch({
         success: function(commons) {
-          console.log(commons);
           return _this.renderAll(commons.models);
         }
       });
+    };
+
+    CommonsView.prototype.renderAll = function(models) {
+      var model, _i, _len;
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
+        this.renderOne(model);
+      }
+      return this;
     };
 
     CommonsView.prototype.loadMore = function() {
@@ -1934,6 +1942,7 @@ window.require.register("views/commons", function(exports, require, module) {
       collection.url = this.collection.url + this.getLastDate();
       return collection.fetch({
         success: function(commons) {
+          console.log(commons);
           _this.renderAll(commons.models);
           _this.setLastDate(collection);
           $("#more-commons").spin();
