@@ -1,4 +1,3 @@
-
 # Utility methods for models
 module.exports = class Model extends Backbone.Model
 

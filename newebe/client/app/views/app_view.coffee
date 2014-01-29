@@ -4,6 +4,7 @@ MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
 NotesView = require './notes_view'
 PicturesView = require './pictures_view'
+CommonsView = require './commons_view'
 ProfileView = require './profile_view'
 ActivitiesView = require './activities_view'
 LoginView = require './login_view'
@@ -55,6 +56,7 @@ module.exports = class AppView extends View
         @registerPasswordView = @_addView RegisterPasswordView
         @micropostsView = @_addView MicropostsView
         @picturesView = @_addView PicturesView
+        @commonsView = @_addView CommonsView
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
@@ -76,6 +78,7 @@ module.exports = class AppView extends View
     onMicropostsClicked: -> @changeSubView @micropostsView
     onContactsClicked: -> @changeSubView @contactsView
     onPicturesClicked: -> @changeSubView @picturesView
+    onCommonsClicked: -> @changeSubView @commonsClicked
     onNotesClicked: -> @changeSubView @notesView
     displayProfile: => @changeSubView @profileView
     displayMicroposts: => @changeSubView @micropostsView
@@ -151,3 +154,5 @@ module.exports = class AppView extends View
             @$("#notes-button").addClass "active"
         else if view is @picturesView
             @$("#pictures-button").addClass "active"
+        else if view is @commonsView
+            @$("#commons-button").addClass "active"
