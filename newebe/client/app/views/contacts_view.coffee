@@ -1,5 +1,6 @@
 CollectionView = require '../lib/view_collection'
 Contacts = require '../collections/contacts'
+Contact = require '../models/contact'
 ContactView = require './contact_view'
 TagsView = require './tags_view'
 
@@ -24,6 +25,36 @@ module.exports = class ContactsView extends CollectionView
         @isLoaded = false
         @newContactInput = @$ '#new-contact-field'
         @addContactButton = @$ '#add-contact-button'
+
+        @configureRealTime()
+
+
+    configureRealtime: ->
+        protocol = ""
+        if window.location.protocol is 'http:'
+            protocol = 'ws'
+        else if window.location.protocol is 'https:'
+            protocol = 'wss'
+        host = window.location.host
+        path = "#{protocol}://#{host}/contacts/publisher/"
+
+        @ws = new WebSocket path
+        @ws.onmessage = (evt) =>
+
+            # update contact list with new informations
+            contact = new Contact JSON.parse evt.data
+            previousContact = @collection.findWhere '_id': contact.get '_id'
+
+            if previousContact?
+                for view in @views
+                    if view.model.cid is previousContact.cid
+                        contactView = view
+                if contactView?
+                    @collection.remove previousContact
+                    @destroy contactView
+                    @renderOne contact, prepend: true
+            else
+                @renderOne contact
 
     isValidUrl: (string) ->
         regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g
@@ -60,12 +91,14 @@ module.exports = class ContactsView extends CollectionView
             @collection.create data,
                 success: (model) =>
                     button.spin()
+                    model.set 'name', model.get 'url'
                     @renderOne model
                     @newContactInput.val null
                     @newContactInput.focus()
                 error: =>
                     button.spin()
                     alert 'Something went wrong while adding contact'
+                silent: true
 
     renderOne: (model) =>
         view = new @view model

@@ -2160,7 +2160,7 @@ window.require.register("views/contact_view", function(exports, require, module)
   
 });
 window.require.register("views/contacts_view", function(exports, require, module) {
-  var CollectionView, ContactView, Contacts, ContactsView, TagsView, request,
+  var CollectionView, Contact, ContactView, Contacts, ContactsView, TagsView, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2168,6 +2168,8 @@ window.require.register("views/contacts_view", function(exports, require, module
   CollectionView = require('../lib/view_collection');
 
   Contacts = require('../collections/contacts');
+
+  Contact = require('../models/contact');
 
   ContactView = require('./contact_view');
 
@@ -2209,7 +2211,47 @@ window.require.register("views/contacts_view", function(exports, require, module
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
       this.newContactInput = this.$('#new-contact-field');
-      return this.addContactButton = this.$('#add-contact-button');
+      this.addContactButton = this.$('#add-contact-button');
+      return this.configureRealTime();
+    };
+
+    ContactsView.prototype.configureRealtime = function() {
+      var host, path, protocol,
+        _this = this;
+      protocol = "";
+      if (window.location.protocol === 'http:') {
+        protocol = 'ws';
+      } else if (window.location.protocol === 'https:') {
+        protocol = 'wss';
+      }
+      host = window.location.host;
+      path = "" + protocol + "://" + host + "/contacts/publisher/";
+      this.ws = new WebSocket(path);
+      return this.ws.onmessage = function(evt) {
+        var contact, contactView, previousContact, view, _i, _len, _ref;
+        contact = new Contact(JSON.parse(evt.data));
+        previousContact = _this.collection.findWhere({
+          '_id': contact.get('_id')
+        });
+        if (previousContact != null) {
+          _ref = _this.views;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            view = _ref[_i];
+            if (view.model.cid === previousContact.cid) {
+              contactView = view;
+            }
+          }
+          if (contactView != null) {
+            _this.collection.remove(previousContact);
+            _this.destroy(contactView);
+            return _this.renderOne(contact, {
+              prepend: true
+            });
+          }
+        } else {
+          return _this.renderOne(contact);
+        }
+      };
     };
 
     ContactsView.prototype.isValidUrl = function(string) {
@@ -2248,6 +2290,7 @@ window.require.register("views/contacts_view", function(exports, require, module
         return this.collection.create(data, {
           success: function(model) {
             button.spin();
+            model.set('name', model.get('url'));
             _this.renderOne(model);
             _this.newContactInput.val(null);
             return _this.newContactInput.focus();
@@ -2255,7 +2298,8 @@ window.require.register("views/contacts_view", function(exports, require, module
           error: function() {
             button.spin();
             return alert('Something went wrong while adding contact');
-          }
+          },
+          silent: true
         });
       }
     };
@@ -4554,7 +4598,7 @@ window.require.register("views/templates/contact", function(exports, require, mo
   with (locals || {}) {
   var interp;
   buf.push('<div class="contact-tags mod left"></div><div class="name mod left"> <a');
-  buf.push(attrs({ 'href':(model.url) }, {"href":true}));
+  buf.push(attrs({ 'href':("" + (model.url) + "") }, {"href":true}));
   buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a></div>');
   if ( model.state != "Trusted")
   {

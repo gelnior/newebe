@@ -1,7 +1,7 @@
 *.pyc
 *.swp
 *.log
-*.yaml
 
+newebe/config.yaml
 indexes
 virtualenv
