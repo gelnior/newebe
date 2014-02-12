@@ -1,5 +1,5 @@
 Couchdbkit==0.5.6
-Tornado==2.4.0
+Tornado==3.2.0
 markdown==2.0
 pytz
 pillow
