@@ -28,8 +28,7 @@ module.exports = class ContactsView extends CollectionView
 
         @configureRealTime()
 
-
-    configureRealtime: ->
+    configureRealTime: ->
         protocol = ""
         if window.location.protocol is 'http:'
             protocol = 'ws'

@@ -2215,7 +2215,7 @@ window.require.register("views/contacts_view", function(exports, require, module
       return this.configureRealTime();
     };
 
-    ContactsView.prototype.configureRealtime = function() {
+    ContactsView.prototype.configureRealTime = function() {
       var host, path, protocol,
         _this = this;
       protocol = "";
