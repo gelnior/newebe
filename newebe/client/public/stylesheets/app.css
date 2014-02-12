@@ -2608,20 +2608,115 @@ cursor not-allowed {
 }
 @media (max-width: 480px) {
   body {
-    padding: 0 20px;
+    padding: 0 0px;
     text-rendering: optimizeSpeed;
   }
-  .layout-container {
+  #microposts-view textarea {
+    width: 100%;
+    margin: 0;
+  }
+  #microposts-view #micropost-post-button {
+    margin-left: 0;
+  }
+  #microposts-view #micropost-all {
+    padding: 0;
+  }
+  #microposts-view #micropost-tag-list button {
+    font-size: 12px;
+    padding: 4px;
+    margin: 0 3px 0 0;
+  }
+  .common a {
+    display: block;
+    width: 100%;
+  }
+  .common span {
+    font-size: 10px;
+  }
+  #notes-view button {
+    font-size: 14px;
+    padding: 4px;
+    margin: 3px;
+  }
+  #notes-view .note {
+    margin: 0;
+  }
+  #notes-view .note .row {
+    padding: 0;
+  }
+  #contacts-view {
+    padding: 10px;
+  }
+  #contacts-view input#new-contact-field.field {
+    margin: 0;
+    width: 100%;
+    font-size: 16px;
+  }
+  #contacts-view #add-contact-button {
+    margin-left: 0;
+    font-size: 14px;
+    padding: 5px;
+  }
+  #contacts-view .tag-select-button {
+    margin: 0 4px 0 0;
+    font-size: 12px;
+    padding: 5px;
+  }
+  #contacts-view .contact-tag {
+    margin: 0 4px 0 0;
+    font-size: 10px;
+  }
+  #contacts-view .name {
+    padding: 0;
+  }
+  #contacts-view diV#tag-list {
+    display: none;
+  }
+  #contacts-view .contact-line .mod {
+    display: inline;
     width: auto;
+    float: left !important;
+  }
+  #contacts-view .contact-line div.name {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  #contacts-view .contact-line .contact-buttons button {
+    margin: 0;
+    padding: 4px;
+  }
+  #profile-view div#profile-description {
+    padding: 0;
+  }
+  #activities-view #sync-activities-button,
+  #activities-view #more-activities-button {
+    margin-left: 0;
+  }
+  #activities-view #activity-all {
+    padding: 0;
+  }
+  #activities-view #activity-all .infos span {
+    font-size: 10px;
+  }
+  #activities-view #activity-all .infos .date.mr2 {
+    margin-right: 5px;
+    width: 80px;
   }
 }
 @media (max-width: 767px) {
   body {
-    padding: 0 20px;
+    padding: 0 0px;
     text-rendering: optimizeSpeed;
   }
   .layout-container {
     width: auto;
+  }
+  #home .question p {
+    font-size: 20px;
+  }
+  #home .question input {
+    font-size: 20px;
   }
 }
 @media (min-width: 768px) and (max-width: 979px) {

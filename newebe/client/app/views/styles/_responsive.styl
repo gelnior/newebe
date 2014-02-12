@@ -2,21 +2,128 @@
     // Landscape phones and down
 
     body
-        padding 0 20px
+        padding 0 0px
         text-rendering optimizeSpeed
 
-    .layout-container
-        width auto
+    #microposts-view
+        textarea
+            width: 100%
+            margin: 0
+
+        #micropost-post-button
+            margin-left: 0
+
+        #micropost-all
+            padding: 0
+
+        #micropost-tag-list
+            button
+                font-size: 12px
+                padding: 4px
+                margin: 0 3px 0 0
+
+    .common
+        a
+            display: block
+            width: 100%
+
+        span
+            font-size: 10px
+
+    #notes-view
+        button
+            font-size: 14px
+            padding: 4px
+            margin: 3px
+
+        .note
+            margin: 0
+
+            .row
+                padding: 0
+
+    #contacts-view
+        padding: 10px
+
+        input#new-contact-field.field
+            margin: 0
+            width: 100%
+            font-size: 16px
+
+        #add-contact-button
+            margin-left: 0
+            font-size: 14px
+            padding: 5px
+
+        .tag-select-button
+            margin: 0 4px 0 0
+            font-size: 12px
+            padding: 5px
+
+        .contact-tag
+            margin: 0 4px 0 0
+            font-size: 10px
+
+        .name
+            padding: 0
+
+        diV#tag-list
+            display: none
+
+        .contact-line
+            .mod
+                display: inline
+                width: auto
+                float: left !important
+
+            div.name
+                padding-top: 5px
+                padding-left: 5px
+                padding-right: 5px
+
+            .contact-buttons
+                button
+                    margin: 0
+                    padding: 4px
+
+    #profile-view
+        div#profile-description
+            padding: 0
+
+    #activities-view
+        #sync-activities-button
+        #more-activities-button
+            margin-left: 0
+
+        #activity-all
+            padding: 0
+
+            .infos
+                span
+                    font-size: 10px
+
+                .date.mr2
+                    margin-right: 5px
+                    width: 80px
+
 
 @media (max-width: 767px)
     // Landscape phone to portrait tablet
 
     body
-        padding 0 20px
+        padding 0 0px
         text-rendering optimizeSpeed
 
     .layout-container
         width auto
+
+    #home
+        .question
+            p
+                font-size: 20px
+
+            input
+                font-size: 20px
 
 @media (min-width: 768px) and (max-width: 979px)
     // Portrait tablet to landscape and desktop
