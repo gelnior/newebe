@@ -2270,7 +2270,7 @@ a:visited:hover {
   text-decoration: underline;
 }
 button {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2733,6 +2733,7 @@ cursor not-allowed {
   background: #000;
   -webkit-box-shadow: -3px 2px 3px #bbb;
   box-shadow: -3px 2px 3px #bbb;
+  height: 38px;
 }
 #navigation li a {
   border: 0;
@@ -2850,7 +2851,7 @@ cursor not-allowed {
   border-bottom: 1px solid transparent;
 }
 #notes-view .note .note-title:hover {
-  border-bottom: 1px solid #d82545;
+  border-bottom: 1px solid #e67e22;
 }
 #notes-view .note .note-title:active,
 #notes-view .note .note-title:focus {
@@ -2940,7 +2941,7 @@ cursor not-allowed {
   margin-left: 0;
 }
 #profile-view .main-section:hover #change-picture-button:not(:hover) {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2948,7 +2949,7 @@ cursor not-allowed {
   transition: background-color 200ms linear;
 }
 #profile-view .main-section:hover #sesame-stuff button:not(:hover) {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2971,7 +2972,7 @@ cursor not-allowed {
 }
 #profile-view #change-picture-button {
   cursor: pointer;
-  background-color: #d82545;
+  background-color: #e67e22;
   padding: 10px;
   color: #fff;
   font-weight: bold;
