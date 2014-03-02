@@ -1,10 +1,4 @@
 @media (max-width: 480px)
-    // Landscape phones and down
-
-    body
-        padding 0 0px
-        text-rendering optimizeSpeed
-
     #microposts-view
         textarea
             width: 100%
@@ -107,7 +101,7 @@
                     width: 80px
 
 
-@media (max-width: 767px)
+@media (max-width: 760px)
     // Landscape phone to portrait tablet
 
     body
@@ -125,14 +119,30 @@
             input
                 font-size: 20px
 
-@media (min-width: 768px) and (max-width: 979px)
-    // Portrait tablet to landscape and desktop
+    #responsive-menu
+        display: block
 
-    .layout-container
-        width 724px
+    #navigation
+        ul
+            width: 100%
+            display: block
+            overflow: inherit
+            z-index: 1000
+            position: fixed
+            display: none
 
-@media (min-width: 1200px)
-    // Large desktop
+        li
+            width: 100%
+            z-index: 1000
+            display: block
 
-    .layout-container
-        width 1170px
+            a
+                width: 100%
+                padding: 5px
+                z-index: 1000
+
+        li#responsive-menu
+            display: block
+
+            a
+                color: white

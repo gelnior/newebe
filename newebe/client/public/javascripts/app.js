@@ -1611,7 +1611,8 @@ window.require.register("views/app_view", function(exports, require, module) {
     };
 
     AppView.prototype.events = {
-      'click #logout-button': 'onLogoutClicked'
+      'click #logout-button': 'onLogoutClicked',
+      'click #responsive-menu': 'onResponsiveMenuClicked'
     };
 
     AppView.prototype.checkUserState = function(callback) {
@@ -1635,6 +1636,10 @@ window.require.register("views/app_view", function(exports, require, module) {
           return _this.displayLogin();
         }
       });
+    };
+
+    AppView.prototype.onResponsiveMenuClicked = function() {
+      return this.$('#navigation ul').slideToggle();
     };
 
     AppView.prototype.start = function(userState, callback) {
@@ -1747,6 +1752,10 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.changeSubView = function(subView, callback) {
       var _this = this;
+      console.log($(window).width());
+      if ($(window).width() < 760) {
+        this.$('#navigation ul').slideUp();
+      }
       this.changeMenuState(subView);
       if (this.currentSubView != null) {
         return this.currentSubView.fadeOut(function() {
@@ -1794,17 +1803,23 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.changeMenuState = function(view) {
       this.$("#navigation").find("a").removeClass("active");
       if (view === this.micropostsView) {
-        return this.$("#microposts-button").addClass("active");
+        this.$("#microposts-button").addClass("active");
+        return this.$("#responsive-menu a").html('news');
       } else if (view === this.contactsView) {
-        return this.$("#contacts-button").addClass("active");
+        this.$("#contacts-button").addClass("active");
+        return this.$("#responsive-menu a").html('contacts');
       } else if (view === this.profileView) {
-        return this.$("#profile-button").addClass("active");
+        this.$("#profile-button").addClass("active");
+        return this.$("#responsive-menu a").html('profile');
       } else if (view === this.notesView) {
-        return this.$("#notes-button").addClass("active");
+        this.$("#notes-button").addClass("active");
+        return this.$("#responsive-menu a").html('notes');
       } else if (view === this.picturesView) {
-        return this.$("#pictures-button").addClass("active");
+        this.$("#pictures-button").addClass("active");
+        return this.$("#responsive-menu a").html('pictures');
       } else if (view === this.commonsView) {
-        return this.$("#commons-button").addClass("active");
+        this.$("#commons-button").addClass("active");
+        return this.$("#responsive-menu a").html('commons');
       }
     };
 
@@ -4626,7 +4641,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="pictures-button" href="#pictures" class="active">pictures</a></li><li><a id="notes-button" href="#commons" class="active">commons</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
+  buf.push('<nav id="navigation" class="hidden"><li id="responsive-menu"><a>menu</a></li><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="pictures-button" href="#pictures" class="active">pictures</a></li><li><a id="notes-button" href="#commons" class="active">commons</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
   }
   return buf.join("");
   };
