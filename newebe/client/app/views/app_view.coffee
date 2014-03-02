@@ -116,7 +116,6 @@ module.exports = class AppView extends View
         else @checkUserState showView
 
     changeSubView: (subView, callback) =>
-        console.log $(window).width()
         if $(window).width() < 760
             @$('#navigation ul').slideUp()
         @changeMenuState subView
