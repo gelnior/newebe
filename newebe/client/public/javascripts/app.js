@@ -2539,6 +2539,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       this.remove(this.views, {
         silent: true
       });
+      this.collection.reset();
       this.views = [];
       if (tag !== 'all') {
         this.collection.url = this.collection.baseUrl + date;
@@ -2554,7 +2555,6 @@ window.require.register("views/micropost_list_view", function(exports, require, 
           _this.$el.spin();
           _this.$el.css('height', 'auto');
           if (_this.views.length === 0) {
-            microposts.models.slice();
             _ref = microposts.models;
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
