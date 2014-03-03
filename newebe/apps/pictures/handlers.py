@@ -377,10 +377,15 @@ class PictureDownloadHandler(PictureObjectHandler):
         data["picture"] = picture.toDict(localized=False)
         data["contact"] = UserManager.getUser().asContact().toDict()
 
-        if picture._id in CURRENT_DOWNLOADS:
-            self.return_success('already downloading')
-        else:
-            CURRENT_DOWNLOADS.append(picture._id)
+        print CURRENT_DOWNLOADS
+        print "data picture id %s" % data["picture"]["_id"]
+        for download in CURRENT_DOWNLOADS:
+            print "download %s " % download
+
+            if download == data["picture"]["_id"]:
+                return self.return_success('already downloading')
+
+        CURRENT_DOWNLOADS.append(data["picture"]["_id"])
 
         contact = ContactManager.getTrustedContact(picture.authorKey)
 
@@ -414,11 +419,11 @@ class PictureDownloadHandler(PictureObjectHandler):
                 micropost.pictures_to_download.remove(self.picture._id)
                 micropost.save()
 
-            CURRENT_DOWNLOADS.remove(self.picture._id)
+            CURRENT_DOWNLOADS.remove(self.picture.toDict()["_id"])
             self.return_success("Picture successfuly downloaded.")
 
         else:
-            CURRENT_DOWNLOADS.remove(self.picture._id)
+            CURRENT_DOWNLOADS.remove(self.picture.toDict()["_id"])
             self.return_failure("Picture cannot be retrieved.")
 
     def get_thumbnail(self, filebody, filename, size):

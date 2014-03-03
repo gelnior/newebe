@@ -24,21 +24,26 @@ module.exports = class MicropostView extends View
         @downloadButton = @$ '.download-picture-btn'
         pictureId = @model.get('pictures_to_download')?[0]
 
+        @downloadRunning = false
         @downloadButton.click =>
-            @model.downloadPicture pictureId, (err) =>
-                if err
-                    alert 'Picture cannot be loaded'
-                else
-                    @hideDlBtnAndDisplayPicture pictureId
+            unless @downloadRunning
+                @downloadRunning = true
+                @model.downloadPicture pictureId, (err) =>
+                    if err
+                        alert 'Picture cannot be loaded'
+                    else
+                        @hideDlBtnAndDisplayPicture pictureId
 
         @downloadButton = @$ '.download-common-btn'
         commonId = @model.get('commons_to_download')?[0]
         @downloadButton.click =>
-            @model.downloadCommon commonId, (err) =>
-                if err
-                    alert 'Common cannot be loaded'
-                else
-                    @hideDlBtnAndDisplayCommon commonId
+            unless @downloadRunning
+                @downloadRunning = true
+                @model.downloadCommon commonId, (err) =>
+                    if err
+                        alert 'Common cannot be loaded'
+                    else
+                        @hideDlBtnAndDisplayCommon commonId
 
 
     hideDlBtnAndDisplayPicture: (pictureId) =>
@@ -51,10 +56,12 @@ module.exports = class MicropostView extends View
 <img class="post-picture" src="pictures/#{pictureId}/prev_#{pictureId}.jpg" />
 </a>
 """
+            @downloadRunning = false
 
     hideDlBtnAndDisplayCommon: (commonId) =>
         @downloadButton.prev().fadeOut()
         @downloadButton.fadeOut =>
+            @downloadRunning = false
             request.get "/commons/#{commonId}/", (err, commonRows) =>
                 common = commonRows.rows[0]
                 @downloadButton.after """

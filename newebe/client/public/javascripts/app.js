@@ -1067,7 +1067,7 @@ window.require.register("models/micropost", function(exports, require, module) {
     };
 
     Micropost.prototype.downloadPicture = function(pictureId, callback) {
-      return request.get("/pictres/" + pictureId + "/download/", callback);
+      return request.get("/pictures/" + pictureId + "/download/", callback);
     };
 
     Micropost.prototype.downloadCommon = function(commonId, callback) {
@@ -1752,7 +1752,6 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.changeSubView = function(subView, callback) {
       var _this = this;
-      console.log($(window).width());
       if ($(window).width() < 760) {
         this.$('#navigation ul').slideUp();
       }
@@ -2673,25 +2672,32 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.buttons = this.$('.micropost-buttons');
       this.downloadButton = this.$('.download-picture-btn');
       pictureId = (_ref = this.model.get('pictures_to_download')) != null ? _ref[0] : void 0;
+      this.downloadRunning = false;
       this.downloadButton.click(function() {
-        return _this.model.downloadPicture(pictureId, function(err) {
-          if (err) {
-            return alert('Picture cannot be loaded');
-          } else {
-            return _this.hideDlBtnAndDisplayPicture(pictureId);
-          }
-        });
+        if (!_this.downloadRunning) {
+          _this.downloadRunning = true;
+          return _this.model.downloadPicture(pictureId, function(err) {
+            if (err) {
+              return alert('Picture cannot be loaded');
+            } else {
+              return _this.hideDlBtnAndDisplayPicture(pictureId);
+            }
+          });
+        }
       });
       this.downloadButton = this.$('.download-common-btn');
       commonId = (_ref1 = this.model.get('commons_to_download')) != null ? _ref1[0] : void 0;
       return this.downloadButton.click(function() {
-        return _this.model.downloadCommon(commonId, function(err) {
-          if (err) {
-            return alert('Common cannot be loaded');
-          } else {
-            return _this.hideDlBtnAndDisplayCommon(commonId);
-          }
-        });
+        if (!_this.downloadRunning) {
+          _this.downloadRunning = true;
+          return _this.model.downloadCommon(commonId, function(err) {
+            if (err) {
+              return alert('Common cannot be loaded');
+            } else {
+              return _this.hideDlBtnAndDisplayCommon(commonId);
+            }
+          });
+        }
       });
     };
 
@@ -2700,7 +2706,8 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.downloadButton = this.$('.download-picture-btn');
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
-        return _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+        _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+        return _this.downloadRunning = false;
       });
     };
 
@@ -2708,6 +2715,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
       var _this = this;
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
+        _this.downloadRunning = false;
         return request.get("/commons/" + commonId + "/", function(err, commonRows) {
           var common;
           common = commonRows.rows[0];
