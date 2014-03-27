@@ -18,7 +18,7 @@ logger = logging.getLogger("newebe.core")
 class ProfileUpdater:
     '''
     Utility class to handle profile forwarding to contacts. Set error
-    log inside acitivity when error occurs.
+    log inside activity when error occurs.
     '''
 
     sending_data = False
@@ -144,7 +144,6 @@ class ProfilePictureHandler(NewebeAuthHandler):
         except ResourceNotFound:
             self.return_failure("Picture not found.", 404)
 
-
     def post(self):
         '''
         Change current profile picture, resize it before that.
@@ -161,11 +160,16 @@ class ProfilePictureHandler(NewebeAuthHandler):
         user.save()
         self.return_success("File uploaded")
 
+        small_picture = resizer.resize_and_get_file(filebody, 100, 100).read()
         self.send_files_to_contacts(
-            "contact/update-profile/picture/",
+            "contacts/update-profile/picture/",
             fields={"key": user.key},
-            files=[("small_picture", "small_picture.jpg", small_picture)]
+            files=[("small_picture", "small_picture.jpg",
+                small_picture)]
         )
 
 
+        #file = self.request.files['picture'][0]
 
+        #if file:
+        #    filebody = file["body"]

@@ -87,7 +87,6 @@ class ContactPictureUpdateHandler(NewebeHandler):
 
         picfile = self.request.files['small_picture'][0]
         contactKey = self.get_argument("key")
-        import pdb; pdb.set_trace()
 
         if picfile and contactKey:
             contact = ContactManager.getTrustedContact(contactKey)

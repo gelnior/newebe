@@ -80,11 +80,11 @@ class PicturesHandler(NewebeAuthHandler):
             picture.save()
 
             self.create_owner_creation_activity(
-                    picture, "publishes", "picture")
+                picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/",
-                        fields={"json": str(picture.toJson(localized=False))},
-                        files=[("picture", str(picture.path), thbuffer)])
+                fields={"json": str(picture.toJson(localized=False))},
+                files=[("picture", str(picture.path), thbuffer)])
 
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
