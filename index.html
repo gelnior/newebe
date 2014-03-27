@@ -20,7 +20,7 @@
       type="text/css" media="screen" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js">
 </script>
-<title>Newebe | feel free to share</title>
+<title>Newebe | Freedom To Share</title>
 </head>
 
 <body>
@@ -30,84 +30,53 @@
         alt="Fork me on GitHub" />
   </a>
 
+  <ul id="menu">
+    <li><a id="menu-home" href="#home">home</></li>
+    <li><a id="menu-install" href="#install">install</a></li>
+    <li><a id="menu-faq" href="#faq">faq</a></li>
+    <li><a id="menu-documentation" href="#documentation">
+      doc</a></li>
+    <li><a id="menu-contact" href="#contact">contact</a></li>
+    <li><a id="menu-developers" href="#developers">dev</a></li>
+    <li>
+      <a id="menu-blog" 
+         target="blank"
+         href="https://gelnior.wordpress.com/category/self-hosting/">
+        blog
+      </a>
+    </li>
+    <li>
+      <a id="menu-wiki" 
+           target="blank"
+           href="https://github.com/gelnior/newebe/wiki">
+       wiki
+     </a>
+    </li>
+    <li>
+        <a id="menu-demo" href="#demo">demo</a>
+    </li>
+  </ul>
+
   <div id="container">
-      
+    <div id="home">
     <h1>
       <a href="http://newebe.org/">
         <img id="logo" src="images/newebe_logo_birds.jpg" alt="Newebe"/>
       </a>
     </h1>
       
-    <div id="download">
-      <h2 id="slogan">feel free to share</h2>
-      <div class="description" >
-        Growth of web applications has been a huge improvement for social 
-        sharing and collaborative work. Unfortunately, to enjoy these new tools,
-        we have traded our privacy. Newebe aims to solve this problem
-        by providing social applications you host at your home and that connect
-        directly to your contacts.
-      </div>
-      <div id="download-text">
-        install
-        <a href="#install">
-            newebe 0.6.0
-        </a>
-        <span>beta</span>
-      </div>
-      <div>&nbsp;</div>
-    </div>
-
     <div class="spacer"></div>
 
-    <ul id="menu">
-        <li><a id="menu-home" href="#home">home</></li>
-        <li><a id="menu-install" href="#install">install</a></li>
-        <li><a id="menu-faq" href="#faq">faq</a></li>
-        <li><a id="menu-documentation" href="#documentation">
-            doc</a></li>
-        <li><a id="menu-contact" href="#contact">contact</a></li>
-        <li><a id="menu-developers" href="#developers">dev</a></li>
-        <li>
-          <a id="menu-blog" 
-             target="blank"
-             href="https://gelnior.wordpress.com/category/self-hosting/">
-            blog
-          </a>
-        </li>
-        <li>
-          <a id="menu-wiki" 
-             target="blank"
-             href="https://github.com/gelnior/newebe/wiki">
-            wiki
-          </a>
-        </li>
-        <li>
-          <a id="menu-demo" href="#demo">demo</a>
-        </li>
-    </ul>
+    <h1>Freedom To Share</h1>
+    <h2 class="center">Newebe is a Distributed Social Network</h1>
+    <div class="center">
+      version 0.6.0
+    </div>
 
-    <div id="home">
-
-
-    <!--div id="announcement">
-        <h2>Announcement</h2>
-    <p id="annoucement-question">
-      <em>
-        Want to contribute to an innovative open source project which
-        uses cool technologies and pretends to make the web a better place ? 
-      </em>
-    </p>
-    <p>
-      Good News ! We are looking for developers, from beginner to expert
-      (Python and Coffeescript). If you are interested in helping building
-      this project contact us via 
-      <a href="http://groups.google.com/group/newebe">
-          our mailing list
-      </a>
-    </p>
-    </div-->
-
-    <h2>Newebe is a distributed social network</h2>
+    <div class="downloads center">
+        <a href="https://github.com/downloads/gelnior/newebe/newebe-server_0.6.0-1_all.deb">Debian Package</a>,
+        <a href="https://github.com/gelnior/newebe/tree/master/deploy/docker">Dockerfile</a>
+    </div>
 
     <div class="feature feature-left">
       <img src="images/share.png" alt="Share picture" />
@@ -138,34 +107,32 @@
     </div>
 
     <div class="spacer"></div>
+    <div class="center">
+    <a href="#install">Install it</a>
+    </div>
+    <div class="center">
+    or
+    </div>
+    <div class="center">
+    <a href="#demo">Try the demo</a>
+    </div>
 
-    <h2>Screenshots</h2>
-    <h3>microblogging</h3>
-    <img src="images/newebe_screen_01.jpg" 
-         alt="Newebe screenshot - microblogging"/>
-    <h3>pictures</h3>
-    <img src="images/newebe_screen_pictures.jpg" 
-         alt="Newebe screenshot - pictures"/>
-    <h3>notes</h3>
-    <img src="images/newebe_screen_02.jpg" 
-         alt="Newebe screenshot - notes"/>
-    <h3>contacts</h3>
-    <img src="images/newebe_screen_03.jpg" 
-         alt="Newebe screenshot - contacts"/>
-    <h3>activity stream</h3>
-    <img src="images/newebe_screen_04.jpg" 
-         alt="Newebe screenshot - activity stream"/>
-    <h3>themes</h3>
-    <img src="images/newebe_theme_01.jpg" width="700" 
-         alt="Newebe screenshot - theme 01"/>
-    <img src="images/newebe_theme_02.jpg" width="700"
-         alt="Newebe screenshot - theme 02"/>
+    
     </div>
 
 
     <div id="install">
     <h2>Install</h2>
-
+    <h3>Installation on a debian (testing) server:</h3>
+    <pre> 
+wget https://github.com/downloads/gelnior/newebe/newebe-server_0.6.0-1_all.deb -
+sudo dpkg -i newebe-server_0.6.0-1_all.deb
+sudo apt-get install -f
+    </pre>
+    <p>
+      Then your newebe will run on port 8000.
+    </p>
+ 
     <h3>Installation on a remote server for Debian or Ubuntu users from your 
     local computer:</h3>
     <p>
@@ -177,15 +144,6 @@ apt-get install python python-setuptools python-pip
 pip install fabric fabtools
 wget https://raw.github.com/gelnior/newebe/master/deploy/fabfile.py
 fab setup -H myrootuser@myhosturlorip
-    </pre>
-    <p>
-      Then your newebe will run on port 8000.
-    </p>
-    <h3>Installation on a debian (testing) server:</h3>
-    <pre> 
-wget https://github.com/downloads/gelnior/newebe/newebe-server_0.6.0-1_all.deb -
-sudo dpkg -i newebe-server_0.6.0-1_all.deb
-sudo apt-get install -f
     </pre>
     <p>
       Then your newebe will run on port 8000.
@@ -279,7 +237,7 @@ sudo supervisorctl start newebe
         Newebe differs from the federated approach because it is designed
         to be only self-hosted. You can't suscribe to any server, you have
         to setup your own. <br />
-        This bring several advantages:
+        It brings several benefits:
         <ul>
             <li>
          real privacy: your data are at home and no third party is involved
@@ -303,10 +261,6 @@ sudo supervisorctl start newebe
          highly interoperable: your data are accessible through a 
           complete REST API.
             </li>
-            <li>
-            It's fast: Newebe does not need to serve millions of connections
-            each day, only yours and your contact ones.
-            </li>
         </ul>
         </p>
         <p><strong>
@@ -314,23 +268,23 @@ sudo supervisorctl start newebe
         </strong></p>
         <p>
         It works pretty well, Newebe is built in an agile way, short iterations
-        and working software. I use it every day since almost two years.
+        and working software. I use it every day since almost three years.
         </p>
         <p><strong>
-        Do I need a web server to host Newebe ?
+        Do I need a server to host Newebe ?
         </strong></p>
         <p>
-        Yes you need a web server. Don't be afraid, nowadays
+        Yes you need a Linux based server. Don't be afraid, nowadays
         owning a web server is a common practice! You can either 
         <ul>
             <li>
             Rent it online <br />
-            providers: OVH, Online.net, Rackspace, Gandhi...
+            providers: OVH, Online.net, Rackspace, Amazon, Gandhi...
             </li>
             <li>
             Or buy it and plug it at home <br />
             devices: RaspberryPi, Sheevaplug, Dreamplug, Guruplug, 
-            Tonidoplug, Synology
+            Tonidoplug, Synology, Cubieboard...
             </li>
         </ul>
         </p>
@@ -361,22 +315,6 @@ sudo supervisorctl start newebe
     is part of the list corresponding to this tags. When you share
     you must select a tag to tell which list of contacts will receive
     your post or your picture.
-    </p>
-    <h3>Tutorials</h3>
-    <p>
-    Tutorials are displayed when you first use newebe to help you
-    understand the way it works. You just have to start using it, newebe will
-    tell you what to do.
-    </p>
-    <h3>Themes</h3>
-    <p>
-    Themes can be added by providing a CSS file to Newebe. For that simply put
-    a file named <em>theme.css</em> in the directory <em>static/css/</em>.
-    </p>
-    <p>
-    You can download blue and green theme here :<br />
-    <a href="/themes/theme_01.css">blue theme</a><br />
-    <a href="/themes/theme_02.css">green theme</a>
     </p>
     <h3>More</h3>
     <p> For more informations about Newebe you can check the 
@@ -443,9 +381,11 @@ sudo supervisorctl start newebe
     <h3>Issues</h3>
     <p>Here are the main issues to solve :</p>
     <ul>
-        <li>Packaging</li>
         <li>Security</li>
         <li>Internationalization</li>
+        <li>Define a communication protocol or reuse an existing one</li>
+        <li>Use an embedded database instead of Couchdb</li>
+        <li>Find a way to reduce dependencies</li>
     </ul>
     <p>For more details about a subject, send an email to the mailing
     list and I will answer as soon as I can.

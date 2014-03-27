@@ -1,32 +1,45 @@
+@font-face {
+  font-family: main;
+  src: url("fonts/open-sans-regular.ttf");
+}
+@font-face {
+  font-family: robotic;
+  src: url("fonts/andale-mono.ttf");
+}
 body {
-  font-family: "sans-serif";
+  font-family: main, "sans-serif";
   color: #000;
   margin: 0;
 }
 #container {
   background-color: #fff;
   margin: 0 auto;
+  padding: 20px 0;
   width: 700px;
 }
 h1 {
-  font-size: 3.8em;
+  font-size: 4em;
   margin: 0 0 3px 0;
+  font-family: robotic;
+  font-weight: bold;
+  text-align: center;
 }
 h2 {
-  font-size: 1.3em;
-  margin-top: 35px;
+  font-size: 1.8em;
+  margin-top: 55px;
   font-variant: small-caps;
+  font-family: robotic;
 }
 h3 {
-  margin-top: 25px;
-  font-size: 1.1em;
+  margin-top: 35px;
+  font-size: 1.4em;
   font-variant: small-caps;
   text-transform: lowercase;
+  font-family: robotic;
 }
 a {
   color: #000;
   font-weight: bold;
-  text-decoration: none;
 }
 pre {
   background: #ddefff;
@@ -44,34 +57,20 @@ img {
 li {
   list-style-type: square;
 }
+.center {
+  text-align: center;
+}
 .spacer {
   clear: both;
+}
+.downloads {
+  padding: 20px 0;
 }
 span.step {
   font-weight: bold;
   color: #555;
   font-size: 0.8em;
   margin-right: 10px;
-}
-#logo {
-  float: left;
-}
-#download-text {
-  margin-top: 135px;
-}
-#download-text span {
-  font-size: 8px;
-}
-#slogan {
-  margin: 0 0 0 0;
-  font-variant: small-caps;
-  color: #fff;
-}
-.description {
-  font-style: italic;
-  margin-bottom: 3px;
-  font-size: 12px;
-  padding: 10px;
 }
 #download {
   padding: 10px #468856;
@@ -102,16 +101,19 @@ span.step {
   font-size: 1.2em;
   font-variant: small-caps;
   border-bottom: 0px solid #000;
-  margin-top: 10px;
   color: #fff;
   background-color: #000;
+  position: fixed;
+  margin: 0;
+  top: 0;
 }
 #menu li {
-  display: inline;
   padding: 0px 10px 0px 0;
+  list-style-type: none;
 }
 #menu a {
   color: #fff;
+  text-decoration: none;
 }
 #menu a:hover {
   border-bottom: 5px solid #fff;
