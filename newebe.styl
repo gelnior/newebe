@@ -11,11 +11,14 @@ body
   color: black
   margin: 0
 
+img
+  max-width: 100%
+
 #container
   background-color: white
   margin: 0 auto
-  padding: 20px 0
-  width: 700px
+  padding: 20px
+  max-width: 700px
 
 h1
   font-size: 4em
@@ -24,9 +27,12 @@ h1
   font-weight: bold
   text-align: center
 
+  #logo
+      max-width: 100%
+
 h2
   font-size: 1.8em
-  margin-top: 55px
+  margin-top: 75px
   font-variant: small-caps
   font-family: robotic
 
@@ -147,24 +153,6 @@ span.step
   font-variant normal
 
 
-#announcement
-  background-color #DFF0D8
-  color #468856
-  border 1px solid #468856
-  padding 20px
-  margin-bottom 20px
-
-#announcement a 
-  color #468856
-
-#announcement p, h2
-  padding 0
-  margin 0
-
-#announcement p
-  margin-bottom 5px
-  font-size 18px
-
-#announcement h2
-  margin-bottom 10px
-
+@media (max-width: 760px)
+  #menu
+      display: none

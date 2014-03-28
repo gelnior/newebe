@@ -2,7 +2,7 @@ $ ->
     onMenuElementClicked = (event) =>
         page = event.target.id.substring(5)
         displayPage(page)
- 
+
     displayPage = (page) =>
         @lastSelectedMenu.removeClass('selected')
         @lastSelectedMenu = $("#menu-#{page}")
@@ -11,12 +11,13 @@ $ ->
             $("##{page}").fadeIn(300)
         @lastSelected = $("##{page}")
 
-    $('#install').hide()
-    $('#documentation').hide()
-    $('#contact').hide()
-    $('#developers').hide()
-    $('#demo').hide()
-    $('#faq').hide()
+    if $(window).width() > 760
+        $('#install').hide()
+        $('#documentation').hide()
+        $('#contact').hide()
+        $('#developers').hide()
+        $('#demo').hide()
+        $('#faq').hide()
     $('#download-text').click (event) ->
       displayPage 'install'
 
@@ -35,7 +36,7 @@ $ ->
 
         $('#home').hide()
         $(element).show()
-        
+
         @lastSelected = $(element)
         @lastSelectedMenu = $('#menu-' + path)
     else
