@@ -72,6 +72,17 @@ li {
 .downloads {
   padding: 20px 0;
 }
+a.button {
+  background: #e67e22;
+  transition: background-color 200ms linear 0s;
+  text-decoration: none;
+  padding: 10px;
+  margin: 10px;
+  color: #fff;
+}
+a.button:hover {
+  background: #ad2bad;
+}
 span.step {
   font-weight: bold;
   color: #555;

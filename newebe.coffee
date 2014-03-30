@@ -28,6 +28,8 @@ $ ->
     $('#menu-contact').click onMenuElementClicked
     $('#menu-developers').click onMenuElementClicked
     $('#menu-demo').click onMenuElementClicked
+    $('#install-button').click -> displayPage 'install'
+    $('#demo-button').click -> displayPage 'demo'
 
     url = document.location.href
     if url and url.indexOf("#") > 0

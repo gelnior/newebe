@@ -38,6 +38,12 @@
     $('#menu-contact').click(onMenuElementClicked);
     $('#menu-developers').click(onMenuElementClicked);
     $('#menu-demo').click(onMenuElementClicked);
+    $('#install-button').click(function() {
+      return displayPage('install');
+    });
+    $('#demo-button').click(function() {
+      return displayPage('demo');
+    });
     url = document.location.href;
     if (url && url.indexOf("#") > 0) {
       path = url.split("#")[1];
