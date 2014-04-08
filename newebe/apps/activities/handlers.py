@@ -24,8 +24,6 @@ class ActivityHandler(NewebeAuthHandler):
         Arguments:
             *startKey* The date until where activities should be returned.
         '''
-
-
         if startKey:
             dateString = date_util.get_db_utc_date_from_url_date(startKey)
             docs = ActivityManager.get_all(startKey=dateString, tag="all")
@@ -60,7 +58,6 @@ class MyActivityHandler(NewebeAuthHandler):
         Arguments:
             *startKey* The date until where activities should be returned.
         '''
-
         self.return_documents_since(ActivityManager.get_mine, startKey)
 
 
