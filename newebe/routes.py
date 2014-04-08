@@ -77,11 +77,8 @@ routes = [
         news.MicropostAttachedFileHandler),
 
     ('/notes/all/', notes.NotesHandler),
-    ('/notes/all/html/', notes.NoteRowsTHandler),
     ('/notes/all/order-by-title/', notes.NotesHandler),
     ('/notes/all/order-by-date/', notes.NotesByDateHandler),
-    ('/notes/', notes.NotesPageTHandler),
-    ('/notes/content/', notes.NotesContentTHandler),
     ('/notes/all/([0-9a-z]+)', notes.NoteHandler),
 
     ('/pictures/all/$', pictures.PicturesHandler),
