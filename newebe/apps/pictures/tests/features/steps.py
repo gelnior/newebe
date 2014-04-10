@@ -21,7 +21,8 @@ from newebe.lib.test_util import NewebeClient, reset_documents, \
 
 
 from newebe.config import CONFIG
-CONFIG.main.path = '.'
+import os
+CONFIG.main.path = os.path.dirname(os.path.abspath(__file__))
 
 @before.all
 def set_browsers():
@@ -38,12 +39,12 @@ def set_browsers():
         world.browser2.set_default_user_2(SECOND_NEWEBE_ROOT_URL)
         world.browser2.login("password")
 
-        world.browser.post("contacts/all/",
+        world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
         time.sleep(0.3)
-        world.browser2.put("contacts/%s/"
+        world.browser2.put("contacts/%s"
                            % slugify(world.browser.root_url.decode("utf-8")),
-                           "")
+                           body='{"state":"Trusted"}')
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"
 
@@ -131,7 +132,7 @@ def clear_all_pictures(step):
 @step(u'From seconde Newebe, clear all pictures')
 def from_seconde_newebe_clear_all_pictures(step):
     try:
-        pictures = world.browser2.fetch_documents("pictures/last/")
+        pictures = world.browser2.fetch_documents("pictures/")
         while pictures:
             for picture in pictures:
                 world.browser2.delete("pictures/%s/" % picture["_id"])
@@ -303,7 +304,7 @@ def add_three_pictures_to_the_database_with_different_dates(step):
     size = 200, 200
     image = Image.open("newebe/apps/pictures/tests/test.jpg")
     image.thumbnail(size, Image.ANTIALIAS)
-    image.save("newbe/apps/pictures/tests/th_test.jpg")
+    image.save("newebe/apps/pictures/tests/th_test.jpg")
     file = open("newebe/apps/pictures/tests/th_test.jpg")
 
     for i in range(1, 4):
@@ -340,7 +341,7 @@ def check_that_there_is_three_pictures_with_the_most_recent_one_as_first_picture
 
 @step(u'Retrieve first picture hrough handler via its ID.')
 def retrieve_first_picture_hrough_handler_via_its_id(step):
-    world.picture = world.browser.fetch_document("pictures/{}/".format(
+    world.picture = world.browser.fetch_document("pictures/{}".format(
                                         world.pictures[0]["_id"]))
 
 
