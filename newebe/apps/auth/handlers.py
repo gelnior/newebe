@@ -70,7 +70,6 @@ class LoginJsonHandler(NewebeHandler):
         if data:
             password = data["password"]
             user = UserManager.getUser()
-
             if user \
                and user.password == hashlib.sha224(password).hexdigest():
                 self.set_secure_cookie("password", password)
@@ -85,15 +84,16 @@ class LoginJsonHandler(NewebeHandler):
 
 class LogoutHandler(NewebeHandler):
     '''
-    GET : Removes secure cookie for password then redirects to login page.
+    GET: Removes secure cookie for password then redirects to login page.
     '''
 
     def get(self):
         '''
         Remove secure cookie for password then redirects to login page.
         '''
-
         self.clear_cookie("password")
+        self.clear_cookie("user")
+        self.set_secure_cookie("password", 'aa')
         self.return_success("Succesfully logged out.")
 
 
