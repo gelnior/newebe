@@ -109,6 +109,17 @@ class ContactManager():
 
         return tag
 
+    @staticmethod
+    def getTagByName(name):
+        tags = Contact.view("core/contacttagnames", key=name)
+
+        tag = None
+        if tags:
+            tag = tags.first()
+
+        return tag
+
+
 class ContactTag(NewebeDocument):
     name = StringProperty()
 

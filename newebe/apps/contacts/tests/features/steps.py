@@ -11,7 +11,7 @@ sys.path.append("../")
 
 from newebe.lib.slugify import slugify
 
-from newebe.apps.contacts.models import Contact, ContactManager
+from newebe.apps.contacts.models import Contact, ContactTag, ContactManager
 from newebe.apps.activities.models import ActivityManager
 
 from newebe.apps.contacts.models import STATE_WAIT_APPROVAL, STATE_TRUSTED
@@ -34,6 +34,7 @@ def set_browers():
 
     reset_documents(Contact, ContactManager.getContacts)
     reset_documents(Contact, ContactManager.getContacts, db2)
+    reset_documents(ContactTag, ContactManager.getTags)
 
     world.browser = NewebeClient()
     world.browser.set_default_user()
@@ -138,6 +139,8 @@ def get_trusted_contact_with_key(step, key):
 
 @step(u'I create one contact with tag "([^"]*)"')
 def i_create_one_contact_with_tag_group1(step, tag):
+    world.browser.post("contacts/tags/",
+                       body='{"name":"%s"}' % tag)
     contact = Contact(
         url="http://localhost/1/",
         slug=slugify(unicode("http://localhost/1/")),
@@ -145,12 +148,15 @@ def i_create_one_contact_with_tag_group1(step, tag):
         key="key1",
         tags=["all", tag]
     )
+
     contact.save()
 
 
 @step(u'When I retrieve all tags')
 def when_i_retrieve_all_tags(step):
     world.tags = ContactManager.getTags()
+    world.tags = [tag.name for tag in world.tags]
+    world.tags.append("all")
 
 
 @step(u'I got a list with "([^"]*)", "([^"]*)" and "([^"]*)" inside it')
@@ -179,7 +185,7 @@ def through_handlers_retrieve_trusted_contacts(step):
 
 @step(u'Through handlers retrieve all contacts')
 def through_handlers_retrieve_all_contacts(step):
-    world.contacts = world.browser.fetch_documents("contacts/all/")
+    world.contacts = world.browser.fetch_documents("contacts/")
 
 
 @step(u'Create a default contact')
@@ -222,7 +228,7 @@ def checks_that_contact_update_activity_is_properly_created(step):
 @step(u'Through handler retrieve contact with slug ([0-9a-z-]+)')
 def through_handler_retrieve_contact_with_slug(step, slug):
     try:
-        contact = world.browser.fetch_document("contacts/" + slug + "/")
+        contact = world.browser.fetch_document("contacts/" + slug)
         world.contacts = [contact]
     except HTTPError:
         world.contacts = []
@@ -231,7 +237,7 @@ def through_handler_retrieve_contact_with_slug(step, slug):
 @step(u'Through handler delete contact with slug ([0-9a-z-]+)')
 def through_handler_delete_contact_with_slug_http_localhost_1(step, slug):
     world.contacts = []
-    world.browser.delete("contacts/" + slug + "/")
+    world.browser.delete("contacts/" + slug)
 
 
 ## Adding contact
@@ -239,13 +245,13 @@ def through_handler_delete_contact_with_slug_http_localhost_1(step, slug):
 def deletes_seconde_newebe_contacts(step):
     contacts = world.browser2.fetch_documents("contacts/requested/")
     for contact in contacts:
-        world.browser2.delete("contacts/" + contact["slug"] + "/")
+        world.browser2.delete("contacts/" + contact["slug"])
 
 
 @step(u'On first newebe add second newebe as a contact')
 def on_first_newebe_add_second_newebe_as_a_contact(step):
     print world.browser2.root_url
-    world.browser.post("contacts/all/",
+    world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
     time.sleep(0.3)
 
@@ -259,7 +265,7 @@ def check_that_first_contact_status_is_pending(step):
 @step(u'From second newebe retrieve all contacts')
 def from_second_newebe_retrieve_all_contacts(step):
     time.sleep(0.3)
-    world.contacts = world.browser2.fetch_documents("contacts/all/")
+    world.contacts = world.browser2.fetch_documents("contacts/")
 
 
 @step(u'Check that first contact status is waiting for approval')
@@ -270,7 +276,8 @@ def check_that_first_contact_status_is_waiting_for_approval(step):
 
 @step(u'On second newebe confirm first newebe request')
 def on_seconde_newebe_confirm_first_newebe_request(step):
-    world.browser2.put("contacts/%s/" % slugify(ROOT_URL), "")
+    world.browser2.put('contacts/%s' % slugify(ROOT_URL),
+            body='{"state":"%s", "tags":null}' % STATE_TRUSTED)
 
 
 @step(u'Check that first contact status is trusted')
@@ -313,3 +320,4 @@ def check_that_request_date_is_set_to_europe_paris_timezone(step, timezone):
 @step(u'When I retrieve through handler all tags')
 def when_i_retrieve_through_handler_all_tags(step):
     world.tags = world.browser.fetch_documents("contacts/tags/")
+    world.tags = [tag["name"] for tag in world.tags]

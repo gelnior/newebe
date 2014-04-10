@@ -174,7 +174,7 @@ class ContactHandler(NewebeAuthHandler):
         Confirm contact request or update tag data.
         '''
 
-        data = self.get_body_as_dict(["tags", "state"])
+        data = self.get_body_as_dict(["state"])
         state = data["state"]
         tags = data.get("tags", None)
         self.contact = ContactManager.getContact(slug)
@@ -298,7 +298,7 @@ class ContactsHandler(NewebeAuthHandler):
                 except Exception:
                     import traceback
                     logger.error("Error on adding contact:\n %s" %
-                            traceback.format_exc())
+                        traceback.format_exc())
 
                     self.contact.state = STATE_ERROR
                     self.contact.save()
@@ -506,8 +506,10 @@ class ContactTagsHandler(NewebeAuthHandler):
         '''
 
         data = self.get_body_as_dict(["name"])
-        tag = ContactTag(name=data["name"])
-        tag.save()
+        tag = ContactManager.getTagByName(data["name"])
+        if tag is None:
+            tag = ContactTag(name=data["name"])
+            tag.save()
         self.return_one_document(tag, 201)
 
     def delete(self, id):
