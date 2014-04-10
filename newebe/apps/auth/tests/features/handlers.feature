@@ -19,7 +19,6 @@ Feature: Authenticate, create user and set password
         Open root url
         Checks that response is 403
         Send login request with wrong_password as password
-        Checks that secure cookie is not set
         Open root url
 
     Scenario: Log out

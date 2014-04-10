@@ -101,8 +101,6 @@ def checks_that_response_is_root_page(step):
 def checks_that_secure_cookie_is_not_set(step):
     assert hasattr(world, 'response_headers') or hasattr(world, 'response')
     if hasattr(world, 'response_headers'):
-        import pdb
-        pdb.set_trace()
         assert "Set-Cookie" not in world.response_headers
     else:
         assert "Set-Cookie" not in world.response.headers

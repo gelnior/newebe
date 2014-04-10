@@ -4,6 +4,7 @@ import pytz
 import time
 
 from lettuce import step, world, before
+from nose.tools import assert_equals
 from tornado.escape import json_decode, json_encode
 
 sys.path.append("../")
@@ -16,6 +17,9 @@ from newebe.apps.activities.models import Activity, ActivityManager
 from newebe.lib.test_util import db2, reset_documents
 from newebe.lib import date_util
 
+
+from newebe.config import CONFIG
+CONFIG.main.path = '.'
 
 @before.each_scenario
 def delete_posts(scenario):
@@ -176,7 +180,7 @@ def then_i_have_0_micropost(step):
 
 @step(u'And this micropost has timezone date')
 def and_this_micropost_has_timezone_date(step):
-    world.date_micropost = world.microposts[0]
+    world.date_micropost = world.microposts[-1]
     db_micropost = MicroPostManager.get_micropost(world.date_micropost["_id"])
 
     date = date_util.get_date_from_db_date(world.date_micropost["date"])
@@ -196,7 +200,7 @@ def and_this_micropost_has_same_date_as_the_posted_one(step, timezone):
     contact_date = date_util.get_date_from_db_date(micropost["date"])
     contact_date = date_util.convert_timezone_date_to_utc(contact_date, tz)
 
-    assert contact_date == posted_date
+    assert_equals(contact_date, posted_date)
 
 
 # Retry
