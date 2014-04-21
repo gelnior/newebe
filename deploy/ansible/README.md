@@ -9,6 +9,6 @@ server configuration.
 
 ### Run
 
-Once done, run this command in your folder:
+Once done, run this command in the ansible (the current one) folder:
 
-    ansible-playbook playbook.yml 
+    ansible-playbook site.yml -i hosts
