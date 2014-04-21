@@ -1,0 +1,5 @@
+- hosts: vagrant
+  remote_user: vagrant
+  sudo: yes
+  roles:
+    - role: common
