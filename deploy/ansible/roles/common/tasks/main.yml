@@ -28,11 +28,23 @@
 - name: Create Newebe Config folder
   file: path=/usr/local/etc/newebe/ owner=newebe group=newebe state=directory
 
+- name: Create Newebe Certs folder
+  file: path=/usr/local/etc/newebe/certs owner=newebe group=newebe state=directory
+
 - name: Create Newebe folder
   file: path=/usr/local/var/newebe/ owner=newebe group=newebe state=directory
 
 - name: Create Newebe log folder
   file: path=/usr/local/var/log/newebe/ owner=newebe group=newebe state=directory
+
+- name: Install Open SSL
+  apt: pkg=openssl
+  
+- name: Generate certificate
+  raw: cd /usr/local/etc/newebe/certs && openssl genrsa -out ./server.key 1024
+
+- name: Generate certificate 2
+  raw: cd /usr/local/etc/newebe/certs && openssl req -new -x509 -days 3650 -key ./server.key -out ./server.crt -batch
 
 - name: Set Newebe config file
   copy: src=config.yaml dest=/usr/local/etc/newebe/config.yaml owner=newebe group=newebe
