@@ -22,6 +22,7 @@ case "$1" in
                     --gecos "Newebe system user" --shell /bin/false \
                     --quiet --disabled-password $USER
         fi
+        chown -R newebe:newebe $HOME_DIR
 
         if [ ! -d $LOG_DIR ]; then
             mkdir -p $LOG_DIR

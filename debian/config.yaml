@@ -1,6 +1,7 @@
 main:
     path: "/var/lib/newebe/"
     logpath: "/var/log/newebe/"
+    port: 8282
 security:
     certificate: "/etc/newebe/certs/server.crt"
     private_key: "/etc/newebe/certs/server.key"
