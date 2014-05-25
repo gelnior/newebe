@@ -6,7 +6,7 @@ Feature: Authenticate, create user and set password
         Set default user
         Save default user
         Open root url
-        Checks that response is login page
+        Checks that response is 403
         Send login request with password as password
         Checks that secure cookie is set
         Open root url
@@ -17,11 +17,9 @@ Feature: Authenticate, create user and set password
         Set default user
         Save default user
         Open root url
-        Checks that response is login page
+        Checks that response is 403
         Send login request with wrong_password as password
-        Checks that secure cookie is not set
         Open root url
-        Checks that response is login page
 
     Scenario: Log out
         Delete current user
@@ -33,20 +31,15 @@ Feature: Authenticate, create user and set password
         Checks that response is root page
         Send logout request
         Open root url
-        Checks that response is login page
 
     Scenario: Create user     
         Delete current user   
-        Open register url
-        Checks that response is register page
         Send creation request for Jhon as user name
         Checks that newebe owner is called Jhon
 
     Scenario: Set password
         Delete current user   
         Send creation request for Jhon as user name
-        Open password registration url
-        Checks that response is password registration page
         Fail to send password creation request with ba as password
         Send password creation request with password as password
         Send login request with password as password

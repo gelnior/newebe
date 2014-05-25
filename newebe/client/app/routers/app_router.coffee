@@ -34,7 +34,7 @@ module.exports = class AppRouter extends Backbone.Router
 
     commons: ->
         @checkAppViewState =>
-            @appView.changeSubView @appView.commons
+            @appView.changeSubView @appView.commonsView
 
     profile: ->
         @checkAppViewState =>

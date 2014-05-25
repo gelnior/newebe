@@ -131,19 +131,16 @@ def assert_that_there_is_x_activities_retrieved(step, nb_activities):
 
 @step(u'Retrieve owner last activities')
 def retrieve_last_activities_of_owner(step):
-
     world.activities = ActivityManager.get_mine()
 
 
 @step(u'Retrieve activities from ([0-9A-Za-z-:]+)')
 def retrieve_activities_from_date(step, date):
-
     world.activities = ActivityManager.get_all(date)
 
 
 @step(u'Retrieve owner activities from ([0-9A-Za-z-:]+)')
 def retrieve_owner_activities_from_date(step, date):
-
     world.activities = ActivityManager.get_mine(date)
 
 
@@ -160,7 +157,6 @@ def get_last_activities_owner_from_handler(step):
 @step(u'Assert that there are, from handler, (\d+) activities retrieved')
 def assert_that_there_are_from_handler_x_activities_retrieved(step,
                                                               nb_activities):
-
     assert int(nb_activities) == len(world.data)
 
 

@@ -4,6 +4,7 @@ MicropostsView = require './microposts_view'
 ContactsView = require './contacts_view'
 NotesView = require './notes_view'
 PicturesView = require './pictures_view'
+CommonsView = require './commons_view'
 ProfileView = require './profile_view'
 ActivitiesView = require './activities_view'
 LoginView = require './login_view'
@@ -22,6 +23,7 @@ module.exports = class AppView extends View
 
     events:
         'click #logout-button': 'onLogoutClicked'
+        'click #responsive-menu': 'onResponsiveMenuClicked'
 
     # Depending on user state given by backend, it displays corresponding page.
     # State is described by following parameters :
@@ -44,6 +46,10 @@ module.exports = class AppView extends View
                 Newebe.routers.appRouter.navigate ''
                 @displayLogin()
 
+    onResponsiveMenuClicked: ->
+        @$('#navigation ul').slideToggle()
+
+
     # Display a page corresponding to user state.
     start: (userState, callback) ->
         @home = @$ '#home'
@@ -55,6 +61,7 @@ module.exports = class AppView extends View
         @registerPasswordView = @_addView RegisterPasswordView
         @micropostsView = @_addView MicropostsView
         @picturesView = @_addView PicturesView
+        @commonsView = @_addView CommonsView
         @contactsView = @_addView ContactsView
         @profileView = @_addView ProfileView
         @notesView = @_addView NotesView
@@ -76,6 +83,7 @@ module.exports = class AppView extends View
     onMicropostsClicked: -> @changeSubView @micropostsView
     onContactsClicked: -> @changeSubView @contactsView
     onPicturesClicked: -> @changeSubView @picturesView
+    onCommonsClicked: -> @changeSubView @commonsClicked
     onNotesClicked: -> @changeSubView @notesView
     displayProfile: => @changeSubView @profileView
     displayMicroposts: => @changeSubView @micropostsView
@@ -108,6 +116,8 @@ module.exports = class AppView extends View
         else @checkUserState showView
 
     changeSubView: (subView, callback) =>
+        if $(window).width() < 760
+            @$('#navigation ul').slideUp()
         @changeMenuState subView
         if @currentSubView?
             @currentSubView.fadeOut =>
@@ -143,11 +153,19 @@ module.exports = class AppView extends View
         @$("#navigation").find("a").removeClass "active"
         if view is @micropostsView
             @$("#microposts-button").addClass "active"
+            @$("#responsive-menu a").html 'news'
         else if view is @contactsView
             @$("#contacts-button").addClass "active"
+            @$("#responsive-menu a").html 'contacts'
         else if view is @profileView
             @$("#profile-button").addClass "active"
+            @$("#responsive-menu a").html 'profile'
         else if view is @notesView
             @$("#notes-button").addClass "active"
+            @$("#responsive-menu a").html 'notes'
         else if view is @picturesView
             @$("#pictures-button").addClass "active"
+            @$("#responsive-menu a").html 'pictures'
+        else if view is @commonsView
+            @$("#commons-button").addClass "active"
+            @$("#responsive-menu a").html 'commons'

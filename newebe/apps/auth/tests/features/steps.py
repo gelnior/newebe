@@ -5,6 +5,7 @@ from lettuce import step, world, before
 from lxml import html
 
 from tornado.httpclient import HTTPRequest, HTTPError
+from tornado.escape import json_decode
 
 sys.path.append("../")
 
@@ -43,6 +44,7 @@ def set_default_user(step):
 @step(u'Delete current user')
 def delete_current_user(step):
     user = UserManager.getUser()
+    world.browser = NewebeClient()
     while user:
         user.delete()
         user = UserManager.getUser()
@@ -56,17 +58,17 @@ def save_default_user(step):
 
 @step(u'Open root url')
 def open_root_url(step):
-    request = HTTPRequest(ROOT_URL)
+    request = HTTPRequest(ROOT_URL + 'user/state/')
     if world.cookie:
         request.headers["Cookie"] = world.cookie
-    world.response = world.browser.fetch(request)
+    resp = world.browser.fetch(request)
+    world.response = json_decode(resp.body)
+    world.response_header = resp.headers
 
 
-@step(u'Checks that response is login page')
-def checks_that_response_is_login_page(step):
-    world.dom = html.fromstring(world.response.body)
-    title = world.dom.cssselect('title')[0]
-    assert "Login" in title.text
+@step(u'Checks that response is 403')
+def checks_that_response_is_403(step):
+    assert not world.response["authenticated"]
 
 
 @step(u'Send login request with (\w+) as password')
@@ -75,6 +77,7 @@ def send_login_request(step, password):
         world.response = world.browser.fetch(ROOT_URL + "login/json/",
                 method="POST", body='{"password":"%s"}' % password,
                 validate_cert=False)
+        world.response_headers = world.response.headers
     except HTTPError:
         pass
 
@@ -91,16 +94,16 @@ def checks_that_secure_cookie_is_set(step):
 
 @step(u'Checks that response is root page')
 def checks_that_response_is_root_page(step):
-    world.dom = html.fromstring(world.response.body)
-    title = world.dom.cssselect('title')[0]
-    assert "Login" not in title.text
-    assert "News" in title.text
+    assert world.response["authenticated"]
 
 
 @step(u'Checks that secure cookie is not set')
 def checks_that_secure_cookie_is_not_set(step):
-    assert world.response.headers
-    assert "Set-Cookie" not in world.response.headers
+    assert hasattr(world, 'response_headers') or hasattr(world, 'response')
+    if hasattr(world, 'response_headers'):
+        assert "Set-Cookie" not in world.response_headers
+    else:
+        assert "Set-Cookie" not in world.response.headers
 
 
 @step(u'Send logout request')
@@ -112,19 +115,6 @@ def send_logout_request(step):
     if world.response.code == 200:
         world.cookie = ""
         world.browser.cookie = ""
-
-
-@step(u'Open register url')
-def open_register_url(step):
-    request = HTTPRequest(ROOT_URL + "register/", validate_cert=False)
-    world.response = world.browser.fetch(request)
-
-
-@step(u'Checks that response is register page')
-def checks_that_response_is_register_page(step):
-    world.dom = html.fromstring(world.response.body)
-    title = world.dom.cssselect('title')[0]
-    assert "Register" in title.text
 
 
 @step(u'Send creation request for (\w+) as user name')

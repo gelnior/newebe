@@ -1,5 +1,6 @@
 import logging
 import os
+import hashlib
 import mimetypes
 
 
@@ -386,15 +387,15 @@ class NewebeAuthHandler(NewebeHandler):
                 self.redirect("/#register/password/")
 
             else:
-                #password = self.get_secure_cookie("password")
+                password = self.get_secure_cookie("password")
 
-                # if not password or  \
-                #   user.password != hashlib.sha224(password).hexdigest():
-                #     logger.error("User is not authenticated")
-                #     self.redirect("/#login/")
+                if not password or  \
+                   user.password != hashlib.sha224(password).hexdigest():
+                     logger.error("User is not authenticated")
+                     self.redirect("/#login/")
 
-                #else:
-                return user
+                else:
+                    return user
 
         else:
             logger.error("User is not registered")

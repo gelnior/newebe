@@ -165,7 +165,7 @@ def checks_that_notes_are_sorted_by_title(step):
 
 @step(u'Retrieve, through handler, the note with note id')
 def retrieve_through_handler_the_note_with_note_id(step):
-    note = client.fetch_document("notes/" + world.note._id + "/")
+    note = client.fetch_document("notes/all/" + world.note._id)
     world.test_note = Note(
         author=note["author"],
         title=note["title"],
@@ -183,7 +183,7 @@ def modifiy_the_note(step):
 
 @step(u'Save, through handler, the note')
 def save_through_handler_the_note(step):
-    response = client.put("notes/" + world.note._id + "/",
+    response = client.put("notes/all/" + world.note._id,
                           body=world.note.toJson())
     assert response.code == 200
 
@@ -211,7 +211,7 @@ def create_through_handler_a_note(step):
 @step(u'Delete, through handler, the note')
 def delete_through_handler_the_note(step):
     time.sleep(1)
-    response = client.delete("notes/" + world.note._id + "/")
+    response = client.delete("notes/all/" + world.note._id)
     assert response.code == 200
 
 

@@ -21,6 +21,7 @@ module.exports = class MicropostListView extends CollectionView
         lastDate = moment()
         date = lastDate.format 'YYYY-MM-DD-HH-mm-ss/'
         @remove @views, silent: true
+        @collection.reset()
         @views = []
 
         if tag isnt 'all'
@@ -36,7 +37,6 @@ module.exports = class MicropostListView extends CollectionView
                 @$el.spin()
                 @$el.css 'height', 'auto'
                 if @views.length is 0
-                    microposts.models.slice()
                     @renderOne micropost for micropost in microposts.models
             error: =>
                 @$el.$el.spin()

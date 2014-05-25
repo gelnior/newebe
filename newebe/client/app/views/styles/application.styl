@@ -3,19 +3,19 @@
 
 @import '_base'
 @import '_font'
-@import '_ui'
 
 // Import your styles here
 
 @import '_states'
 @import '_layout'
-@import '_responsive'
 
 @import '_navigation'
 @import '_micropost'
 @import '_note'
 @import '_profile'
 @import '_contact'
+
+@import '_responsive'
 
 iframe
     border 0
@@ -59,9 +59,10 @@ body
     left: 0
     bottom: 0
     right: 0
+    overflow: auto
 
     .note-selector-line
-        padding 5px 10px
+        padding: 5px 10px
 
     .note-selector-line:hover
         background: purple
@@ -110,3 +111,19 @@ body
     button
         padding: 3px
         font-size: 12px
+
+#commons
+    margin-top: 10px
+    cursor: pointer
+
+.common
+    padding: 5px 20px
+
+    button
+        padding: 3px
+
+#more-commons
+    margin-left: 15px
+
+.common.selected
+    background: blue + 40%

@@ -57,7 +57,7 @@ def encode_multipart_formdata(fields, files,
                  % (key, filename))
         L.append('Content-Type: %s' % filetype)
         L.append('')
-        L.append(value)
+        L.append(unicode(value, errors='ignore'))
 
     L.append('--' + BOUNDARY + '--')
     L.append('')

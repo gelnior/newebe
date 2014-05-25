@@ -19,8 +19,8 @@ exports.config =
                 # even if they aren't specified in order.
                 before: [
                     'vendor/scripts/jquery-2.0.2.js'
-                    'vendor/scripts/lodash-1.2.1.js'
-                    'vendor/scripts/backbone-1.0.0.js'
+                    'vendor/scripts/lodash-2.4.1.js'
+                    'vendor/scripts/backbone-1.1.2.js'
                 ]
 
         stylesheets:

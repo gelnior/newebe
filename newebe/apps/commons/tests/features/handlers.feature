@@ -10,15 +10,6 @@ Feature: Share commons
         Ensure that common date is ok with time zone
         Retrieve last activities
         Check that last activity correspond to a common creation
-        From second Newebe, retrieve commons
-        Check that date common on second newebe is the same
-        Check that common name is the posted common.
-        From second Newebe, posted common download fails
-        From second Newebe, request for download
-        From second Newebe, download the first returned common
-        Ensure it is the same that posted common
-        From second Newebe, retrieve activities
-        Check that last activity correspond to a common creation
 
 
     Scenario: Delete common
@@ -32,8 +23,6 @@ Feature: Share commons
         From second Newebe, retrieve commons
         Check that there are no common
         Retrieve last activities
-        Check that last activity correspond to a common deletion
-        From second Newebe, retrieve activities
         Check that last activity correspond to a common deletion
 
     Scenario: Retrieve commons

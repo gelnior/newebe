@@ -2270,7 +2270,7 @@ a:visited:hover {
   text-decoration: underline;
 }
 button {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2527,67 +2527,6 @@ input {
   font-family: robotic;
   src: url("../fonts/andale-mono.ttf");
 }
-.ui-button,
-a.ui-button,
-button.ui-button {
-  background-color: #eee;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafafa), color-stop(1, #eaeaea));
-  background-image: -webkit-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
-  background-image: -moz-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
-  background-image: -o-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
-  background-image: -ms-linear-gradient(top, #fafafa 0%, #eaeaea 100%);
-  background-image: linear-gradient(top, #fafafa 0%, #eaeaea 100%);
-  background-repeat: repeat-x;
-  border: 1px solid #c9c9c9;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
-  -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.1);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.1);
-  color: #777;
-  font-weight: bold;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 14px;
-  line-height: 18px;
-  text-align: center;
-  text-decoration: none;
-  text-shadow: -1px -1px 0 #fff;
-  -webkit-transition: all 0.1s linear;
-  -moz-transition: all 0.1s linear;
-  -o-transition: all 0.1s linear;
-  -ms-transition: all 0.1s linear;
-  transition: all 0.1s linear;
-  padding: 5px 10px;
-  vertical-align: middle;
-}
-.ui-button:hover,
-a.ui-button:hover,
-button.ui-button:hover {
-  color: #777;
-  text-decoration: none;
-}
-.ui-button:active,
-a.ui-button:active,
-button.ui-button:active,
-.ui-button[data-state="selected"],
-a.ui-button[data-state="selected"],
-button.ui-button[data-state="selected"] {
-  -webkit-box-shadow: inset 0 1px 10px rgba(0,0,0,0.2);
-  box-shadow: inset 0 1px 10px rgba(0,0,0,0.2);
-}
-.ui-list,
-.ui-grid {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ui-grid li {
-  display: inline-block;
-  margin-right: -1px;
-}
-.ui-grid li:last-child {
-  margin-right: 0;
-}
 [data-state~="default"],
 [data-state~="enabled"] {
   cursor: inherit;
@@ -2667,38 +2606,11 @@ cursor not-allowed {
 .center {
   text-align: center;
 }
-@media (max-width: 480px) {
-  body {
-    padding: 0 20px;
-    text-rendering: optimizeSpeed;
-  }
-  .layout-container {
-    width: auto;
-  }
-}
-@media (max-width: 767px) {
-  body {
-    padding: 0 20px;
-    text-rendering: optimizeSpeed;
-  }
-  .layout-container {
-    width: auto;
-  }
-}
-@media (min-width: 768px) and (max-width: 979px) {
-  .layout-container {
-    width: 724px;
-  }
-}
-@media (min-width: 1200px) {
-  .layout-container {
-    width: 1170px;
-  }
-}
 #navigation {
   background: #000;
   -webkit-box-shadow: -3px 2px 3px #bbb;
   box-shadow: -3px 2px 3px #bbb;
+  height: 38px;
 }
 #navigation li a {
   border: 0;
@@ -2734,6 +2646,9 @@ cursor not-allowed {
   -ms-transition: background-color 200ms linear;
   transition: background-color 200ms linear;
   color: #00305f;
+}
+#navigation li#responsive-menu {
+  display: none;
 }
 #microposts-view .js-fileapi-wrapper {
   display: none;
@@ -2816,7 +2731,7 @@ cursor not-allowed {
   border-bottom: 1px solid transparent;
 }
 #notes-view .note .note-title:hover {
-  border-bottom: 1px solid #d82545;
+  border-bottom: 1px solid #e67e22;
 }
 #notes-view .note .note-title:active,
 #notes-view .note .note-title:focus {
@@ -2906,7 +2821,7 @@ cursor not-allowed {
   margin-left: 0;
 }
 #profile-view .main-section:hover #change-picture-button:not(:hover) {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2914,7 +2829,7 @@ cursor not-allowed {
   transition: background-color 200ms linear;
 }
 #profile-view .main-section:hover #sesame-stuff button:not(:hover) {
-  background-color: #d82545;
+  background-color: #e67e22;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
   -o-transition: background-color 200ms linear;
@@ -2937,7 +2852,7 @@ cursor not-allowed {
 }
 #profile-view #change-picture-button {
   cursor: pointer;
-  background-color: #d82545;
+  background-color: #e67e22;
   padding: 10px;
   color: #fff;
   font-weight: bold;
@@ -3056,6 +2971,142 @@ cursor not-allowed {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+@media (max-width: 480px) {
+  #microposts-view textarea {
+    width: 100%;
+    margin: 0;
+  }
+  #microposts-view #micropost-post-button {
+    margin-left: 0;
+  }
+  #microposts-view #micropost-all {
+    padding: 0;
+  }
+  #microposts-view #micropost-tag-list button {
+    font-size: 12px;
+    padding: 4px;
+    margin: 0 3px 0 0;
+  }
+  .common a {
+    display: block;
+    width: 100%;
+  }
+  .common span {
+    font-size: 10px;
+  }
+  #notes-view button {
+    font-size: 14px;
+    padding: 4px;
+    margin: 3px;
+  }
+  #notes-view .note {
+    margin: 0;
+  }
+  #notes-view .note .row {
+    padding: 0;
+  }
+  #contacts-view {
+    padding: 10px;
+  }
+  #contacts-view input#new-contact-field.field {
+    margin: 0;
+    width: 100%;
+    font-size: 16px;
+  }
+  #contacts-view #add-contact-button {
+    margin-left: 0;
+    font-size: 14px;
+    padding: 5px;
+  }
+  #contacts-view .tag-select-button {
+    margin: 0 4px 0 0;
+    font-size: 12px;
+    padding: 5px;
+  }
+  #contacts-view .contact-tag {
+    margin: 0 4px 0 0;
+    font-size: 10px;
+  }
+  #contacts-view .name {
+    padding: 0;
+  }
+  #contacts-view diV#tag-list {
+    display: none;
+  }
+  #contacts-view .contact-line .mod {
+    display: inline;
+    width: auto;
+    float: left !important;
+  }
+  #contacts-view .contact-line div.name {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  #contacts-view .contact-line .contact-buttons button {
+    margin: 0;
+    padding: 4px;
+  }
+  #profile-view div#profile-description {
+    padding: 0;
+  }
+  #activities-view #sync-activities-button,
+  #activities-view #more-activities-button {
+    margin-left: 0;
+  }
+  #activities-view #activity-all {
+    padding: 0;
+  }
+  #activities-view #activity-all .infos span {
+    font-size: 10px;
+  }
+  #activities-view #activity-all .infos .date.mr2 {
+    margin-right: 5px;
+    width: 80px;
+  }
+}
+@media (max-width: 760px) {
+  body {
+    padding: 0 0px;
+    text-rendering: optimizeSpeed;
+  }
+  .layout-container {
+    width: auto;
+  }
+  #home .question p {
+    font-size: 20px;
+  }
+  #home .question input {
+    font-size: 20px;
+  }
+  #responsive-menu {
+    display: block;
+  }
+  #navigation ul {
+    width: 100%;
+    display: block;
+    overflow: inherit;
+    z-index: 1000;
+    position: fixed;
+    display: none;
+  }
+  #navigation li {
+    width: 100%;
+    z-index: 1000;
+    display: block;
+  }
+  #navigation li a {
+    width: 100%;
+    padding: 5px;
+    z-index: 1000;
+  }
+  #navigation li#responsive-menu {
+    display: block;
+  }
+  #navigation li#responsive-menu a {
+    color: #fff;
+  }
+}
 iframe {
   border: 0;
 }
@@ -3100,6 +3151,7 @@ body,
   left: 0;
   bottom: 0;
   right: 0;
+  overflow: auto;
 }
 #alert-widget .note-selector-line,
 #note-selector-widget .note-selector-line {
@@ -3150,6 +3202,22 @@ body,
 .picture-buttons button {
   padding: 3px;
   font-size: 12px;
+}
+#commons {
+  margin-top: 10px;
+  cursor: pointer;
+}
+.common {
+  padding: 5px 20px;
+}
+.common button {
+  padding: 3px;
+}
+#more-commons {
+  margin-left: 15px;
+}
+.common.selected {
+  background: #ebf5ff;
 }
 .chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
 .ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; *line-height: 0; }

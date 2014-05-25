@@ -13,6 +13,9 @@ from newebe.apps.profile.models import UserManager
 from newebe.lib.indexer import Indexer
 from newebe.lib.test_util import NewebeClient
 
+from newebe.config import CONFIG
+
+CONFIG.main.path = '.'
 
 @before.all
 def create_default_user():

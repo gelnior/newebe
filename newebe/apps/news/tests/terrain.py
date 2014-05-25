@@ -82,9 +82,11 @@ def set_browers():
         world.user2 = world.browser2.user
         world.browser2.login("password")
 
-        world.browser.post("contacts/all/",
+        world.browser.post("contacts/",
                        body='{"url":"%s"}' % world.browser2.root_url)
         time.sleep(0.3)
-        world.browser2.put("contacts/%s/" % slugify(world.browser.root_url.decode("utf-8")), "")
+        world.browser2.put("contacts/%s" %
+                slugify(world.browser.root_url.decode("utf-8")),
+                '{"state":"Trusted"}')
     except HTTPError:
         print "[WARNING] Second newebe instance does not look started"

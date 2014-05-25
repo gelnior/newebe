@@ -1,5 +1,6 @@
 import logging
 import sys
+sys.path.append('../../../')
 
 import tornado.ioloop
 import tornado.httpserver

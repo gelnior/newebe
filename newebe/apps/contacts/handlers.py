@@ -3,6 +3,7 @@ import logging
 
 from tornado.web import asynchronous
 from tornado.escape import json_decode
+from tornado.websocket import WebSocketHandler
 
 from newebe.lib.slugify import slugify
 from newebe.lib.http_util import ContactClient
@@ -16,6 +17,30 @@ from newebe.apps.core.handlers import NewebeAuthHandler, NewebeHandler
 
 # Template handlers for contact pages.
 logger = logging.getLogger(__name__)
+
+# Long polling queue
+websocket_clients = []
+
+
+class ContactPublishingHandler(WebSocketHandler):
+    '''
+    Handler that manages websocket connections
+    TODO: Set authentication there.
+    '''
+
+    def open(self):
+        '''
+        Add a websocket client to the websocket pool.
+        '''
+        websocket_clients.append(self)
+        logger.info("New web socket client")
+
+    def on_close(self):
+        '''
+        Remove leaving websocket client from the websocket pool.
+        '''
+        websocket_clients.remove(self)
+        logger.info("A web socket client left")
 
 
 class ContactUpdateHandler(NewebeHandler):
@@ -62,7 +87,6 @@ class ContactPictureUpdateHandler(NewebeHandler):
 
         picfile = self.request.files['small_picture'][0]
         contactKey = self.get_argument("key")
-        import pdb; pdb.set_trace()
 
         if picfile and contactKey:
             contact = ContactManager.getTrustedContact(contactKey)
@@ -150,7 +174,7 @@ class ContactHandler(NewebeAuthHandler):
         Confirm contact request or update tag data.
         '''
 
-        data = self.get_body_as_dict(["tags", "state"])
+        data = self.get_body_as_dict(["state"])
         state = data["state"]
         tags = data.get("tags", None)
         self.contact = ContactManager.getContact(slug)
@@ -274,7 +298,7 @@ class ContactsHandler(NewebeAuthHandler):
                 except Exception:
                     import traceback
                     logger.error("Error on adding contact:\n %s" %
-                            traceback.format_exc())
+                        traceback.format_exc())
 
                     self.contact.state = STATE_ERROR
                     self.contact.save()
@@ -402,6 +426,9 @@ class ContactPushHandler(NewebeHandler):
                 contact.state = STATE_WAIT_APPROVAL
                 contact.save()
 
+                for websocket_client in websocket_clients:
+                    websocket_client.write_message(contact.toJson())
+
                 self.return_success("Request received.")
 
             else:
@@ -438,6 +465,9 @@ class ContactConfirmHandler(NewebeHandler):
 
                 #self.send_picture_to_contact(contact)
                 self.return_success("Contact trusted.")
+
+                for websocket_client in websocket_clients:
+                    websocket_client.write_message(contact.toJson())
 
             else:
                 self.return_failure("No contact for this slug.", 400)
@@ -476,8 +506,10 @@ class ContactTagsHandler(NewebeAuthHandler):
         '''
 
         data = self.get_body_as_dict(["name"])
-        tag = ContactTag(name=data["name"])
-        tag.save()
+        tag = ContactManager.getTagByName(data["name"])
+        if tag is None:
+            tag = ContactTag(name=data["name"])
+            tag.save()
         self.return_one_document(tag, 201)
 
     def delete(self, id):

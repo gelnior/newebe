@@ -80,11 +80,11 @@ class PicturesHandler(NewebeAuthHandler):
             picture.save()
 
             self.create_owner_creation_activity(
-                    picture, "publishes", "picture")
+                picture, "publishes", "picture")
 
             self.send_files_to_contacts("pictures/contact/",
-                        fields={"json": str(picture.toJson(localized=False))},
-                        files=[("picture", str(picture.path), thbuffer)])
+                fields={"json": str(picture.toJson(localized=False))},
+                files=[("picture", str(picture.path), thbuffer)])
 
             logger.info("Picture %s successfuly posted." % filename)
             self.return_json(picture.toJson(), 201)
@@ -359,6 +359,7 @@ class PictureHandler(PictureObjectHandler):
         else:
             self.return_failure("Picture not found.", 404)
 
+CURRENT_DOWNLOADS=[]
 
 class PictureDownloadHandler(PictureObjectHandler):
     '''
@@ -375,6 +376,16 @@ class PictureDownloadHandler(PictureObjectHandler):
         data = dict()
         data["picture"] = picture.toDict(localized=False)
         data["contact"] = UserManager.getUser().asContact().toDict()
+
+        print CURRENT_DOWNLOADS
+        print "data picture id %s" % data["picture"]["_id"]
+        for download in CURRENT_DOWNLOADS:
+            print "download %s " % download
+
+            if download == data["picture"]["_id"]:
+                return self.return_success('already downloading')
+
+        CURRENT_DOWNLOADS.append(data["picture"]["_id"])
 
         contact = ContactManager.getTrustedContact(picture.authorKey)
 
@@ -408,9 +419,11 @@ class PictureDownloadHandler(PictureObjectHandler):
                 micropost.pictures_to_download.remove(self.picture._id)
                 micropost.save()
 
+            CURRENT_DOWNLOADS.remove(self.picture.toDict()["_id"])
             self.return_success("Picture successfuly downloaded.")
 
         else:
+            CURRENT_DOWNLOADS.remove(self.picture.toDict()["_id"])
             self.return_failure("Picture cannot be retrieved.")
 
     def get_thumbnail(self, filebody, filename, size):

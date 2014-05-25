@@ -113,6 +113,32 @@ window.require.register("collections/activity_collection", function(exports, req
   })(Backbone.Collection);
   
 });
+window.require.register("collections/commons", function(exports, require, module) {
+  var CommonsCollection,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = CommonsCollection = (function(_super) {
+
+    __extends(CommonsCollection, _super);
+
+    function CommonsCollection() {
+      return CommonsCollection.__super__.constructor.apply(this, arguments);
+    }
+
+    CommonsCollection.prototype.model = require('../models/common');
+
+    CommonsCollection.prototype.url = 'commons/all/';
+
+    CommonsCollection.prototype.parse = function(response) {
+      return response.rows;
+    };
+
+    return CommonsCollection;
+
+  })(Backbone.Collection);
+  
+});
 window.require.register("collections/contacts", function(exports, require, module) {
   var ContactsCollection,
     __hasProp = {}.hasOwnProperty,
@@ -914,6 +940,38 @@ window.require.register("models/activity", function(exports, require, module) {
   })(Backbone.Model);
   
 });
+window.require.register("models/common", function(exports, require, module) {
+  var CommonModel, Model,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Model = require('../lib/model');
+
+  module.exports = CommonModel = (function(_super) {
+
+    __extends(CommonModel, _super);
+
+    CommonModel.prototype.urlRoot = "commons/all/";
+
+    CommonModel.prototype.idAttribute = '_id';
+
+    function CommonModel(common) {
+      var path;
+      CommonModel.__super__.constructor.call(this, common);
+      if (this.get('path') != null) {
+        path = this.get('path');
+      } else {
+        path = this.get('_id') + '.jpg';
+      }
+      this.set('url', "/commons/" + common._id + "/" + path);
+      this.set('prevUrl', "/commons/" + common._id + "/prev_" + path);
+    }
+
+    return CommonModel;
+
+  })(Model);
+  
+});
 window.require.register("models/contact", function(exports, require, module) {
   var ContactModel, Model, request,
     __hasProp = {}.hasOwnProperty,
@@ -1198,7 +1256,7 @@ window.require.register("routers/app_router", function(exports, require, module)
     AppRouter.prototype.commons = function() {
       var _this = this;
       return this.checkAppViewState(function() {
-        return _this.appView.changeSubView(_this.appView.commons);
+        return _this.appView.changeSubView(_this.appView.commonsView);
       });
     };
 
@@ -1484,7 +1542,7 @@ window.require.register("views/activity_view", function(exports, require, module
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var ActivitiesView, AppRouter, AppView, ContactsView, LoginView, MicropostsView, NotesView, PicturesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
+  var ActivitiesView, AppRouter, AppView, CommonsView, ContactsView, LoginView, MicropostsView, NotesView, PicturesView, ProfileView, RegisterNameView, RegisterPasswordView, View, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1500,6 +1558,8 @@ window.require.register("views/app_view", function(exports, require, module) {
   NotesView = require('./notes_view');
 
   PicturesView = require('./pictures_view');
+
+  CommonsView = require('./commons_view');
 
   ProfileView = require('./profile_view');
 
@@ -1551,7 +1611,8 @@ window.require.register("views/app_view", function(exports, require, module) {
     };
 
     AppView.prototype.events = {
-      'click #logout-button': 'onLogoutClicked'
+      'click #logout-button': 'onLogoutClicked',
+      'click #responsive-menu': 'onResponsiveMenuClicked'
     };
 
     AppView.prototype.checkUserState = function(callback) {
@@ -1577,6 +1638,10 @@ window.require.register("views/app_view", function(exports, require, module) {
       });
     };
 
+    AppView.prototype.onResponsiveMenuClicked = function() {
+      return this.$('#navigation ul').slideToggle();
+    };
+
     AppView.prototype.start = function(userState, callback) {
       this.home = this.$('#home');
       this.menu = this.$("#navigation");
@@ -1586,6 +1651,7 @@ window.require.register("views/app_view", function(exports, require, module) {
       this.registerPasswordView = this._addView(RegisterPasswordView);
       this.micropostsView = this._addView(MicropostsView);
       this.picturesView = this._addView(PicturesView);
+      this.commonsView = this._addView(CommonsView);
       this.contactsView = this._addView(ContactsView);
       this.profileView = this._addView(ProfileView);
       this.notesView = this._addView(NotesView);
@@ -1615,6 +1681,10 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.onPicturesClicked = function() {
       return this.changeSubView(this.picturesView);
+    };
+
+    AppView.prototype.onCommonsClicked = function() {
+      return this.changeSubView(this.commonsClicked);
     };
 
     AppView.prototype.onNotesClicked = function() {
@@ -1682,6 +1752,9 @@ window.require.register("views/app_view", function(exports, require, module) {
 
     AppView.prototype.changeSubView = function(subView, callback) {
       var _this = this;
+      if ($(window).width() < 760) {
+        this.$('#navigation ul').slideUp();
+      }
       this.changeMenuState(subView);
       if (this.currentSubView != null) {
         return this.currentSubView.fadeOut(function() {
@@ -1729,19 +1802,246 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.changeMenuState = function(view) {
       this.$("#navigation").find("a").removeClass("active");
       if (view === this.micropostsView) {
-        return this.$("#microposts-button").addClass("active");
+        this.$("#microposts-button").addClass("active");
+        return this.$("#responsive-menu a").html('news');
       } else if (view === this.contactsView) {
-        return this.$("#contacts-button").addClass("active");
+        this.$("#contacts-button").addClass("active");
+        return this.$("#responsive-menu a").html('contacts');
       } else if (view === this.profileView) {
-        return this.$("#profile-button").addClass("active");
+        this.$("#profile-button").addClass("active");
+        return this.$("#responsive-menu a").html('profile');
       } else if (view === this.notesView) {
-        return this.$("#notes-button").addClass("active");
+        this.$("#notes-button").addClass("active");
+        return this.$("#responsive-menu a").html('notes');
       } else if (view === this.picturesView) {
-        return this.$("#pictures-button").addClass("active");
+        this.$("#pictures-button").addClass("active");
+        return this.$("#responsive-menu a").html('pictures');
+      } else if (view === this.commonsView) {
+        this.$("#commons-button").addClass("active");
+        return this.$("#responsive-menu a").html('commons');
       }
     };
 
     return AppView;
+
+  })(View);
+  
+});
+window.require.register("views/common", function(exports, require, module) {
+  var CommonView, Renderer, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  Renderer = require('../lib/renderer');
+
+  module.exports = CommonView = (function(_super) {
+
+    __extends(CommonView, _super);
+
+    CommonView.prototype.className = 'common pa1';
+
+    CommonView.prototype.template = function() {
+      return require('./templates/common');
+    };
+
+    CommonView.prototype.events = {
+      'click': 'onClicked',
+      'click .common-delete-button': 'onDeleteClicked'
+    };
+
+    CommonView.prototype.onClicked = function() {
+      $('.common').unselect();
+      $('.common-buttons').hide();
+      this.$el.select();
+      return this.buttons.show();
+    };
+
+    CommonView.prototype.onDeleteClicked = function() {
+      var _this = this;
+      this.model.urlRoot = 'commons/';
+      return this.model.destroy({
+        success: function() {
+          return _this.remove();
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    function CommonView(model) {
+      this.model = model;
+      CommonView.__super__.constructor.call(this);
+    }
+
+    CommonView.prototype.afterRender = function() {
+      this.buttons = this.$('.common-buttons');
+      return this.buttons.hide();
+    };
+
+    CommonView.prototype.getRenderData = function() {
+      var renderer, _ref;
+      renderer = new Renderer();
+      this.model.set('displayDate', renderer.renderDate(this.model.get('date')));
+      return {
+        model: (_ref = this.model) != null ? _ref.toJSON() : void 0
+      };
+    };
+
+    return CommonView;
+
+  })(View);
+  
+});
+window.require.register("views/commons", function(exports, require, module) {
+  var CollectionView, CommonView, CommonsCollection, CommonsView, NoteView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CollectionView = require('../lib/view_collection');
+
+  CommonView = require('./common');
+
+  CommonsCollection = require('../collections/commons');
+
+  NoteView = require('./note');
+
+  module.exports = CommonsView = (function(_super) {
+
+    __extends(CommonsView, _super);
+
+    CommonsView.prototype.el = '#commons';
+
+    CommonsView.prototype.collection = new CommonsCollection();
+
+    CommonsView.prototype.view = CommonView;
+
+    CommonsView.prototype.template = function() {
+      return require('./templates/commons');
+    };
+
+    function CommonsView(collection) {
+      CommonsView.__super__.constructor.apply(this, arguments);
+      this.rendered = 0;
+    }
+
+    CommonsView.prototype.afterRender = function() {};
+
+    CommonsView.prototype.fetch = function() {
+      var _this = this;
+      this.collection.off('add');
+      return this.collection.fetch({
+        success: function(commons) {
+          return _this.renderAll(commons.models);
+        }
+      });
+    };
+
+    CommonsView.prototype.renderAll = function(models) {
+      var model, _i, _len;
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
+        this.renderOne(model);
+      }
+      return this;
+    };
+
+    CommonsView.prototype.loadMore = function() {
+      var collection,
+        _this = this;
+      $("#more-commons").spin('small');
+      collection = new CommonsCollection();
+      collection.url = this.collection.url + this.getLastDate();
+      return collection.fetch({
+        success: function(commons) {
+          console.log(commons);
+          _this.renderAll(commons.models);
+          _this.setLastDate(collection);
+          $("#more-commons").spin();
+          if (commons.length < 12) {
+            return $("#more-commons").hide();
+          }
+        },
+        error: function() {
+          return alert('server error occured');
+        }
+      });
+    };
+
+    CommonsView.prototype.setLastDate = function(collection) {
+      var common, lastDate;
+      common = collection.last();
+      if (common != null) {
+        lastDate = moment(common.get('date'));
+        return this.lastDate = lastDate.utc().format('YYYY-MM-DD-HH-mm-SS') + '/';
+      } else {
+        return this.lastDate = '';
+      }
+    };
+
+    CommonsView.prototype.getLastDate = function() {
+      if (this.lastDate != null) {
+        return this.lastDate;
+      } else {
+        this.setLastDate(this.collection);
+        return this.getLastDate();
+      }
+    };
+
+    return CommonsView;
+
+  })(CollectionView);
+  
+});
+window.require.register("views/commons_view", function(exports, require, module) {
+  var Common, CommonsMainView, CommonsView, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  CommonsView = require('./commons');
+
+  Common = require('../models/common');
+
+  module.exports = CommonsMainView = (function(_super) {
+
+    __extends(CommonsMainView, _super);
+
+    function CommonsMainView() {
+      this.loadMoreCommons = __bind(this.loadMoreCommons, this);
+      return CommonsMainView.__super__.constructor.apply(this, arguments);
+    }
+
+    CommonsMainView.prototype.id = 'commons-view';
+
+    CommonsMainView.prototype.events = {
+      "click #more-commons": "loadMoreCommons"
+    };
+
+    CommonsMainView.prototype.template = function() {
+      return require('./templates/commons_view');
+    };
+
+    CommonsMainView.prototype.afterRender = function() {};
+
+    CommonsMainView.prototype.fetch = function() {
+      var _ref;
+      if ((_ref = this.commonsView) == null) {
+        this.commonsView = new CommonsView();
+      }
+      this.commonsView.fetch();
+      return this.isLoaded = true;
+    };
+
+    CommonsMainView.prototype.loadMoreCommons = function() {
+      return this.commonsView.loadMore();
+    };
+
+    return CommonsMainView;
 
   })(View);
   
@@ -1874,7 +2174,7 @@ window.require.register("views/contact_view", function(exports, require, module)
   
 });
 window.require.register("views/contacts_view", function(exports, require, module) {
-  var CollectionView, ContactView, Contacts, ContactsView, TagsView, request,
+  var CollectionView, Contact, ContactView, Contacts, ContactsView, TagsView, request,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1882,6 +2182,8 @@ window.require.register("views/contacts_view", function(exports, require, module
   CollectionView = require('../lib/view_collection');
 
   Contacts = require('../collections/contacts');
+
+  Contact = require('../models/contact');
 
   ContactView = require('./contact_view');
 
@@ -1923,7 +2225,47 @@ window.require.register("views/contacts_view", function(exports, require, module
     ContactsView.prototype.afterRender = function() {
       this.isLoaded = false;
       this.newContactInput = this.$('#new-contact-field');
-      return this.addContactButton = this.$('#add-contact-button');
+      this.addContactButton = this.$('#add-contact-button');
+      return this.configureRealTime();
+    };
+
+    ContactsView.prototype.configureRealTime = function() {
+      var host, path, protocol,
+        _this = this;
+      protocol = "";
+      if (window.location.protocol === 'http:') {
+        protocol = 'ws';
+      } else if (window.location.protocol === 'https:') {
+        protocol = 'wss';
+      }
+      host = window.location.host;
+      path = "" + protocol + "://" + host + "/contacts/publisher/";
+      this.ws = new WebSocket(path);
+      return this.ws.onmessage = function(evt) {
+        var contact, contactView, previousContact, view, _i, _len, _ref;
+        contact = new Contact(JSON.parse(evt.data));
+        previousContact = _this.collection.findWhere({
+          '_id': contact.get('_id')
+        });
+        if (previousContact != null) {
+          _ref = _this.views;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            view = _ref[_i];
+            if (view.model.cid === previousContact.cid) {
+              contactView = view;
+            }
+          }
+          if (contactView != null) {
+            _this.collection.remove(previousContact);
+            _this.destroy(contactView);
+            return _this.renderOne(contact, {
+              prepend: true
+            });
+          }
+        } else {
+          return _this.renderOne(contact);
+        }
+      };
     };
 
     ContactsView.prototype.isValidUrl = function(string) {
@@ -1962,6 +2304,7 @@ window.require.register("views/contacts_view", function(exports, require, module
         return this.collection.create(data, {
           success: function(model) {
             button.spin();
+            model.set('name', model.get('url'));
             _this.renderOne(model);
             _this.newContactInput.val(null);
             return _this.newContactInput.focus();
@@ -1969,7 +2312,8 @@ window.require.register("views/contacts_view", function(exports, require, module
           error: function() {
             button.spin();
             return alert('Something went wrong while adding contact');
-          }
+          },
+          silent: true
         });
       }
     };
@@ -2195,6 +2539,7 @@ window.require.register("views/micropost_list_view", function(exports, require, 
       this.remove(this.views, {
         silent: true
       });
+      this.collection.reset();
       this.views = [];
       if (tag !== 'all') {
         this.collection.url = this.collection.baseUrl + date;
@@ -2210,7 +2555,6 @@ window.require.register("views/micropost_list_view", function(exports, require, 
           _this.$el.spin();
           _this.$el.css('height', 'auto');
           if (_this.views.length === 0) {
-            microposts.models.slice();
             _ref = microposts.models;
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -2328,25 +2672,32 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.buttons = this.$('.micropost-buttons');
       this.downloadButton = this.$('.download-picture-btn');
       pictureId = (_ref = this.model.get('pictures_to_download')) != null ? _ref[0] : void 0;
+      this.downloadRunning = false;
       this.downloadButton.click(function() {
-        return _this.model.downloadPicture(pictureId, function(err) {
-          if (err) {
-            return alert('Picture cannot be loaded');
-          } else {
-            return _this.hideDlBtnAndDisplayPicture(pictureId);
-          }
-        });
+        if (!_this.downloadRunning) {
+          _this.downloadRunning = true;
+          return _this.model.downloadPicture(pictureId, function(err) {
+            if (err) {
+              return alert('Picture cannot be loaded');
+            } else {
+              return _this.hideDlBtnAndDisplayPicture(pictureId);
+            }
+          });
+        }
       });
       this.downloadButton = this.$('.download-common-btn');
       commonId = (_ref1 = this.model.get('commons_to_download')) != null ? _ref1[0] : void 0;
       return this.downloadButton.click(function() {
-        return _this.model.downloadCommon(commonId, function(err) {
-          if (err) {
-            return alert('Common cannot be loaded');
-          } else {
-            return _this.hideDlBtnAndDisplayCommon(commonId);
-          }
-        });
+        if (!_this.downloadRunning) {
+          _this.downloadRunning = true;
+          return _this.model.downloadCommon(commonId, function(err) {
+            if (err) {
+              return alert('Common cannot be loaded');
+            } else {
+              return _this.hideDlBtnAndDisplayCommon(commonId);
+            }
+          });
+        }
       });
     };
 
@@ -2355,7 +2706,8 @@ window.require.register("views/micropost_view", function(exports, require, modul
       this.downloadButton = this.$('.download-picture-btn');
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
-        return _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+        _this.downloadButton.after("<a href=\"pictures/" + pictureId + "/" + pictureId + ".jpg\">\n<img class=\"post-picture\" src=\"pictures/" + pictureId + "/prev_" + pictureId + ".jpg\" />\n</a>");
+        return _this.downloadRunning = false;
       });
     };
 
@@ -2363,6 +2715,7 @@ window.require.register("views/micropost_view", function(exports, require, modul
       var _this = this;
       this.downloadButton.prev().fadeOut();
       return this.downloadButton.fadeOut(function() {
+        _this.downloadRunning = false;
         return request.get("/commons/" + commonId + "/", function(err, commonRows) {
           var common;
           common = commonRows.rows[0];
@@ -4227,6 +4580,40 @@ window.require.register("views/templates/activity_list", function(exports, requi
   return buf.join("");
   };
 });
+window.require.register("views/templates/common", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div class="line"><a');
+  buf.push(attrs({ 'href':("" + (model.url) + ""), 'target':("_blank") }, {"href":true,"target":true}));
+  buf.push('>' + escape((interp = model.path) == null ? '' : interp) + '</a><span>&nbsp;| ' + escape((interp = model.author) == null ? '' : interp) + ' - ' + escape((interp = model.displayDate) == null ? '' : interp) + '</span><span class="common-buttons"><button class="common-delete-button">delete</button></span></div>');
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/commons", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  }
+  return buf.join("");
+  };
+});
+window.require.register("views/templates/commons_view", function(exports, require, module) {
+  module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
+  attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+  var buf = [];
+  with (locals || {}) {
+  var interp;
+  buf.push('<div id="commons"></div><div class="line"><button id="more-commons">more</button></div>');
+  }
+  return buf.join("");
+  };
+});
 window.require.register("views/templates/contact", function(exports, require, module) {
   module.exports = function anonymous(locals, attrs, escape, rethrow, merge) {
   attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -4234,7 +4621,7 @@ window.require.register("views/templates/contact", function(exports, require, mo
   with (locals || {}) {
   var interp;
   buf.push('<div class="contact-tags mod left"></div><div class="name mod left"> <a');
-  buf.push(attrs({ 'href':(model.url) }, {"href":true}));
+  buf.push(attrs({ 'href':("" + (model.url) + "") }, {"href":true}));
   buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a></div>');
   if ( model.state != "Trusted")
   {
@@ -4262,7 +4649,7 @@ window.require.register("views/templates/home", function(exports, require, modul
   var buf = [];
   with (locals || {}) {
   var interp;
-  buf.push('<nav id="navigation" class="hidden"><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="pictures-button" href="#pictures" class="active">pictures</a></li><!--li--><!--    a#notes-button.active(href="#commons") commons--><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
+  buf.push('<nav id="navigation" class="hidden"><li id="responsive-menu"><a>menu</a></li><ul><li><a id="microposts-button" href="#microposts" class="active">news</a></li><li><a id="pictures-button" href="#pictures" class="active">pictures</a></li><li><a id="notes-button" href="#commons" class="active">commons</a></li><li><a id="notes-button" href="#notes" class="active">notes</a></li><li><a id="contacts-button" href="#contacts">contacts</a></li><li><a id="profile-button" href="#profile">profile</a></li><li class="right"><a id="logout-button">logout</a></li><li class="right"><a id="infos-button" href="http://newebe.org/#documentation" target="_blank">help</a></li><li class="right"><a id="activities-button" href="#activities">logs</a></li></ul></nav><div id="home"><p>loading...</p></div><div id="note-selector-widget"></div><div id="alert-widget"></div>');
   }
   return buf.join("");
   };
