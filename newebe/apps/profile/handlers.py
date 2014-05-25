@@ -103,7 +103,9 @@ class UserHandler(NewebeAuthHandler):
         Retrieves current user (newebe owner) data at JSON format.
         '''
         user = UserManager.getUser()
-        self.return_json(user.toDict())
+        userDict = user.toDict()
+        del userDict["password"]
+        self.return_json(userDict)
 
     def put(self):
         '''
