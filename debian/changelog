@@ -1,3 +1,10 @@
+newebe (0.7.1-1) unstable; urgency=high
+
+  * Auth fix
+  * Allow image rotation
+  * Minor style fixes
+  * change the way commons are linked to micropost
+
 newebe (0.7.0-1) unstable; urgency=low
 
   * Full rewrite of the browser client
