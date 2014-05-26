@@ -37,28 +37,29 @@
     return function(name) {
       var dir = dirname(path);
       var absolute = expand(dir, name);
-      return globals.require(absolute);
+      return globals.require(absolute, path);
     };
   };
 
   var initModule = function(name, definition) {
     var module = {id: name, exports: {}};
+    cache[name] = module;
     definition(module.exports, localRequire(name), module);
-    var exports = cache[name] = module.exports;
-    return exports;
+    return module.exports;
   };
 
-  var require = function(name) {
+  var require = function(name, loaderPath) {
     var path = expand(name, '.');
+    if (loaderPath == null) loaderPath = '/';
 
-    if (has(cache, path)) return cache[path];
+    if (has(cache, path)) return cache[path].exports;
     if (has(modules, path)) return initModule(path, modules[path]);
 
     var dirIndex = expand(path, './index');
-    if (has(cache, dirIndex)) return cache[dirIndex];
+    if (has(cache, dirIndex)) return cache[dirIndex].exports;
     if (has(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
 
-    throw new Error('Cannot find module "' + name + '"');
+    throw new Error('Cannot find module "' + name + '" from '+ '"' + loaderPath + '"');
   };
 
   var define = function(bundle, fn) {
@@ -73,112 +74,122 @@
     }
   };
 
+  var list = function() {
+    var result = [];
+    for (var item in modules) {
+      if (has(modules, item)) {
+        result.push(item);
+      }
+    }
+    return result;
+  };
+
   globals.require = require;
   globals.require.define = define;
   globals.require.register = define;
+  globals.require.list = list;
   globals.require.brunch = true;
 })();
+require.register("test/auth_test", function(exports, require, module) {
+var AppView;
 
-window.require.register("test/auth_test", function(exports, require, module) {
-  var AppView;
+AppView = require('views/app_view');
 
-  AppView = require('views/app_view');
-
-  describe("Register", function() {
-    before(function() {
-      window.Newebe = {};
-      window.Newebe.routers = {};
-      window.Newebe.views = {};
-      window.Newebe.views.appView = new AppView();
-      this.mainView = window.Newebe.views.appView;
-      return this.mainView.render();
-    });
-    it('When I connect and no user is registered', function(done) {
-      var data;
-      data = {
-        authenticated: false,
-        user: false,
-        password: false
-      };
-      this.mainView.start(data);
-      return setTimeout(done, 1000);
-    });
-    it('Then it displays name page', function() {
-      return expect(this.mainView.$("#register-name-view").is(":visible")).to.be.ok;
-    });
-    it('When I submit my name', function(done) {
-      this.mainView.registerNameView.field.val("Jhon Doe");
-      $.ajax = function(options) {
-        return options.success({});
-      };
-      this.mainView.registerNameView.onSubmit();
-      return setTimeout(done, 1000);
-    });
-    it('Then it displays password page', function() {
-      console.log(this.mainView.home.html());
-      return expect(this.mainView.$("#register-password-view").is(":visible")).to.be.ok;
-    });
-    it('When I submit my password', function() {
-      this.mainView.registerView.passwordField.val("Jhon Doe");
-      return this.mainView.registerView.onSubmitPassword();
-    });
-    return it('Then it displays activity page', function() {
-      return expect($("#acitivity-list").is(":visible")).to.be.ok;
-    });
+describe("Register", function() {
+  before(function() {
+    window.Newebe = {};
+    window.Newebe.routers = {};
+    window.Newebe.views = {};
+    window.Newebe.views.appView = new AppView();
+    this.mainView = window.Newebe.views.appView;
+    return this.mainView.render();
   });
-
-  describe("Login", function() {
-    it('When I connect and an user is registered', function() {
-      var data;
-      data = {
-        authenticated: false,
-        user: true,
-        password: true
-      };
-      return mainView.start(data);
-    });
-    it('Then it displays login page', function() {
-      return expect($("#login-password").is(":visible")).to.be.ok;
-    });
-    it('When I submit wrong password', function() {
-      this.mainView.loginView.passwordField.val("wrong");
-      return this.mainView.loginView.onPasswordSubmit();
-    });
-    it('Then it displays an error', function() {
-      return expect($("#login-error").is(":visible")).to.be.ok;
-    });
-    it('When I submit right password', function() {
-      this.mainView.loginView.passwordField.val("right");
-      return this.mainView.loginView.onPasswordSubmit();
-    });
-    return it('Then it displays activity page', function() {
-      return expect($("#acitivity-list").is(":visible")).to.be.ok;
-    });
+  it('When I connect and no user is registered', function(done) {
+    var data;
+    data = {
+      authenticated: false,
+      user: false,
+      password: false
+    };
+    this.mainView.start(data);
+    return setTimeout(done, 1000);
   });
-  
-});
-window.require.register("test/collections/contacts_test", function(exports, require, module) {
-  
-
-  
-});
-window.require.register("test/models/contact", function(exports, require, module) {
-  var ContactModel;
-
-  ContactModel = require('models/contact');
-
-  describe('ContactModel', function() {
-    return beforeEach(function() {
-      return this.model = new ContactModel();
-    });
+  it('Then it displays name page', function() {
+    return expect(this.mainView.$("#register-name-view").is(":visible")).to.be.ok;
   });
-  
+  it('When I submit my name', function(done) {
+    this.mainView.registerNameView.field.val("Jhon Doe");
+    $.ajax = function(options) {
+      return options.success({});
+    };
+    this.mainView.registerNameView.onSubmit();
+    return setTimeout(done, 1000);
+  });
+  it('Then it displays password page', function() {
+    console.log(this.mainView.home.html());
+    return expect(this.mainView.$("#register-password-view").is(":visible")).to.be.ok;
+  });
+  it('When I submit my password', function() {
+    this.mainView.registerView.passwordField.val("Jhon Doe");
+    return this.mainView.registerView.onSubmitPassword();
+  });
+  return it('Then it displays activity page', function() {
+    return expect($("#acitivity-list").is(":visible")).to.be.ok;
+  });
 });
-window.require.register("test/test-helpers", function(exports, require, module) {
-  
-  module.exports = {
-    expect: require('chai').expect,
-    $: require('jquery')
-  };
-  
+
+describe("Login", function() {
+  it('When I connect and an user is registered', function() {
+    var data;
+    data = {
+      authenticated: false,
+      user: true,
+      password: true
+    };
+    return mainView.start(data);
+  });
+  it('Then it displays login page', function() {
+    return expect($("#login-password").is(":visible")).to.be.ok;
+  });
+  it('When I submit wrong password', function() {
+    this.mainView.loginView.passwordField.val("wrong");
+    return this.mainView.loginView.onPasswordSubmit();
+  });
+  it('Then it displays an error', function() {
+    return expect($("#login-error").is(":visible")).to.be.ok;
+  });
+  it('When I submit right password', function() {
+    this.mainView.loginView.passwordField.val("right");
+    return this.mainView.loginView.onPasswordSubmit();
+  });
+  return it('Then it displays activity page', function() {
+    return expect($("#acitivity-list").is(":visible")).to.be.ok;
+  });
 });
+});
+
+;require.register("test/collections/contacts_test", function(exports, require, module) {
+
+});
+
+;require.register("test/models/contact", function(exports, require, module) {
+var ContactModel;
+
+ContactModel = require('models/contact');
+
+describe('ContactModel', function() {
+  return beforeEach(function() {
+    return this.model = new ContactModel();
+  });
+});
+});
+
+;require.register("test/test-helpers", function(exports, require, module) {
+module.exports = {
+  expect: require('chai').expect,
+  $: require('jquery')
+};
+});
+
+;
+//# sourceMappingURL=test.js.map

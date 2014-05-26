@@ -16,6 +16,7 @@ module.exports = class MicropostsView extends View
         "click #micropost-post-button": "createNewPost"
         "click #more-microposts-button": "loadMoreMicroposts"
         "click #add-attachment": "onAddAttachmentClicked"
+        "keyup #microposts-search": "onSearchKeyUp"
 
     subscriptions:
         'tag:selected': 'onTagSelected'
@@ -30,8 +31,10 @@ module.exports = class MicropostsView extends View
             @tagList = new SimpleTagList '#micropost-tag-list'
             @tagList.fetch success: => @tagList.select 'all'
             @configureUpload()
+            @$("#micropost-field").focus()
         , 200
         @configurePublisherSubscription()
+        @isSearchRunning = false
 
     configurePublisherSubscription: ->
 
@@ -178,6 +181,7 @@ module.exports = class MicropostsView extends View
     onTagSelected: (name) ->
         @tagsView.$(".tag-select-button").unSelect() if @tagsView?
         @tagList.select name
+        @$("#microposts-search").val null
         @micropostList.loadTag name
 
     loadMoreMicroposts: =>
@@ -188,3 +192,21 @@ module.exports = class MicropostsView extends View
 
     onNoMorePost: ->
         @$("#more-microposts-button").hide()
+
+    onSearchKeyUp: (event) =>
+        $(".tag-select-button").removeClass 'selected'
+        runSearch = =>
+            @isSearchRunning = true
+            searchVal = $("#microposts-search").val()
+            if searchVal.length is 0
+                @fetch()
+            else
+                @micropostList.search searchVal, =>
+                    @isSearchRunning = false
+                    runSearch() if searchVal isnt $("#microposts-search").val()
+
+            setTimeout =>
+                @isSearchRunning = false
+            , 2000
+
+        runSearch() if @isSearchRunning is false
