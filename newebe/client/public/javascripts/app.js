@@ -3590,13 +3590,16 @@ module.exports = NotesMainView = (function(_super) {
 });
 
 ;require.register("views/picture", function(exports, require, module) {
-var PictureView, Renderer, View,
+var PictureView, Renderer, View, request,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 View = require('../lib/view');
 
 Renderer = require('../lib/renderer');
+
+request = require('../lib/request');
 
 module.exports = PictureView = (function(_super) {
   __extends(PictureView, _super);
@@ -3609,7 +3612,8 @@ module.exports = PictureView = (function(_super) {
 
   PictureView.prototype.events = {
     'click': 'onClicked',
-    'click .picture-delete-button': 'onDeleteClicked'
+    'click .picture-delete-button': 'onDeleteClicked',
+    'click .picture-rotate-button': 'onRotateClicked'
   };
 
   PictureView.prototype.onClicked = function() {
@@ -3635,8 +3639,24 @@ module.exports = PictureView = (function(_super) {
     });
   };
 
+  PictureView.prototype.onRotateClicked = function() {
+    return request.get("pictures/" + this.model.id + "/rotate/", (function(_this) {
+      return function(err) {
+        var src;
+        if (err) {
+          return alert('An error occured while rotating picture.');
+        } else {
+          alert('Picture rotation succceeded.');
+          src = _this.$('img').attr('src');
+          return _this.$('img').attr('src', src + '?rotate');
+        }
+      };
+    })(this));
+  };
+
   function PictureView(model) {
     this.model = model;
+    this.onRotateClicked = __bind(this.onRotateClicked, this);
     PictureView.__super__.constructor.call(this);
   }
 
@@ -4979,7 +4999,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),model = locals_.model;
-buf.push("<div class=\"line\"><a" + (jade.attr("href", "" + (model.url) + "", true, false)) + " target=\"_blank\"><img" + (jade.attr("src", "" + (model.prevUrl) + "", true, false)) + "/></a></div><div class=\"line\">" + (jade.escape((jade_interp = model.author) == null ? '' : jade_interp)) + " - " + (jade.escape((jade_interp = model.displayDate) == null ? '' : jade_interp)) + "<span class=\"picture-buttons\"><button class=\"picture-delete-button\">delete</button></span></div>");;return buf.join("");
+buf.push("<div class=\"line\"><a" + (jade.attr("href", "" + (model.url) + "", true, false)) + " target=\"_blank\"><img" + (jade.attr("src", "" + (model.prevUrl) + "", true, false)) + "/></a></div><div class=\"line\">" + (jade.escape((jade_interp = model.author) == null ? '' : jade_interp)) + " - " + (jade.escape((jade_interp = model.displayDate) == null ? '' : jade_interp)) + "<span class=\"picture-buttons\"><button class=\"picture-delete-button\">delete</button><button class=\"picture-rotate-button\">rotate right</button></span></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
