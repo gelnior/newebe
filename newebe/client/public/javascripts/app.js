@@ -1689,7 +1689,9 @@ module.exports = AppView = (function(_super) {
   };
 
   AppView.prototype.displayMicroposts = function() {
-    return this.changeSubView(this.micropostsView);
+    var _ref;
+    this.changeSubView(this.micropostsView);
+    return (_ref = this.micropostsView.tagList) != null ? _ref.fetch() : void 0;
   };
 
   AppView.prototype.displayHome = function() {
@@ -4191,6 +4193,7 @@ module.exports = QuestionView = (function(_super) {
 
 ;require.register("views/register_name_view", function(exports, require, module) {
 var QuestionView, RegisterNameView, request,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -4202,6 +4205,7 @@ module.exports = RegisterNameView = (function(_super) {
   __extends(RegisterNameView, _super);
 
   function RegisterNameView() {
+    this.onServerResponse = __bind(this.onServerResponse, this);
     return RegisterNameView.__super__.constructor.apply(this, arguments);
   }
 
@@ -4220,7 +4224,13 @@ module.exports = RegisterNameView = (function(_super) {
     if (err) {
       return alert("Something went wrong while registering your name." + "Try it again.");
     } else {
-      return Newebe.views.appView.displayRegisterPassword();
+      return this.field.animate({
+        boxShadow: '0'
+      }, (function(_this) {
+        return function() {
+          return Newebe.views.appView.displayRegisterPassword();
+        };
+      })(this));
     }
   };
 
@@ -4231,6 +4241,7 @@ module.exports = RegisterNameView = (function(_super) {
 
 ;require.register("views/register_password_view", function(exports, require, module) {
 var QuestionView, RegisterPasswordView, request,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -4242,6 +4253,7 @@ module.exports = RegisterPasswordView = (function(_super) {
   __extends(RegisterPasswordView, _super);
 
   function RegisterPasswordView() {
+    this.onServerResponse = __bind(this.onServerResponse, this);
     return RegisterPasswordView.__super__.constructor.apply(this, arguments);
   }
 
@@ -4260,7 +4272,13 @@ module.exports = RegisterPasswordView = (function(_super) {
     if (err) {
       return alert("Something went wrong while registering your sesame." + "Try it again.");
     } else {
-      return Newebe.views.appView.displayHome();
+      return this.field.animate({
+        boxShadow: '0'
+      }, (function(_this) {
+        return function() {
+          return Newebe.views.appView.displayHome();
+        };
+      })(this));
     }
   };
 
