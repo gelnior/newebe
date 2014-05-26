@@ -88,6 +88,7 @@ module.exports = class MicropostsView extends View
                 @attachedFiles = fileList
 
     fetch: ->
+        @$(".tag-all .tag-select-button").addClass 'selected'
         @micropostList.loadTag 'all'
 
     onAddAttachmentClicked: (event) ->

@@ -2950,6 +2950,7 @@ module.exports = MicropostsView = (function(_super) {
   };
 
   MicropostsView.prototype.fetch = function() {
+    this.$(".tag-all .tag-select-button").addClass('selected');
     return this.micropostList.loadTag('all');
   };
 
