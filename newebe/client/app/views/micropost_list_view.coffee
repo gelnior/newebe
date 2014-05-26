@@ -72,3 +72,19 @@ module.exports = class MicropostListView extends CollectionView
         else
             @setLastDate @collection
             @getLastDate()
+
+    search: (query, callback) ->
+        $.ajax
+            url: "microposts/search/"
+            type: 'POST'
+            data: '{"query": "' + query + '"}'
+            dataType: "json"
+            success: (data) =>
+                @collection.reset data.rows
+                @reset()
+                for micropost in @collection.models
+                    @renderOne micropost
+                callback()
+            error: (data) =>
+                alert 'error occured while fetching search results'
+                callback()

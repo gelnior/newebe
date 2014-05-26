@@ -12,9 +12,10 @@ module.exports = class RegisterPasswordView extends QuestionView
         @submitPath = "register/password/"
         @render()
 
-    onServerResponse: (err, data) ->
+    onServerResponse: (err, data) =>
         if err
             alert "Something went wrong while registering your sesame." + \
                 "Try it again."
         else
-            Newebe.views.appView.displayHome()
+            @field.animate {boxShadow: '0'}, =>
+                Newebe.views.appView.displayHome()

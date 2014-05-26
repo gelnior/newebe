@@ -510,7 +510,7 @@ class PictureRotateHandler(PictureObjectHandler):
     '''
 
     def on_picture_found(self, picture, id):
-        for path in ["th_%s" % picture.path, "prev_%s" % picture.path, picture.path]:
+        for path in ["th_%s.jpg" % id, "prev_%s.jpg" % id, "%s.jpg" % id]:
 
             file_path = os.path.join(CONFIG.main.path, path)
             pic_file = picture.fetch_attachment(path)

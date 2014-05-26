@@ -86,7 +86,10 @@ module.exports = class AppView extends View
     onCommonsClicked: -> @changeSubView @commonsClicked
     onNotesClicked: -> @changeSubView @notesView
     displayProfile: => @changeSubView @profileView
-    displayMicroposts: => @changeSubView @micropostsView
+    displayMicroposts: =>
+        @changeSubView @micropostsView
+        @micropostsView.tagList?.fetch()
+
     displayHome: =>
         showHome = =>
             @displayMenu()

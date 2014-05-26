@@ -1,5 +1,6 @@
 View = require '../lib/view'
 Renderer = require '../lib/renderer'
+request = require '../lib/request'
 
 module.exports = class PictureView extends View
     className: 'picture pa1 w33 col'
@@ -8,6 +9,7 @@ module.exports = class PictureView extends View
     events:
         'click': 'onClicked'
         'click .picture-delete-button': 'onDeleteClicked'
+        'click .picture-rotate-button': 'onRotateClicked'
 
     onClicked: ->
         $('.picture').unselect()
@@ -21,6 +23,15 @@ module.exports = class PictureView extends View
         @model.destroy
             success: => @remove()
             error: => alert 'server error occured'
+
+    onRotateClicked: =>
+        request.get "pictures/#{@model.id}/rotate/", (err) =>
+            if err then alert 'An error occured while rotating picture.'
+            else
+                alert 'Picture rotation succceeded.'
+                src = @$('img').attr 'src'
+                @$('img').attr 'src', src + '?rotate'
+
 
     constructor: (@model) -> super()
 
