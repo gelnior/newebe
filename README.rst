@@ -99,18 +99,20 @@ To work on client you will need node.js. So first install it::
    make
    make install
 
-Now install tools we need, Coffeescript, Cake, Stylus and UglifyJS::
+Now install Brunch the front-end assembler:
 
-     npm install coffe-script cake uglifyjs stylus
+     npm install brunch -g
 
-Then when you finish to work on client code. At the root of the module you
-worked on, type::
+Install build dependencies
 
-    cake build 
+     cd client
+     npm install
 
-or for automatic build::
+Then watch for file modifications to build the client on change:
 
-    cake watch
+     cd client
+     brunch w
+
 
 Run tests (backend)
 ===================
