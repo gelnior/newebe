@@ -101,12 +101,12 @@ To work on client you will need node.js. So first install it::
 
 Now install Brunch the front-end assembler:
 
-     npm install brunch -g
+   npm install brunch -g
 
 Install build dependencies
 
-     cd client
-     npm install
+   cd client
+   npm install
 
 Then watch for file modifications to build the client on change:
 
