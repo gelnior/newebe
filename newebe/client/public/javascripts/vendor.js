@@ -19974,7 +19974,7 @@ var writeAnchorTag = function(wholeMatch,m1,m2,m3,m4,m5,m6,m7) {
 		result +=  " title=\"" + title + "\"";
 	}
 
-	result += ">" + link_text + "</a>";
+	result += "target=\"_blank\">" + link_text + "</a>";
 
 	return result;
 }
