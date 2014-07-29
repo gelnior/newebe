@@ -11,14 +11,13 @@ Before you ask, Newebe is not like Diaspora, it is thinked distributed in a
 peer-2-peer manner : it is designed to be self-hosted and does not require
 3rd party server.
 
-
 Installation Instructions
 =========================
 
 Check the website install section : http://newebe.org/#install
 
 Set up a development environment (Ubuntu and Debian)
-==============================================
+====================================================
 
 **Server**
 
@@ -135,5 +134,5 @@ Infos
 :Description: Newebe is a distributed social network
 :Author: Gelnior (http://gelnior.wordpress.com)
 :License: AGPL v3.0
-:Version: 0.5.0
+:Version: 0.7.1
 
