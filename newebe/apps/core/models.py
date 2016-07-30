@@ -18,7 +18,7 @@ from newebe.lib.date_util import get_date_from_db_date, \
                                  convert_utc_date_to_timezone
 
 logger = logging.getLogger("newebe.core")
-server = Server()
+server = Server(uri=CONFIG.db.uri)
 
 # Base document
 
