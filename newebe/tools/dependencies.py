@@ -23,7 +23,7 @@ def which(program):
 def check_PIL():
     try:
         import PIL
-    except ImportError, e:
+    except ImportError:
         print "Newebe needs python-imaging."
 
 
@@ -31,7 +31,7 @@ def check_CouchDB():
     test_socket = socket.socket()
     try:
         test_socket.connect(("127.0.0.1", 5984))
-    except socket.error, e:
+    except socket.error:
         print "Newebe needs CouchDB, but nothing is listening on 5984"
 
 
@@ -42,5 +42,5 @@ def check_OpenSSL():
 
 def check_all_dependencies():
     check_PIL()
-    check_CouchDB()
-    check_OpenSSL()
+    #check_CouchDB()
+    #check_OpenSSL()
