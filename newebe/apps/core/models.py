@@ -37,8 +37,7 @@ class NewebeDocument(Document):
         '''
         Return a dict representation of the document (copy).
 
-        Removes _rev key and convert date field to local timezone
-        if *localized* is set to True.
+        Removes _rev key.
         '''
 
         docDict = self.__dict__["_doc"].copy()
@@ -49,8 +48,7 @@ class NewebeDocument(Document):
         if localized and docDict.get("date", None):
 
             utc_date = get_date_from_db_date(docDict.get("date"))
-            date = convert_utc_date_to_timezone(utc_date)
-            docDict["date"] = get_db_date_from_date(date)
+            docDict["date"] = get_db_date_from_date(utc_date)
 
         return docDict
 
